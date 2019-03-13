@@ -10,13 +10,13 @@
     width: 1px;
 }
 
-.cover_div {
-    background: url("../assets/nothumb.jpg");
+.cover_img {
     width: 70px;
     height: 70px;
     background-size: contain;
     margin: 6px;
     border: 1px solid gray;
+    box-shadow: 1px 1px 0px dimgrey;
 }
 
 .navbar {
@@ -39,7 +39,7 @@
 }
 
 .current_time_span {
-    font-size: 35px;
+    font-size: 38px;
 }
 
 .total_time_span {
@@ -55,4 +55,32 @@
 
 .btn-secondary {
     box-shadow: 0px 1px 0px dimgray;
+}
+
+.btn-text {}
+
+.icon-center {
+    position: relative;
+    top: 2px;
+}
+
+span {
+    color: #3498db !important;
+}
+
+.spinner {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    right: 20px;
+}
+
+.spinner-grow-noanim {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    background-color: currentColor;
+    border-radius: 50%;
+    opacity: 1;
 }
