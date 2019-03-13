@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto+Condensed");
+/*@import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";*/
+
+.App {
+    font-family: "Roboto Condensed", sans-serif;
+}
+
+body {
+    font-family: "Roboto Condensed", sans-serif;
+    user-select: none;
+}
+
+.background {
+    color: white;
+}
