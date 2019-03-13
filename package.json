@@ -6,12 +6,15 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
+    "bootstrap": "^4.3.1",
+    "easy-peasy": "^2.0.0",
     "electron": "^4.0.4",
     "electron-is-dev": "^1.0.1",
     "electron-prompt": "^1.2.0",
     "electron-window-state": "^5.0.1",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
+    "react-bootstrap": "^1.0.0-beta.5",
     "react-dom": "^16.5.2",
     "request": "^2.34",
     "request-promise": "^4.2.2",
@@ -35,6 +38,7 @@
     "contributors:check": "all-contributors check"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.2",
     "all-contributors-cli": "^5.4.0",
     "babel-preset-react-app": "^5.0.3",
     "electron-builder": "^20.28.4",

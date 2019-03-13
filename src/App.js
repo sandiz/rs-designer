@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import './css/App.css'
+import ControllerBar from './Components/ControllerBar'
 
 class App extends Component {
   constructor(props) {
@@ -10,11 +11,9 @@ class App extends Component {
   }
 
   render = () => {
-    const a = "hello"
     return (
-      <div>
-        {a}
-      </div>);
+      <ControllerBar />
+    );
   }
 }
 
