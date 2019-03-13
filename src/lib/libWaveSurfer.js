@@ -2,7 +2,6 @@ const mm = require('music-metadata');
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
 const readFile = require("./utils").readFile;
-const audioDecode = require('audio-decode');
 
 
 const readTags = file => new Promise((resolve, reject) => {
@@ -13,9 +12,6 @@ const readTags = file => new Promise((resolve, reject) => {
         .catch((err) => {
             reject(err);
         });
-});
-const decode = buffer => new Promise((resolve, reject) => {
-    audioDecode(buffer).then(audioBuffer => { resolve(audioBuffer) }, err => { console.log(err); reject(err); });
 });
 
 const ImportMediaStates = {
@@ -43,6 +39,11 @@ class ImportMedia {
 
         /* wave surf */
         var blob = new window.Blob([new Uint8Array(data)]);
+        if (exports.MediaPlayer.instance) {
+            exports.MediaPlayer.instance.empty();
+            exports.MediaPlayer.instance.destroy();
+            exports.MediaPlayer.instance = null;
+        }
         exports.MediaPlayer.instance = new MediaPlayer(blob);
         /* change state */
         Dispatcher.on(DispatchEvents.MediaReady, () => {
@@ -57,8 +58,13 @@ class MediaPlayer {
         this.wavesurfer = null;
         const params = {
             container: '#waveform',
-            waveColor: 'violet',
-            progressColor: 'purple',
+            waveColor: '#D2EDD4',
+            progressColor: 'hsla(200, 100%, 30%, 0.5)',
+            cursorColor: '#fff',
+            // This parameter makes the waveform look like SoundCloud's player
+            barWidth: 3,
+            barGap: 2,
+            barRadius: true,
             scrollParent: true,
         };
         // initialise like this
@@ -68,6 +74,14 @@ class MediaPlayer {
         this.wavesurfer.on("ready", () => {
             Dispatcher.dispatch(DispatchEvents.MediaReady);
         });
+    }
+    empty() {
+        if (this.wavesurfer)
+            this.wavesurfer.empty();
+    }
+    destroy() {
+        if (this.wavesurfer)
+            this.wavesurfer.destroy();
     }
     playPause() {
 
