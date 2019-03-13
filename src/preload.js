@@ -1,6 +1,3 @@
-window.ipcRenderer = require("electron").ipcRenderer;
-window.app = require("electron").app;
-window.shell = require("electron").shell;
 window.remote = require('electron').remote;
 
 window.electronFS = window.remote.require('fs');
@@ -8,7 +5,11 @@ window.dirname = __dirname;
 window.fetch = fetch;
 window.http = require("http");
 window.os = require("os");
-window.process = require("process");
+window.project = {
+    importMedia: require("./lib/libWaveSurfer").importMedia,
+    importMediaStates: require("./lib/libWaveSurfer").importMediaStates
+}
+
 
 const isDev = require('electron-is-dev');
 
