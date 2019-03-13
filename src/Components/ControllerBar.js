@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Modal from 'react-bootstrap/Modal'
 import '../css/ControllerBar.css'
-import { setStateAsync } from '../lib/utils';
 import * as nothumb from '../assets/nothumb.jpg'
 
-const importMediaStates = window.project.importMediaStates;
+const setStateAsync = require("../lib/utils").setStateAsync;
+
+const importMediaStates = window.Project.ImportMedia.states;
 
 class ControllerBar extends Component {
   constructor(props) {
@@ -33,8 +34,9 @@ class ControllerBar extends Component {
     setStateAsync(this, {
       showModal: true,
     })
-    window.project.importMedia(files,
+    window.Project.ImportMedia.instance.start(files,
       (state) => {
+        console.log("state change " + state);
         const cis = this.state.importStepsCompleted;
         cis.push(state);
         this.setState({ importStepsCompleted: cis });
@@ -117,14 +119,16 @@ class ControllerBar extends Component {
             </table>
             <div className="timer_div">
               <div>
-                <span className="current_time_span">00:00:000</span>
-                <span className="total_time_span"><sub> 00:00:000</sub></span>
+                <span className="current_time_span">00:00</span>
+                <span className="total_time_span"><sub> 00:00</sub></span>
               </div>
               <div>
                 <ProgressBar now={60} min={0} max={100} />
               </div>
             </div>
           </nav>
+
+          <div id="waveform" />
         </div>
         <ImportMediaModal show={this.state.showModal} completed={this.state.importStepsCompleted} />
       </div>
@@ -138,6 +142,7 @@ function ImportMediaModal(props) {
   const imComplete = props.completed.includes(importMediaStates.importing);
   const rtComplete = props.completed.includes(importMediaStates.readingTags);
   const daComplete = props.completed.includes(importMediaStates.decodingAudio);
+  const wsComplete = props.completed.includes(importMediaStates.wavesurfing);
   return (
     <Modal
       {...props}
@@ -163,6 +168,11 @@ function ImportMediaModal(props) {
         <br />
         Decoding Audio
            <div className={daComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
+        <br />
+        Wave Surfing
+           <div className={wsComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
           <span className="sr-only">Loading...</span>
         </div>
         <br />

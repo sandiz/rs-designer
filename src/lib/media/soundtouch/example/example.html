@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>soundtouch.js demo</title>
+	<script src="../soundtouch.min.js"></script>
+	<style type="text/css">
+		body {
+			background: grey;
+			line-height: 30px;
+		}
+
+		input, button {
+			display:block;
+		}
+	</style>
+</head>
+<body>
+	<button onclick="play()">Play</button>
+	<button onclick="pause()">Pause</button>
+	Rate: <input type="range" autofocus="true" min="0.1" max="4.0" name="tempoSlider" defaultValue="1.0" id="tempoSlider" step="0.01">
+	Pitch: <input type="range" autofocus="true" min="0.1" max="2.0" name="pitchSlider" defaultValue="1.0" id="pitchSlider" step="0.01">
+</body>
+<script src="example.js"></script>
+</html>

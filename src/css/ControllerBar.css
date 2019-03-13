@@ -20,7 +20,7 @@
 }
 
 .navbar {
-    padding: 0 1rem;
+    padding: 0 1rem !important;
 }
 
 .artist_span {
@@ -34,7 +34,7 @@
 .timer_div {
     position: fixed;
     right: 25px;
-    width: 400px;
+    width: 350px;
     text-align: center;
 }
 
@@ -64,15 +64,16 @@
     top: 2px;
 }
 
-span {
-    color: #3498db !important;
-}
-
 .spinner {
     width: 15px;
     height: 15px;
     position: absolute;
     right: 20px;
+}
+
+.spinner-grow {
+    width: 1rem !important;
+    height: 1rem !important;
 }
 
 .spinner-grow-noanim {

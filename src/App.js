@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import './css/App.css'
 import ControllerBar from './Components/ControllerBar'
+import './css/theme/darkly.bootstrap.min.css'
+import './css/App.css'
 
 class App extends Component {
   constructor(props) {

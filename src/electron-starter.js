@@ -1,5 +1,5 @@
 const electron = require("electron");
-var { app, BrowserWindow, Menu, webFrame } = electron;
+var { app, BrowserWindow, Menu, globalShortcut } = electron;
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
@@ -126,7 +126,9 @@ async function createWindow() {
 
 }
 
-app.on("ready", createWindow);
+app.on("ready", () => {
+    createWindow();
+});
 
 app.on("window-all-closed", () => {
     //if (process.platform !== "darwin") {
