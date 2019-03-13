@@ -9,18 +9,23 @@ const setStateAsync = require("../lib/utils").setStateAsync;
 const importMediaStates = window.Project.ImportMedia.states;
 
 class ControllerBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showModal: false,
-      importStepsCompleted: [],
-      song: 'Song Title',
-      artist: 'Artist',
-    };
-    this.coverArtRef = React.createRef();
+  initialState = {
+    showModal: false,
+    importStepsCompleted: [],
+    song: 'Song Title',
+    artist: 'Artist',
   }
 
-  importMedia = () => {
+  constructor(props) {
+    super(props);
+    this.state = this.initialState;
+    this.coverArtRef = React.createRef();
+    this.waveformRef = React.createRef();
+  }
+
+  importMedia = async () => {
+    this.reset();
+
     const files = window.remote.dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [
@@ -31,12 +36,11 @@ class ControllerBar extends Component {
     if (files === null || typeof files === 'undefined' || files.length <= 0) {
       return;
     }
-    setStateAsync(this, {
+    await setStateAsync(this, {
       showModal: true,
     })
     window.Project.ImportMedia.instance.start(files,
       (state) => {
-        console.log("state change " + state);
         const cis = this.state.importStepsCompleted;
         cis.push(state);
         this.setState({ importStepsCompleted: cis });
@@ -53,7 +57,14 @@ class ControllerBar extends Component {
           const buf = media.tags.common.picture[0].data;
           this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
         }
+        else {
+          this.coverArtRef.current.src = nothumb.default;
+        }
       });
+  }
+
+  reset() {
+    this.setState({ ...this.initialState })
   }
 
   render = () => {
@@ -128,7 +139,7 @@ class ControllerBar extends Component {
             </div>
           </nav>
 
-          <div id="waveform" />
+          <div id="waveform" ref={this.waveformRef} />
         </div>
         <ImportMediaModal show={this.state.showModal} completed={this.state.importStepsCompleted} />
       </div>
@@ -141,7 +152,6 @@ function ImportMediaModal(props) {
   const spinnerCompleteClass = "spinner-grow-noanim text-success spinner"
   const imComplete = props.completed.includes(importMediaStates.importing);
   const rtComplete = props.completed.includes(importMediaStates.readingTags);
-  const daComplete = props.completed.includes(importMediaStates.decodingAudio);
   const wsComplete = props.completed.includes(importMediaStates.wavesurfing);
   return (
     <Modal
@@ -163,11 +173,6 @@ function ImportMediaModal(props) {
         <br />
         Reading Tags
            <div className={rtComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-        <br />
-        Decoding Audio
-           <div className={daComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
           <span className="sr-only">Loading...</span>
         </div>
         <br />

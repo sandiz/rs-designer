@@ -7,7 +7,6 @@
   "private": true,
   "dependencies": {
     "add": "^2.0.6",
-    "audio-decode": "^1.4.0",
     "bootstrap": "^4.3.1",
     "easy-peasy": "^2.0.0",
     "electron": "^4.0.4",
