@@ -8,12 +8,24 @@ const setStateAsync = require("../lib/utils").setStateAsync;
 
 const importMediaStates = window.Project.ImportMedia.states;
 
+const sec2time = (timeInSeconds) => {
+  //eslint-disable-next-line
+  var pad = function (num, size) { return ('000' + num).slice(size * -1); },
+    time = parseFloat(timeInSeconds).toFixed(3),
+    minutes = Math.floor(time / 60) % 60,
+    seconds = Math.floor(time - minutes * 60),
+    milliseconds = time.slice(-3);
+
+  return pad(minutes, 2) + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
+}
+
 class ControllerBar extends Component {
   initialState = {
     showModal: false,
     importStepsCompleted: [],
     song: 'Song Title',
     artist: 'Artist',
+    mediaPlaying: false,
   }
 
   constructor(props) {
@@ -21,6 +33,11 @@ class ControllerBar extends Component {
     this.state = this.initialState;
     this.coverArtRef = React.createRef();
     this.waveformRef = React.createRef();
+
+    this.timerRef = {
+      current: React.createRef(),
+      total: React.createRef(),
+    }
   }
 
   importMedia = async () => {
@@ -39,28 +56,73 @@ class ControllerBar extends Component {
     await setStateAsync(this, {
       showModal: true,
     })
-    window.Project.ImportMedia.instance.start(files,
-      (state) => {
-        const cis = this.state.importStepsCompleted;
-        cis.push(state);
-        this.setState({ importStepsCompleted: cis });
-      },
-      (media) => {
-        console.log(media);
-        this.setState({
-          song: media.tags.common.title,
-          artist: media.tags.common.artist,
-          showModal: false,
-        });
+    const importer = window.Project.ImportMedia.instance;
+    if (importer) {
+      importer.start(files,
+        (state) => {
+          const cis = this.state.importStepsCompleted;
+          cis.push(state);
+          this.setState({ importStepsCompleted: cis });
+        },
+        (media) => {
+          console.log(media);
+          this.setState({
+            song: media.tags.common.title,
+            artist: media.tags.common.artist,
+            showModal: false,
+          });
 
-        if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
-          const buf = media.tags.common.picture[0].data;
-          this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
-        }
-        else {
-          this.coverArtRef.current.src = nothumb.default;
-        }
-      });
+          if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
+            const buf = media.tags.common.picture[0].data;
+            this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
+          }
+          else {
+            this.coverArtRef.current.src = nothumb.default;
+          }
+
+          const mediaPlayer = window.Project.MediaPlayer.instance;
+          if (mediaPlayer) {
+            this.timerRef.total.current.innerHTML = sec2time(mediaPlayer.getDuration());
+            mediaPlayer.timer((time) => {
+              this.timerRef.current.current.innerHTML = sec2time(time);
+            });
+            mediaPlayer.finish(() => {
+              this.setState({ mediaPlaying: false });
+            });
+            mediaPlayer.onplay(() => {
+              this.setState({ mediaPlaying: true });
+            })
+            mediaPlayer.onpause(() => {
+              this.setState({ mediaPlaying: false });
+            })
+          }
+        });
+    }
+    //set progress bar, current and total time
+  }
+
+  //eslint-disable-next-line
+  mediaCmd(cmd) {
+    const mediaPlayer = window.Project.MediaPlayer.instance;
+    if (mediaPlayer) {
+      switch (cmd) {
+        case "playpause":
+          mediaPlayer.playPause();
+          break;
+        case "stop":
+          mediaPlayer.stop();
+          this.timerRef.current.current.innerHTML = "00:00.000";
+          break;
+        case "rewind":
+          mediaPlayer.rewind();
+          break;
+        case "ffwd":
+          mediaPlayer.ffwd();
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   reset() {
@@ -90,19 +152,26 @@ class ControllerBar extends Component {
           <div className="vertical" />
 
             &nbsp;&nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary">
-              <i className="fas fa-play" />
+          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("playpause")}>
+              {
+                this.state.mediaPlaying ? (
+                  <i className="fas fa-pause" />
+                )
+                  : (
+                    <i className="fas fa-play" />
+                  )
+              }
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary">
+          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("stop")}>
               <i className="fas fa-stop" />
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary">
+          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("rewind")}>
               <i className="fas fa-backward" />
             </button>
             &nbsp;&nbsp;
-           <button type="button" className="btn btn-secondary">
+           <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("ffwd")}>
               <i className="fas fa-forward" />
             </button>
             &nbsp;&nbsp;
@@ -130,8 +199,8 @@ class ControllerBar extends Component {
             </table>
             <div className="timer_div">
               <div>
-                <span className="current_time_span">00:00</span>
-                <span className="total_time_span"><sub> 00:00</sub></span>
+                <span className="current_time_span" ref={this.timerRef.current}>00:00.000</span>
+                <span className="total_time_span"><sub ref={this.timerRef.total}> 00:00.000</sub></span>
               </div>
               <div>
                 <ProgressBar now={60} min={0} max={100} />
