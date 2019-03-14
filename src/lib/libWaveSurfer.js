@@ -79,28 +79,41 @@ class MediaPlayer {
         });
     }
 
+    destroy() {
+        if (this.wavesurfer)
+            this.wavesurfer.destroy();
+    }
+
     empty() {
-        console.log("empty");
         if (this.wavesurfer)
             this.wavesurfer.empty();
     }
 
-    destroy() {
-        console.log("destroy");
+    seekAndCenter(progress) {
         if (this.wavesurfer)
-            this.wavesurfer.destroy();
+            this.wavesurfer.seekAndCenter(progress);
     }
+
+
 
     isPlaying() {
         if (this.wavesurfer)
             return this.wavesurfer.isPlaying();
         return false;
     }
+    getCurrent() {
+        if (this.wavesurfer)
+            return this.wavesurfer.getCurrentTime();
+    }
     getDuration() {
         if (this.wavesurfer)
             return this.wavesurfer.getDuration();
     }
-
+    onseek(cb) {
+        if (this.wavesurfer) {
+            this.wavesurfer.on("seek", (f) => cb(f));
+        }
+    }
     finish(cb) {
         if (this.wavesurfer) {
             this.wavesurfer.on("finish", cb);
@@ -125,25 +138,21 @@ class MediaPlayer {
         }
     }
     playPause() {
-        console.log("playpause");
         if (this.wavesurfer) {
             this.wavesurfer.playPause();
         }
     }
     stop() {
-        console.log("stop");
         if (this.wavesurfer) {
             this.wavesurfer.stop();
         }
     }
     rewind() {
-        console.log("rewind");
         if (this.wavesurfer) {
             this.wavesurfer.skipBackward(5);
         }
     }
     ffwd() {
-        console.log("ffwd");
         if (this.wavesurfer) {
             this.wavesurfer.skipForward(5);
         }

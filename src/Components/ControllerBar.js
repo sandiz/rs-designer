@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import ProgressBar from 'react-bootstrap/ProgressBar'
 import Modal from 'react-bootstrap/Modal'
 import '../css/ControllerBar.css'
 import * as nothumb from '../assets/nothumb.jpg'
@@ -26,6 +25,7 @@ class ControllerBar extends Component {
     song: 'Song Title',
     artist: 'Artist',
     mediaPlaying: false,
+    progress: 0,
   }
 
   constructor(props) {
@@ -38,6 +38,7 @@ class ControllerBar extends Component {
       current: React.createRef(),
       total: React.createRef(),
     }
+    this.pbRef = React.createRef();
   }
 
   importMedia = async () => {
@@ -65,7 +66,6 @@ class ControllerBar extends Component {
           this.setState({ importStepsCompleted: cis });
         },
         (media) => {
-          console.log(media);
           this.setState({
             song: media.tags.common.title,
             artist: media.tags.common.artist,
@@ -82,9 +82,11 @@ class ControllerBar extends Component {
 
           const mediaPlayer = window.Project.MediaPlayer.instance;
           if (mediaPlayer) {
-            this.timerRef.total.current.innerHTML = sec2time(mediaPlayer.getDuration());
+            const total = mediaPlayer.getDuration();
+            this.timerRef.total.current.innerHTML = sec2time(total);
             mediaPlayer.timer((time) => {
-              this.timerRef.current.current.innerHTML = sec2time(time);
+              const per = (Math.round(time) / Math.round(total)).toFixed(2);
+              this.updateProgressBar(per, time);
             });
             mediaPlayer.finish(() => {
               this.setState({ mediaPlaying: false });
@@ -95,14 +97,16 @@ class ControllerBar extends Component {
             mediaPlayer.onpause(() => {
               this.setState({ mediaPlaying: false });
             })
+            mediaPlayer.onseek((per) => {
+              this.updateProgressBar(per, mediaPlayer.getCurrent());
+            })
           }
         });
     }
-    //set progress bar, current and total time
   }
 
   //eslint-disable-next-line
-  mediaCmd(cmd) {
+  mediaCmd(cmd, value = 0) {
     const mediaPlayer = window.Project.MediaPlayer.instance;
     if (mediaPlayer) {
       switch (cmd) {
@@ -119,6 +123,9 @@ class ControllerBar extends Component {
         case "ffwd":
           mediaPlayer.ffwd();
           break;
+        case "seekAndCenter":
+          mediaPlayer.seekAndCenter(value);
+          break;
         default:
           break;
       }
@@ -128,6 +135,26 @@ class ControllerBar extends Component {
   reset() {
     this.setState({ ...this.initialState })
   }
+
+  //eslint-disable-next-line
+  pbSeek = (e) => {
+    const bounds = e.target.getBoundingClientRect();
+    const x = e.pageX - bounds.left;
+    const clickedValue = x * 1 / e.target.offsetWidth;
+
+    this.mediaCmd("seekAndCenter", clickedValue);
+
+    const mediaPlayer = window.Project.MediaPlayer.instance;
+    if (mediaPlayer) {
+      this.updateProgressBar(clickedValue, mediaPlayer.getCurrent());
+    }
+  }
+
+  updateProgressBar(per, time) {
+    this.timerRef.current.current.innerHTML = sec2time(time);
+    this.pbRef.current.style.width = (per * 100) + "%";
+  }
+
 
   render = () => {
     return (
@@ -203,7 +230,23 @@ class ControllerBar extends Component {
                 <span className="total_time_span"><sub ref={this.timerRef.total}> 00:00.000</sub></span>
               </div>
               <div>
-                <ProgressBar now={60} min={0} max={100} />
+                <div
+                  onClick={this.pbSeek}
+                  className="progress">
+                  <div
+                    ref={this.pbRef}
+                    className="progress-bar"
+                    role="progressbar"
+                    style={{
+                      width: 0 + '%',
+                      pointerEvents: "none",
+                    }}
+                    aria-valuenow="25"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    tabIndex="0"
+                  />
+                </div>
               </div>
             </div>
           </nav>
