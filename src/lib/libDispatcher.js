@@ -61,4 +61,3 @@ exports.DispatchEvents = {
 
 
 exports.Dispatcher = new Dispatcher();
-

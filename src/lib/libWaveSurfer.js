@@ -4,6 +4,7 @@ const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
 const readFile = require("./utils").readFile;
 
 
+
 const readTags = file => new Promise((resolve, reject) => {
     mm.parseFile(file, { native: true })
         .then(metadata => {
@@ -61,14 +62,17 @@ class MediaPlayer {
         this.wavesurfer = null;
         const params = {
             container: '#waveform',
-            waveColor: '#D2EDD4',
+            waveColor: '#ffffff',
             progressColor: 'hsla(200, 100%, 30%, 0.5)',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
             barWidth: 3,
             barGap: 2,
             barRadius: true,
+            height: 180,
+            barHeight: 1.5,
             scrollParent: true,
+            responsive: true,
         };
         // initialise like this
         this.wavesurfer = WaveSurfer.create(params);
@@ -82,6 +86,8 @@ class MediaPlayer {
     destroy() {
         if (this.wavesurfer)
             this.wavesurfer.destroy();
+
+        Mousetrap.unbind("space", () => this.playPause);
     }
 
     empty() {
@@ -94,7 +100,16 @@ class MediaPlayer {
             this.wavesurfer.seekAndCenter(progress);
     }
 
+    getVolume() {
+        if (this.wavesurfer)
+            return this.wavesurfer.getVolume();
+        return 0;
+    }
 
+    setVolume(val) {
+        if (this.wavesurfer)
+            return this.wavesurfer.setVolume(val);
+    }
 
     isPlaying() {
         if (this.wavesurfer)
