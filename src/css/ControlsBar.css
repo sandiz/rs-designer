@@ -1,0 +1,70 @@
+.controls-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 20px;
+    width: 95%;
+}
+
+.controls-text-div {
+    border-bottom: 1px solid white;
+}
+
+.controls-container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #00bc8c !important;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    height: 162px;
+}
+
+.controls-collapse-root {
+    height: 162px;
+    margin-top: 10px;
+}
+
+.volume,
+.tempo {
+    margin-left: 15px;
+    margin-top: 6px;
+}
+
+.controls-flex {
+    display: flex;
+    flex-direction: row;
+    height: 162px;
+}
+
+.flex1 {
+    width: 10%;
+}
+
+.flex2,
+.flex3 {
+    width: 10%;
+}
+
+.canvas-root {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
+    border-radius: 80px;
+    margin: 0 auto;
+    width: 114px;
+    height: 114px;
+    margin-top: 10px;
+    background-color: transparent;
+}
+
+#volume-canvas,
+#tempo-canvas,
+#pitch-canvas {
+    margin-left: -8px;
+    margin-top: -7px;
+}
+
+.volume-text,
+.tempo-text,
+.pitch-text {
+    margin-top: 5px;
+    text-align: center;
+}

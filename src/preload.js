@@ -8,6 +8,8 @@ window.os = require("os");
 window.Project = {
     ImportMedia: require("./lib/libWaveSurfer").ImportMedia,
     MediaPlayer: require("./lib/libWaveSurfer").MediaPlayer,
+    Dispatcher: require("./lib/libDispatcher").Dispatcher,
+    DispatchEvents: require("./lib/libDispatcher").DispatchEvents,
 }
 
 

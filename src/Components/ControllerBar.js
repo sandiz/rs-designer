@@ -3,6 +3,8 @@ import Modal from 'react-bootstrap/Modal'
 import '../css/ControllerBar.css'
 import * as nothumb from '../assets/nothumb.jpg'
 
+const Mousetrap = require('mousetrap');
+
 const setStateAsync = require("../lib/utils").setStateAsync;
 
 const importMediaStates = window.Project.ImportMedia.states;
@@ -41,8 +43,9 @@ class ControllerBar extends Component {
     this.pbRef = React.createRef();
   }
 
-  importMedia = async () => {
-    this.reset();
+  importMedia = async (e) => {
+    e.target.blur();
+    e.preventDefault();
 
     const files = window.remote.dialog.showOpenDialog({
       properties: ["openFile"],
@@ -54,6 +57,7 @@ class ControllerBar extends Component {
     if (files === null || typeof files === 'undefined' || files.length <= 0) {
       return;
     }
+    this.reset();
     await setStateAsync(this, {
       showModal: true,
     })
@@ -100,6 +104,11 @@ class ControllerBar extends Component {
             mediaPlayer.onseek((per) => {
               this.updateProgressBar(per, mediaPlayer.getCurrent());
             })
+
+            //eslint-disable-next-line
+            Mousetrap.bind(['command+p', 'ctrl+p'], (e, s) => this.mediaCmd("playpause"));
+            Mousetrap.bind(['left'], (e1, s1) => this.mediaCmd("rewind"));
+            Mousetrap.bind(['right'], (e2, s2) => this.mediaCmd("ffwd"));
           }
         });
     }
@@ -235,7 +244,7 @@ class ControllerBar extends Component {
                   className="progress">
                   <div
                     ref={this.pbRef}
-                    className="progress-bar"
+                    className="progress-bar bg-info"
                     role="progressbar"
                     style={{
                       width: 0 + '%',
@@ -250,8 +259,6 @@ class ControllerBar extends Component {
               </div>
             </div>
           </nav>
-
-          <div id="waveform" ref={this.waveformRef} />
         </div>
         <ImportMediaModal show={this.state.showModal} completed={this.state.importStepsCompleted} />
       </div>

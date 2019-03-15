@@ -1,0 +1,29 @@
+.waveform-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 20px;
+    width: 95%;
+}
+
+.waveform-container {
+    width: 100%;
+    margin: 0 auto;
+    background-color: #3498DB !important;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    height: 180px;
+}
+
+.waveform-text-div {
+    border-bottom: 1px solid white;
+}
+
+.waveform-a {
+    cursor: pointer;
+}
+
+.waveform-collapse-root {
+    height: 180px;
+    margin-top: 10px;
+}

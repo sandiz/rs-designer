@@ -14,3 +14,21 @@ body {
 .background {
     color: white;
 }
+
+#flex {
+    display: flex;
+    /* Optional, if you want the DIVs 100% width: */
+    flex-direction: column;
+}
+
+#flex>#a {
+    order: 1;
+}
+
+#flex>#b {
+    order: 2;
+}
+
+#flex>#c {
+    order: 3;
+}
