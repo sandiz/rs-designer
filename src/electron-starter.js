@@ -11,7 +11,7 @@ async function createWindow() {
     // Load the previous state with fallback to defaults
     let mainWindowState = windowStateKeeper({
         defaultWidth: 1750,
-        defaultHeight: 1064
+        defaultHeight: 1070
     });
 
     // Create the window using the state information
@@ -33,6 +33,7 @@ async function createWindow() {
     // and restore the maximized or full screen state
     mainWindowState.manage(mainWindow);
     mainWindow.setAutoHideMenuBar(true)
+    mainWindow.setMinimumSize(1500, 1070);
     //mainWindow.maximize();
     if (isDev) {
         mainWindow.webContents.openDevTools({ mode: 'detach' });

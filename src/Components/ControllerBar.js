@@ -4,7 +4,6 @@ import '../css/ControllerBar.css'
 import * as nothumb from '../assets/nothumb.jpg'
 
 const Mousetrap = require('mousetrap');
-
 const setStateAsync = require("../lib/utils").setStateAsync;
 
 const importMediaStates = window.Project.ImportMedia.states;
@@ -143,6 +142,7 @@ class ControllerBar extends Component {
 
   reset() {
     this.setState({ ...this.initialState })
+    this.coverArtRef.current.src = nothumb.default;
   }
 
   //eslint-disable-next-line
@@ -163,7 +163,6 @@ class ControllerBar extends Component {
     this.timerRef.current.current.innerHTML = sec2time(time);
     this.pbRef.current.style.width = (per * 100) + "%";
   }
-
 
   render = () => {
     return (
