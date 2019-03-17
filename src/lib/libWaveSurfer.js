@@ -23,6 +23,7 @@ const ImportMediaStates = {
 }
 class ImportMedia {
     async start(files, stateChangeCb, completeCb) {
+        Dispatcher.dispatch(DispatchEvents.MediaReset);
         const file = files[0];
         console.log("importMedia: " + file);
         stateChangeCb(ImportMediaStates.importing);
@@ -80,6 +81,9 @@ class MediaPlayer {
         this.wavesurfer.loadBlob(blob);
         this.wavesurfer.on("ready", () => {
             Dispatcher.dispatch(DispatchEvents.MediaReady);
+        });
+        this.wavesurfer.on('error', function (msg) {
+            console.log(msg);
         });
     }
 

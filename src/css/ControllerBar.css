@@ -32,7 +32,7 @@
 }
 
 .timer_div {
-    position: fixed;
+    position: absolute;
     right: 25px;
     width: 350px;
     text-align: center;
@@ -44,8 +44,8 @@
 
 .total_time_span {
     font-size: 20px;
-    position: fixed;
-    right: 25px;
+    position: absolute;
+    right: 0px;
     top: 30px;
 }
 

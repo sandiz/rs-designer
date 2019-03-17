@@ -57,6 +57,7 @@ class Dispatcher {
 }
 exports.DispatchEvents = {
     MediaReady: "media-ready",
+    MediaReset: "media-reset",
 }
 
 
