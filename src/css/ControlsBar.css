@@ -184,3 +184,7 @@
     left: -1.4vh;
     top: 11vh;
 }
+
+.eq-set {
+    cursor: pointer;
+}

@@ -6,9 +6,9 @@ import "../lib/radiaslider/src/slider-linear"
 const { Dispatcher, DispatchEvents } = window.Project;
 
 const temp = {
-    min: 0,
-    max: 100,
-    step: 10,
+    min: -40,
+    max: 40,
+    step: 1,
 };
 
 class EqualizerControls extends Component {
@@ -104,7 +104,7 @@ class EqualizerControls extends Component {
     }
 
     initSliders = () => {
-        for (let i = 0; i < 10; i += 1) {
+        for (let i = 0; i < this.numBands; i += 1) {
             //horizontal sliders
             const t = temp;
             t.color = "#104b63";//colors[i];
@@ -115,7 +115,7 @@ class EqualizerControls extends Component {
             t.x0 = 40 + 40 * i;
             t.y0 = 130;
             this.slider.addSlider(t);
-            this.slider.setSliderValue(i, 50);
+            this.slider.setSliderValue(i, 0);
         }
         for (let i = 0; i < 2; i += 1) {
             const t = temp;
@@ -128,12 +128,18 @@ class EqualizerControls extends Component {
             t.fillWidth = 25;
             t.knobWidth = 25;
             this.pslider.addSlider(t);
-            this.pslider.setSliderValue(i, 50);
+            this.pslider.setSliderValue(i, 0);
         }
     }
 
     reset = () => {
         this.setState({ ...this.initialState })
+    }
+
+    setEQ = (val) => {
+        for (let i = 0; i < this.numBands; i += 1) {
+            this.slider.setSliderValue(i, val);
+        }
     }
 
     toggle = (type) => {
@@ -166,13 +172,13 @@ class EqualizerControls extends Component {
 
                     <div className="eqflex1">
                         <div className="eq-meter">
-                            <span>+40</span>
+                            <span className="eq-set" onClick={() => this.setEQ(40)}>+40</span>
                         </div>
                         <div className="eq-meter2">
-                            <span>0</span>
+                            <span className="eq-set" onClick={() => this.setEQ(0)}>0</span>
                         </div>
                         <div className="eq-meter3">
-                            <span>-40</span>
+                            <span className="eq-set" onClick={() => this.setEQ(-40)}>-40</span>
                         </div>
                         <div className="">
                             <canvas id="equalizer-canvas" width="420" height="170" />
@@ -210,21 +216,21 @@ class EqualizerControls extends Component {
                         <div>
                             <span>Enable Equalizer</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch1" checked={this.state.enableEQ} onClick={e => this.toggle('eq')} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch1" checked={this.state.enableEQ} onChange={e => this.toggle('eq')} />
                                 <label className="custom-control-label" htmlFor="customSwitch1" />
                             </div>
                         </div>
                         <div>
                             <span>Enable Filters</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableFilter} onClick={e => this.toggle("filters")} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableFilter} onChange={e => this.toggle("filters")} />
                                 <label className="custom-control-label" htmlFor="customSwitch2" />
                             </div>
                         </div>
                         <div>
                             <span>Remove Vocals</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} onClick={e => this.toggle("karaoke")} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} onChange={e => this.toggle("karaoke")} />
                                 <label className="custom-control-label" htmlFor="customSwitch3" />
                             </div>
                         </div>
