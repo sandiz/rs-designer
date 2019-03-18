@@ -61,7 +61,12 @@ class ImportMedia {
 class MediaPlayer {
     constructor(blob) {
         this.wavesurfer = null;
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.scriptProcessor = this.audioContext.createScriptProcessor(2048 /*bufferSize*/, 2 /*num inputs*/, 1 /*num outputs*/);
+        this.analyser = this.audioContext.createAnalyser();
         const params = {
+            audioContext: this.audioContext,
+            audioScriptProcessor: this.scriptProcessor,
             container: '#waveform',
             waveColor: '#ffffff',
             progressColor: 'hsla(200, 100%, 30%, 0.5)',
@@ -74,6 +79,8 @@ class MediaPlayer {
             barHeight: 1.5,
             scrollParent: true,
             responsive: true,
+            closeAudioContext: true,
+            forceDecode: false,
         };
         // initialise like this
         this.wavesurfer = WaveSurfer.create(params);
@@ -85,6 +92,16 @@ class MediaPlayer {
         this.wavesurfer.on('error', function (msg) {
             console.log(msg);
         });
+    }
+
+    setFilters(filters) {
+        if (this.wavesurfer)
+            this.wavesurfer.backend.setFilters(filters);
+    }
+
+    getBackend() {
+        if (this.wavesurfer)
+            return this.wavesurfer.backend;
     }
 
     destroy() {

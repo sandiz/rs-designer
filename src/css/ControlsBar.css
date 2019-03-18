@@ -188,3 +188,44 @@
 .eq-set {
     cursor: pointer;
 }
+
+.eq-filter-text {
+    position: absolute;
+    left: 22%;
+    top: 30%;
+}
+
+.eq-filter-text-right {
+    position: absolute;
+    left: 62%;
+    top: 33%;
+    font-size: 15px;
+    width: 6vh;
+    text-align: right;
+}
+
+.eq-filter-text2 {
+    position: absolute;
+    left: 22%;
+    top: 63%;
+}
+
+.eq-filter-text2-right {
+    position: absolute;
+    left: 67%;
+    top: 67%;
+    font-size: 15px;
+    width: 4.2vh;
+    text-align: right;
+}
+
+#passfilter-canvas {
+    margin-top: 5px;
+}
+
+.eq-info {
+    position: absolute;
+    left: 73%;
+    top: 9%;
+    z-index: 9000;
+}
