@@ -1,6 +1,7 @@
 const electron = require("electron");
 var { app, BrowserWindow, Menu, globalShortcut } = electron;
 const path = require("path");
+const os = require('os')
 const url = require("url");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
@@ -129,6 +130,13 @@ async function createWindow() {
 
 app.on("ready", () => {
     createWindow();
+    if (isDev) {
+        //add web-audio visual debugger
+        BrowserWindow.addDevToolsExtension(
+            path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
+        )
+    }
+
 });
 
 app.on("window-all-closed", () => {

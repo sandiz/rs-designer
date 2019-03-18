@@ -8,6 +8,8 @@
 body {
     font-family: "Roboto Condensed", sans-serif;
     user-select: none;
+    overflow: hidden;
+    height: 100%;
 }
 
 .background {
