@@ -65,7 +65,6 @@ class MediaPlayer {
         this.scriptProcessor = this.audioContext.createScriptProcessor(2048 /*bufferSize*/, 2 /*num inputs*/, 1 /*num outputs*/);
         const params = {
             audioContext: this.audioContext,
-            audioScriptProcessor: this.scriptProcessor,
             container: '#waveform',
             waveColor: '#ffffff',
             progressColor: 'hsla(200, 100%, 30%, 0.5)',
@@ -79,7 +78,7 @@ class MediaPlayer {
             scrollParent: true,
             responsive: true,
             closeAudioContext: true,
-            forceDecode: false,
+            forceDecode: true,
         };
         // initialise like this
         this.wavesurfer = WaveSurfer.create(params);
@@ -96,6 +95,11 @@ class MediaPlayer {
     setFilters(filters) {
         if (this.wavesurfer)
             this.wavesurfer.backend.setFilters(filters);
+    }
+
+    getScriptProcessor() {
+        if (this.wavesurfer)
+            return this.scriptProcessor;
     }
 
     getPostAnalyser() {

@@ -129,6 +129,34 @@ class EqualizerControls extends Component {
 
     ready = () => {
         this.createEQFilters();
+        this.toggleKaraoke();
+    }
+
+    toggleKaraoke = () => {
+        console.log("toggle karoke: " + this.state.enableKaraoke);
+        const mediaPlayer = window.Project.MediaPlayer.instance;
+        if (mediaPlayer) {
+            const sp = mediaPlayer.getScriptProcessor();
+            const ac = mediaPlayer.getBackend();
+            if (this.state.enableKaraoke) {
+                this.filters[this.numBands - 1].disconnect(0);
+                this.filters[this.numBands - 1].connect(sp);
+                sp.connect(ac.gainNode)
+            } else {
+                this.filters[this.numBands - 1].connect(ac.gainNode);
+                sp.disconnect(0);////this.filters[0]);
+            }
+            sp.onaudioprocess = (evt) => {
+                const inputL = evt.inputBuffer.getChannelData(0);
+                const inputR = evt.inputBuffer.getChannelData(1);
+                const output = evt.outputBuffer.getChannelData(0);
+                const len = inputL.length;
+                let i = 0;
+                for (; i < len; i += 1) {
+                    output[i] = inputL[i] - inputR[i];
+                }
+            };
+        }
     }
 
     reset = () => {
@@ -185,7 +213,7 @@ class EqualizerControls extends Component {
             case "karaoke":
                 this.setState(prevState => ({
                     enableKaraoke: !prevState.enableKaraoke,
-                }));
+                }), () => this.toggleKaraoke());
                 break;
             default:
                 break;
@@ -193,7 +221,6 @@ class EqualizerControls extends Component {
     }
 
     render() {
-        console.log(this.state.enableSpectrum);
         return (
             <div className="controls-container">
 

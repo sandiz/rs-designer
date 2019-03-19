@@ -132,9 +132,9 @@ app.on("ready", () => {
     createWindow();
     if (isDev) {
         //add web-audio visual debugger
-        //BrowserWindow.addDevToolsExtension(
-        //    path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
-        //)
+        BrowserWindow.addDevToolsExtension(
+            path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
+        )
     }
 
 });
