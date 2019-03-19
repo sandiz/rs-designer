@@ -85,7 +85,7 @@ class WaveformBar extends Component {
         const expanded = "waveform-collapse-root " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
-            <div className="waveform-header" id="a">
+            <div className="waveform-header" id="b">
                 <div className="waveform-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />

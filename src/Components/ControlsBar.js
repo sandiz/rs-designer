@@ -23,7 +23,7 @@ class ControlBar extends Component {
         const expanded = "controls-collapse-root " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
-            <div className="controls-header" id="b">
+            <div className="controls-header" id="a">
                 <div className="controls-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />

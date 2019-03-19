@@ -19,8 +19,8 @@ class App extends Component {
         <ControllerBar />
         <br />
         <div id="flex">
-          <WaveformBar id="b" />
-          <ControlsBar id="a" />
+          <WaveformBar />
+          <ControlsBar />
         </div>
       </div>
     );
