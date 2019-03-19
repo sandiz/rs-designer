@@ -14,11 +14,11 @@
     width: 100%;
     margin: 0 auto;
     background-color: #00bc8c !important;
-    height: 178px;
+    height: 182px;
 }
 
 .controls-collapse-root {
-    height: 180px;
+    height: 184px;
     margin-top: 10px;
     border-radius: 4px;
     border: 1px solid lightgray;
@@ -91,13 +91,13 @@
 }
 
 .eqflex2 {
-    width: 33%;
+    width: 100%;
     position: relative;
     left: 14vh;
 }
 
 .eqflex3 {
-    width: 33%;
+    width: 100%;
     text-align: right;
     margin-right: 18px;
     position: relative;
@@ -124,17 +124,17 @@
 
 .eq-subtext1 {
     position: relative;
-    left: 1.5vh;
+    left: 1.4vh;
 }
 
 .eq-subtext2 {
     position: relative;
-    left: 2.5vh;
+    left: 2.3vh;
 }
 
 .eq-subtext3 {
     position: relative;
-    left: 3.1vh;
+    left: 3vh;
 }
 
 .eq-subtext4 {
@@ -159,12 +159,12 @@
 
 .eq-subtext8 {
     position: relative;
-    left: 8.7vh;
+    left: 8.4vh;
 }
 
 .eq-subtext9 {
     position: relative;
-    left: 9.7vh;
+    left: 8.9vh;
 }
 
 .eq-meter {
@@ -228,4 +228,29 @@
     left: 73%;
     top: 9%;
     z-index: 9000;
+}
+
+#frequency-canvas {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    margin-bottom: -3px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
+    width: 95%;
+    height: 90%;
+    position: relative;
+    top: 5%;
+}
+
+.freq-container {
+    width: 113%;
+    margin: 0 auto;
+    background-color: #00bc8c !important;
+    height: 178px;
+    /* position: relative; */
+    /* top: -100%; */
+    /* left: 25%; */
+    border-radius: 5px;
+    border: 1px solid lightgray;
+    text-align: center;
+    justify-content: center;
 }

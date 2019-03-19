@@ -1,5 +1,5 @@
 /*!
- * wavesurfer.js 2.2.0 (2019-03-13)
+ * wavesurfer.js 2.2.0 (2019-03-18)
  * https://github.com/katspaugh/wavesurfer.js
  * @license BSD-3-Clause
  */
@@ -4523,7 +4523,7 @@ function (_util$Observer) {
     _this.playbackRate = 1;
     /** @private */
 
-    _this.analyser = null;
+    _this.postAnalyser = null;
     /** @private */
 
     _this.scriptNode = null;
@@ -4568,6 +4568,7 @@ function (_util$Observer) {
         this.filters = null; // Reconnect direct path
 
         this.analyser.connect(this.gainNode);
+        this.gainNode.connect(this.postAnalyser);
       }
     }
     /** @private */
@@ -4613,12 +4614,13 @@ function (_util$Observer) {
       if (filters && filters.length) {
         this.filters = filters; // Disconnect direct path before inserting filters
 
-        this.analyser.disconnect(); // Connect each filter in turn
+        this.analyser.disconnect();
+        this.postAnalyser.disconnect(); // Connect each filter in turn
 
         filters.reduce(function (prev, curr) {
           prev.connect(curr);
           return curr;
-        }, this.analyser).connect(this.gainNode);
+        }, this.analyser).connect(this.gainNode).connect(this.postAnalyser);
       }
     }
     /** @private */
@@ -4673,6 +4675,8 @@ function (_util$Observer) {
     value: function createAnalyserNode() {
       this.analyser = this.ac.createAnalyser();
       this.analyser.connect(this.gainNode);
+      this.postAnalyser = this.ac.createAnalyser();
+      this.gainNode.connect(this.postAnalyser);
     }
     /**
      * Create the gain node needed to control the playback volume.
@@ -4928,7 +4932,8 @@ function (_util$Observer) {
       this.disconnectSource();
       this.gainNode.disconnect();
       this.scriptNode.disconnect();
-      this.analyser.disconnect(); // close the audioContext if closeAudioContext option is set to true
+      this.analyser.disconnect();
+      this.postAnalyser.disconnect(); // close the audioContext if closeAudioContext option is set to true
 
       if (this.params.closeAudioContext) {
         // check if browser supports AudioContext.close()
