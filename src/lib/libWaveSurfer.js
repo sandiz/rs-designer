@@ -2,6 +2,7 @@ const mm = require('music-metadata');
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
 const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeline');
+const MinimapPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.minimap');
 const readFile = require("./utils").readFile;
 
 
@@ -84,6 +85,16 @@ class MediaPlayer {
                 TimelinePlugin.create({
                     container: '#timeline',
                     primaryColor: "#fff",
+                }),
+                MinimapPlugin.create({
+                    container: "#minimap",
+                    waveColor: 'grey',
+                    progressColor: 'black',
+                    height: 30,
+                    showOverview: true,
+                    barWidth: 0,
+                    barGap: 0,
+                    barRadius: false,
                 })
             ]
         };

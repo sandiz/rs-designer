@@ -11,6 +11,7 @@ class WaveformBar extends Component {
         this.state = {
             expanded: true,
             showTimeline: false,
+            showMinimap: false,
             currentZoom: 1,
         }
         this.zoom = {
@@ -26,11 +27,11 @@ class WaveformBar extends Component {
     }
 
     reset = () => {
-        this.setState({ showTimeline: false });
+        this.setState({ showTimeline: false, showMinimap: false });
     }
 
     ready = () => {
-        this.setState({ showTimeline: true });
+        this.setState({ showTimeline: true, showMinimap: true });
         const mediaPlayer = window.Project.MediaPlayer.instance;
         if (mediaPlayer) {
             const min = mediaPlayer.wavesurfer.params.minPxPerSec;
@@ -103,6 +104,7 @@ class WaveformBar extends Component {
                     <div className="waveform-container">
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
+                        <div id="minimap" style={{ display: this.state.showMinimap ? "block" : "none" }} />
                     </div>
                 </div>
             </div>

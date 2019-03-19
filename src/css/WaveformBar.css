@@ -12,7 +12,7 @@
     background-color: #3498DB !important;
     border-radius: 4px;
     border: 1px solid lightgray;
-    height: 180px;
+    height: 252px;
 }
 
 .waveform-text-div {
@@ -24,11 +24,18 @@
 }
 
 .waveform-collapse-root {
-    height: 210px;
+    height: 245px;
     margin-top: 10px;
 }
 
 #timeline {
+    background-color: white;
+    border: 1px solid lightgray;
+    padding: 4px;
+    border-radius: 3px;
+}
+
+#minimap {
     background-color: white;
     border: 1px solid lightgray;
     padding: 4px;
@@ -47,4 +54,3 @@
 .cur-pointer {
     cursor: pointer;
 }
-
