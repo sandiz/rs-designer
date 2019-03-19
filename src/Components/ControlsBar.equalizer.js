@@ -184,6 +184,11 @@ class EqualizerControls extends Component {
             }
         }
         else {
+            if (this.filters.length > 0) {
+                for (let idx = 0; idx < this.numBands; idx += 1) {
+                    this.setEQFilter(idx, { value: 0 });
+                }
+            }
             this.setEQFilterAndText(0);
         }
     }
