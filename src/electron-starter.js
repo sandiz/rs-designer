@@ -34,7 +34,7 @@ async function createWindow() {
     // and restore the maximized or full screen state
     mainWindowState.manage(mainWindow);
     mainWindow.setAutoHideMenuBar(true)
-    mainWindow.setMinimumSize(1500, 1070);
+    mainWindow.setMinimumSize(1700, 1070);
     //mainWindow.maximize();
     if (isDev) {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -132,9 +132,9 @@ app.on("ready", () => {
     createWindow();
     if (isDev) {
         //add web-audio visual debugger
-        BrowserWindow.addDevToolsExtension(
-            path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
-        )
+        //BrowserWindow.addDevToolsExtension(
+        //    path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
+        //)
     }
 
 });

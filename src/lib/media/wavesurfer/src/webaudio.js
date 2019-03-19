@@ -133,7 +133,7 @@ export default class WebAudio extends util.Observer {
         /** @private */
         this.playbackRate = 1;
         /** @private */
-        this.analyser = null;
+        this.postAnalyser = null;
         /** @private */
         this.scriptNode = null;
         /** @private */
@@ -168,6 +168,7 @@ export default class WebAudio extends util.Observer {
             this.filters = null;
             // Reconnect direct path
             this.analyser.connect(this.gainNode);
+            this.gainNode.connect(this.postAnalyser);
         }
     }
 
@@ -206,6 +207,7 @@ export default class WebAudio extends util.Observer {
 
             // Disconnect direct path before inserting filters
             this.analyser.disconnect();
+            this.postAnalyser.disconnect();
 
             // Connect each filter in turn
             filters
@@ -213,7 +215,8 @@ export default class WebAudio extends util.Observer {
                     prev.connect(curr);
                     return curr;
                 }, this.analyser)
-                .connect(this.gainNode);
+                .connect(this.gainNode)
+                .connect(this.postAnalyser);
         }
     }
 
@@ -260,6 +263,9 @@ export default class WebAudio extends util.Observer {
     createAnalyserNode() {
         this.analyser = this.ac.createAnalyser();
         this.analyser.connect(this.gainNode);
+
+        this.postAnalyser = this.ac.createAnalyser();
+        this.gainNode.connect(this.postAnalyser);
     }
 
     /**
@@ -494,6 +500,7 @@ export default class WebAudio extends util.Observer {
         this.gainNode.disconnect();
         this.scriptNode.disconnect();
         this.analyser.disconnect();
+        this.postAnalyser.disconnect();
 
         // close the audioContext if closeAudioContext option is set to true
         if (this.params.closeAudioContext) {

@@ -63,7 +63,6 @@ class MediaPlayer {
         this.wavesurfer = null;
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.scriptProcessor = this.audioContext.createScriptProcessor(2048 /*bufferSize*/, 2 /*num inputs*/, 1 /*num outputs*/);
-        this.analyser = this.audioContext.createAnalyser();
         const params = {
             audioContext: this.audioContext,
             audioScriptProcessor: this.scriptProcessor,
@@ -99,14 +98,21 @@ class MediaPlayer {
             this.wavesurfer.backend.setFilters(filters);
     }
 
+    getPostAnalyser() {
+        if (this.wavesurfer)
+            return this.wavesurfer.backend.postAnalyser;
+    }
+
     getBackend() {
         if (this.wavesurfer)
             return this.wavesurfer.backend;
     }
 
     destroy() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
+            this.analyser.disconnect();
             this.wavesurfer.destroy();
+        }
 
         Mousetrap.unbind("space", () => this.playPause);
     }

@@ -40,6 +40,7 @@ class ControlBar extends Component {
                         </div>
                     </div>
                 </div>
+
             </div>
         )
     }
