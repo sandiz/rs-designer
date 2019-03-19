@@ -24,6 +24,27 @@
 }
 
 .waveform-collapse-root {
-    height: 180px;
+    height: 210px;
     margin-top: 10px;
 }
+
+#timeline {
+    background-color: white;
+    border: 1px solid lightgray;
+    padding: 4px;
+    border-radius: 3px;
+}
+
+.waveform-zoom {
+    text-align: right;
+    float: right;
+}
+
+#zoom-slider {
+    display: inline;
+}
+
+.cur-pointer {
+    cursor: pointer;
+}
+

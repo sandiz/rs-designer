@@ -133,7 +133,6 @@ class EqualizerControls extends Component {
     }
 
     toggleKaraoke = () => {
-        console.log("toggle karoke: " + this.state.enableKaraoke);
         const mediaPlayer = window.Project.MediaPlayer.instance;
         if (mediaPlayer) {
             const sp = mediaPlayer.getScriptProcessor();

@@ -1,6 +1,7 @@
 const mm = require('music-metadata');
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
+const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeline');
 const readFile = require("./utils").readFile;
 
 
@@ -79,6 +80,12 @@ class MediaPlayer {
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
+            plugins: [
+                TimelinePlugin.create({
+                    container: '#timeline',
+                    primaryColor: "#fff",
+                })
+            ]
         };
         // initialise like this
         this.wavesurfer = WaveSurfer.create(params);
@@ -114,7 +121,6 @@ class MediaPlayer {
 
     destroy() {
         if (this.wavesurfer) {
-            this.analyser.disconnect();
             this.wavesurfer.destroy();
         }
 
@@ -201,6 +207,11 @@ class MediaPlayer {
     ffwd() {
         if (this.wavesurfer) {
             this.wavesurfer.skipForward(5);
+        }
+    }
+    zoom(num) {
+        if (this.wavesurfer) {
+            this.wavesurfer.zoom(Number(num));
         }
     }
 }
