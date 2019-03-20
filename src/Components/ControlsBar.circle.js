@@ -14,6 +14,7 @@ class CircleControls extends Component {
         this.pitchRef = React.createRef();
         this.tempoRef = React.createRef();
         this.soundTouchNode = null;
+        this.st = new SoundTouch();
     }
     //eslint-disable-next-line
     volCallback = (v) => {
@@ -30,6 +31,17 @@ class CircleControls extends Component {
         const mediaPlayer = window.Project.MediaPlayer.instance;
         if (mediaPlayer) {
             mediaPlayer.setPlaybackRate(v.value / 100);
+        }
+    }
+
+    pitchCallback = (v) => {
+        this.pitchRef.current.innerHTML = "Semi: " + v.value;
+        const mediaPlayer = window.Project.MediaPlayer.instance;
+        if (mediaPlayer) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.playPause();
+                mediaPlayer.playPause();
+            }
         }
     }
 
@@ -73,18 +85,16 @@ class CircleControls extends Component {
         this.pitchSlider.addSlider({
             id: 1,
             radius: 45,
-            min: 0,
+            min: -12,
             max: 12,
             step: 1,
             color: "#104b63",
-            changed: (v) => {
-                this.pitchRef.current.innerHTML = "Key: " + v.value;
-            },
+            changed: v => this.pitchCallback(v),
         });
+        this.pitchCallback({ value: 0 })
     }
 
     initTempoNode = (mp) => {
-        const st = new SoundTouch();
         const bk = mp.getBackend();
         const buffer = bk.buffer;
         const channels = buffer.numberOfChannels;
@@ -116,8 +126,9 @@ class CircleControls extends Component {
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
-            st.tempo = mediaPlayer.getPlaybackRate();
-            if (st.tempo === 1) {
+            this.st.tempo = mediaPlayer.getPlaybackRate();
+            this.st.pitchSemitones = this.pitchSlider.sliders[1].normalizedValue;
+            if (this.st.tempo === 1 && this.st.pitchSemitones === 0) {
                 if (this.soundTouchNode) {
                     this.soundTouchNode.disconnect();
                     backend.source.connect(backend.analyser);
@@ -125,7 +136,7 @@ class CircleControls extends Component {
             }
             else {
                 if (!this.soundTouchNode) {
-                    const filter = new SimpleFilter(source, st);
+                    const filter = new SimpleFilter(source, this.st);
                     this.soundTouchNode = getWebAudioNode(
                         backend.ac,
                         filter,
@@ -157,6 +168,8 @@ class CircleControls extends Component {
             this.soundTouchNode.disconnect();
         }
         this.soundTouchNode = null;
+        this.st.tempo = 1;
+        this.st.pitch = 0;
     }
 
     ready = () => {
@@ -175,7 +188,11 @@ class CircleControls extends Component {
 
             const speed = 100;
             this.tempoSlider.setSliderValue(1, speed);
-            this.tempoCallback({ value: 100 });
+            this.tempoCallback({ value: speed });
+
+            const semitones = 0;
+            this.pitchSlider.setSliderValue(1, semitones);
+            this.pitchCallback({ value: semitones });
         }
     };
 
