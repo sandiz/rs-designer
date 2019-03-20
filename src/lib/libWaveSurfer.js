@@ -5,8 +5,6 @@ const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeli
 const MinimapPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.minimap');
 const readFile = require("./utils").readFile;
 
-
-
 const readTags = file => new Promise((resolve, reject) => {
     mm.parseFile(file, { native: true })
         .then(metadata => {
@@ -69,7 +67,9 @@ class MediaPlayer {
             audioContext: this.audioContext,
             container: '#waveform',
             waveColor: '#ffffff',
-            progressColor: 'hsla(200, 100%, 30%, 0.5)',
+            //progressColor: 'hsla(200, 100%, 30%, 0.5)',
+            //waveColor: 'grey',
+            progressColor: 'black',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
             barWidth: 3,
@@ -133,14 +133,14 @@ class MediaPlayer {
     destroy() {
         if (this.wavesurfer) {
             this.wavesurfer.destroy();
+            this.wavesurfer.off();
         }
-
-        Mousetrap.unbind("space", () => this.playPause);
     }
 
     empty() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             this.wavesurfer.empty();
+        }
     }
 
     seekAndCenter(progress) {
@@ -152,6 +152,18 @@ class MediaPlayer {
         if (this.wavesurfer)
             return this.wavesurfer.getVolume();
         return 0;
+    }
+
+    getPlaybackRate() {
+        if (this.wavesurfer)
+            return this.wavesurfer.getPlaybackRate();
+        return 1;
+    }
+
+    setPlaybackRate(val) {
+        if (this.wavesurfer) {
+            this.wavesurfer.setPlaybackRate(val);
+        }
     }
 
     setVolume(val) {

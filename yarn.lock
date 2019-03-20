@@ -10147,6 +10147,11 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
+soundtouchjs@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/soundtouchjs/-/soundtouchjs-0.1.5.tgz#89e6cae0fba8cf00d0928895d0a1ded1cef52cf2"
+  integrity sha512-m89HBaT6yCpeMHKDY4tRaGRtLe+A7U7dytkakVG9xLYXPCyy5wM1RBAOvrchWJiDTzh4+Ms4GaAPvomePXvPDw==
+
 source-list-map@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/source-list-map/-/source-list-map-2.0.0.tgz#aaa47403f7b245a92fbc97ea08f250d6087ed085"
