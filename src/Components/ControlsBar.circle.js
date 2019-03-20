@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import '../css/ControlsBar.css'
 import '../css/slider.css'
 import "../lib/radiaslider/src/slider-circular"
+import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
+
 
 const { Dispatcher, DispatchEvents } = window.Project;
 
@@ -11,6 +13,7 @@ class CircleControls extends Component {
         this.volRef = React.createRef();
         this.pitchRef = React.createRef();
         this.tempoRef = React.createRef();
+        this.soundTouchNode = null;
     }
     //eslint-disable-next-line
     volCallback = (v) => {
@@ -21,6 +24,15 @@ class CircleControls extends Component {
             mediaPlayer.setVolume(volume);
         }
     }
+
+    tempoCallback = (v) => {
+        this.tempoRef.current.innerHTML = "Speed: " + v.value + "%";
+        const mediaPlayer = window.Project.MediaPlayer.instance;
+        if (mediaPlayer) {
+            mediaPlayer.setPlaybackRate(v.value / 100);
+        }
+    }
+
     //eslint-disable-next-line
     createCircularSliders() {
         this.volSlider = new window.Slider({
@@ -46,14 +58,13 @@ class CircleControls extends Component {
         this.tempoSlider.addSlider({
             id: 1,
             radius: 45,
-            min: 25,
+            min: 50,
             max: 150,
-            step: 25,
+            step: 10,
             color: "#104b63",
-            changed: (v) => {
-                this.tempoRef.current.innerHTML = "Speed: " + v.value + "%";
-            },
+            changed: v => this.tempoCallback(v),
         });
+        this.tempoCallback({ value: 100 })
 
         this.pitchSlider = new window.Slider({
             canvasId: "pitch-canvas",
@@ -71,27 +82,110 @@ class CircleControls extends Component {
             },
         });
     }
+
+    initTempoNode = (mp) => {
+        const st = new SoundTouch();
+        const bk = mp.getBackend();
+        const buffer = bk.buffer;
+        const channels = buffer.numberOfChannels;
+        const l = buffer.getChannelData(0);
+        const r = channels > 1 ? buffer.getChannelData(1) : l;
+        const length = buffer.length;
+        let seekingPos = null;
+        let seekingDiff = 0;
+
+        const source = {
+            extract: (target, numFrames, position) => {
+                if (seekingPos != null) {
+                    seekingDiff = seekingPos - position;
+                    seekingPos = null;
+                }
+
+                position += seekingDiff;
+
+                for (let i = 0; i < numFrames; i += 1) {
+                    target[i * 2] = l[i + position];
+                    target[i * 2 + 1] = r[i + position];
+                }
+
+                return Math.min(numFrames, length - position);
+            },
+        };
+        mp.onplay(() => {
+            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const backend = mediaPlayer.getBackend();
+            //eslint-disable-next-line
+            seekingPos = ~~(backend.getPlayedPercents() * length);
+            st.tempo = mediaPlayer.getPlaybackRate();
+            if (st.tempo === 1) {
+                if (this.soundTouchNode) {
+                    this.soundTouchNode.disconnect();
+                    backend.source.connect(backend.analyser);
+                }
+            }
+            else {
+                if (!this.soundTouchNode) {
+                    const filter = new SimpleFilter(source, st);
+                    this.soundTouchNode = getWebAudioNode(
+                        backend.ac,
+                        filter,
+                    );
+                }
+                backend.source.disconnect(backend.analyser);
+                backend.source.connect(this.soundTouchNode);
+                this.soundTouchNode.connect(backend.analyser);
+            }
+        })
+        mp.onpause(() => {
+            if (this.soundTouchNode) {
+                this.soundTouchNode.disconnect();
+                const mediaPlayer = window.Project.MediaPlayer.instance;
+                const backend = mediaPlayer.getBackend();
+                backend.source.connect(backend.analyser);
+            }
+        })
+        mp.onseek((per) => {
+            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const backend = mediaPlayer.getBackend();
+            //eslint-disable-next-line
+            seekingPos = ~~(backend.getPlayedPercents() * length);
+        })
+    }
+
+    reset = () => {
+        if (this.soundTouchNode) {
+            this.soundTouchNode.disconnect();
+        }
+        this.soundTouchNode = null;
+    }
+
+    ready = () => {
+        const mediaPlayer = window.Project.MediaPlayer.instance;
+        if (mediaPlayer) {
+            const volume = mediaPlayer.getVolume() * 100
+            this.volSlider.setSliderValue(1, volume);
+            this.volRef.current.innerHTML = "Vol: " + volume;
+            this.volCallback({ value: volume });
+            this.initTempoNode(mediaPlayer);
+        }
+        else {
+            const volume = 100;
+            this.volSlider.setSliderValue(1, volume);
+            this.volCallback({ value: volume });
+
+            const speed = 100;
+            this.tempoSlider.setSliderValue(1, speed);
+            this.tempoCallback({ value: 100 });
+        }
+    };
+
     //eslint-disable-next-line
     componentDidMount() {
         this.createCircularSliders();
 
-        const cb = () => {
-            const mediaPlayer = window.Project.MediaPlayer.instance;
-            if (mediaPlayer) {
-                const volume = mediaPlayer.getVolume() * 100
-                this.volSlider.setSliderValue(1, volume);
-                this.volRef.current.innerHTML = "Vol: " + volume;
-                this.volCallback({ value: volume });
-            }
-            else {
-                const volume = 100;
-                this.volSlider.setSliderValue(1, volume);
-                this.volRef.current.innerHTML = "Vol: " + volume;
-                this.volCallback({ value: volume });
-            }
-        };
-        Dispatcher.on(DispatchEvents.MediaReady, cb);
-        cb(); //set default values
+        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
+        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        this.ready(); //set default values (fail path)
     }
 
     render() {
