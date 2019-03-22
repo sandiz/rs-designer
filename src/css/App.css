@@ -16,24 +16,30 @@ body {
     color: white;
 }
 
-#flex {
+#app-flex {
     display: flex;
     /* Optional, if you want the DIVs 100% width: */
     flex-direction: column;
 }
 
-#flex>#a {
+#app-flex>#a {
     order: 1;
 }
 
-#flex>#b {
+#app-flex>#b {
     order: 2;
 }
 
-#flex>#c {
+#app-flex>#c {
     order: 3;
 }
 
 .ta-center {
     text-align: center;
+}
+
+#app-flex {
+    overflow: auto;
+    height: 91vh;
+    margin-top: 1.5vh;
 }

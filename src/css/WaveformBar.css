@@ -2,7 +2,7 @@
     margin: 0 auto;
     font-size: 20px;
     font-variant: small-caps;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
     width: 95%;
 }
 
@@ -12,7 +12,7 @@
     background-color: #3498DB !important;
     border-radius: 4px;
     border: 1px solid lightgray;
-    height: 252px;
+    height: 100%;
 }
 
 .waveform-text-div {
@@ -24,7 +24,7 @@
 }
 
 .waveform-collapse-root {
-    height: 245px;
+    height: 252px;
     margin-top: 10px;
 }
 

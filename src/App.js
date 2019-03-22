@@ -4,6 +4,7 @@ import WaveformBar from './Components/WaveformBar'
 import ControlsBar from './Components/ControlsBar'
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
+import MusicInformationBar from './Components/MusicInformationBar';
 
 class App extends Component {
   constructor(props) {
@@ -17,10 +18,10 @@ class App extends Component {
     return (
       <div>
         <ControllerBar />
-        <br />
-        <div id="flex">
+        <div id="app-flex">
           <WaveformBar />
           <ControlsBar />
+          <MusicInformationBar />
         </div>
       </div>
     );

@@ -1,0 +1,18 @@
+.mir-collapse-root {
+    height: 30vh;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+}
+
+.mir-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 2vh;
+    width: 95%;
+}
+
+.mir-text-div {
+    border-bottom: 1px solid white;
+}
