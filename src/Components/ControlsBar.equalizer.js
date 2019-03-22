@@ -152,7 +152,7 @@ class EqualizerControls extends Component {
                 const len = inputL.length;
                 let i = 0;
                 for (; i < len; i += 1) {
-                    output[i] = inputL[i] - inputR[i];
+                    output[i] = (inputL[i] - inputR[i]) / 2;
                 }
             };
         }

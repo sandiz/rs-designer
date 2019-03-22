@@ -100,7 +100,7 @@ class WaveformBar extends Component {
                         <i className="cur-pointer fas fa-search" onClick={this.resetZoom} />
                     </span>
                 </div>
-                <div className={expanded} id="collapseExample">
+                <div className={expanded} id="">
                     <div className="waveform-container">
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />

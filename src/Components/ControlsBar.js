@@ -30,7 +30,7 @@ class ControlBar extends Component {
                         <span style={{ marginLeft: 5 + 'px' }}>CONTROLS</span>
                     </span>
                 </div>
-                <div className={expanded} id="collapseExample">
+                <div className={expanded} id="">
                     <div className="controls-root-flex">
                         <div className="root-flex1">
                             <CircleControls />
