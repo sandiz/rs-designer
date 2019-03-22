@@ -3,6 +3,7 @@ const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
 const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeline');
 const MinimapPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.minimap');
+const SpectrogramPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.spectrogram');
 const readFile = require("./utils").readFile;
 
 const readTags = file => new Promise((resolve, reject) => {
@@ -99,6 +100,13 @@ class MediaPlayer {
                     barWidth: 0,
                     barGap: 0,
                     barRadius: false,
+                }),
+                SpectrogramPlugin.create({
+                    container: "#spectrogram",
+                    labels: true,
+                    deferInit: false,
+                    pixelRatio: 1,
+                    fftSamples: 1024,
                 })
             ]
         };
@@ -137,7 +145,6 @@ class MediaPlayer {
     destroy() {
         if (this.wavesurfer) {
             this.wavesurfer.destroy();
-            this.wavesurfer.off();
         }
     }
 
