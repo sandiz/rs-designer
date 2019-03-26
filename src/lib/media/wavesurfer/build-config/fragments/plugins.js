@@ -28,7 +28,8 @@ module.exports = {
         'cursor',
         'microphone',
         'mediasession',
-        'elan'
+        'elan',
+	'constantq'
     ]),
     output: {
         path: path.join(rootDir, 'dist', 'plugin'),

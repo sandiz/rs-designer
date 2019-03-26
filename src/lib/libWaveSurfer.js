@@ -3,7 +3,8 @@ const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
 const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeline');
 const MinimapPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.minimap');
-const SpectrogramPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.spectrogram');
+//const SpectrogramPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.spectrogram');
+const ConstantQPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.constantq');
 const readFile = require("./utils").readFile;
 
 const readTags = file => new Promise((resolve, reject) => {
@@ -101,7 +102,7 @@ class MediaPlayer {
                     barGap: 0,
                     barRadius: false,
                 }),
-                SpectrogramPlugin.create({
+                ConstantQPlugin.create({
                     container: "#spectrogram",
                     labels: true,
                     deferInit: false,
