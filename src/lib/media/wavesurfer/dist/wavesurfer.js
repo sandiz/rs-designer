@@ -1,5 +1,5 @@
 /*!
- * wavesurfer.js 2.2.0 (2019-03-25)
+ * wavesurfer.js 2.2.0 (2019-03-26)
  * https://github.com/katspaugh/wavesurfer.js
  * @license BSD-3-Clause
  */
@@ -2696,6 +2696,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  * @property {string} backend='WebAudio' `'WebAudio'|'MediaElement'` In most cases
  * you don't have to set this manually. MediaElement is a fallback for
  * unsupported browsers.
+ * @property {string} backgroundColor=null Change background color of the
+ * waveform container.
  * @property {number} barHeight=1 The height of the wave
  * @property {number} barGap=null The optional spacing between bars of the wave,
  * if not provided will be calculated in legacy format.
@@ -2925,6 +2927,7 @@ function (_util$Observer) {
       audioRate: 1,
       autoCenter: true,
       backend: 'WebAudio',
+      backgroundColor: null,
       barHeight: 1,
       barGap: null,
       container: null,
@@ -2997,6 +3000,10 @@ function (_util$Observer) {
       util.style(_this.container, {
         transform: 'rotateY(180deg)'
       });
+    }
+
+    if (_this.params.backgroundColor) {
+      _this.setBackgroundColor(_this.params.backgroundColor);
     }
     /**
      * @private Used to save the current volume when muting so we can
@@ -3778,6 +3785,32 @@ function (_util$Observer) {
     value: function setProgressColor(color) {
       this.params.progressColor = color;
       this.drawBuffer();
+    }
+    /**
+     * Get the background color of the waveform container.
+     *
+     * @return {string} A CSS color string.
+     */
+
+  }, {
+    key: "getBackgroundColor",
+    value: function getBackgroundColor() {
+      return this.params.backgroundColor;
+    }
+    /**
+     * Set the background color of the waveform container.
+     *
+     * @param {string} color A CSS color string.
+     * @example wavesurfer.setBackgroundColor('#FF00FF');
+     */
+
+  }, {
+    key: "setBackgroundColor",
+    value: function setBackgroundColor(color) {
+      this.params.backgroundColor = color;
+      util.style(this.container, {
+        background: this.params.backgroundColor
+      });
     }
     /**
      * Get the fill color of the cursor indicating the playhead
