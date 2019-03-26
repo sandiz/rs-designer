@@ -1,7 +1,0 @@
-var core = require('./src/core')
-var buffer = require('./src/buffer')
-var filter = require('./src/filter')
-var pipe = require('./src/pipe')
-var rateTransposer = require('./src/rate-transposer')
-var soundtouch = require('./src/soundtouch')
-var stretch = require('./src/stretch')
