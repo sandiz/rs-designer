@@ -1,5 +1,5 @@
 /*!
- * wavesurfer.js 2.2.0 (2019-03-22)
+ * wavesurfer.js 2.2.0 (2019-03-25)
  * https://github.com/katspaugh/wavesurfer.js
  * @license BSD-3-Clause
  */
