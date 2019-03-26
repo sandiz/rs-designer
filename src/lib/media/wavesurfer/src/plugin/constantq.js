@@ -2,6 +2,8 @@
  * Calculate FFT - Based on https://github.com/corbanbrook/dsp.js
  */
 /* eslint-disable complexity, no-redeclare, no-var, one-var */
+import ShowCQTBar from './showcqtbar-emscripten.asm';
+
 const FFT = function(bufferSize, sampleRate, windowFunc, alpha) {
     this.bufferSize = bufferSize;
     this.sampleRate = sampleRate;
@@ -314,6 +316,11 @@ export default class ConstantQSpectrogramPlugin {
             this.windowFunc = params.windowFunc;
             this.alpha = params.alpha;
 
+            this.cqt = new ShowCQTBar(44100, 1920, 1080, 1, 1, 1);
+            this.cqt.input_l = this.cqt.get_input_array(0);
+            this.cqt.input_r = this.cqt.get_input_array(1);
+            this.cqt.output = this.cqt.get_output_array();
+
             this.createWrapper();
             this.createCanvas();
             this.render();
@@ -322,7 +329,6 @@ export default class ConstantQSpectrogramPlugin {
             ws.on('redraw', () => this.render);
         };
     }
-
     init() {
         // Check if wavesurfer is ready
         if (this.wavesurfer.isReady) {
@@ -471,7 +477,9 @@ export default class ConstantQSpectrogramPlugin {
     getFrequencies(callback) {
         const fftSamples = this.fftSamples;
         const buffer = (this.buffer = this.wavesurfer.backend.buffer);
+        console.log(buffer);
         const channelOne = buffer.getChannelData(0);
+        const channelTwo = buffer.getChannelData(1);
         const bufferLength = buffer.length;
         const sampleRate = buffer.sampleRate;
         const frequencies = [];
@@ -487,32 +495,44 @@ export default class ConstantQSpectrogramPlugin {
             noverlap = Math.max(0, Math.round(fftSamples - uniqueSamplesPerPx));
         }
 
-        const fft = new FFT(
+        /*const fft = new FFT(
             fftSamples,
             sampleRate,
             this.windowFunc,
             this.alpha
-        );
+        );*/
         const maxSlicesCount = Math.floor(
             bufferLength / (fftSamples - noverlap)
         );
         let currentOffset = 0;
 
         while (currentOffset + fftSamples < channelOne.length) {
-            const segment = channelOne.slice(
+            const segment_l = channelOne.slice(
                 currentOffset,
                 currentOffset + fftSamples
             );
-            const spectrum = fft.calculateSpectrum(segment);
+            const segment_r = channelTwo.slice(
+                currentOffset,
+                currentOffset + fftSamples
+            );
+            console.log(segment_l);
+            //this.cqt.input_l.set(segment_l);
+            //this.cqt.input_r.set(segment_r);
+            this.cqt.calc();
+            this.cqt.render_line(0);
+            //console.log(this.cqt.output);
+            /*
+            const spectrum = fft.calculateSpectrum(segment_l);
             const array = new Uint8Array(fftSamples / 2);
             let j;
             for (j = 0; j < fftSamples / 2; j++) {
                 array[j] = Math.max(-255, Math.log10(spectrum[j]) * 45);
             }
             frequencies.push(array);
+            */
             currentOffset += fftSamples - noverlap;
         }
-        callback(frequencies, this);
+        //callback(frequencies, this);
     }
 
     loadFrequenciesData(url) {
