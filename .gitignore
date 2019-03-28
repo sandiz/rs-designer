@@ -8,6 +8,12 @@
 
 # production
 /build
+.DS_Store
+.idea
+.project
+.chrome
+.build_cache
+.pydevproject
 
 # misc
 .DS_Store
