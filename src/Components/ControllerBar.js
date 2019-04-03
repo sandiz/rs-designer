@@ -167,7 +167,7 @@ class ControllerBar extends Component {
   render = () => {
     return (
       <div>
-        <div className="controller_bar">
+        <div className="controller_bar bg-light">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <button type="button" className="btn btn-secondary">
               <i className="fas fa-folder-open icon-center" /> &nbsp;

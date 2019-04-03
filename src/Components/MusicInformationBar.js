@@ -46,7 +46,7 @@ class MusicInformationBar extends Component {
                 <div className="mir-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
-                        <span style={{ marginLeft: 5 + 'px' }}>Music Information</span>
+                        <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
                     </span>
                 </div>
                 <div className={expanded} id="">

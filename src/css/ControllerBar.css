@@ -1,6 +1,7 @@
 .controller_bar {
     width: 100%;
     box-shadow: 0px 2px 1px lightgrey;
+    padding-top: 5px;
 }
 
 .vertical {
