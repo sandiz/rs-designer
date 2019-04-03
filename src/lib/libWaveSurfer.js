@@ -102,13 +102,14 @@ class MediaPlayer {
                     barGap: 0,
                     barRadius: false,
                 }),
+                /*
                 ConstantQPlugin.create({
                     container: "#spectrogram",
                     labels: true,
                     deferInit: false,
                     pixelRatio: 1,
                     fftSamples: 1024,
-                })
+                })*/
             ]
         };
         // initialise like this
