@@ -13,7 +13,8 @@ body {
     -webkit-app-region: drag;
 }
 
-button {
+button,
+canvas {
     -webkit-app-region: no-drag;
 }
 
@@ -47,4 +48,6 @@ button {
     overflow: auto;
     height: 91vh;
     margin-top: 1.5vh;
+    padding-top: 1.5vh;
+    margin-top: 2px;
 }
