@@ -14,6 +14,13 @@ async function createWindow() {
         defaultWidth: 1750,
         defaultHeight: 1070
     });
+    let frameOpts = {}
+    if (process.platform !== 'win32') {
+        frameOpts = {
+            frame: false,
+            titleBarStyle: 'hidden',
+        };
+    }
 
     // Create the window using the state information
     mainWindow = new BrowserWindow({
@@ -22,7 +29,7 @@ async function createWindow() {
         width: mainWindowState.width,
         height: mainWindowState.height,
         show: false,
-
+        ...frameOpts,
         icon: path.join(__dirname, "./icons/png/icon-1024x1024.png"),
         webPreferences: {
             preload: path.join(__dirname, "./preload.js"),
