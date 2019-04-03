@@ -10,6 +10,11 @@ body {
     user-select: none;
     overflow: hidden;
     height: 100%;
+    -webkit-app-region: drag;
+}
+
+button {
+    -webkit-app-region: no-drag;
 }
 
 .background {
