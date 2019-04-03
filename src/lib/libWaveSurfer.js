@@ -3,9 +3,6 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import { readFile } from './utils'
 
-//const WaveSurfer = require("wavesurfer.js");
-//const TimelinePlugin = require("wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js")
-//const MinimapPlugin = require("wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js")
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
 //const SpectrogramPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.spectrogram');
 //const ConstantQPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.constantq');
