@@ -3,7 +3,8 @@ import '../css/WaveformBar.css'
 import "../lib/radiaslider/src/slider-linear"
 import { setStateAsync } from '../lib/utils';
 
-const { Dispatcher, DispatchEvents } = window.Project;
+import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
+import { MediaPlayer } from '../lib/libWaveSurfer'
 
 class WaveformBar extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class WaveformBar extends Component {
 
     ready = () => {
         this.setState({ showTimeline: true, showMinimap: true });
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const min = mediaPlayer.wavesurfer.params.minPxPerSec;
 
@@ -45,7 +46,7 @@ class WaveformBar extends Component {
         const curr = this.state.currentZoom;
         if (curr < this.zoom.max) {
             await setStateAsync(this, { currentZoom: curr + 1 });
-            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const mediaPlayer = MediaPlayer.instance;
             if (mediaPlayer) {
                 mediaPlayer.zoom(Number(this.state.currentZoom));
             }
@@ -56,7 +57,7 @@ class WaveformBar extends Component {
         const curr = this.state.currentZoom;
         if (curr > this.zoom.min) {
             await setStateAsync(this, { currentZoom: curr - 1 });
-            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const mediaPlayer = MediaPlayer.instance;
             if (mediaPlayer) {
                 mediaPlayer.zoom(Number(this.state.currentZoom));
             }
@@ -64,7 +65,7 @@ class WaveformBar extends Component {
     }
 
     resetZoom = async () => {
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             await setStateAsync(this, { currentZoom: this.zoom.default });
 

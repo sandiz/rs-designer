@@ -24,7 +24,7 @@ class DispatcherEvent {
 }
 
 
-class Dispatcher {
+class DispatcherBase {
     constructor() {
         this.events = {};
     }
@@ -55,10 +55,10 @@ class Dispatcher {
         }
     }
 }
-exports.DispatchEvents = {
+export const DispatchEvents = {
     MediaReady: "media-ready",
     MediaReset: "media-reset",
 }
 
 
-exports.Dispatcher = new Dispatcher();
+export const Dispatcher = new DispatcherBase();

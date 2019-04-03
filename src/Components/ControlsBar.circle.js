@@ -4,8 +4,8 @@ import '../css/slider.css'
 import "../lib/radiaslider/src/slider-circular"
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
-
-const { Dispatcher, DispatchEvents } = window.Project;
+import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
+import { MediaPlayer } from '../lib/libWaveSurfer'
 
 class CircleControls extends Component {
     constructor(props) {
@@ -20,7 +20,7 @@ class CircleControls extends Component {
     volCallback = (v) => {
         this.volRef.current.innerHTML = "Vol: " + v.value;
         const volume = v.value / 100;
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             mediaPlayer.setVolume(volume);
         }
@@ -28,7 +28,7 @@ class CircleControls extends Component {
 
     tempoCallback = (v) => {
         this.tempoRef.current.innerHTML = "Speed: " + v.value + "%";
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             mediaPlayer.setPlaybackRate(v.value / 100);
         }
@@ -36,7 +36,7 @@ class CircleControls extends Component {
 
     pitchCallback = (v) => {
         this.pitchRef.current.innerHTML = "Semi: " + v.value;
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.playPause();
@@ -122,7 +122,7 @@ class CircleControls extends Component {
             },
         };
         mp.onplay(() => {
-            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const mediaPlayer = MediaPlayer.instance;
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
@@ -150,13 +150,13 @@ class CircleControls extends Component {
         mp.onpause(() => {
             if (this.soundTouchNode) {
                 this.soundTouchNode.disconnect();
-                const mediaPlayer = window.Project.MediaPlayer.instance;
+                const mediaPlayer = MediaPlayer.instance;
                 const backend = mediaPlayer.getBackend();
                 backend.source.connect(backend.analyser);
             }
         })
         mp.onseek((per) => {
-            const mediaPlayer = window.Project.MediaPlayer.instance;
+            const mediaPlayer = MediaPlayer.instance;
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
@@ -173,7 +173,7 @@ class CircleControls extends Component {
     }
 
     ready = () => {
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const volume = mediaPlayer.getVolume() * 100
             this.volSlider.setSliderValue(1, volume);

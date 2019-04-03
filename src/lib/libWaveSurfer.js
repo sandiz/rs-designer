@@ -1,15 +1,18 @@
-const mm = require('music-metadata');
+import WaveSurfer from 'wavesurfer.js';
+import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
+import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
+import { readFile } from './utils'
+
+//const WaveSurfer = require("wavesurfer.js");
+//const TimelinePlugin = require("wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js")
+//const MinimapPlugin = require("wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js")
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
-const WaveSurfer = require("./media/wavesurfer/dist/wavesurfer");
-const TimelinePlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.timeline');
-const MinimapPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.minimap');
 //const SpectrogramPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.spectrogram');
-const ConstantQPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.constantq');
-const readFile = require("./utils").readFile;
+//const ConstantQPlugin = require('./media/wavesurfer/dist/plugin/wavesurfer.constantq');
 
 const readTags = file => new Promise((resolve, reject) => {
-    mm.parseFile(file, { native: true })
-        .then(metadata => {
+    window.mm.parseFile(file, { native: true })
+        .then((metadata) => {
             resolve(metadata);
         })
         .catch((err) => {
@@ -17,50 +20,17 @@ const readTags = file => new Promise((resolve, reject) => {
         });
 });
 
-const ImportMediaStates = {
+export const MediaPlayer = {
+    instance: null,
+}
+export const ImportMediaStates = {
     importing: "importing",
     readingTags: "reading-tags",
     decodingAudio: "decoding-audio",
     wavesurfing: "wavesurfing",
 }
-class ImportMedia {
-    async start(files, stateChangeCb, completeCb) {
-        Dispatcher.dispatch(DispatchEvents.MediaReset);
-        const file = files[0];
-        console.log("importMedia: " + file);
-        stateChangeCb(ImportMediaStates.importing);
 
-        const media = {}
-        media.tags = await readTags(file)
-
-        stateChangeCb(ImportMediaStates.readingTags);
-
-        /* decode audio */
-        const data = await readFile(file);
-        //const decodedData = await decode(data);
-        /* change state */
-        stateChangeCb(ImportMediaStates.decodingAudio);
-
-        /* wave surf */
-        var blob = new window.Blob([new Uint8Array(data)]);
-        if (exports.MediaPlayer.instance) {
-            exports.MediaPlayer.instance.empty();
-            exports.MediaPlayer.instance.destroy();
-            exports.MediaPlayer.instance = null;
-        }
-        /* change state */
-        const cb = () => {
-            stateChangeCb(ImportMediaStates.wavesurfing);
-            completeCb(media);
-            Dispatcher.off(DispatchEvents.MediaReady, cb);
-        };
-        Dispatcher.on(DispatchEvents.MediaReady, cb);
-
-        exports.MediaPlayer.instance = new MediaPlayer(blob);
-    }
-}
-
-class MediaPlayer {
+class MediaPlayerBase {
     constructor(blob) {
         this.wavesurfer = null;
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -110,7 +80,7 @@ class MediaPlayer {
                     pixelRatio: 1,
                     fftSamples: 1024,
                 })*/
-            ]
+            ],
         };
         // initialise like this
         this.wavesurfer = WaveSurfer.create(params);
@@ -119,35 +89,43 @@ class MediaPlayer {
         this.wavesurfer.on("ready", () => {
             Dispatcher.dispatch(DispatchEvents.MediaReady);
         });
-        this.wavesurfer.on('error', function (msg) {
+        this.wavesurfer.on('error', (msg) => {
             console.log(msg);
         });
     }
 
     setFilters(filters) {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             this.wavesurfer.backend.setFilters(filters);
+        }
     }
 
     getScriptProcessor() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.scriptProcessor;
+        }
+        return null;
     }
 
     getPostAnalyser() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.backend.postAnalyser;
+        }
+        return null;
     }
 
     getBackend() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.backend;
+        }
+        return null;
     }
 
     destroy() {
         if (this.wavesurfer) {
             this.wavesurfer.destroy();
         }
+        return null;
     }
 
     empty() {
@@ -157,19 +135,22 @@ class MediaPlayer {
     }
 
     seekAndCenter(progress) {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             this.wavesurfer.seekAndCenter(progress);
+        }
     }
 
     getVolume() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.getVolume();
+        }
         return 0;
     }
 
     getPlaybackRate() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.getPlaybackRate();
+        }
         return 1;
     }
 
@@ -180,28 +161,38 @@ class MediaPlayer {
     }
 
     setVolume(val) {
-        if (this.wavesurfer)
-            return this.wavesurfer.setVolume(val);
+        if (this.wavesurfer) {
+            this.wavesurfer.setVolume(val);
+        }
     }
 
     isPlaying() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.isPlaying();
+        }
         return false;
     }
+
     getCurrent() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.getCurrentTime();
+        }
+        return 0;
     }
+
     getDuration() {
-        if (this.wavesurfer)
+        if (this.wavesurfer) {
             return this.wavesurfer.getDuration();
+        }
+        return 0;
     }
+
     onseek(cb) {
         if (this.wavesurfer) {
-            this.wavesurfer.on("seek", (f) => cb(f));
+            this.wavesurfer.on("seek", f => cb(f));
         }
     }
+
     finish(cb) {
         if (this.wavesurfer) {
             this.wavesurfer.on("finish", cb);
@@ -222,109 +213,73 @@ class MediaPlayer {
 
     timer(cb) {
         if (this.wavesurfer) {
-            this.wavesurfer.on("audioprocess", (time) => cb(time));
+            this.wavesurfer.on("audioprocess", time => cb(time));
         }
     }
+
     playPause() {
         if (this.wavesurfer) {
             this.wavesurfer.playPause();
         }
     }
+
     stop() {
         if (this.wavesurfer) {
             this.wavesurfer.stop();
         }
     }
+
     rewind() {
         if (this.wavesurfer) {
             this.wavesurfer.skipBackward(5);
         }
     }
+
     ffwd() {
         if (this.wavesurfer) {
             this.wavesurfer.skipForward(5);
         }
     }
+
     zoom(num) {
         if (this.wavesurfer) {
             this.wavesurfer.zoom(Number(num));
         }
     }
 }
+export class ImportMedia {
+    static async start(files, stateChangeCb, completeCb) {
+        Dispatcher.dispatch(DispatchEvents.MediaReset);
+        const file = files[0];
+        console.log("importMedia: " + file);
+        stateChangeCb(ImportMediaStates.importing);
 
+        const media = {}
+        media.tags = await readTags(file)
 
-function formatTimeCallback(seconds, pxPerSec) {
-    seconds = Number(seconds);
-    const minutes = Math.floor(seconds / 60);
-    seconds %= 60;
+        stateChangeCb(ImportMediaStates.readingTags);
 
-    // fill up seconds with zeroes
-    let secondsStr = Math.round(seconds).toString();
-    if (pxPerSec >= 25 * 10) {
-        secondsStr = seconds.toFixed(2);
-    } else if (pxPerSec >= 25 * 1) {
-        secondsStr = seconds;
-    }
+        /* decode audio */
+        const data = await readFile(file);
+        //const decodedData = await decode(data);
+        /* change state */
+        stateChangeCb(ImportMediaStates.decodingAudio);
 
-    if (minutes > 0) {
-        if (seconds < 10) {
-            secondsStr = '0' + secondsStr;
+        /* wave surf */
+        const blob = new window.Blob([new Uint8Array(data)]);
+        if (MediaPlayer.instance) {
+            MediaPlayer.instance.empty();
+            MediaPlayer.instance.destroy();
+            MediaPlayer.instance = null;
         }
-        return `${minutes}:${secondsStr}`;
-    }
-    return secondsStr;
-}
-function timeInterval(pxPerSec) {
-    let retval = 1;
-    if (pxPerSec >= 25 * 100) {
-        retval = 0.01;
-    } else if (pxPerSec >= 25 * 40) {
-        retval = 0.025;
-    } else if (pxPerSec >= 25 * 10) {
-        retval = 0.1;
-    } else if (pxPerSec >= 25 * 4) {
-        retval = 0.25;
-    } else if (pxPerSec >= 25) {
-        retval = 1;
-    } else if (pxPerSec * 5 >= 25) {
-        retval = 5;
-    } else if (pxPerSec * 15 >= 25) {
-        retval = 15;
-    } else {
-        retval = Math.ceil(0.5 / pxPerSec) * 60;
-    }
-    return retval;
-}
-function primaryLabelInterval(pxPerSec) {
-    let retval = 1;
-    if (pxPerSec >= 25 * 100) {
-        retval = 10;
-    } else if (pxPerSec >= 25 * 40) {
-        retval = 4;
-    } else if (pxPerSec >= 25 * 10) {
-        retval = 10;
-    } else if (pxPerSec >= 25 * 4) {
-        retval = 4;
-    } else if (pxPerSec >= 25) {
-        retval = 1;
-    } else if (pxPerSec * 5 >= 25) {
-        retval = 5;
-    } else if (pxPerSec * 15 >= 25) {
-        retval = 15;
-    } else {
-        retval = Math.ceil(0.5 / pxPerSec) * 60;
-    }
-    return retval;
-}
-function secondaryLabelInterval(pxPerSec) {
-    // draw one every 10s as an example
-    return Math.floor(10 / timeInterval(pxPerSec));
-}
+        /* change state */
+        const cb = () => {
+            stateChangeCb(ImportMediaStates.wavesurfing);
+            completeCb(media);
+            Dispatcher.off(DispatchEvents.MediaReady, cb);
+        };
+        Dispatcher.on(DispatchEvents.MediaReady, cb);
 
-exports.MediaPlayer = {
-    instance: null,
-}
-exports.ImportMedia = {
-    instance: new ImportMedia(),
-    states: ImportMediaStates
+        MediaPlayer.instance = new MediaPlayerBase(blob);
+    }
 }

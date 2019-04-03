@@ -4,7 +4,8 @@ import '../css/slider.css'
 import "../lib/radiaslider/src/slider-linear"
 import FrequencyGraph from './ControlsBar.frequencygraph';
 
-const { Dispatcher, DispatchEvents } = window.Project;
+import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
+import { MediaPlayer } from '../lib/libWaveSurfer'
 
 const temp = {
     min: -40,
@@ -88,7 +89,7 @@ class EqualizerControls extends Component {
         ];
 
         // Create filters
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const backend = mediaPlayer.getBackend();
             if (backend) {
@@ -133,7 +134,7 @@ class EqualizerControls extends Component {
     }
 
     toggleKaraoke = () => {
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const sp = mediaPlayer.getScriptProcessor();
             const ac = mediaPlayer.getBackend();

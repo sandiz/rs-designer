@@ -13,6 +13,7 @@
     "electron-is-dev": "^1.0.1",
     "electron-prompt": "^1.2.0",
     "electron-window-state": "^5.0.1",
+    "eslint-plugin-prettier": "^3.0.1",
     "mousetrap": "^1.6.3",
     "music-metadata": "^3.5.2",
     "node-id3": "^0.1.7",

@@ -58,7 +58,9 @@
         "jsx-a11y/anchor-is-valid": "off",
         "no-else-return": "off",
         "max-len": "off",
-        "react/sort-comp": "off"
+        "react/sort-comp": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/extensions": "off"
     },
     "parser": "babel-eslint",
     "extends": "airbnb",

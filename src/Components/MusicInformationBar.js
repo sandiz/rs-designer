@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import "../css/MusicInformationBar.css"
 
-const { Dispatcher, DispatchEvents } = window.Project;
+import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
+import { MediaPlayer } from '../lib/libWaveSurfer'
 
 class MusicInformationBar extends Component {
     constructor(props) {
@@ -26,7 +27,7 @@ class MusicInformationBar extends Component {
     }
 
     loadSpec = () => {
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             mediaPlayer.wavesurfer.initPlugin("spectrogram");
         }

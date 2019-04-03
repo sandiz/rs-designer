@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import '../css/ControlsBar.css'
 import '../css/slider.css'
 
-const { Dispatcher, DispatchEvents } = window.Project;
+import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
+import { MediaPlayer } from '../lib/libWaveSurfer'
+
 const { requestAnimationFrame, cancelAnimationFrame } = window;
 
 
@@ -72,7 +74,7 @@ class FrequencyGraph extends Component {
     }
 
     ready = () => {
-        const mediaPlayer = window.Project.MediaPlayer.instance;
+        const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             this.analyser = mediaPlayer.getPostAnalyser();
             this.analyser.fftSize = 256;

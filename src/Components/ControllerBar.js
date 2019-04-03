@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
+import { ImportMedia, ImportMediaStates, MediaPlayer } from '../lib/libWaveSurfer'
+import { setStateAsync } from '../lib/utils'
 import '../css/ControllerBar.css'
 import * as nothumb from '../assets/nothumb.jpg'
 
 const Mousetrap = require('mousetrap');
-const setStateAsync = require("../lib/utils").setStateAsync;
 
-const importMediaStates = window.Project.ImportMedia.states;
+const electron = window.require("electron");
+
 
 const sec2time = (timeInSeconds) => {
   //eslint-disable-next-line
@@ -46,7 +48,7 @@ class ControllerBar extends Component {
     e.target.blur();
     e.preventDefault();
 
-    const files = window.remote.dialog.showOpenDialog({
+    const files = electron.remote.dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [
         { name: 'MP3', extensions: ['mp3'] },
@@ -60,62 +62,60 @@ class ControllerBar extends Component {
     await setStateAsync(this, {
       showModal: true,
     })
-    const importer = window.Project.ImportMedia.instance;
-    if (importer) {
-      importer.start(files,
-        (state) => {
-          const cis = this.state.importStepsCompleted;
-          cis.push(state);
-          this.setState({ importStepsCompleted: cis });
-        },
-        (media) => {
-          this.setState({
-            song: media.tags.common.title,
-            artist: media.tags.common.artist,
-            showModal: false,
-          });
-
-          if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
-            const buf = media.tags.common.picture[0].data;
-            this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
-          }
-          else {
-            this.coverArtRef.current.src = nothumb.default;
-          }
-
-          const mediaPlayer = window.Project.MediaPlayer.instance;
-          if (mediaPlayer) {
-            const total = mediaPlayer.getDuration();
-            this.timerRef.total.current.innerHTML = sec2time(total);
-            mediaPlayer.timer((time) => {
-              const per = (Math.round(time) / Math.round(total)).toFixed(2);
-              this.updateProgressBar(per, time);
-            });
-            mediaPlayer.finish(() => {
-              this.setState({ mediaPlaying: false });
-            });
-            mediaPlayer.onplay(() => {
-              this.setState({ mediaPlaying: true });
-            })
-            mediaPlayer.onpause(() => {
-              this.setState({ mediaPlaying: false });
-            })
-            mediaPlayer.onseek((per) => {
-              this.updateProgressBar(per, mediaPlayer.getCurrent());
-            })
-
-            //eslint-disable-next-line
-            Mousetrap.bind(['space'], (e, s) => this.mediaCmd("playpause"));
-            Mousetrap.bind(['left'], (e1, s1) => this.mediaCmd("rewind"));
-            Mousetrap.bind(['right'], (e2, s2) => this.mediaCmd("ffwd"));
-          }
+    const importer = ImportMedia;
+    importer.start(files,
+      (state) => {
+        const cis = this.state.importStepsCompleted;
+        cis.push(state);
+        this.setState({ importStepsCompleted: cis });
+      },
+      (media) => {
+        this.setState({
+          song: media.tags.common.title,
+          artist: media.tags.common.artist,
+          showModal: false,
         });
-    }
+
+        if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
+          const buf = media.tags.common.picture[0].data;
+          this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
+        }
+        else {
+          this.coverArtRef.current.src = nothumb.default;
+        }
+
+        const mediaPlayer = MediaPlayer.instance;
+        if (mediaPlayer) {
+          const total = mediaPlayer.getDuration();
+          this.timerRef.total.current.innerHTML = sec2time(total);
+          mediaPlayer.timer((time) => {
+            const per = (Math.round(time) / Math.round(total)).toFixed(2);
+            this.updateProgressBar(per, time);
+          });
+          mediaPlayer.finish(() => {
+            this.setState({ mediaPlaying: false });
+          });
+          mediaPlayer.onplay(() => {
+            this.setState({ mediaPlaying: true });
+          })
+          mediaPlayer.onpause(() => {
+            this.setState({ mediaPlaying: false });
+          })
+          mediaPlayer.onseek((per) => {
+            this.updateProgressBar(per, mediaPlayer.getCurrent());
+          })
+
+          //eslint-disable-next-line
+          Mousetrap.bind(['space'], (e, s) => this.mediaCmd("playpause"));
+          Mousetrap.bind(['left'], (e1, s1) => this.mediaCmd("rewind"));
+          Mousetrap.bind(['right'], (e2, s2) => this.mediaCmd("ffwd"));
+        }
+      });
   }
 
   //eslint-disable-next-line
   mediaCmd(cmd, value = 0) {
-    const mediaPlayer = window.Project.MediaPlayer.instance;
+    const mediaPlayer = MediaPlayer.instance;
     if (mediaPlayer) {
       switch (cmd) {
         case "playpause":
@@ -153,7 +153,7 @@ class ControllerBar extends Component {
 
     this.mediaCmd("seekAndCenter", clickedValue);
 
-    const mediaPlayer = window.Project.MediaPlayer.instance;
+    const mediaPlayer = MediaPlayer.instance;
     if (mediaPlayer) {
       this.updateProgressBar(clickedValue, mediaPlayer.getCurrent());
     }
@@ -294,9 +294,9 @@ class ControllerBar extends Component {
 function ImportMediaModal(props) {
   const spinnerActiveClass = "spinner-grow text-primary spinner";
   const spinnerCompleteClass = "spinner-grow-noanim text-success spinner"
-  const imComplete = props.completed.includes(importMediaStates.importing);
-  const rtComplete = props.completed.includes(importMediaStates.readingTags);
-  const wsComplete = props.completed.includes(importMediaStates.wavesurfing);
+  const imComplete = props.completed.includes(ImportMediaStates.importing);
+  const rtComplete = props.completed.includes(ImportMediaStates.readingTags);
+  const wsComplete = props.completed.includes(ImportMediaStates.wavesurfing);
   return (
     <Modal
       {...props}
