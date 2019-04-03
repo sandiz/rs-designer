@@ -105,7 +105,7 @@ class ControllerBar extends Component {
             })
 
             //eslint-disable-next-line
-            Mousetrap.bind(['command+p', 'ctrl+p'], (e, s) => this.mediaCmd("playpause"));
+            Mousetrap.bind(['space'], (e, s) => this.mediaCmd("playpause"));
             Mousetrap.bind(['left'], (e1, s1) => this.mediaCmd("rewind"));
             Mousetrap.bind(['right'], (e2, s2) => this.mediaCmd("ffwd"));
           }
@@ -169,17 +169,27 @@ class ControllerBar extends Component {
       <div>
         <div className="controller_bar bg-light">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <button type="button" className="btn btn-secondary">
+            <button
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              className="btn btn-secondary">
               <i className="fas fa-folder-open icon-center" /> &nbsp;
             <span className="btn-text">Open Project</span>
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary">
+          <button
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              className="btn btn-secondary">
               <i className="fas fa-save icon-center" /> &nbsp;
             <span className="btn-text">Save Project</span>
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary" onClick={this.importMedia}>
+          <button
+              type="button"
+              className="btn btn-secondary"
+              onMouseDown={e => e.preventDefault()}
+              onClick={this.importMedia}>
               <i className="fas fa-music icon-center" /> &nbsp;
             <span className="btn-text">Import Media</span>
             </button>
@@ -187,7 +197,11 @@ class ControllerBar extends Component {
           <div className="vertical" />
 
             &nbsp;&nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("playpause")}>
+          <button
+              type="button"
+              className="btn btn-secondary"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => this.mediaCmd("playpause")}>
               {
                 this.state.mediaPlaying ? (
                   <i className="fas fa-pause" />
@@ -198,15 +212,27 @@ class ControllerBar extends Component {
               }
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("stop")}>
+          <button
+              type="button"
+              className="btn btn-secondary"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => this.mediaCmd("stop")}>
               <i className="fas fa-stop" />
             </button>
             &nbsp;&nbsp;
-          <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("rewind")}>
+          <button
+              type="button"
+              className="btn btn-secondary"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => this.mediaCmd("rewind")}>
               <i className="fas fa-backward" />
             </button>
             &nbsp;&nbsp;
-           <button type="button" className="btn btn-secondary" onClick={() => this.mediaCmd("ffwd")}>
+           <button
+              type="button"
+              className="btn btn-secondary"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => this.mediaCmd("ffwd")}>
               <i className="fas fa-forward" />
             </button>
             &nbsp;&nbsp;
