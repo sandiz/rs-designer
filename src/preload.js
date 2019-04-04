@@ -1,5 +1,6 @@
 window.electronFS = require("fs");
 window.mm = require("music-metadata");
+window.os = require("os");
 
 const isDev = require('electron-is-dev');
 window.isDev = isDev;
