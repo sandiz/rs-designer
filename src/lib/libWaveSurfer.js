@@ -1,6 +1,7 @@
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
+//import SpectrogramPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.spectrogram.min.js';
 import { readFile } from './utils'
 
 const { Dispatcher, DispatchEvents } = require("./libDispatcher");
@@ -69,6 +70,15 @@ class MediaPlayerBase {
                     barGap: 0,
                     barRadius: false,
                 }),
+                /*
+                SpectrogramPlugin.create({
+                    container: "#spectrogram",
+                    labels: true,
+                    deferInit: false,
+                    pixelRatio: 1,
+                    fftSamples: 1024,
+                }),
+                */
                 /*
                 ConstantQPlugin.create({
                     container: "#spectrogram",
