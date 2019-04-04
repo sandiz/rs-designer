@@ -24,3 +24,17 @@ FUTURE
 MVP
 - Basic Scene with simple mp3 spectrogram/freq + guitar/bass/rhythm path
 - Save to psarc
+
+
+dev instructions
+- clone forked wavesurfer
+    - git clone https://github.com/sandiz/wavesurfer.js
+    - cd wavesurfer
+    - yarn install
+    - yarn run build
+    - yarn link
+- clone rs-designer
+    - git clone https://github.com/sandiz/rs-designer
+    - yarn link wavesurfer.js
+    - yarn install
+- yarn start
