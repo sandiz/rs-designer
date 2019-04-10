@@ -10,12 +10,30 @@ class MusicInformationBar extends Component {
         this.state = {
             expanded: true,
             showMIR: false,
+            analysing: false,
         }
+    }
+
+    componentWillUnmount() {
+        Dispatcher.off(DispatchEvents.MediaReset, this.reset);
+        Dispatcher.off(DispatchEvents.MediaReady, this.ready);
+        Dispatcher.off(DispatchEvents.MediaAnalysisStart, this.analyseStart);
+        Dispatcher.off(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
     }
 
     componentDidMount() {
         Dispatcher.on(DispatchEvents.MediaReset, this.reset);
         Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        Dispatcher.on(DispatchEvents.MediaAnalysisStart, this.analyseStart);
+        Dispatcher.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
+    }
+
+    analyseStart = () => {
+        this.setState({ analysing: true });
+    }
+
+    analyseEnd = () => {
+        this.setState({ analysing: false });
     }
 
     reset = () => {
@@ -47,7 +65,18 @@ class MusicInformationBar extends Component {
                 <div className="mir-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
-                        <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
+                        {
+                            !this.state.analysing
+                                ? <span style={{ marginLeft: 5 + 'px' }}>Analysis</span>
+                                : (
+                                    <span
+                                        style={{ marginLeft: 5 + 'px' }}>Background Processing...
+                                        <span className="spinner-grow text-info analysisspinner" role="status">
+                                            <span className="sr-only">Loading...</span>
+                                        </span>
+                                    </span>
+                                )
+                        }
                     </span>
                 </div>
                 <div className={expanded} id="">
