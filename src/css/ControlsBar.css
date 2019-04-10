@@ -232,10 +232,8 @@
 }
 
 #frequency-canvas {
-    border-top: 1px solid #000;
-    border-bottom: 1px solid #000;
     margin-bottom: -3px;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
     width: 95%;
     height: 90%;
     position: relative;
@@ -245,13 +243,10 @@
 .freq-container {
     width: 113%;
     margin: 0 auto;
-    background-color: #00bc8c !important;
     height: 178px;
     /* position: relative; */
     /* top: -100%; */
     /* left: 25%; */
-    border-radius: 5px;
-    border: 1px solid lightgray;
     text-align: center;
     justify-content: center;
 }

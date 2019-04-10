@@ -259,7 +259,7 @@ class EqualizerControls extends Component {
                         </div>
                     </div>
                     <div className="eqflex2">
-                        <FrequencyGraph show={this.state.enableSpectrum} key={"fg_" + (this.state.enableSpectrum ? "true" : "false")} />
+                        <FrequencyGraph show={this.state.enableSpectrum} key={"fg_" + (this.state.enableSpectrum ? "true" : "true")} />
                     </div>
                     <div className="eqflex3">
                         <div>
