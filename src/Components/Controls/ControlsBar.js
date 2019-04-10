@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import '../css/ControlsBar.css'
-import '../css/slider.css'
+import '../../css/ControlsBar.css'
+import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
 import EqualizerControls from './ControlsBar.equalizer'
 

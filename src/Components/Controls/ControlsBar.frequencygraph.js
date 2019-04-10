@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import '../css/ControlsBar.css'
-import '../css/slider.css'
+import '../../css/ControlsBar.css'
+import '../../css/slider.css'
 
-import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
-import { MediaPlayer } from '../lib/libWaveSurfer'
+import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 const { requestAnimationFrame, cancelAnimationFrame } = window;
 
@@ -77,7 +77,7 @@ class FrequencyGraph extends Component {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             this.analyser = mediaPlayer.getPostAnalyser();
-            this.analyser.fftSize = 256;
+            this.analyser.fftSize = 32768;
             this.bufferLength = this.analyser.frequencyBinCount;
             this.dataArray = new Uint8Array(this.bufferLength);
 

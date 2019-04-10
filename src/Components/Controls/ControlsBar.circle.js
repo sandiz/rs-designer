@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import '../css/ControlsBar.css'
-import '../css/slider.css'
-import "../lib/radiaslider/src/slider-circular"
+import '../../css/ControlsBar.css'
+import '../../css/slider.css'
+import "../../lib/radiaslider/src/slider-circular"
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
-import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
-import { MediaPlayer } from '../lib/libWaveSurfer'
+import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class CircleControls extends Component {
     constructor(props) {

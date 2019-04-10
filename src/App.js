@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import ControllerBar from './Components/ControllerBar'
-import WaveformBar from './Components/WaveformBar'
-import ControlsBar from './Components/ControlsBar'
+import ControllerBar from './Components/ControllerBar/ControllerBar'
+import WaveformBar from './Components/Waveform/WaveformBar'
+import ControlsBar from './Components/Controls/ControlsBar'
+import MusicInformationBar from './Components/Analysis/MusicInformationBar';
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
-import MusicInformationBar from './Components/MusicInformationBar';
 
 class App extends Component {
   constructor(props) {

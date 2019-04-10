@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
-import { ImportMedia, ImportMediaStates, MediaPlayer } from '../lib/libWaveSurfer'
-import { setStateAsync } from '../lib/utils'
-import '../css/ControllerBar.css'
-import * as nothumb from '../assets/nothumb.jpg'
+import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
+import { setStateAsync } from '../../lib/utils'
+import '../../css/ControllerBar.css'
+import * as nothumb from '../../assets/nothumb.jpg'
 
 const Mousetrap = require('mousetrap');
 
