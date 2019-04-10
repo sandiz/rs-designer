@@ -3,7 +3,7 @@ import '../../css/WaveformBar.css'
 import "../../lib/radiaslider/src/slider-linear"
 import { setStateAsync } from '../../lib/utils';
 
-import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { Dispatcher, DispatchEvents, KeyboardEvents } from '../../lib/libDispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class WaveformBar extends Component {
@@ -25,7 +25,7 @@ class WaveformBar extends Component {
     componentDidMount() {
         Dispatcher.on(DispatchEvents.MediaReset, this.reset);
         Dispatcher.on(DispatchEvents.MediaReady, this.ready);
-        //Mousetrap.bind(['w'], (e, s) => this.toggle());
+        Dispatcher.on(KeyboardEvents.ToggleWaveform, this.toggle);
     }
 
     reset = () => {

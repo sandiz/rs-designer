@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import ControllerBar from './Components/ControllerBar/ControllerBar'
-import WaveformBar from './Components/Waveform/WaveformBar'
-import ControlsBar from './Components/Controls/ControlsBar'
-import AnalysisBar from './Components/Analysis/AnalysisBar';
+import ControllerBar from './components/ControllerBar/ControllerBar'
+import WaveformBar from './components/Waveform/WaveformBar'
+import ControlsBar from './components/Controls/ControlsBar'
+import AnalysisBar from './components/Analysis/AnalysisBar';
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
 import { Dispatcher } from './lib/libDispatcher';

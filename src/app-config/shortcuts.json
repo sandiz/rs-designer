@@ -1,0 +1,56 @@
+{
+    "global": [
+        {
+            "label": "Play/Pause T",
+            "accelerator": "Enter",
+            "event": "shortcut-play-pause"
+        },
+        {
+            "label": "Stop",
+            "accelerator": "S",
+            "event": "shortcut-stop"
+        },
+        {
+            "label": "Rewind",
+            "accelerator": "Left",
+            "event": "shortcut-rewind"
+        },
+        {
+            "label": "Fast Forward",
+            "accelerator": "Right",
+            "event": "shortcut-fast-forward"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label": "Import Media",
+            "accelerator": "CommandOrControl+M",
+            "event": "shortcut-import-media"
+        },
+        {
+            "label": "Save Project",
+            "accelerator": "CommandOrControl+S",
+            "event": "shortcut-save-project"
+        },
+        {
+            "label": "Open Project",
+            "accelerator": "CommandOrControl+O",
+            "event": "shortcut-open-project"
+        }
+    ],
+    "local": [
+        {
+            "accelerator": "C",
+            "event": "shortcut-toggle-controls-bar"
+        },
+        {
+            "accelerator": "W",
+            "event": "shortcut-toggle-waveform-bar"
+        },
+        {
+            "accelerator": "A",
+            "event": "shortcut-toggle-analysis-bar"
+        }
+    ]
+}

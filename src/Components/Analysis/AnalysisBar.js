@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import "../../css/MusicInformationBar.css"
 
-import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { Dispatcher, DispatchEvents, KeyboardEvents } from '../../lib/libDispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class AnalysisBar extends Component {
@@ -27,7 +27,7 @@ class AnalysisBar extends Component {
         Dispatcher.on(DispatchEvents.MediaAnalysisStart, this.analyseStart);
         Dispatcher.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
 
-        //Mousetrap.bind(['a'], (e, s) => this.toggle());
+        Dispatcher.on(KeyboardEvents.ToggleAnalysis, this.toggle);
     }
 
     analyseStart = () => {
