@@ -13,7 +13,6 @@ C = librosa.cqt(
     sr=sr,
     bins_per_octave=b_p_o,
     n_bins=n_bins,
-    hop_length=1024,
 )
 dB = librosa.amplitude_to_db(np.abs(C), ref=np.max)
 mode = 'dump'
@@ -29,14 +28,13 @@ else:
     cmap = "viridis"
     plt.figure(figsize=(20, 4))
     # plt.subplot(2, 1, 1)
-    librosa.display.specshow(librosa.amplitude_to_db(
-        np.abs(D), ref=np.max),
+    librosa.display.specshow(
+        dB,
         y_axis='cqt_note',
         x_axis='time',
         bins_per_octave=b_p_o,
         cmap=cmap,
         fmin=librosa.core.note_to_hz('C2'),
-        fmax=librosa.core.note_to_hz('C6')
     )
     plt.tight_layout()
     plt.show()
