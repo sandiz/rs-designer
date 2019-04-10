@@ -4,11 +4,25 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 
 TODO
 
-- constant q spectrogram (essentia + wavesurfer + librosa examples)
-- beat marker
-- key detect (essentia + madmom examples)
-- chord detection (musicExtractor algo + madmom examples)
-- sync playing
+- cqt
+    - colormap/cqtjs
+    - canvas piano bar 
+    - time bar
+    - copy timeline plugin
+
+- project
+    - create folder
+    - move mp3 there
+
+- analysis
+    - madmom
+    - pyinstallaer + madmom
+    - build scripts
+
+- post madmom
+    - chord bar
+    - downbeat bar
+
 
 NEXT
 
