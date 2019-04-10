@@ -4,7 +4,7 @@ import "../../css/MusicInformationBar.css"
 import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
-class MusicInformationBar extends Component {
+class AnalysisBar extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -26,6 +26,8 @@ class MusicInformationBar extends Component {
         Dispatcher.on(DispatchEvents.MediaReady, this.ready);
         Dispatcher.on(DispatchEvents.MediaAnalysisStart, this.analyseStart);
         Dispatcher.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
+
+        //Mousetrap.bind(['a'], (e, s) => this.toggle());
     }
 
     analyseStart = () => {
@@ -89,4 +91,4 @@ class MusicInformationBar extends Component {
     }
 }
 
-export default MusicInformationBar;
+export default AnalysisBar;

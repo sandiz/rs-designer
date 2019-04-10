@@ -2,9 +2,12 @@ import React, { Component } from 'react'
 import ControllerBar from './Components/ControllerBar/ControllerBar'
 import WaveformBar from './Components/Waveform/WaveformBar'
 import ControlsBar from './Components/Controls/ControlsBar'
-import MusicInformationBar from './Components/Analysis/MusicInformationBar';
+import AnalysisBar from './Components/Analysis/AnalysisBar';
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
+import { Dispatcher } from './lib/libDispatcher';
+
+const ipcRenderer = window.require("electron").ipcRenderer;
 
 class App extends Component {
   constructor(props) {
@@ -14,6 +17,12 @@ class App extends Component {
     };
   }
 
+  componentDidMount() {
+    ipcRenderer.on('keyboard-shortcut', (e, d) => {
+      Dispatcher.dispatch(d, null);
+    });
+  }
+
   render = () => {
     return (
       <div>
@@ -21,7 +30,7 @@ class App extends Component {
         <div id="app-flex">
           <WaveformBar />
           <ControlsBar />
-          <MusicInformationBar />
+          <AnalysisBar />
         </div>
       </div>
     );

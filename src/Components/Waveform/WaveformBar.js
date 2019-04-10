@@ -25,6 +25,7 @@ class WaveformBar extends Component {
     componentDidMount() {
         Dispatcher.on(DispatchEvents.MediaReset, this.reset);
         Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        //Mousetrap.bind(['w'], (e, s) => this.toggle());
     }
 
     reset = () => {
