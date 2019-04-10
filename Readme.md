@@ -13,6 +13,7 @@ TODO
 - project
     - create folder
     - move mp3 there
+    - automate analysis
 
 - analysis
     - madmom
@@ -27,7 +28,14 @@ TODO
 NEXT
 
 - guitar tab interface (https://github.com/calesce/tab-editor/ https://github.com/CoderLine/alphaTab) (http://www.guitk.com/editor/)
+https://opensheetmusicdisplay.github.io/
+https://wim.vree.org/js/ (vexflow/musicxml)
 - export to psarc/cdlc
+- song playback
+  - https://github.com/jussi-kalliokoski/audiolib.js
+  - https://tonejs.github.io/
+  - pydub
+
 
 FUTURE
 - external input guitar (https://wasabi.i3s.unice.fr/AmpSimFA/)
