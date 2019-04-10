@@ -58,7 +58,7 @@ class MusicInformationBar extends Component {
     }
 
     render() {
-        const expanded = "mir-collapse-root " + (this.state.expanded ? "collapse show" : "collapse");
+        const expanded = "mir-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
             <div className="mir-header" id="c">
@@ -67,7 +67,7 @@ class MusicInformationBar extends Component {
                         <i className={faclass} />
                         {
                             !this.state.analysing
-                                ? <span style={{ marginLeft: 5 + 'px' }}>Analysis</span>
+                                ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
                                 : (
                                     <span
                                         style={{ marginLeft: 5 + 'px' }}>Background Processing...

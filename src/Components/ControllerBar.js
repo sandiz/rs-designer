@@ -303,6 +303,7 @@ function ImportMediaModal(props) {
       size="med"
       aria-labelledby="contained-modal-title-vcenter"
       centered
+      onHide={() => { }}
     >
       <Modal.Header>
         <Modal.Title id="contained-modal-title-vcenter">

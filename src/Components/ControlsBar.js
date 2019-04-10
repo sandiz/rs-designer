@@ -20,7 +20,7 @@ class ControlBar extends Component {
     }
 
     render() {
-        const expanded = "controls-collapse-root bg-info " + (this.state.expanded ? "collapse show" : "collapse");
+        const expanded = "controls-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
             <div className="controls-header" id="a">

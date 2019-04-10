@@ -83,7 +83,7 @@ class WaveformBar extends Component {
     }
 
     render() {
-        const expanded = "waveform-collapse-root " + (this.state.expanded ? "collapse show" : "collapse");
+        const expanded = "waveform-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
             <div className="waveform-header" id="b">
