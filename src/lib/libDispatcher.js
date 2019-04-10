@@ -72,6 +72,9 @@ export const KeyboardEvents = {
     ImportMedia: "shortcut-import-media",
     SaveProject: "shortcut-save-project",
     OpenProject: "shortcut-open-project",
+    ToggleControls: "shortcut-toggle-controls-bar",
+    ToggleWaveform: "shortcut-toggle-waveform-bar",
+    ToggleAnalysis: "shortcut-toggle-analysis-bar",
 }
 
 

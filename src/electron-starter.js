@@ -2,9 +2,12 @@ const electron = require("electron");
 var { app, BrowserWindow, Menu, ipcMain } = electron;
 const path = require("path");
 const os = require('os')
+const fs = require('fs')
 const url = require("url");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
+const electronLocalshortcut = require('electron-localshortcut');
+
 
 let mainWindow;
 let kbdShortcutsEnabled = true;
@@ -129,62 +132,10 @@ async function createWindow() {
         {
             label: 'Controls',
             submenu: [
-                {
-                    label: 'Play/Pause',
-                    accelerator: 'Enter',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-play-pause");
-                    }
-                },
-                {
-                    label: 'Stop',
-                    accelerator: 'S',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-stop");
-                    }
-                },
-                {
-                    label: 'Rewind',
-                    accelerator: 'Left',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-rewind");
-                    }
-                },
-                {
-                    label: 'Fast Forward',
-                    accelerator: 'Right',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-fast-forward");
-                    }
-                },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: 'Import Media',
-                    accelerator: 'CommandOrControl+M',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-import-media");
-                    }
-                },
-                {
-                    label: 'Save Project',
-                    accelerator: 'CommandOrControl+S',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-save-project");
-                    }
-                },
-                {
-                    label: 'Open Project',
-                    accelerator: 'CommandOrControl+O',
-                    click(item, focusedWindow) {
-                        handleKeyboard("shortcut-open-project");
-                    }
-                },
             ]
         }
     ];
-
+    template = readKeyboardShortcuts(template, 3);
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     mainWindow.on("closed", () => {
@@ -218,6 +169,45 @@ app.on("activate", () => {
         createWindow();
     }
 });
+
+const readKeyboardShortcuts = (template, index) => {
+    try {
+        const data = fs.readFileSync("./src/app-config/shortcuts.json");
+        if (data) {
+            const json = JSON.parse(data);
+            const globalS = json["global"];
+            const localS = json["local"];
+            const t = template[index];
+            for (let i = 0; i < globalS.length; i += 1) {
+                const item = globalS[i];
+                t.submenu.push(item);
+                if (item["type"]) {
+
+                }
+                else {
+                    item.click = (e, f) => handleKeyboard(item["event"]);
+                }
+            }
+
+            for (let i = 0; i < localS.length; i += 1) {
+                const item = localS[i];
+
+                electronLocalshortcut.register(
+                    mainWindow, item.accelerator, () => {
+                        if (kbdShortcutsEnabled) {
+                            mainWindow.webContents.send('keyboard-shortcut', item.event);
+                        }
+                    }
+                );
+
+            }
+        }
+    }
+    catch (ex) {
+        console.log(ex);
+    }
+    return template;
+}
 
 const handleKeyboard = (type) => {
     if (kbdShortcutsEnabled)

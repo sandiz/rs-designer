@@ -3,6 +3,7 @@ import '../../css/ControlsBar.css'
 import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
 import EqualizerControls from './ControlsBar.equalizer'
+import { KeyboardEvents, Dispatcher } from '../../lib/libDispatcher';
 
 class ControlBar extends Component {
     constructor(props) {
@@ -13,7 +14,7 @@ class ControlBar extends Component {
     }
 
     componentDidMount() {
-        //Mousetrap.bind(['c'], (e, s) => this.toggle());
+        Dispatcher.on(KeyboardEvents.ToggleControls, this.toggle);
     }
 
     toggle = () => {
