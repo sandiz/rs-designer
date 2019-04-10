@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import "../css/MusicInformationBar.css"
+import "../../css/MusicInformationBar.css"
 
-import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
-import { MediaPlayer } from '../lib/libWaveSurfer'
+import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class MusicInformationBar extends Component {
     constructor(props) {

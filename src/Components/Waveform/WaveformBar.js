@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import '../css/WaveformBar.css'
-import "../lib/radiaslider/src/slider-linear"
-import { setStateAsync } from '../lib/utils';
+import '../../css/WaveformBar.css'
+import "../../lib/radiaslider/src/slider-linear"
+import { setStateAsync } from '../../lib/utils';
 
-import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
-import { MediaPlayer } from '../lib/libWaveSurfer'
+import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class WaveformBar extends Component {
     constructor(props) {

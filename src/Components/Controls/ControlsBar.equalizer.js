@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import '../css/ControlsBar.css'
-import '../css/slider.css'
-import "../lib/radiaslider/src/slider-linear"
+import '../../css/ControlsBar.css'
+import '../../css/slider.css'
+import "../../lib/radiaslider/src/slider-linear"
 import FrequencyGraph from './ControlsBar.frequencygraph';
 
-import { Dispatcher, DispatchEvents } from '../lib/libDispatcher'
-import { MediaPlayer } from '../lib/libWaveSurfer'
+import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 const temp = {
     min: -40,
