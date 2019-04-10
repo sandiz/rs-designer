@@ -203,7 +203,8 @@ class EqualizerControls extends Component {
         }
     }
 
-    toggle = async (type) => {
+    toggle = async (e, type) => {
+        e.currentTarget.blur()
         switch (type) {
             case "eq":
                 this.setState(prevState => ({
@@ -264,21 +265,21 @@ class EqualizerControls extends Component {
                         <div>
                             <span>Enable Equalizer</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch1" checked={this.state.enableEQ} readOnly onClick={e => this.toggle('eq')} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch1" checked={this.state.enableEQ} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, 'eq')} />
                                 <label className="custom-control-label" htmlFor="customSwitch1" />
                             </div>
                         </div>
                         <div>
                             <span>Visualise Spectrum</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableSpectrum} readOnly onClick={e => this.toggle("spectrum")} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableSpectrum} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "spectrum")} />
                                 <label className="custom-control-label" htmlFor="customSwitch2" />
                             </div>
                         </div>
                         <div>
                             <span>Remove Vocals</span>
                             <div className="custom-control custom-switch checkbox-right">
-                                <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} readOnly onClick={e => this.toggle("karaoke")} />
+                                <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "karaoke")} />
                                 <label className="custom-control-label" htmlFor="customSwitch3" />
                             </div>
                         </div>
