@@ -35,7 +35,7 @@ class MediaPlayerBase {
         const params = {
             audioContext: this.audioContext,
             container: '#waveform',
-            waveColor: '#ffffff',
+            waveColor: '#4ea8e4',
             //progressColor: 'hsla(200, 100%, 30%, 0.5)',
             //waveColor: 'grey',
             progressColor: 'black',
@@ -45,7 +45,7 @@ class MediaPlayerBase {
             barGap: 2,
             barRadius: true,
             height: 180,
-            barHeight: 1.5,
+            barHeight: 1,
             scrollParent: true,
             responsive: true,
             closeAudioContext: true,
@@ -68,6 +68,7 @@ class MediaPlayerBase {
                     barWidth: 0,
                     barGap: 0,
                     barRadius: false,
+                    overviewBorderColor: "#303030",
                 }),
                 /*
                 SpectrogramPlugin.create({
