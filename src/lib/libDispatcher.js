@@ -58,6 +58,10 @@ class DispatcherBase {
 export const DispatchEvents = {
     MediaReady: "media-ready",
     MediaReset: "media-reset",
+    MediaAnalysisStart: "media-analysis-start",
+    MediaAnalysisEnd: "media-analysis-stop",
+    MASpectrogramStart: "media-analysis-cqt-start",
+    MASpectrogramEnd: "media-analysis-cqt-end",
 }
 
 

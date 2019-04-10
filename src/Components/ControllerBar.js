@@ -292,7 +292,7 @@ class ControllerBar extends Component {
 }
 
 function ImportMediaModal(props) {
-  const spinnerActiveClass = "spinner-grow text-primary spinner";
+  const spinnerActiveClass = "spinner-grow text-info spinner";
   const spinnerCompleteClass = "spinner-grow-noanim text-success spinner"
   const imComplete = props.completed.includes(ImportMediaStates.importing);
   const rtComplete = props.completed.includes(ImportMediaStates.readingTags);

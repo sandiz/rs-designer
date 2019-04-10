@@ -20,7 +20,7 @@
 .mir-container {
     width: 100%;
     margin: 0 auto;
-    background-color: #2f4d6d !important;
+    background-color: #3498DB !important;
     border-radius: 4px;
     border: 1px solid lightgray;
     height: 100%;
@@ -29,5 +29,10 @@
 #spectrogram {
     margin: 15px;
     border: 1px solid lightgray;
-    border-radius: 6px;
+}
+
+.analysisspinner {
+    width: 15px;
+    height: 15px;
+    float: right;
 }
