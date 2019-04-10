@@ -110,13 +110,21 @@ class ControllerBar extends Component {
             this.updateProgressBar(per, mediaPlayer.getCurrent());
           })
 
-          Dispatcher.on(KeyboardEvents.PlayPause, () => this.mediaCmd("playpause"));
-          Dispatcher.on(KeyboardEvents.Rewind, () => this.mediaCmd("rewind"));
-          Dispatcher.on(KeyboardEvents.FastForward, () => this.mediaCmd("ffwd"));
+          Dispatcher.on(KeyboardEvents.PlayPause, this.play);
+          Dispatcher.on(KeyboardEvents.Stop, this.stop);
+          Dispatcher.on(KeyboardEvents.Rewind, this.rewind);
+          Dispatcher.on(KeyboardEvents.FastForward, this.ffwd);
         }
       });
   }
 
+  play = () => this.mediaCmd("playpause");
+
+  rewind = () => this.mediaCmd("rewind");
+
+  ffwd = () => this.mediaCmd("ffwd");
+
+  stop = () => this.mediaCmd("stop");
   //eslint-disable-next-line
   mediaCmd(cmd, value = 0) {
     const mediaPlayer = MediaPlayer.instance;
@@ -147,6 +155,10 @@ class ControllerBar extends Component {
   reset() {
     this.setState({ ...this.initialState })
     this.coverArtRef.current.src = nothumb.default;
+    Dispatcher.off(KeyboardEvents.PlayPause, this.play);
+    Dispatcher.off(KeyboardEvents.Stop, this.stop);
+    Dispatcher.off(KeyboardEvents.Rewind, this.rewind);
+    Dispatcher.off(KeyboardEvents.FastForward, this.ffwd);
   }
 
   //eslint-disable-next-line

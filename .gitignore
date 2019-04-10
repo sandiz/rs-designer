@@ -38,3 +38,4 @@ src/tools/RockSniffer/sniffer.log
 src/lib/deni-react-treeview/package-lock.json
 src/lib/musicanalysis/build/
 src/lib/musicanalysis/dist/
+rs-designer.code-workspace
