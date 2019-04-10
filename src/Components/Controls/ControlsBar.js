@@ -4,13 +4,16 @@ import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
 import EqualizerControls from './ControlsBar.equalizer'
 
-
 class ControlBar extends Component {
     constructor(props) {
         super(props);
         this.state = {
             expanded: false,
         }
+    }
+
+    componentDidMount() {
+        //Mousetrap.bind(['c'], (e, s) => this.toggle());
     }
 
     toggle = () => {

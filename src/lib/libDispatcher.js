@@ -64,5 +64,15 @@ export const DispatchEvents = {
     MASpectrogramEnd: "media-analysis-cqt-end",
 }
 
+export const KeyboardEvents = {
+    PlayPause: "shortcut-play-pause",
+    Stop: "shortcut-stop",
+    Rewind: "shortcut-rewind",
+    FastForward: "shortcut-fast-forward",
+    ImportMedia: "shortcut-import-media",
+    SaveProject: "shortcut-save-project",
+    OpenProject: "shortcut-open-project",
+}
+
 
 export const Dispatcher = new DispatcherBase();

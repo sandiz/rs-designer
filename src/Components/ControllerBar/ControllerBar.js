@@ -4,12 +4,9 @@ import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSu
 import { setStateAsync } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
-
-const Mousetrap = require('mousetrap');
+import { Dispatcher, KeyboardEvents } from '../../lib/libDispatcher';
 
 const electron = window.require("electron");
-
-
 const sec2time = (timeInSeconds) => {
   //eslint-disable-next-line
   var pad = function (num, size) { return ('000' + num).slice(size * -1); },
@@ -44,9 +41,17 @@ class ControllerBar extends Component {
     this.pbRef = React.createRef();
   }
 
+  componentDidMount() {
+    Dispatcher.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
+    Dispatcher.on(KeyboardEvents.OpenProject, e => console.log("open-project"));
+    Dispatcher.on(KeyboardEvents.SaveProject, e => console.log("save-project"));
+  }
+
   importMedia = async (e) => {
-    e.target.blur();
-    e.preventDefault();
+    if (e) {
+      e.target.blur();
+      e.preventDefault();
+    }
 
     const files = electron.remote.dialog.showOpenDialog({
       properties: ["openFile"],
@@ -105,10 +110,9 @@ class ControllerBar extends Component {
             this.updateProgressBar(per, mediaPlayer.getCurrent());
           })
 
-          //eslint-disable-next-line
-          Mousetrap.bind(['space'], (e, s) => this.mediaCmd("playpause"));
-          Mousetrap.bind(['left'], (e1, s1) => this.mediaCmd("rewind"));
-          Mousetrap.bind(['right'], (e2, s2) => this.mediaCmd("ffwd"));
+          Dispatcher.on(KeyboardEvents.PlayPause, () => this.mediaCmd("playpause"));
+          Dispatcher.on(KeyboardEvents.Rewind, () => this.mediaCmd("rewind"));
+          Dispatcher.on(KeyboardEvents.FastForward, () => this.mediaCmd("ffwd"));
         }
       });
   }
