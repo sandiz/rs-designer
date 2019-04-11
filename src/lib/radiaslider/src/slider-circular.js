@@ -90,7 +90,7 @@ class Slider {
             this.drawKnob(obj);
             obj.onValueChangeCallback({ 'rad': obj.endAngle, 'deg': obj.ang_degrees, 'value': obj.normalizedValue });
         }
-        this.drawCenterDot();
+        //this.drawCenterDot();
     }
 
     // Draw the scale for a selected slider band
