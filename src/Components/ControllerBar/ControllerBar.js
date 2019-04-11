@@ -4,9 +4,11 @@ import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSu
 import { setStateAsync } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
-import { DispatcherService, KeyboardEvents } from '../../services/dispatcher';
+import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
+import ProjectService from '../../services/project';
 
 const electron = window.require("electron");
+
 const sec2time = (timeInSeconds) => {
   //eslint-disable-next-line
   var pad = function (num, size) { return ('000' + num).slice(size * -1); },
@@ -26,6 +28,9 @@ class ControllerBar extends Component {
     artist: 'Artist',
     mediaPlaying: false,
     progress: 0,
+    projectDir: '',
+    tempo: '--',
+    songKey: '--',
   }
 
   constructor(props) {
@@ -44,7 +49,28 @@ class ControllerBar extends Component {
   componentDidMount() {
     DispatcherService.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
     DispatcherService.on(KeyboardEvents.OpenProject, e => console.log("open-project"));
-    DispatcherService.on(KeyboardEvents.SaveProject, e => console.log("save-project"));
+    DispatcherService.on(KeyboardEvents.SaveProject, this.saveProject);
+
+    DispatcherService.on(DispatchEvents.ProjectUpdate, this.updateProjectState);
+  }
+
+  componentWillUnmount() {
+    DispatcherService.off(DispatchEvents.ProjectUpdate, this.updateProjectState);
+  }
+
+  updateProjectState = (e) => {
+    const projectDir = ProjectService.getProjectFilename();
+    this.setState({
+      projectDir,
+    });
+  }
+
+  loadProject = async (e) => {
+
+  }
+
+  saveProject = async (e) => {
+    await ProjectService.saveProject();
   }
 
   importMedia = async (e) => {
@@ -80,6 +106,7 @@ class ControllerBar extends Component {
           artist: media.tags.common.artist,
           showModal: false,
         });
+        this.updateProjectState(null);
 
         if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
           const buf = media.tags.common.picture[0].data;
@@ -196,6 +223,7 @@ class ControllerBar extends Component {
           <button
               type="button"
               onMouseDown={e => e.preventDefault()}
+              onClick={this.saveProject}
               className="btn btn-secondary">
               <i className="fas fa-save icon-center" /> &nbsp;
             <span className="btn-text">Save Project</span>
@@ -256,7 +284,7 @@ class ControllerBar extends Component {
           <div className="vertical" />
             &nbsp;&nbsp;
           <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
-            <table>
+            <table className="info-table">
               <tbody>
                 <tr>
                   <td>
@@ -274,6 +302,45 @@ class ControllerBar extends Component {
                 </tr>
               </tbody>
             </table>
+            &nbsp;&nbsp;
+            &nbsp;
+           <div className="vertical" />
+            &nbsp;&nbsp;
+            <div className="info-table2">
+              <table className="table2">
+                <tbody>
+                  <tr>
+                    <td>Project</td>
+                    <td>
+                      <div className="table-extra-info" title={this.state.projectDir}>
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            electron.remote.shell.showItemInFolder(this.state.projectDir)
+                          }}
+                        >{this.state.projectDir} </a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Tempo</td>
+                    <td>
+                      <div className="table-extra-info">
+                        {this.state.tempo}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Song Key</td>
+                    <td>
+                      <div className="table-extra-info">
+                        {this.state.songKey}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <div className="timer_div">
               <div>
                 <span className="current_time_span" ref={this.timerRef.current}>00:00.000</span>

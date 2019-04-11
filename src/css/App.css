@@ -51,3 +51,12 @@ canvas {
     padding-top: 1.5vh;
     margin-top: 2px;
 }
+
+a {
+    color: #fff;
+}
+
+a:hover {
+    color: #fff;
+    text-decoration: none;
+}
