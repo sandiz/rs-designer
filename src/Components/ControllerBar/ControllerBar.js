@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
+import { toast } from 'react-toastify';
 
 import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
 import { setStateAsync, toaster } from '../../lib/utils'
@@ -71,8 +72,12 @@ class ControllerBar extends Component {
   }
 
   saveProject = async (e) => {
-    await ProjectService.saveProject();
-    toaster('success', 'far fa-check-circle', 'Project saved successfully!');
+    const val = await ProjectService.saveProject();
+    if (val) {
+      toaster('success', 'far fa-check-circle', 'Project saved successfully!', {
+        toastId: 'save-project-toaster',
+      });
+    }
   }
 
   importMedia = async (e) => {
@@ -103,6 +108,7 @@ class ControllerBar extends Component {
         this.setState({ importStepsCompleted: cis });
       },
       (media) => {
+        toast.dismiss();
         this.setState({
           song: media.tags.common.title,
           artist: media.tags.common.artist,

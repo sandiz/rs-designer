@@ -49,34 +49,43 @@ export const copyDir = (src, dest, options) => new Promise((resolve, reject) => 
     });
 })
 
-export const toaster = (type = '', icon, text) => {
+export const toaster = (type = '', icon = 'far fa-check-circle', text, options = {}) => {
     switch (type) {
         case "success":
-            toast.success(({ closeToast }) => (<div>
+            return toast.success(({ closeToast }) => (<div>
                 <i className={icon} />
                 <span style={{ marginLeft: 5 + 'px' }}>
                     {text}
                 </span>
             </div>
-            ));
+            ), options);
             break;
         case "error":
-            toast.success(({ closeToast }) => (<div>
+            return toast.error(({ closeToast }) => (<div>
                 <i className={icon} />
                 <span style={{ marginLeft: 5 + 'px' }}>
                     {text}
                 </span>
             </div>
-            ));
+            ), options);
+            break;
+        case "info":
+            return toast.info(({ closeToast }) => (<div>
+                <i className={icon} />
+                <span style={{ marginLeft: 5 + 'px' }}>
+                    {text}
+                </span>
+            </div>
+            ), options);
             break;
         default:
-            toast(({ closeToast }) => (<div>
+            return toast(({ closeToast }) => (<div>
                 <i className={icon} />
                 <span style={{ marginLeft: 5 + 'px' }}>
                     {text}
                 </span>
             </div>
-            ));
+            ), options);
             break;
     }
 
