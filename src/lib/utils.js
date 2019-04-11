@@ -1,4 +1,6 @@
 /* eslint-disable */
+import React from 'react'
+import { toast } from 'react-toastify';
 
 export const setStateAsync = (obj, state) => {
     return new Promise((resolve) => {
@@ -46,3 +48,36 @@ export const copyDir = (src, dest, options) => new Promise((resolve, reject) => 
         }
     });
 })
+
+export const toaster = (type = '', icon, text) => {
+    switch (type) {
+        case "success":
+            toast.success(({ closeToast }) => (<div>
+                <i className={icon} />
+                <span style={{ marginLeft: 5 + 'px' }}>
+                    {text}
+                </span>
+            </div>
+            ));
+            break;
+        case "error":
+            toast.success(({ closeToast }) => (<div>
+                <i className={icon} />
+                <span style={{ marginLeft: 5 + 'px' }}>
+                    {text}
+                </span>
+            </div>
+            ));
+            break;
+        default:
+            toast(({ closeToast }) => (<div>
+                <i className={icon} />
+                <span style={{ marginLeft: 5 + 'px' }}>
+                    {text}
+                </span>
+            </div>
+            ));
+            break;
+    }
+
+}
