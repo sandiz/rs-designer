@@ -4,7 +4,7 @@ import '../../css/slider.css'
 import "../../lib/radiaslider/src/slider-circular"
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
-import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class CircleControls extends Component {
@@ -200,8 +200,8 @@ class CircleControls extends Component {
     componentDidMount() {
         this.createCircularSliders();
 
-        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.ready);
         this.ready(); //set default values (fail path)
     }
 

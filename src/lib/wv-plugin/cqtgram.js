@@ -1,7 +1,7 @@
 /* eslint-disable */
 const bone = require('./1').bone_cmap;
 const spawn = require('threads').spawn;
-const { Dispatcher, DispatchEvents } = require("../libDispatcher");
+const { DispatcherService, DispatchEvents } = require("../../services/dispatcher");
 /**
  * Render a constantq visualisation of the audio.
  */
@@ -69,7 +69,7 @@ export default class ConstantQPlugin {
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
-            Dispatcher.dispatch(DispatchEvents.MASpectrogramStart);
+            DispatcherService.dispatch(DispatchEvents.MASpectrogramStart);
         };
     }
 
@@ -247,7 +247,7 @@ export default class ConstantQPlugin {
             })
             .on('exit', () => {
                 console.log("wv-cqt thread ended");
-                Dispatcher.dispatch(DispatchEvents.MASpectrogramEnd);
+                DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
             });
 
     }

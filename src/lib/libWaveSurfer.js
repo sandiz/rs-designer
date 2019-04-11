@@ -5,7 +5,7 @@ import ConstantQPlugin from './wv-plugin/cqtgram'
 import { readFile } from './utils'
 
 const spawn = require('threads').spawn;
-const { Dispatcher, DispatchEvents } = require("./libDispatcher");
+const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
 const readTags = file => new Promise((resolve, reject) => {
     window.mm.parseFile(file, { native: true })
@@ -93,7 +93,7 @@ class MediaPlayerBase {
 
         this.wavesurfer.loadBlob(blob);
         this.wavesurfer.on("ready", () => {
-            Dispatcher.dispatch(DispatchEvents.MediaReady);
+            DispatcherService.dispatch(DispatchEvents.MediaReady);
             this.analyse();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -108,12 +108,12 @@ class MediaPlayerBase {
             this.analysedEvents += 1;
         }
         if (this.analysedEvents >= this.numAnalysisEvents) {
-            Dispatcher.dispatch(DispatchEvents.MediaAnalysisEnd);
+            DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd);
         }
     }
 
     analyse = async () => {
-        Dispatcher.dispatch(DispatchEvents.MediaAnalysisStart);
+        DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart);
         console.log("starting media analysis");
 
         const cqtdata = await readFile('/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/cqt.npy');
@@ -190,7 +190,7 @@ class MediaPlayerBase {
 
         thread.send({ buffer })
             .on('message', (response) => {
-                Dispatcher.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis);
+                DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis);
                 /* start wv-cqt plugin */
                 const cqtp = ConstantQPlugin.create({
                     container: "#spectrogram",
@@ -366,7 +366,7 @@ class MediaPlayerBase {
 }
 export class ImportMedia {
     static async start(files, stateChangeCb, completeCb) {
-        Dispatcher.dispatch(DispatchEvents.MediaReset);
+        DispatcherService.dispatch(DispatchEvents.MediaReset);
         const file = files[0];
         console.log("importMedia: " + file);
         stateChangeCb(ImportMediaStates.importing);
@@ -393,9 +393,9 @@ export class ImportMedia {
         const cb = () => {
             stateChangeCb(ImportMediaStates.wavesurfing);
             completeCb(media);
-            Dispatcher.off(DispatchEvents.MediaReady, cb);
+            DispatcherService.off(DispatchEvents.MediaReady, cb);
         };
-        Dispatcher.on(DispatchEvents.MediaReady, cb);
+        DispatcherService.on(DispatchEvents.MediaReady, cb);
 
         MediaPlayer.instance = new MediaPlayerBase(blob);
     }

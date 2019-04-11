@@ -4,7 +4,7 @@ import '../../css/slider.css'
 import "../../lib/radiaslider/src/slider-linear"
 import FrequencyGraph from './ControlsBar.frequencygraph';
 
-import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 const temp = {
@@ -40,8 +40,8 @@ class EqualizerControls extends Component {
         });
         this.initSliders();
 
-        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.ready);
     }
 
     createEQFilters = () => {

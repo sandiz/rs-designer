@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import "../../css/MusicInformationBar.css"
 
-import { Dispatcher, DispatchEvents, KeyboardEvents } from '../../lib/libDispatcher'
+import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
+import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -12,22 +13,30 @@ class AnalysisBar extends Component {
             showMIR: false,
             analysing: false,
         }
+        this.se_excludes = ['showMIR', 'analysing']
     }
 
-    componentWillUnmount() {
-        Dispatcher.off(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.off(DispatchEvents.MediaReady, this.ready);
-        Dispatcher.off(DispatchEvents.MediaAnalysisStart, this.analyseStart);
-        Dispatcher.off(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.off(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.off(DispatchEvents.MediaAnalysisStart, this.analyseStart);
+        DispatcherService.off(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
+    }
+
+    componentWillMount = async () => {
+        const savedState = await ForageService.get(SettingsForageKeys.ANALYSIS_SETTINGS);
+        if (savedState) {
+            this.setState({ ...this.state, ...savedState });
+        }
     }
 
     componentDidMount() {
-        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
-        Dispatcher.on(DispatchEvents.MediaAnalysisStart, this.analyseStart);
-        Dispatcher.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
+        DispatcherService.on(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(DispatchEvents.MediaAnalysisStart, this.analyseStart);
+        DispatcherService.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
 
-        Dispatcher.on(KeyboardEvents.ToggleAnalysis, this.toggle);
+        DispatcherService.on(KeyboardEvents.ToggleAnalysis, this.toggle);
     }
 
     analyseStart = () => {
@@ -56,7 +65,9 @@ class AnalysisBar extends Component {
     toggle = () => {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
-        }))
+        }), async () => {
+            await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_excludes);
+        });
     }
 
     render() {

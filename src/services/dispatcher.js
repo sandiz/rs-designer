@@ -62,6 +62,7 @@ export const DispatchEvents = {
     MediaAnalysisEnd: "media-analysis-stop",
     MASpectrogramStart: "media-analysis-cqt-start",
     MASpectrogramEnd: "media-analysis-cqt-end",
+    SettingsUpdate: "settings-update",
 }
 
 export const KeyboardEvents = {
@@ -78,4 +79,4 @@ export const KeyboardEvents = {
 }
 
 
-export const Dispatcher = new DispatcherBase();
+export const DispatcherService = new DispatcherBase();
