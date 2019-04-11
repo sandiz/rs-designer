@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
+
 import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
-import { setStateAsync } from '../../lib/utils'
+import { setStateAsync, toaster } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
@@ -71,6 +72,7 @@ class ControllerBar extends Component {
 
   saveProject = async (e) => {
     await ProjectService.saveProject();
+    toaster('success', 'far fa-check-circle', 'Project saved successfully!');
   }
 
   importMedia = async (e) => {

@@ -94,7 +94,6 @@ export class Project {
     }
 
     createTemporaryProject = async (file) => {
-        console.log(file);
         /* create temp dir */
         this.tmpHandle = tmp.dirSync({
             unsafeCleanup: true,

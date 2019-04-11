@@ -1,7 +1,8 @@
 @import '~@fortawesome/fontawesome-free/css/all.css';
 /*@import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";*/
 
-.App {
+.App,
+.dark-toast {
     font-family: "Roboto Condensed", sans-serif;
 }
 
@@ -59,4 +60,8 @@ a {
 a:hover {
     color: #fff;
     text-decoration: none;
+}
+
+.dark-toast {
+    font-size: 20px;
 }
