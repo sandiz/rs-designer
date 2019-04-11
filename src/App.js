@@ -5,7 +5,7 @@ import ControlsBar from './components/Controls/ControlsBar'
 import AnalysisBar from './components/Analysis/AnalysisBar';
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
-import { Dispatcher } from './lib/libDispatcher';
+import { DispatcherService } from './services/dispatcher';
 
 const ipcRenderer = window.require("electron").ipcRenderer;
 
@@ -19,7 +19,7 @@ class App extends Component {
 
   componentDidMount() {
     ipcRenderer.on('keyboard-shortcut', (e, d) => {
-      Dispatcher.dispatch(d, null);
+      DispatcherService.dispatch(d, null);
     });
   }
 

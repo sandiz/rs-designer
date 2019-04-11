@@ -3,8 +3,9 @@ import '../../css/WaveformBar.css'
 import "../../lib/radiaslider/src/slider-linear"
 import { setStateAsync } from '../../lib/utils';
 
-import { Dispatcher, DispatchEvents, KeyboardEvents } from '../../lib/libDispatcher'
+import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
+import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 
 class WaveformBar extends Component {
     constructor(props) {
@@ -20,12 +21,20 @@ class WaveformBar extends Component {
             min: 1,
             default: 20,
         }
+        this.se_excludes = ['showTimeline', 'showMinimap']
+    }
+
+    componentWillMount = async () => {
+        const savedState = await ForageService.get(SettingsForageKeys.WAVEFORM_SETTINGS);
+        if (savedState) {
+            this.setState({ ...this.state, ...savedState });
+        }
     }
 
     componentDidMount() {
-        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
-        Dispatcher.on(KeyboardEvents.ToggleWaveform, this.toggle);
+        DispatcherService.on(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(KeyboardEvents.ToggleWaveform, this.toggle);
     }
 
     reset = () => {
@@ -80,7 +89,9 @@ class WaveformBar extends Component {
     toggle = () => {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
-        }));
+        }), async () => {
+            await ForageService.serializeState(SettingsForageKeys.WAVEFORM_SETTINGS, this.state, this.se_excludes);
+        });
     }
 
     render() {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import '../../css/ControlsBar.css'
 import '../../css/slider.css'
 
-import { Dispatcher, DispatchEvents } from '../../lib/libDispatcher'
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import { AudioMotionInitialize } from './audioMotion'
 
@@ -29,8 +29,8 @@ class FrequencyGraph extends Component {
     }
 
     componentDidMount() {
-        Dispatcher.on(DispatchEvents.MediaReset, this.reset);
-        Dispatcher.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.ready);
         this.canvas = document.querySelector('#frequency-canvas');
 
         this.cWidth = this.canvas.width;

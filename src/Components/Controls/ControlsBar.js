@@ -3,24 +3,34 @@ import '../../css/ControlsBar.css'
 import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
 import EqualizerControls from './ControlsBar.equalizer'
-import { KeyboardEvents, Dispatcher } from '../../lib/libDispatcher';
+import { KeyboardEvents, DispatcherService } from '../../services/dispatcher';
+import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 
 class ControlBar extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            expanded: false,
+            expanded: true,
+        }
+    }
+
+    componentWillMount = async () => {
+        const savedState = await ForageService.get(SettingsForageKeys.CONTROL_SETTINGS);
+        if (savedState) {
+            this.setState({ ...this.state, ...savedState });
         }
     }
 
     componentDidMount() {
-        Dispatcher.on(KeyboardEvents.ToggleControls, this.toggle);
+        DispatcherService.on(KeyboardEvents.ToggleControls, this.toggle);
     }
 
     toggle = () => {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
-        }));
+        }), async () => {
+            await ForageService.serializeState(SettingsForageKeys.CONTROL_SETTINGS, this.state);
+        });
     }
 
     render() {

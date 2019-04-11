@@ -4,7 +4,7 @@ import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSu
 import { setStateAsync } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
-import { Dispatcher, KeyboardEvents } from '../../lib/libDispatcher';
+import { DispatcherService, KeyboardEvents } from '../../services/dispatcher';
 
 const electron = window.require("electron");
 const sec2time = (timeInSeconds) => {
@@ -42,9 +42,9 @@ class ControllerBar extends Component {
   }
 
   componentDidMount() {
-    Dispatcher.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
-    Dispatcher.on(KeyboardEvents.OpenProject, e => console.log("open-project"));
-    Dispatcher.on(KeyboardEvents.SaveProject, e => console.log("save-project"));
+    DispatcherService.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
+    DispatcherService.on(KeyboardEvents.OpenProject, e => console.log("open-project"));
+    DispatcherService.on(KeyboardEvents.SaveProject, e => console.log("save-project"));
   }
 
   importMedia = async (e) => {
@@ -110,10 +110,10 @@ class ControllerBar extends Component {
             this.updateProgressBar(per, mediaPlayer.getCurrent());
           })
 
-          Dispatcher.on(KeyboardEvents.PlayPause, this.play);
-          Dispatcher.on(KeyboardEvents.Stop, this.stop);
-          Dispatcher.on(KeyboardEvents.Rewind, this.rewind);
-          Dispatcher.on(KeyboardEvents.FastForward, this.ffwd);
+          DispatcherService.on(KeyboardEvents.PlayPause, this.play);
+          DispatcherService.on(KeyboardEvents.Stop, this.stop);
+          DispatcherService.on(KeyboardEvents.Rewind, this.rewind);
+          DispatcherService.on(KeyboardEvents.FastForward, this.ffwd);
         }
       });
   }
@@ -155,10 +155,10 @@ class ControllerBar extends Component {
   reset() {
     this.setState({ ...this.initialState })
     this.coverArtRef.current.src = nothumb.default;
-    Dispatcher.off(KeyboardEvents.PlayPause, this.play);
-    Dispatcher.off(KeyboardEvents.Stop, this.stop);
-    Dispatcher.off(KeyboardEvents.Rewind, this.rewind);
-    Dispatcher.off(KeyboardEvents.FastForward, this.ffwd);
+    DispatcherService.off(KeyboardEvents.PlayPause, this.play);
+    DispatcherService.off(KeyboardEvents.Stop, this.stop);
+    DispatcherService.off(KeyboardEvents.Rewind, this.rewind);
+    DispatcherService.off(KeyboardEvents.FastForward, this.ffwd);
   }
 
   //eslint-disable-next-line
