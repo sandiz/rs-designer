@@ -79,7 +79,15 @@
 .volume-text,
 .tempo-text,
 .pitch-text {
-    margin-top: 13px;
+    margin-top: 19px;
+    font-size: 17px;
+    text-align: center;
+}
+
+.volume-inner-text,
+.tempo-inner-text,
+.pitch-inner-text {
+    margin-top: -113px;
     text-align: center;
 }
 
@@ -103,6 +111,7 @@
     margin-right: 18px;
     position: relative;
     top: 8%;
+    font-size: 17px;
 }
 
 .checkbox-right {
@@ -119,71 +128,38 @@
 
 .eq-text {
     position: relative;
-    top: -3vh;
-    left: 3vh;
+    top: -2.5vh;
+    left: 2vh;
+    font-size: 17px;
+    display: flex;
+    width: 402px;
 }
 
-.eq-subtext1 {
-    position: relative;
-    left: 1.4vh;
+.eq-subtext10 {
+    width: 10%;
+    text-align: center;
 }
 
-.eq-subtext2 {
-    position: relative;
-    left: 2.3vh;
-}
-
-.eq-subtext3 {
-    position: relative;
-    left: 3vh;
-}
-
-.eq-subtext4 {
-    position: relative;
-    left: 3.6vh;
-}
-
-.eq-subtext5 {
-    position: relative;
-    left: 4.5vh;
-}
-
-.eq-subtext6 {
-    position: relative;
-    left: 6vh;
-}
-
-.eq-subtext7 {
-    position: relative;
-    left: 7.3vh;
-}
-
-.eq-subtext8 {
-    position: relative;
-    left: 8.4vh;
-}
-
-.eq-subtext9 {
-    position: relative;
-    left: 8.9vh;
+.eq-meter-flex {
+    font-size: 17px;
 }
 
 .eq-meter {
     position: absolute;
     left: -1.8vh;
-    top: 1vh;
+    top: 1.5vh;
 }
 
 .eq-meter2 {
     position: absolute;
     left: 0vh;
-    top: 6.2vh;
+    top: 6.7vh;
 }
 
 .eq-meter3 {
     position: absolute;
     left: -1.4vh;
-    top: 11vh;
+    top: 11.5vh;
 }
 
 .eq-set {

@@ -108,10 +108,11 @@ class EqualizerControls extends Component {
     }
 
     initSliders = () => {
+        const color = "#3c83b3"
         for (let i = 0; i < this.numBands; i += 1) {
             //horizontal sliders
             const t = temp;
-            t.color = "#104b63";//colors[i];
+            t.color = color;
             t.id = i;
 
             //vertical sliders
@@ -233,29 +234,31 @@ class EqualizerControls extends Component {
                 <div className="controls-flex">
 
                     <div className="eqflex1">
-                        <div className="eq-meter">
-                            <span className="eq-set" onClick={() => this.setEQFilterAndText(40)}>+40</span>
-                        </div>
-                        <div className="eq-meter2">
-                            <span className="eq-set" onClick={() => this.setEQFilterAndText(0)}>0</span>
-                        </div>
-                        <div className="eq-meter3">
-                            <span className="eq-set" onClick={() => this.setEQFilterAndText(-40)}>-40</span>
+                        <div className="eq-meter-flex">
+                            <div className="eq-meter">
+                                <span className="eq-set" onClick={() => this.setEQFilterAndText(40)}>+40</span>
+                            </div>
+                            <div className="eq-meter2">
+                                <span className="eq-set" onClick={() => this.setEQFilterAndText(0)}>0</span>
+                            </div>
+                            <div className="eq-meter3">
+                                <span className="eq-set" onClick={() => this.setEQFilterAndText(-40)}>-40</span>
+                            </div>
                         </div>
                         <div className="">
                             <canvas id="equalizer-canvas" width="420" height="170" />
                         </div>
                         <div className="eq-text">
-                            <span>32</span>&nbsp;
-                            <span className="eq-subtext1">60</span>&nbsp;
-                            <span className="eq-subtext2">170</span>&nbsp;
-                            <span className="eq-subtext3">310</span>&nbsp;
-                            <span className="eq-subtext4">600</span>&nbsp;
-                            <span className="eq-subtext5">1K</span>&nbsp;
-                            <span className="eq-subtext6">3K</span>&nbsp;
-                            <span className="eq-subtext7">6K</span>&nbsp;
-                            <span className="eq-subtext8">12K</span>&nbsp;
-                            <span className="eq-subtext9">16K</span>&nbsp;
+                            <span className="eq-subtext10">32</span>&nbsp;
+                            <span className="eq-subtext10">60</span>&nbsp;
+                            <span className="eq-subtext10">170</span>&nbsp;
+                            <span className="eq-subtext10">310</span>&nbsp;
+                            <span className="eq-subtext10">600</span>&nbsp;
+                            <span className="eq-subtext10">1K</span>&nbsp;
+                            <span className="eq-subtext10">3K</span>&nbsp;
+                            <span className="eq-subtext10">6K</span>&nbsp;
+                            <span className="eq-subtext10">12K</span>&nbsp;
+                            <span className="eq-subtext10">16K</span>&nbsp;
                         </div>
                     </div>
                     <div className="eqflex2">
@@ -270,7 +273,7 @@ class EqualizerControls extends Component {
                             </div>
                         </div>
                         <div>
-                            <span>Visualise Spectrum</span>
+                            <span>Visualize Spectrum</span>
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableSpectrum} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "spectrum")} />
                                 <label className="custom-control-label" htmlFor="customSwitch2" />

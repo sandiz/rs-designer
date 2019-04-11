@@ -18,7 +18,7 @@ class CircleControls extends Component {
     }
     //eslint-disable-next-line
     volCallback = (v) => {
-        this.volRef.current.innerHTML = "Vol: " + v.value;
+        this.volRef.current.innerHTML = v.value;
         const volume = v.value / 100;
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
@@ -27,7 +27,7 @@ class CircleControls extends Component {
     }
 
     tempoCallback = (v) => {
-        this.tempoRef.current.innerHTML = "Speed: " + v.value + "%";
+        this.tempoRef.current.innerHTML = v.value + "%";
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             mediaPlayer.setPlaybackRate(v.value / 100);
@@ -35,7 +35,7 @@ class CircleControls extends Component {
     }
 
     pitchCallback = (v) => {
-        this.pitchRef.current.innerHTML = "Semi: " + v.value;
+        this.pitchRef.current.innerHTML = v.value;
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             if (mediaPlayer.isPlaying()) {
@@ -58,7 +58,7 @@ class CircleControls extends Component {
             min: 0,
             max: 100,
             step: 1,
-            color: "#104b63",
+            color: "#3c83b3",
             changed: v => this.volCallback(v),
         });
         this.volCallback({ value: 100 });
@@ -73,7 +73,7 @@ class CircleControls extends Component {
             min: 50,
             max: 150,
             step: 10,
-            color: "#104b63",
+            color: "#3c83b3",
             changed: v => this.tempoCallback(v),
         });
         this.tempoCallback({ value: 100 })
@@ -88,7 +88,7 @@ class CircleControls extends Component {
             min: -12,
             max: 12,
             step: 1,
-            color: "#104b63",
+            color: "#3c83b3",
             changed: v => this.pitchCallback(v),
         });
         this.pitchCallback({ value: 0 })
@@ -214,19 +214,22 @@ class CircleControls extends Component {
                         <div className="canvas-root">
                             <canvas id="volume-canvas" width="130" height="130" />
                         </div>
-                        <div id="vol_val" ref={this.volRef} className="volume-text" />
+                        <div className="volume-text"> VOLUME </div>
+                        <div id="vol_val" ref={this.volRef} className="volume-inner-text" />
                     </div>
                     <div className="flex2">
                         <div className="canvas-root">
                             <canvas id="tempo-canvas" width="130" height="130" />
                         </div>
-                        <div id="tempo_val" ref={this.tempoRef} className="tempo-text" />
+                        <div className="tempo-text"> TEMPO </div>
+                        <div id="tempo_val" ref={this.tempoRef} className="tempo-inner-text" />
                     </div>
                     <div className="flex3">
                         <div className="canvas-root">
                             <canvas id="pitch-canvas" width="130" height="130" />
                         </div>
-                        <div id="pitch_val" ref={this.pitchRef} className="pitch-text" />
+                        <div className="pitch-text"> PITCH </div>
+                        <div id="pitch_val" ref={this.pitchRef} className="pitch-inner-text" />
                     </div>
                 </div>
             </div>
