@@ -73,12 +73,17 @@ export class Project {
                         true,
                         lastPInfo.original,
                     )
+                    return true;
                 }
             }
             else {
                 //serialize
+                await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+                DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
+                return true;
             }
         }
+        return false;
     }
 
     updateProjectInfo = async (dir, istemp, isloaded, file) => {

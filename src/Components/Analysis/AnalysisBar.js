@@ -1,9 +1,12 @@
 import React, { Component } from 'react'
+import { toast } from 'react-toastify';
+
 import "../../css/MusicInformationBar.css"
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
+import { toaster } from '../../lib/utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -41,10 +44,23 @@ class AnalysisBar extends Component {
 
     analyseStart = () => {
         this.setState({ analysing: true });
+        this.toastId = toaster('', 'fas fa-hourglass-half', 'Analysing media in the background...', { autoClose: false });
     }
 
     analyseEnd = () => {
         this.setState({ analysing: false });
+        toast.update(this.toastId, {
+            type: toast.TYPE.INFO,
+            autoClose: 5000,
+            render: (
+                <div>
+                    <i className="far fa-check-circle" />
+                    <span style={{ marginLeft: 5 + 'px' }}>
+                        Analysis complete!
+                    </span>
+                </div>
+            ),
+        });
     }
 
     reset = () => {
@@ -79,16 +95,7 @@ class AnalysisBar extends Component {
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
                         {
-                            !this.state.analysing
-                                ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
-                                : (
-                                    <span
-                                        style={{ marginLeft: 5 + 'px' }}>Background Processing...
-                                        <span className="spinner-grow text-info analysisspinner" role="status">
-                                            <span className="sr-only">Loading...</span>
-                                        </span>
-                                    </span>
-                                )
+                            <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
                         }
                     </span>
                 </div>
