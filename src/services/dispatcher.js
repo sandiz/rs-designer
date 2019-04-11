@@ -63,6 +63,7 @@ export const DispatchEvents = {
     MASpectrogramStart: "media-analysis-cqt-start",
     MASpectrogramEnd: "media-analysis-cqt-end",
     SettingsUpdate: "settings-update",
+    ProjectUpdate: "project-update",
 }
 
 export const KeyboardEvents = {

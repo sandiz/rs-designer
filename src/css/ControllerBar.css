@@ -2,6 +2,8 @@
     width: 100%;
     box-shadow: 0px 2px 1px lightgrey;
     padding-top: 5px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 22px 70px 4px rgba(93, 93, 93, 0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(125, 125, 125, 1);
 }
 
 .vertical {
@@ -85,4 +87,37 @@
     background-color: currentColor;
     border-radius: 50%;
     opacity: 1;
+}
+
+.info-table {
+    width: 246px;
+}
+
+.info-table2 {
+    width: 293px;
+}
+
+.table2 tr td:nth-child(1) {
+    width: 20%;
+    font-weight: bolder;
+    color: #929292;
+}
+
+.table2 tr td:nth-child(2) {
+    width: 80%;
+    text-align: right;
+}
+
+.table2 {
+    width: 100%;
+    font-size: 13px;
+}
+
+.table-extra-info {
+    max-width: 241px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
 }
