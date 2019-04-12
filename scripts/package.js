@@ -42,6 +42,8 @@ const child = spawn("yarn", [
     "--ignore=src/lib/musicanalysis/build/",
     "--ignore=src/lib/musicanalysis/cqt.npy",
     "--ignore=src/lib/radiaslider/node_modules/",
+    "--extend-info=extra.plist",
+    `--extra-resource=${icon}`,
     extra_ignore.length > 0 ? `--ignore=${extra_ignore}` : ""
 ]);
 

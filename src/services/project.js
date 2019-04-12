@@ -41,7 +41,8 @@ export class Project {
         this.projectFileName = ``;
     }
 
-    loadPorject = () => {
+    loadProject = async () => {
+
 
     }
 
@@ -89,10 +90,10 @@ export class Project {
     updateProjectInfo = async (dir, istemp, isloaded, file) => {
         const ext = window.path.extname(file);
         this.projectDirectory = dir;
-        this.projectFileName = `${this.projectDirectory}/project.rsd`;
+        this.projectFileName = `${this.projectDirectory}/project.rsproject`;
         this.isTemporary = istemp;
         this.loaded = isloaded;
-        this.projectInfo.media = `${this.projectDirectory}/media.rsd${ext}`;
+        this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
         this.projectInfo.original = file;
         await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);

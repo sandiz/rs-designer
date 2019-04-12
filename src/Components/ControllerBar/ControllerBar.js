@@ -68,7 +68,15 @@ class ControllerBar extends Component {
   }
 
   loadProject = async (e) => {
-
+    const pInfo = await ProjectService.loadProject();
+    if (pInfo && pInfo.media) {
+      this.importMedia(null, [pInfo.media]);
+    }
+    else {
+      toaster('error', 'far fa-check-circle', 'Project failed to load!', {
+        toastId: 'load-project-toaster',
+      });
+    }
   }
 
   saveProject = async (e) => {
@@ -80,21 +88,26 @@ class ControllerBar extends Component {
     }
   }
 
-  importMedia = async (e) => {
+  importMedia = async (e, projectFiles = []) => {
     if (e) {
       e.target.blur();
       e.preventDefault();
     }
-
-    const files = electron.remote.dialog.showOpenDialog({
-      properties: ["openFile"],
-      filters: [
-        { name: 'MP3', extensions: ['mp3'] },
-        { name: 'WAV', extensions: ['wav'] },
-      ],
-    });
-    if (files === null || typeof files === 'undefined' || files.length <= 0) {
-      return;
+    let files = [];
+    if (projectFiles.length === 0) {
+      files = electron.remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+        filters: [
+          { name: 'MP3', extensions: ['mp3'] },
+          { name: 'WAV', extensions: ['wav'] },
+        ],
+      });
+      if (files === null || typeof files === 'undefined' || files.length <= 0) {
+        return;
+      }
+    }
+    else {
+      files = projectFiles;
     }
     this.reset();
     await setStateAsync(this, {

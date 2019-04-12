@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rsdirectory</string>
+			</array>
+            <key>CFBundleTypeOSTypes</key>
+            <array>
+                <string>RSDIRECTORY</string>
+            </array>
+			<key>CFBundleTypeIconFile</key>
+			<string>mac.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Rocksmith Designer Project Bundle</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+            <key>LSTypeIsPackage</key>
+            <true/>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rsproject</string>
+			</array>
+            <key>CFBundleTypeOSTypes</key>
+            <array>
+                <string>RSPROJECT</string>
+            </array>
+			<key>CFBundleTypeIconFile</key>
+			<string>mac.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Rocksmith Designer Project</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+            <key>LSTypeIsPackage</key>
+            <false/>
+		</dict>
+  </array>
+</dict>
+</plist>

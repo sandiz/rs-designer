@@ -58,7 +58,7 @@ class CircleControls extends Component {
             min: 0,
             max: 100,
             step: 1,
-            color: "#3c83b3",
+            color: "#04ABED",
             changed: v => this.volCallback(v),
         });
         this.volCallback({ value: 100 });
@@ -73,7 +73,7 @@ class CircleControls extends Component {
             min: 50,
             max: 150,
             step: 10,
-            color: "#3c83b3",
+            color: "#04ABED",
             changed: v => this.tempoCallback(v),
         });
         this.tempoCallback({ value: 100 })
@@ -88,7 +88,7 @@ class CircleControls extends Component {
             min: -12,
             max: 12,
             step: 1,
-            color: "#3c83b3",
+            color: "#04ABED",
             changed: v => this.pitchCallback(v),
         });
         this.pitchCallback({ value: 0 })
