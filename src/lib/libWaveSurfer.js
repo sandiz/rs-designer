@@ -26,7 +26,7 @@ class MediaPlayerBase {
         const params = {
             audioContext: this.audioContext,
             container: '#waveform',
-            waveColor: '#4ea8e4',
+            waveColor: '#04ABED',
             //progressColor: 'hsla(200, 100%, 30%, 0.5)',
             //waveColor: 'grey',
             progressColor: 'black',

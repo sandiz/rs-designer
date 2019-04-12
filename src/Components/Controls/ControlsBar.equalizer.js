@@ -108,7 +108,7 @@ class EqualizerControls extends Component {
     }
 
     initSliders = () => {
-        const color = "#3c83b3"
+        const color = "#04ABED"
         for (let i = 0; i < this.numBands; i += 1) {
             //horizontal sliders
             const t = temp;
