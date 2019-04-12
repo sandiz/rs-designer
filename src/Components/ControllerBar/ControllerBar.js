@@ -50,7 +50,7 @@ class ControllerBar extends Component {
 
   componentDidMount() {
     DispatcherService.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
-    DispatcherService.on(KeyboardEvents.OpenProject, e => console.log("open-project"));
+    DispatcherService.on(KeyboardEvents.OpenProject, this.loadProject);
     DispatcherService.on(KeyboardEvents.SaveProject, this.saveProject);
 
     DispatcherService.on(DispatchEvents.ProjectUpdate, this.updateProjectState);
@@ -102,9 +102,18 @@ class ControllerBar extends Component {
           { name: 'WAV', extensions: ['wav'] },
         ],
       });
+
       if (files === null || typeof files === 'undefined' || files.length <= 0) {
         return;
       }
+
+      if (ProjectService.isLoaded()) {
+        ProjectService.unload();
+      }
+
+      let file = files[0];
+      file = await ProjectService.createTemporaryProject(file);
+      files = [file];
     }
     else {
       files = projectFiles;
@@ -235,6 +244,7 @@ class ControllerBar extends Component {
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <button
               type="button"
+              onClick={this.loadProject}
               onMouseDown={e => e.preventDefault()}
               className="btn btn-secondary">
               <i className="fas fa-folder-open icon-center" /> &nbsp;

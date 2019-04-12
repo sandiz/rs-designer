@@ -2,7 +2,6 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
-import ProjectService from '../services/project';
 import { readTags, readFile } from './utils'
 
 const spawn = require('threads').spawn;
@@ -358,13 +357,7 @@ class MediaPlayerBase {
 export class ImportMedia {
     static async start(files, stateChangeCb, completeCb) {
         DispatcherService.dispatch(DispatchEvents.MediaReset);
-        let file = files[0];
-
-        if (ProjectService.isLoaded()) {
-            ProjectService.unload();
-        }
-
-        file = await ProjectService.createTemporaryProject(file);
+        const file = files[0];
 
         console.log("importMedia: " + file);
 
