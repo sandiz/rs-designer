@@ -1,4 +1,6 @@
-import { copyFile, writeFile, copyDir } from '../lib/utils'
+import {
+    copyFile, writeFile, copyDir, readFile,
+} from '../lib/utils'
 import { DispatcherService, DispatchEvents } from './dispatcher';
 
 const electron = window.require('electron').remote;
@@ -42,8 +44,43 @@ export class Project {
     }
 
     loadProject = async () => {
-
-
+        const filters = [
+            { name: "RSDesigner Project Bundle", extensions: ['rsdirectory'] },
+            { name: "RSDesigner Project", extensions: ['rsproject'] },
+        ];
+        if (window.isWin === true) {
+            delete filters[0];
+        }
+        const dirs = electron.dialog.showOpenDialog({
+            title: "Open Project..",
+            buttonLabel: "Open",
+            properties: ['openFile'],
+            filters,
+        });
+        const dir = dirs[0];
+        let jsonPath = "";
+        if (dir.endsWith('.rsdirectory')) {
+            jsonPath = dir + "/project.rsproject"
+        }
+        else if (dir.endsWith('.rsproject')) {
+            jsonPath = dir;
+        }
+        if (jsonPath.length > 0) {
+            const data = await readFile(jsonPath);
+            const json = JSON.parse(data);
+            this.unload();
+            await this.updateProjectInfo(
+                dir,
+                false,
+                true,
+                '',
+                true, /* readonly */
+            );
+            this.projectInfo.media = json.media;
+            this.projectInfo.original = json.original;
+            return this.projectInfo;
+        }
+        return null;
     }
 
     getProjectFilename = () => {
@@ -87,15 +124,17 @@ export class Project {
         return false;
     }
 
-    updateProjectInfo = async (dir, istemp, isloaded, file) => {
+    updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
         const ext = window.path.extname(file);
         this.projectDirectory = dir;
         this.projectFileName = `${this.projectDirectory}/project.rsproject`;
         this.isTemporary = istemp;
         this.loaded = isloaded;
-        this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
-        this.projectInfo.original = file;
-        await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+        if (!readOnly) {
+            this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
+            this.projectInfo.original = file;
+            await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+        }
         DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
     }
 

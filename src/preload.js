@@ -8,9 +8,11 @@ window.isDev = isDev;
 window.path = null;
 if (window.os.platform() === 'win32') {
     //eslint-disable-next-line
+    window.isWin = true;
     window.path = require('path').win32;
 }
 else {
+    window.isMac = true;
     //eslint-disable-next-line
     window.path = require('path');
 }
