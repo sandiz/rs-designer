@@ -1,3 +1,8 @@
+<p align="center">
+<img width=12.5% src="https://github.com/sandiz/rs-manager/blob/master/src/assets/icons/icon-1024x1024.png">
+</p>
+
+# Rocksmith Designer
 rs-designer - rocksmith cdlc generator and music transcription tool (pre alpha WIP)
 
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)

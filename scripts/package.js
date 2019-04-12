@@ -29,18 +29,19 @@ const child = spawn("yarn", [
     "run",
     "electron-packager",
     ".",
-    "Rocksmith Manager",
+    "Rocksmith Designer",
     "--out=release-builds",
     "--overwrite",
     "--prune=true",
     "--arch=x64",
     `--platform=${platform}`,
     `--icon=${icon}`,
-    "--ignore=config.dev.json",
-    "--ignore=rsdb.dev.sqlite",
     "--ignore=screenshots/",
+    "--ignore=.vscode/",
     "--ignore=design/",
     "--ignore=src/lib/musicanalysis/build/",
+    "--ignore=src/lib/musicanalysis/cqt.npy",
+    "--ignore=src/lib/radiaslider/node_modules/",
     extra_ignore.length > 0 ? `--ignore=${extra_ignore}` : ""
 ]);
 
@@ -58,14 +59,6 @@ child.on('close', (code) => {
 
 function postbuild() {
     if (buildPlatform === "mac") {
-        process.chdir("release-builds/Rocksmith\ Manager-darwin-x64/Rocksmith\ Manager.app/Contents/Resources/app/");
-        console.log("Running postbuild mac..");
-        //console.log(process.cwd());
-        spawn("install_name_tool", [
-            "-change",
-            "@rpath/libportaudio.dylib",
-            "node_modules/naudiodon/build/Release/libportaudio.dylib",
-            "node_modules/naudiodon/build/Release/naudiodon.node"
-        ]);
+
     }
 }
