@@ -8,13 +8,11 @@
   "dependencies": {
     "add": "^2.0.6",
     "bootstrap": "^4.3.1",
-    "ds-store": "^0.1.6",
     "easy-peasy": "^2.0.0",
     "electron-is-dev": "^1.0.1",
     "electron-localshortcut": "^3.1.0",
     "electron-prompt": "^1.2.0",
     "electron-window-state": "^5.0.1",
-    "eslint-plugin-prettier": "^3.0.1",
     "fs-extra": "^7.0.1",
     "localforage": "^1.7.3",
     "music-metadata": "^3.5.2",
@@ -41,34 +39,32 @@
     "react-start": "react-app-rewired start",
     "pack": "build --dir",
     "dist": "npm run build && build",
-    "postinstall": "patch-package",
-    "package-mac": "node scripts/package.js mac",
-    "package-win": "node scripts/package.js win",
+    "postinstall": "electron-builder install-app-deps && patch-package",
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
     "contributors:check": "all-contributors check",
-    "dist-mac": "yarn run build && yarn run package-mac && yarn run dmg-mac",
-    "dist-win": "yarn run build && yarn run package-win && yarn run exe-win",
-    "dmg-mac": "mkdir -p node_modules/ds-store/assets && cp src/assets/DSStore-clean node_modules/ds-store/assets/ && electron-installer-dmg ./release-builds/Rocksmith\\ Designer-darwin-x64/Rocksmith\\ Designer.app 'RocksmithDesignerInstaller' --out=release-builds --overwrite --icon=src/assets/icons/mac/mac.icns",
-    "exe-win": "node scripts/createinstaller.js"
+    "dist-mac": "yarn run build && yarn run electron-builder build --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
+    "dist-win": "yarn run build && yarn run electron-builder build --win -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
     "all-contributors-cli": "^5.4.0",
     "babel-preset-react-app": "^5.0.3",
+    "ds-store": "^0.1.6",
     "electron": "^4.0.4",
-    "electron-builder": "^20.28.4",
+    "electron-builder": "^20.39.0",
     "electron-installer-dmg": "^2.0.0",
     "electron-packager": "^12.2.0",
-    "electron-rebuild": "^1.8.2",
     "electron-winstaller": "^3.0.4",
     "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.11.0",
     "foreman": "^3.0.1",
     "jest": "23.6.0",
+    "jquery": "^3.4.0",
     "patch-package": "^5.1.1",
     "react-app-rewire-eslint": "^0.2.3",
     "react-app-rewired": "^1.6.2",
@@ -77,17 +73,67 @@
   "homepage": "./",
   "main": "src/electron-starter.js",
   "build": {
-    "appId": "com.sandi.rsmanager",
+    "productName": "Rocksmith Designer",
+    "appId": "com.sandiz.rsdesigner",
+    "files": [
+      "src/",
+      ".",
+      "!dev${/*}",
+      "!samples${/*}",
+      "!demos${/*}",
+      "!doc${/*}",
+      "!test${/*}",
+      "!functest${/*}"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "src/assets/icons/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
     "win": {
-      "icon": "./src/assets/icon.jpg"
+      "icon": "src/assets/icons/icon.ico",
+      "target": [
+        "zip",
+        "msi",
+        "nsis"
+      ]
     },
     "directories": {
-      "buildResources": "public"
-    }
-  },
-  "babel": {
-    "presets": [
-      "react-app"
+      "buildResources": "src/assets/icons/",
+      "output": "release-builds"
+    },
+    "asar": "false",
+    "fileAssociations": [
+      {
+        "ext": "rsdirectory",
+        "name": "RSDesigner Project Bundle",
+        "icon": "icon.icns",
+        "role": "editor",
+        "isPackage": true
+      },
+      {
+        "ext": "rsproject",
+        "name": "RSDesigner Project",
+        "icon": "icon.icns",
+        "role": "editor",
+        "isPackage": false
+      }
     ]
   },
   "repository": "github:sandiz/rs-designer",
