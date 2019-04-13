@@ -58,7 +58,7 @@ class ControllerBar extends Component {
           break;
         case ".mp3":
         case ".wav":
-          this.importMedia(e, [d]);
+          this.importMedia(null, [d], true);
           break;
         default:
           break;
@@ -107,7 +107,7 @@ class ControllerBar extends Component {
     }
   }
 
-  importMedia = async (e, projectFiles = []) => {
+  importMedia = async (e, projectFiles = [], isTemporary = false) => {
     if (e) {
       e.target.blur();
       e.preventDefault();
@@ -136,6 +136,11 @@ class ControllerBar extends Component {
     }
     else {
       files = projectFiles;
+      if (isTemporary) {
+        let file = files[0];
+        file = await ProjectService.createTemporaryProject(file);
+        files = [file];
+      }
     }
     this.reset();
     await setStateAsync(this, {
