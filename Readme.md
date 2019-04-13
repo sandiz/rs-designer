@@ -16,8 +16,6 @@ TODO
     - copy timeline plugin
 
 - project
-    - create folder
-    - move mp3 there
     - automate analysis
 
 - analysis

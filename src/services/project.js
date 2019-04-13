@@ -11,6 +11,9 @@ const defaultProjectInfo = {
     original: "",
 }
 
+const projectExt = "rsdproject";
+const bundleExt = "rsdbundle";
+
 export class Project {
     constructor() {
         tmp.setGracefulCleanup();
@@ -51,8 +54,8 @@ export class Project {
         }
         else {
             const filters = [
-                { name: "RSDesigner Bundle", extensions: ['rsdbundle'] },
-                { name: "RSDesigner Project", extensions: ['rsdproject'] },
+                { name: "RSDesigner Bundle", extensions: [bundleExt] },
+                { name: "RSDesigner Project", extensions: [projectExt] },
             ];
             if (window.isWin === true) {
                 delete filters[0];
@@ -67,10 +70,10 @@ export class Project {
         if (dirs) {
             const dir = dirs[0];
             let jsonPath = "";
-            if (dir.endsWith('.rsdirectory')) {
-                jsonPath = dir + "/project.rsproject"
+            if (dir.endsWith(bundleExt)) {
+                jsonPath = dir + `/project.${projectExt}`
             }
-            else if (dir.endsWith('.rsproject')) {
+            else if (dir.endsWith(`.${projectExt}`)) {
                 jsonPath = dir;
             }
             if (jsonPath.length > 0) {
@@ -107,7 +110,7 @@ export class Project {
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
                     const basen = window.path.parse(this.projectInfo.original).name;
-                    const dir = dirs[0] + `/${basen}.rsdbundle`;
+                    const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
                     await copyDir(this.projectDirectory, dir, {
                         overwrite: true,
@@ -136,7 +139,7 @@ export class Project {
     updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
         const ext = window.path.extname(file);
         this.projectDirectory = dir;
-        this.projectFileName = `${this.projectDirectory}/project.rsdproject`;
+        this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
         this.isTemporary = istemp;
         this.loaded = isloaded;
         if (!readOnly) {
