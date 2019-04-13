@@ -10497,10 +10497,9 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
-soundtouchjs@^0.1.5:
+"soundtouchjs@https://github.com/sandiz/SoundTouchJS.git":
   version "0.1.5"
-  resolved "https://registry.yarnpkg.com/soundtouchjs/-/soundtouchjs-0.1.5.tgz#89e6cae0fba8cf00d0928895d0a1ded1cef52cf2"
-  integrity sha512-m89HBaT6yCpeMHKDY4tRaGRtLe+A7U7dytkakVG9xLYXPCyy5wM1RBAOvrchWJiDTzh4+Ms4GaAPvomePXvPDw==
+  resolved "https://github.com/sandiz/SoundTouchJS.git#3ad58588bc201161be63cc864a0403fad5100d03"
 
 source-list-map@^2.0.0:
   version "2.0.0"

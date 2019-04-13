@@ -24,7 +24,7 @@
     "react-toastify": "^5.0.0",
     "request": "^2.34",
     "request-promise": "^4.2.2",
-    "soundtouchjs": "^0.1.5",
+    "soundtouchjs": "https://github.com/sandiz/SoundTouchJS.git",
     "threads": "^0.12.1",
     "tmp": "^0.1.0",
     "webpack-dev-server": "^3.1.1",
@@ -83,7 +83,11 @@
       "!demos${/*}",
       "!doc${/*}",
       "!test${/*}",
-      "!functest${/*}"
+      "!functest${/*}",
+      "!src/lib/musicanalysis/build/*",
+      "!src/lib/musicanalysis/cqt.npy",
+      "!patches/*",
+      "!packages/*"
     ],
     "dmg": {
       "contents": [
