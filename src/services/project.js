@@ -43,42 +43,51 @@ export class Project {
         this.projectFileName = ``;
     }
 
-    loadProject = async () => {
-        const filters = [
-            { name: "RSDesigner Project Bundle", extensions: ['rsdirectory'] },
-            { name: "RSDesigner Project", extensions: ['rsproject'] },
-        ];
-        if (window.isWin === true) {
-            delete filters[0];
+    loadProject = async (externalProject = null) => {
+        let dirs = [];
+
+        if (externalProject) {
+            dirs.push(externalProject);
         }
-        const dirs = electron.dialog.showOpenDialog({
-            title: "Open Project..",
-            buttonLabel: "Open",
-            properties: ['openFile'],
-            filters,
-        });
-        const dir = dirs[0];
-        let jsonPath = "";
-        if (dir.endsWith('.rsdirectory')) {
-            jsonPath = dir + "/project.rsproject"
+        else {
+            const filters = [
+                { name: "RSDesigner Bundle", extensions: ['rsdbundle'] },
+                { name: "RSDesigner Project", extensions: ['rsdproject'] },
+            ];
+            if (window.isWin === true) {
+                delete filters[0];
+            }
+            dirs = electron.dialog.showOpenDialog({
+                title: "Open Project..",
+                buttonLabel: "Open",
+                properties: ['openFile'],
+                filters,
+            });
         }
-        else if (dir.endsWith('.rsproject')) {
-            jsonPath = dir;
-        }
-        if (jsonPath.length > 0) {
-            const data = await readFile(jsonPath);
-            const json = JSON.parse(data);
-            this.unload();
-            await this.updateProjectInfo(
-                dir,
-                false,
-                true,
-                '',
-                true, /* readonly */
-            );
-            this.projectInfo.media = json.media;
-            this.projectInfo.original = json.original;
-            return this.projectInfo;
+        if (dirs) {
+            const dir = dirs[0];
+            let jsonPath = "";
+            if (dir.endsWith('.rsdirectory')) {
+                jsonPath = dir + "/project.rsproject"
+            }
+            else if (dir.endsWith('.rsproject')) {
+                jsonPath = dir;
+            }
+            if (jsonPath.length > 0) {
+                const data = await readFile(jsonPath);
+                const json = JSON.parse(data);
+                this.unload();
+                await this.updateProjectInfo(
+                    dir,
+                    false,
+                    true,
+                    '',
+                    true, /* readonly */
+                );
+                this.projectInfo.media = json.media;
+                this.projectInfo.original = json.original;
+                return this.projectInfo;
+            }
         }
         return null;
     }
@@ -98,7 +107,7 @@ export class Project {
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
                     const basen = window.path.parse(this.projectInfo.original).name;
-                    const dir = dirs[0] + `/${basen}.rsdirectory`;
+                    const dir = dirs[0] + `/${basen}.rsdbundle`;
                     /* copy dir */
                     await copyDir(this.projectDirectory, dir, {
                         overwrite: true,
@@ -127,7 +136,7 @@ export class Project {
     updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
         const ext = window.path.extname(file);
         this.projectDirectory = dir;
-        this.projectFileName = `${this.projectDirectory}/project.rsproject`;
+        this.projectFileName = `${this.projectDirectory}/project.rsdproject`;
         this.isTemporary = istemp;
         this.loaded = isloaded;
         if (!readOnly) {
