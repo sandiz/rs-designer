@@ -10,6 +10,7 @@ import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../service
 import ProjectService from '../../services/project';
 
 const electron = window.require("electron");
+const ipcRenderer = electron.ipcRenderer;
 
 const sec2time = (timeInSeconds) => {
   //eslint-disable-next-line
@@ -45,7 +46,24 @@ class ControllerBar extends Component {
       current: React.createRef(),
       total: React.createRef(),
     }
+    console.log("controller ctor");
     this.pbRef = React.createRef();
+    ipcRenderer.on('open-file', (e, d) => {
+      const p = window.path.parse(d);
+      console.log("open-file", p, d);
+      switch (p.ext) {
+        case ".rsdproject":
+        case ".rsdbundle":
+          this.loadProject(e, d);
+          break;
+        case ".mp3":
+        case ".wav":
+          this.importMedia(e, [d]);
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   componentDidMount() {
@@ -67,8 +85,9 @@ class ControllerBar extends Component {
     });
   }
 
-  loadProject = async (e) => {
-    const pInfo = await ProjectService.loadProject();
+
+  loadProject = async (e, externalProject = null) => {
+    const pInfo = await ProjectService.loadProject(externalProject);
     if (pInfo && pInfo.media) {
       this.importMedia(null, [pInfo.media]);
     }

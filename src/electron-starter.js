@@ -3,6 +3,7 @@ var { app, BrowserWindow, Menu, ipcMain } = electron;
 const path = require("path");
 const os = require('os')
 const url = require("url");
+const fs = require("fs");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
 const electronLocalshortcut = require('electron-localshortcut');
@@ -10,7 +11,8 @@ const electronLocalshortcut = require('electron-localshortcut');
 const shortcuts = require('./app-config/shortcuts.json');
 let mainWindow;
 let kbdShortcutsEnabled = true;
-
+let incomingPath = "";
+let ready = false;
 async function createWindow() {
     // Load the previous state with fallback to defaults
     let mainWindowState = windowStateKeeper({
@@ -154,7 +156,8 @@ app.on("ready", () => {
             path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
         )
     }
-
+    sendOpenFileRequest();
+    ready = true;
 });
 
 app.on("window-all-closed", () => {
@@ -162,6 +165,24 @@ app.on("window-all-closed", () => {
     app.quit();
     //}
 });
+app.on('will-finish-launching', () => {
+    app.on('open-file', (e, path) => {
+        e.preventDefault();
+        incomingPath = path;
+        if (ready) {
+            sendOpenFileRequest();
+        }
+    });
+});
+
+sendOpenFileRequest = () => {
+    if (incomingPath.length > 0) {
+        setTimeout(() => {
+            mainWindow.webContents.send('open-file', incomingPath);
+            incomingPath = "";
+        }, 1000);
+    }
+}
 
 app.on("activate", () => {
     if (mainWindow === null) {

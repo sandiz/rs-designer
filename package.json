@@ -125,17 +125,27 @@
     "asar": "false",
     "fileAssociations": [
       {
-        "ext": "rsdirectory",
-        "name": "RSDesigner Project Bundle",
+        "ext": "rsdbundle",
+        "name": "RSDesigner Bundle",
         "icon": "icon.icns",
         "role": "editor",
         "isPackage": true
       },
       {
-        "ext": "rsproject",
+        "ext": "rsdproject",
         "name": "RSDesigner Project",
         "icon": "icon.icns",
         "role": "editor",
+        "isPackage": false
+      },
+      {
+        "ext": "mp3",
+        "role": "viewer",
+        "isPackage": false
+      },
+      {
+        "ext": "wav",
+        "role": "viewer",
         "isPackage": false
       }
     ]
