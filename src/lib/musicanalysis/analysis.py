@@ -2,8 +2,8 @@ from __future__ import print_function
 import numpy as np
 import sys
 import librosa
-import librosa.display
-import matplotlib.pyplot as plt
+#import librosa.display
+#import matplotlib.pyplot as plt
 
 b_p_o = 12 * 3
 n_bins = 7 * b_p_o
@@ -16,9 +16,10 @@ C = librosa.cqt(
 )
 dB = librosa.amplitude_to_db(np.abs(C), ref=np.max)
 mode = 'dump'
-if mode == 'dump':
-    np.save("cqt.npy", dB)
-    #np.savez_compressed("cqt", dB=dB)
+# if mode == 'dump':
+np.save("cqt.npy", dB)
+#np.savez_compressed("cqt", dB=dB)
+'''
 else:
     # H, P = librosa.decompose.hpss(D, margin=10.0)
     # C = np.abs()
@@ -38,3 +39,4 @@ else:
     )
     plt.tight_layout()
     plt.show()
+'''
