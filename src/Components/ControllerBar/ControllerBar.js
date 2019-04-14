@@ -32,8 +32,11 @@ class ControllerBar extends Component {
     mediaPlaying: false,
     progress: 0,
     projectDir: '',
-    tempo: '--',
-    songKey: '--',
+    tempo: 0,
+    tonic: {
+      key: '--',
+      type: '--', //major or minor
+    },
   }
 
   constructor(props) {
@@ -77,10 +80,18 @@ class ControllerBar extends Component {
     DispatcherService.off(DispatchEvents.ProjectUpdate, this.updateProjectState);
   }
 
-  updateProjectState = (e) => {
+  updateProjectState = async (e) => {
     const projectDir = ProjectService.getProjectDir();
+    const info = ProjectService.getProjectInfo();
+    const tempo = info.tempo ? await ProjectService.readTempo() : 0; /*check for tempo change */
+    const songKey = info.key ? await ProjectService.readSongKey() : ['--', '--']; /* check for songkey change */
     this.setState({
       projectDir,
+      tempo,
+      tonic: {
+        key: songKey[0],
+        type: songKey[1],
+      },
     });
   }
 
@@ -380,7 +391,10 @@ class ControllerBar extends Component {
                     <td>Tempo</td>
                     <td>
                       <div className="table-extra-info">
-                        {this.state.tempo}
+                        {
+                          this.state.tempo > 0
+                            ? <span title={this.state.tempo}>{this.state.tempo.toFixed()} bpm</span>
+                            : '--'}
                       </div>
                     </td>
                   </tr>
@@ -388,7 +402,7 @@ class ControllerBar extends Component {
                     <td>Song Key</td>
                     <td>
                       <div className="table-extra-info">
-                        {this.state.songKey}
+                        {this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`}
                       </div>
                     </td>
                   </tr>
