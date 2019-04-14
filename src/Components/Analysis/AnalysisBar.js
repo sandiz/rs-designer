@@ -126,7 +126,9 @@ class AnalysisBar extends Component {
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
                         {
-                            <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
+                            !this.state.analysing
+                                ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
+                                : <span style={{ marginLeft: 5 + 'px' }}>WAITING FOR ANALYSIS TO END...</span>
                         }
                     </span>
                 </div>

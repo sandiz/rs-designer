@@ -177,6 +177,7 @@ export class Project {
         this.projectInfo.key = window.path.join(this.projectDirectory, 'key');
         this.projectInfo.chords = window.path.join(this.projectDirectory, 'chords');
         await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+        DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
     }
 
     updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
@@ -211,6 +212,22 @@ export class Project {
         await copyFile(src, dest);
 
         return dest;
+    }
+
+    readTempo = async () => {
+        const tempoFile = this.projectInfo.tempo;
+        const data = await readFile(tempoFile)
+        const tempo = parseFloat(data);
+        return tempo;
+    }
+
+    readSongKey = async () => {
+        console.log(this.projectInfo)
+        const keyFile = this.projectInfo.key;
+        const data = await readFile(keyFile)
+        console.log(data)
+        const s = data.toString().split(" ")
+        return s;
     }
 }
 
