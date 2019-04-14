@@ -162,6 +162,7 @@ def thread_librosa():
     print("starting librosa thread")
     y, sr = librosa.load(sys.argv[1])
     onset_env = librosa.onset.onset_strength(y, sr=sr)
+    print("finished librosa load")
     t1 = threading.Thread(target=cqt_librosa, args=(y, sr,))
     t2 = threading.Thread(target=tempo2_librosa, args=(y, sr, onset_env))
     t3 = threading.Thread(target=beats_librosa, args=(y, sr, onset_env))
@@ -208,24 +209,19 @@ def sequential_benchmark():
 
 if __name__ == '__main__':
     start = time.time()
-    print ("starting sequential benchmark\n")
-    sequential_benchmark()
-    end = time.time()
-    print("Total time: " + str(end - start) + " s")
-
-    start = time.time()
-    print ("\nstarting threaded benchmark\n")
     t1 = threading.Thread(target=thread_librosa)
-    t2 = threading.Thread(target=thread_madmom_beats)
+    #t2 = threading.Thread(target=thread_madmom_beats)
     t3 = threading.Thread(target=key_detect_madmom)
     t4 = threading.Thread(target=chords_detect_madmom)
 
     t1.start()
-    t2.start()
+    # t2.start()
     t3.start()
     t4.start()
 
+    # t2.join()
+    t3.join()
+    t4.join()
     t1.join()
-    t2.join()
     end = time.time()
     print("\nTotal time: " + str(end - start) + " s")
