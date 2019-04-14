@@ -14,11 +14,12 @@ TODO
     - canvas piano bar 
     - time bar
     - copy timeline plugin
+    - wasm
 
 -analysis
    - wavesurfer wave dump
-   - pitchtempo change
    - resample in binary 
+   - resample/save to image
 
 - post madmom
     - chord bar
