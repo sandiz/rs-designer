@@ -3,8 +3,9 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import { readTags, readFile } from './utils'
+import { MediaAnalysis, NumpyLoaderThread } from './medianalysis'
+import ProjectService from '../services/project';
 
-const spawn = require('threads').spawn;
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
 export const MediaPlayer = {
@@ -106,79 +107,25 @@ class MediaPlayerBase {
         DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart);
         console.log("starting media analysis");
 
+        const analysisReqd = ProjectService.isAnalysisReqd();
+        if (analysisReqd) {
+            await MediaAnalysis.start();
+        }
+        // each module should pick the items up
+    }
+
+    cqtAnalyse = async () => {
+        DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart);
+        console.log("starting media analysis");
+
         const cqtdata = await readFile('/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/cqt.npy');
         const buffer = new ArrayBuffer(cqtdata.length);
         const cqtview = new Uint8Array(buffer);
         for (let i = 0; i < cqtdata.length; i += 1) {
             cqtview[i] = cqtdata[i];
         }
-        const thread = spawn((input, done) => {
-            const asciiDecode = (buf) => {
-                return String.fromCharCode.apply(null, new Uint8Array(buf));
-            }
-            const readUint16LE = (buf) => {
-                const view = new DataView(buf);
-                let val = view.getUint8(0);
-                //eslint-disable-next-line
-                val |= view.getUint8(1) << 8;
-                return val;
-            }
-            const buf = input.buffer;
-            // Check the magic number
-            const magic = asciiDecode(buf.slice(0, 6));
-            if (magic.slice(1, 6) !== 'NUMPY') {
-                throw new Error('unknown file type');
-            }
 
-            //const version = new Uint8Array(buf.slice(6, 8));
-            const headerLength = readUint16LE(buf.slice(8, 10));
-            const headerStr = asciiDecode(buf.slice(10, 10 + headerLength));
-            const offsetBytes = 10 + headerLength;
-            //rest = buf.slice(10+headerLength);  XXX -- This makes a copy!!! https://www.khronos.org/registry/typedarray/specs/latest/#5
-
-            // Hacky conversion of dict literal string to JS Object
-            let info;
-            //eslint-disable-next-line
-            eval("info = " + headerStr.toLowerCase().replace('(', '[').replace('),', ']'));
-
-            // Intepret the bytes according to the specified dtype
-            let data;
-            if (info.descr === "|u1") {
-                data = new Uint8Array(buf, offsetBytes);
-            } else if (info.descr === "|i1") {
-                data = new Int8Array(buf, offsetBytes);
-            } else if (info.descr === "<u2") {
-                data = new Uint16Array(buf, offsetBytes);
-            } else if (info.descr === "<i2") {
-                data = new Int16Array(buf, offsetBytes);
-            } else if (info.descr === "<u4") {
-                data = new Uint32Array(buf, offsetBytes);
-            } else if (info.descr === "<i4") {
-                data = new Int32Array(buf, offsetBytes);
-            } else if (info.descr === "<f4") {
-                data = new Float32Array(buf, offsetBytes);
-            } else if (info.descr === "<f8") {
-                data = new Float64Array(buf, offsetBytes);
-                const ndArray = [];
-                //var newdata = [];
-                for (let i = 0; i < data.length; i += info.shape[0]) {
-                    ndArray.push(data.slice(i, i + 252));
-                }
-                data = ndArray;
-            } else {
-                console.log(info);
-                throw new Error('unknown numeric dtype')
-            }
-
-            const nparray = {
-                shape: info.shape,
-                fortran_order: info.fortran_order,
-                data,
-            };
-            done({ data: nparray });
-        });
-
-        thread.send({ buffer })
+        NumpyLoaderThread.send({ buffer })
             .on('message', (response) => {
                 DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis);
                 /* start wv-cqt plugin */
@@ -191,7 +138,7 @@ class MediaPlayerBase {
                     specData: response.data,
                 })
                 this.wavesurfer.registerPlugins([cqtp]);
-                thread.kill();
+                NumpyLoaderThread.kill();
             })
             .on('error', (error) => {
                 console.error('Worker errored:', error);

@@ -7,8 +7,13 @@ const electron = window.require('electron').remote;
 const tmp = window.require('tmp');
 
 const defaultProjectInfo = {
-    media: "",
-    original: "",
+    media: '',
+    original: '',
+    cqt: '',
+    tempo: '',
+    beats: '',
+    key: '',
+    chords: '',
 }
 
 const projectExt = "rsdproject";
@@ -27,6 +32,27 @@ export class Project {
         electron.app.on('before-quit', (e) => {
             this.unload();
         })
+    }
+
+    isAnalysisReqd() {
+        if (this.projectInfo) {
+            const {
+                cqt, tempo, beats, key, chords,
+            } = this.projectInfo;
+            if (
+                cqt === ''
+                || tempo === ''
+                || beats === ''
+                || key === ''
+                || chords === ''
+            ) {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+        return false;
     }
 
     isLoaded() {
@@ -93,6 +119,10 @@ export class Project {
             }
         }
         return null;
+    }
+
+    getProjectInfo = () => {
+        return this.projectInfo;
     }
 
     getProjectFilename = () => {
