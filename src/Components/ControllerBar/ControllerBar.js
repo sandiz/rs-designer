@@ -78,7 +78,7 @@ class ControllerBar extends Component {
   }
 
   updateProjectState = (e) => {
-    const projectDir = ProjectService.getProjectFilename();
+    const projectDir = ProjectService.getProjectDir();
     this.setState({
       projectDir,
     });

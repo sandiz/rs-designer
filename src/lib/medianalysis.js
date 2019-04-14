@@ -11,10 +11,11 @@ class Spawner {
         this.handle = null;
     }
 
-    start = () => {
+    start = () => new Promise((resolve, reject) => {
         const info = ProjectService.getProjectInfo();
-        if (info) {
-            this.handle = spawn(this.analysisBinary, [info.media], {
+        const dir = ProjectService.getProjectDir();
+        if (info && dir) {
+            this.handle = spawn(this.analysisBinary, [info.media, dir], {
                 detached: true,
                 windowsHide: true,
             });
@@ -29,13 +30,16 @@ class Spawner {
 
             this.handle.on('close', (code) => {
                 console.log(`ma exited with code ${code}`);
+                ProjectService.updateExternalFiles();
+                resolve();
             });
 
             this.handle.on('error', (err) => {
                 console.log('failed to start subprocess. ' + err);
+                reject();
             });
         }
-    }
+    });
 
     cancel = () => {
         this.handle.kill();

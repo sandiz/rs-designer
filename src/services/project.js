@@ -129,6 +129,10 @@ export class Project {
         return this.projectFileName;
     }
 
+    getProjectDir = () => {
+        return this.projectDirectory;
+    }
+
     saveProject = async () => {
         if (this.loaded) {
             if (this.isTemporary) {
@@ -164,6 +168,16 @@ export class Project {
             }
         }
         return false;
+    }
+
+    updateExternalFiles = () => {
+        this.projectInfo = {
+            cqt: window.path.join(this.projectDirectory, 'cqt.npy'),
+            tempo: window.path.join(this.projectDirectory, 'tempo'),
+            beats: window.path.join(this.projectDirectory, 'beats'),
+            key: window.path.join(this.projectDirectory, 'key'),
+            chords: window.path.join(this.projectDirectory, 'chords'),
+        }
     }
 
     updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
