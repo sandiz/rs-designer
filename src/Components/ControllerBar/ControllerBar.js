@@ -8,6 +8,7 @@ import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
+import { getTransposedKey } from '../../lib/music-utils'
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
@@ -36,6 +37,14 @@ class ControllerBar extends Component {
     tonic: {
       key: '--',
       type: '--', //major or minor
+    },
+    pitchChange: {
+      diff: 0,
+      newKey: '',
+    },
+    tempoChange: {
+      diff: 0,
+      newTempo: 0,
     },
   }
 
@@ -74,17 +83,48 @@ class ControllerBar extends Component {
     DispatcherService.on(KeyboardEvents.SaveProject, this.saveProject);
 
     DispatcherService.on(DispatchEvents.ProjectUpdate, this.updateProjectState);
+    DispatcherService.on(DispatchEvents.PitchChange, this.onPitchChange);
+    DispatcherService.on(DispatchEvents.TempoChange, this.onTempoChange);
   }
 
   componentWillUnmount() {
     DispatcherService.off(DispatchEvents.ProjectUpdate, this.updateProjectState);
+    DispatcherService.off(DispatchEvents.PitchChange, this.onPitchChange);
+    DispatcherService.off(DispatchEvents.TempoChange, this.onTempoChange);
+  }
+
+  onPitchChange = async (value) => {
+    const [key, _ignored] = await ProjectService.readSongKey();
+    const newKey = getTransposedKey(key, value);
+    this.setState({
+      pitchChange: {
+        diff: value,
+        newKey,
+      },
+    })
+  }
+
+  onTempoChange = async (value) => {
+    let tempo = await ProjectService.readTempo();
+    tempo = tempo.toFixed()
+    let newTempo = (tempo * (value / 100)).toFixed();
+    if (value === 100) {
+      value = 0;
+      newTempo = 0;
+    }
+    this.setState({
+      tempoChange: {
+        diff: value,
+        newTempo,
+      },
+    })
   }
 
   updateProjectState = async (e) => {
     const projectDir = ProjectService.getProjectDir();
     const info = ProjectService.getProjectInfo();
-    const tempo = info.tempo ? await ProjectService.readTempo() : 0; /*check for tempo change */
-    const songKey = info.key ? await ProjectService.readSongKey() : ['--', '--']; /* check for songkey change */
+    const tempo = info.tempo ? await ProjectService.readTempo() : 0;
+    const songKey = info.key ? await ProjectService.readSongKey() : ['--', '--'];
     this.setState({
       projectDir,
       tempo,
@@ -394,7 +434,13 @@ class ControllerBar extends Component {
                         {
                           this.state.tempo > 0
                             ? <span title={this.state.tempo}>{this.state.tempo.toFixed()} bpm</span>
-                            : '--'}
+                            : '--'
+                        }
+                        {
+                          this.state.tempoChange.diff > 0
+                            ? <span> * ({this.state.tempoChange.diff}%) = {this.state.tempoChange.newTempo} bpm</span>
+                            : null
+                        }
                       </div>
                     </td>
                   </tr>
@@ -402,7 +448,22 @@ class ControllerBar extends Component {
                     <td>Song Key</td>
                     <td>
                       <div className="table-extra-info">
-                        {this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`}
+                        {
+                          this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
+                        }
+                        {
+                          this.state.pitchChange.diff !== 0
+                            ? (
+                              <span>
+                                &nbsp;({
+                                  this.state.pitchChange.diff > 0 ? `+` : ``
+                                }
+                                {this.state.pitchChange.diff})
+                                = {this.state.pitchChange.newKey} {this.state.tonic.type}
+                              </span>
+                            )
+                            : null
+                        }
                       </div>
                     </td>
                   </tr>

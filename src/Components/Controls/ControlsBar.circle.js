@@ -30,6 +30,7 @@ class CircleControls extends Component {
         this.tempoRef.current.innerHTML = v.value + "%";
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
+            DispatcherService.dispatch(DispatchEvents.TempoChange, v.value);
             mediaPlayer.setPlaybackRate(v.value / 100);
         }
     }
@@ -38,6 +39,7 @@ class CircleControls extends Component {
         this.pitchRef.current.innerHTML = v.value;
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
+            DispatcherService.dispatch(DispatchEvents.PitchChange, v.value);
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.playPause();
                 mediaPlayer.playPause();

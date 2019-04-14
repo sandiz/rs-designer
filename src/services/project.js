@@ -222,10 +222,8 @@ export class Project {
     }
 
     readSongKey = async () => {
-        console.log(this.projectInfo)
         const keyFile = this.projectInfo.key;
         const data = await readFile(keyFile)
-        console.log(data)
         const s = data.toString().split(" ")
         return s;
     }
