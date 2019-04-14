@@ -96,12 +96,14 @@ class ControllerBar extends Component {
   onPitchChange = async (value) => {
     const [key, _ignored] = await ProjectService.readSongKey();
     const newKey = getTransposedKey(key, value);
-    this.setState({
-      pitchChange: {
-        diff: value,
-        newKey,
-      },
-    })
+    if (newKey) {
+      this.setState({
+        pitchChange: {
+          diff: value,
+          newKey,
+        },
+      })
+    }
   }
 
   onTempoChange = async (value) => {
