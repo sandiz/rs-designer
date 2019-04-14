@@ -1,0 +1,38 @@
+starting sequential benchmark
+
+librosa load took: 12.4280600548 s
+finished librosa:cqt
+librosa cqt took: 4.17905688286 s
+finished librosa:tempo
+librosa tempo took: 0.929924964905 s
+finished librosa:beats
+librosa beats took: 0.962687969208 s
+librosa total: 19.1030900478 s
+
+
+libmadmom load took: 55.5593321323 s
+finished madmom:tempo
+libmadmom tempo took: 0.0934250354767 s
+finished madmom:beats 
+libmadmom beats took: 5.44130516052 s
+finished madmom:key detect
+libmadmom key took: 15.2593131065 s
+finished madmom:chords detect
+libmadmom chords took: 1.1068251133 s
+libmadmom total: 77.6039061546 s
+Total time: 96.7070400715 s
+
+starting threaded benchmark
+
+starting librosa thread
+starting madmom beats thread
+finished madmom:chords detect
+finished librosa:tempo
+finished librosa:beats
+finished librosa:cqt
+finished madmom:key detect
+finished rnn
+finished madmom:beats 
+finished madmom:tempo
+
+Total time: 83.389811039 s
