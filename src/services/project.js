@@ -36,6 +36,7 @@ export class Project {
 
     isAnalysisReqd() {
         if (this.projectInfo) {
+            console.log(this);
             const {
                 cqt, tempo, beats, key, chords,
             } = this.projectInfo;
@@ -113,8 +114,7 @@ export class Project {
                     '',
                     true, /* readonly */
                 );
-                this.projectInfo.media = json.media;
-                this.projectInfo.original = json.original;
+                this.projectInfo = json;
                 return this.projectInfo;
             }
         }
@@ -143,6 +143,7 @@ export class Project {
                 });
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
+                    console.log(this)
                     const basen = window.path.parse(this.projectInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
@@ -170,14 +171,13 @@ export class Project {
         return false;
     }
 
-    updateExternalFiles = () => {
-        this.projectInfo = {
-            cqt: window.path.join(this.projectDirectory, 'cqt.npy'),
-            tempo: window.path.join(this.projectDirectory, 'tempo'),
-            beats: window.path.join(this.projectDirectory, 'beats'),
-            key: window.path.join(this.projectDirectory, 'key'),
-            chords: window.path.join(this.projectDirectory, 'chords'),
-        }
+    updateExternalFiles = async () => {
+        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.npy');
+        this.projectInfo.tempo = window.path.join(this.projectDirectory, 'tempo');
+        this.projectInfo.beats = window.path.join(this.projectDirectory, 'beats');
+        this.projectInfo.key = window.path.join(this.projectDirectory, 'key');
+        this.projectInfo.chords = window.path.join(this.projectDirectory, 'chords');
+        await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
     }
 
     updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {

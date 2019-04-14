@@ -110,6 +110,7 @@ class MediaPlayerBase {
         const analysisReqd = ProjectService.isAnalysisReqd();
         if (analysisReqd) {
             //save waveform data
+            console.log("analysis true");
             await MediaAnalysis.start();
         }
         // each module should pick the items up
