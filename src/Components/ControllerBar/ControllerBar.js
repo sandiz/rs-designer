@@ -46,7 +46,6 @@ class ControllerBar extends Component {
       current: React.createRef(),
       total: React.createRef(),
     }
-    console.log("controller ctor");
     this.pbRef = React.createRef();
     ipcRenderer.on('open-file', (e, d) => {
       const p = window.path.parse(d);

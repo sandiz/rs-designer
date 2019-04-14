@@ -14,11 +14,8 @@ gcc -Os -Ofast -I/usr/local/Cellar/python@2/2.7.16/Frameworks/Python.framework/V
 FILESIZE=$(stat -f%z "dist/analysis-cy")
 FILESIZE=$((FILESIZE / (1024 ) ))
 echo "dist/analysis-cy size = $FILESIZE kb."
-START=$(date +%s)
+
 ./dist/analysis-cy ~/Downloads/test-music/Ami\ Brishti\ Dekhechi\ Anjan\ Dutta.mp3
-END=$(date +%s)
-DIFF=$(echo "$END - $START" | bc)
-echo $DIFF
 
 FILESIZE=$(stat -f%z "cqt.npy")
 FILESIZE=$((FILESIZE / (1024 * 1024) ))
