@@ -41,25 +41,34 @@ class AnalysisBar extends Component {
         DispatcherService.on(KeyboardEvents.ToggleAnalysis, this.toggle);
     }
 
-    analyseStart = () => {
+    analyseStart = (method) => {
         this.setState({ analysing: true });
         //this.toastId = toaster('', 'fas fa-hourglass-half', 'Analysing media in the background...', { autoClose: false });
         this.toastId = toast(({ closeToast }) => (
             <div
                 style={{
-                    fontSize: 14 + 'px',
+                    fontSize: 16 + 'px',
                     color: 'black',
                 }}
                 className="flex-col">
-                <div className="flex-row ">
-                    <div className="notif-item">Detecting Key/Chords</div>
-                    <div className="notif-item">
+                {
+                    method === "generate" ? "Generating.." : "Reading From Disk.."
+                }
+                <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
+                    <div className="notif-item">Key/Chords</div>
+                    <div className="notif-item-2">
                         <div className="spinner-grow text-primary float-right" role="status" />
                     </div>
                 </div>
-                <div className="flex-row ">
-                    <div className="notif-item">Detecting Tempo/Beats</div>
-                    <div className="notif-item">
+                <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
+                    <div className="notif-item">Tempo/Beats</div>
+                    <div className="notif-item-2">
+                        <div className="spinner-grow text-primary float-right" role="status" />
+                    </div>
+                </div>
+                <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
+                    <div className="notif-item">Musicgram</div>
+                    <div className="notif-item-2">
                         <div className="spinner-grow text-primary float-right" role="status" />
                     </div>
                 </div>
