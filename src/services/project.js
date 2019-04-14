@@ -36,7 +36,6 @@ export class Project {
 
     isAnalysisReqd() {
         if (this.projectInfo) {
-            console.log(this);
             const {
                 cqt, tempo, beats, key, chords,
             } = this.projectInfo;

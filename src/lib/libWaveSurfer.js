@@ -104,16 +104,17 @@ class MediaPlayerBase {
     }
 
     analyse = async () => {
-        DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart);
-        console.log("starting media analysis");
-
         const analysisReqd = ProjectService.isAnalysisReqd();
         if (analysisReqd) {
             //save waveform data
-            console.log("analysis true");
+            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, "generate");
+            console.log("starting media analysis");
             await MediaAnalysis.start();
+        } else {
+            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, "load-from-disk");
         }
         // each module should pick the items up
+        //start loading analysis
         this.cqtAnalyse();
     }
 
