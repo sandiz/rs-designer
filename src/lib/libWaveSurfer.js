@@ -109,16 +109,16 @@ class MediaPlayerBase {
 
         const analysisReqd = ProjectService.isAnalysisReqd();
         if (analysisReqd) {
+            //save waveform data
             await MediaAnalysis.start();
         }
         // each module should pick the items up
+        this.cqtAnalyse();
     }
 
     cqtAnalyse = async () => {
-        DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart);
-        console.log("starting media analysis");
-
-        const cqtdata = await readFile('/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/cqt.npy');
+        const info = ProjectService.getProjectInfo();
+        const cqtdata = await readFile(info.cqt);
         const buffer = new ArrayBuffer(cqtdata.length);
         const cqtview = new Uint8Array(buffer);
         for (let i = 0; i < cqtdata.length; i += 1) {

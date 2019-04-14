@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { toast } from 'react-toastify';
 
-import "../../css/MusicInformationBar.css"
+import "../../css/AnalysisBar.css"
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
-import { toaster } from '../../lib/utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -44,7 +43,30 @@ class AnalysisBar extends Component {
 
     analyseStart = () => {
         this.setState({ analysing: true });
-        this.toastId = toaster('', 'fas fa-hourglass-half', 'Analysing media in the background...', { autoClose: false });
+        //this.toastId = toaster('', 'fas fa-hourglass-half', 'Analysing media in the background...', { autoClose: false });
+        this.toastId = toast(({ closeToast }) => (
+            <div
+                style={{
+                    fontSize: 14 + 'px',
+                    color: 'black',
+                }}
+                className="flex-col">
+                <div className="flex-row ">
+                    <div className="notif-item">Detecting Key/Chords</div>
+                    <div className="notif-item">
+                        <div className="spinner-grow text-primary float-right" role="status" />
+                    </div>
+                </div>
+                <div className="flex-row ">
+                    <div className="notif-item">Detecting Tempo/Beats</div>
+                    <div className="notif-item">
+                        <div className="spinner-grow text-primary float-right" role="status" />
+                    </div>
+                </div>
+            </div>
+        ), {
+                autoClose: false,
+            })
     }
 
     analyseEnd = () => {
