@@ -15,13 +15,10 @@ TODO
     - time bar
     - copy timeline plugin
 
-- project
-    - automate analysis
-
-- analysis
-    - madmom
-    - pyinstallaer + madmom
-    - build scripts
+-analysis
+   - wavesurfer wave dump
+   - pitchtempo change
+   - resample in binary 
 
 - post madmom
     - chord bar
