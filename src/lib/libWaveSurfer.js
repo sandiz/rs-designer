@@ -146,7 +146,7 @@ class MediaPlayerBase {
                 console.error('Worker errored:', error);
             })
             .on('exit', () => {
-                console.log("analysis thread ended");
+                console.log("numpyloader thread ended");
             });
     }
 

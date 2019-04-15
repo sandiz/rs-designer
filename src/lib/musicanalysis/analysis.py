@@ -9,9 +9,7 @@ import argparse
 import librosa
 import time
 import threading
-import pdb
 import os
-cqt = key = chords = beats = tempo = tempo_cqt = tempo3 = beats_cqt = None
 np.set_printoptions(precision=3)
 
 

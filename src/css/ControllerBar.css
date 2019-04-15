@@ -121,3 +121,11 @@
     text-overflow: ellipsis;
     text-align: right;
 }
+
+.artist_div,
+.song_div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+}
