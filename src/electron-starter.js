@@ -7,6 +7,7 @@ const fs = require("fs");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
 const electronLocalshortcut = require('electron-localshortcut');
+const openAboutWindow = require('about-window').default;
 
 const shortcuts = require('./app-config/shortcuts.json');
 let mainWindow;
@@ -75,6 +76,12 @@ async function createWindow() {
             submenu: [
                 {
                     label: "About Application", click: () => {
+                        openAboutWindow({
+                            icon_path: path.join(__dirname, "./assets/icons/icon-1024x1024.png"),
+                            package_json_dir: path.join(__dirname, "../"),
+                            copyright: 'Copyright (c) 2018 sandiz',
+                            homepage: 'https://github.com/sandiz/rs-designer',
+                        });
                     }
                 },
                 { type: "separator" },
