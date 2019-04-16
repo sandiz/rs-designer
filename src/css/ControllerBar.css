@@ -27,11 +27,11 @@
 }
 
 .artist_span {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .song_span {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .timer_div {
@@ -128,4 +128,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 240px;
+}
+
+.info_table tr {
+    padding: 0px;
 }

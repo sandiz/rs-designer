@@ -133,7 +133,14 @@ class AnalysisBar extends Component {
                         {
                             !this.state.analysing
                                 ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
-                                : <span style={{ marginLeft: 5 + 'px' }}>WAITING FOR ANALYSIS TO END...</span>
+                                : (
+                                    <div style={{ display: 'inline' }}>
+                                        <span style={{ marginLeft: 5 + 'px' }}>WAITING FOR ANALYSIS TO END...</span>
+                                        <div style={{ display: 'inline', float: 'right' }}>
+                                            <div style={{ marginBottom: 4 + 'px' }} className="spinner-grow text-primary" role="status" />
+                                        </div>
+                                    </div>
+                                )
                         }
                     </span>
                 </div>
