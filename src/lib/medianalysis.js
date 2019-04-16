@@ -11,11 +11,11 @@ class Spawner {
         this.handle = null;
     }
 
-    start = () => new Promise((resolve, reject) => {
+    start = (width, height) => new Promise((resolve, reject) => {
         const info = ProjectService.getProjectInfo();
         const dir = ProjectService.getProjectDir();
         if (info && dir) {
-            this.handle = spawn(this.analysisBinary, [info.media, dir], {
+            this.handle = spawn(this.analysisBinary, [info.media, dir, width, height], {
                 detached: true,
                 windowsHide: true,
             });
@@ -96,7 +96,7 @@ export const NumpyLoaderThread = tspawn((input, done) => {
         const ndArray = [];
         //var newdata = [];
         for (let i = 0; i < data.length; i += info.shape[0]) {
-            ndArray.push(data.slice(i, i + 252));
+            ndArray.push(data.slice(i, i + info.shape[0]));
         }
         data = ndArray;
     } else {

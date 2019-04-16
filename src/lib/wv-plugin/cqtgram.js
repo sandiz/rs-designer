@@ -2,6 +2,9 @@
 const bone = require('./1').bone_cmap;
 const spawn = require('threads').spawn;
 const { DispatcherService, DispatchEvents } = require("../../services/dispatcher");
+
+import { PNG } from 'pngjs/browser';
+
 /**
  * Render a constantq visualisation of the audio.
  */
@@ -147,6 +150,7 @@ export default class ConstantQPlugin {
         this.container.appendChild(this.wrapper);
 
         this.wrapper.addEventListener('click', this._onWrapperClick);
+        //this.wrapper.addEventListener('scroll', (e) => this.drawer.fireEvent('scroll', e))
     }
 
     _wrapperClickHandler(event) {
@@ -177,11 +181,9 @@ export default class ConstantQPlugin {
         if (this.frequenciesDataUrl) {
             this.loadFrequenciesData(this.frequenciesDataUrl);
         } else {
-            const data = this.specData.data;
-            if (data.length > 0) {
-                this.drawSpectrogram(data, this);
-                return;
-            }
+            const data = this.specData
+            this.drawSpectrogram(data, this);
+            return;
         }
     }
 
@@ -192,12 +194,28 @@ export default class ConstantQPlugin {
         this.canvas.style.width = width;
     }
 
-    drawSpectrogram(frequenciesData, my) {
+    drawSpectrogram(data, my) {
+        new PNG({
+            inputHasAlpha: false,
+            colorType: 2,
+        }).parse(data, (error, data) => {
+            const im = new ImageData(
+                new Uint8ClampedArray(data.data),
+                data.width,
+                data.height
+            );
+            my.spectrCc.putImageData(im, 0, 0);
+            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+        })
+    }
+
+    olddrawSpectrogram(frequenciesData, my) {
         const spectrCc = my.spectrCc;
         const offscrenCanvas = new OffscreenCanvas(this.canvas.width, this.canvas.height);
         const length = my.wavesurfer.backend.getDuration();
         const height = my.height;
         const pixels = my.resample(frequenciesData);
+        //const pixels = frequenciesData;
         const heightFactor = 2.2; //my.buffer ? 2 / my.buffer.numberOfChannels : 1;
         let i;
         let j;
@@ -333,7 +351,7 @@ export default class ConstantQPlugin {
     }
 
     resample(oldMatrix) {
-        const columnsNumber = this.width;
+        const columnsNumber = 1;//this.width;
         const newMatrix = [];
 
         const oldPiece = 1 / oldMatrix.length;
@@ -353,14 +371,8 @@ export default class ConstantQPlugin {
                 const overlap =
                     oldEnd <= newStart || newEnd <= oldStart
                         ? 0
-                        : Math.min(
-                            Math.max(oldEnd, newStart),
-                            Math.max(newEnd, oldStart)
-                        ) -
-                        Math.max(
-                            Math.min(oldEnd, newStart),
-                            Math.min(newEnd, oldStart)
-                        );
+                        : Math.min(Math.max(oldEnd, newStart), Math.max(newEnd, oldStart)) -
+                        Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));
                 let k;
                 /* eslint-disable max-depth */
                 if (overlap > 0) {
@@ -380,7 +392,6 @@ export default class ConstantQPlugin {
             for (m = 0; m < oldMatrix[0].length; m++) {
                 intColumn[m] = column[m];
             }
-
             newMatrix.push(intColumn);
         }
 

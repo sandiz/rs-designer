@@ -142,7 +142,6 @@ export class Project {
                 });
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
-                    console.log(this)
                     const basen = window.path.parse(this.projectInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
@@ -157,6 +156,7 @@ export class Project {
                         true,
                         lastPInfo.original,
                     )
+                    await this.updateExternalFiles();
                     return true;
                 }
             }
@@ -171,7 +171,7 @@ export class Project {
     }
 
     updateExternalFiles = async () => {
-        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.npy');
+        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.png');
         this.projectInfo.tempo = window.path.join(this.projectDirectory, 'tempo');
         this.projectInfo.beats = window.path.join(this.projectDirectory, 'beats');
         this.projectInfo.key = window.path.join(this.projectDirectory, 'key');
