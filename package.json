@@ -2,7 +2,7 @@
   "name": "rs-designer",
   "description": "Music Transcription & Rocksmith CDLC Designer",
   "author": "sandiz",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
