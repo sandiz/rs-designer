@@ -18,8 +18,6 @@ TODO
 
 -analysis
    - wavesurfer wave dump
-   - resample in binary 
-   - resample/save to image
 
 - post madmom
     - chord bar
