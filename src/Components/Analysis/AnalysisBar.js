@@ -52,33 +52,34 @@ class AnalysisBar extends Component {
                 }}
                 className="flex-col">
                 {
-                    method === "generate" ? "Generating.." : "Reading From Disk.."
+                    method === "generate" ? "Detecting.." : "Reading From Disk.."
                 }
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
-                    <div className="notif-item">Key/Chords</div>
+                    <div className="notif-item">Key + Chords</div>
                     <div className="notif-item-2">
                         <div className="spinner-grow text-primary float-right" role="status" />
                     </div>
                 </div>
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
-                    <div className="notif-item">Tempo/Beats</div>
+                    <div className="notif-item">Tempo + Beats</div>
                     <div className="notif-item-2">
                         <div className="spinner-grow text-primary float-right" role="status" />
                     </div>
                 </div>
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
-                    <div className="notif-item">Musicgram</div>
+                    <div className="notif-item">CQ Spectrogram</div>
                     <div className="notif-item-2">
                         <div className="spinner-grow text-primary float-right" role="status" />
                     </div>
                 </div>
             </div>
         ), {
-                autoClose: false,
+                autoClose: 60 * 1000,
             })
     }
 
-    analyseEnd = () => {
+    analyseEnd = (method) => {
+        const type = method === "generate" ? "cached" : "loaded"
         this.setState({ analysing: false });
         toast.update(this.toastId, {
             type: toast.TYPE.INFO,
@@ -87,7 +88,7 @@ class AnalysisBar extends Component {
                 <div>
                     <i className="far fa-check-circle" />
                     <span style={{ marginLeft: 5 + 'px' }}>
-                        Analysis complete!
+                        Analysis data {type} successfully!
                     </span>
                 </div>
             ),

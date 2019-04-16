@@ -12,12 +12,12 @@
         },
         {
             "label": "Rewind",
-            "accelerator": "Left",
+            "accelerator": "Alt+Left",
             "event": "shortcut-rewind"
         },
         {
             "label": "Fast Forward",
-            "accelerator": "Right",
+            "accelerator": "Alt+Right",
             "event": "shortcut-fast-forward"
         },
         {

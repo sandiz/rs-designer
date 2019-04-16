@@ -3,7 +3,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import { readTags, readFile } from './utils'
-import { MediaAnalysis, NumpyLoaderThread } from './medianalysis'
+import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
 
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
@@ -90,64 +90,59 @@ class MediaPlayerBase {
         this.wavesurfer.on('error', (msg) => {
             console.log(msg);
         });
-        this.analysedEvents = 0;
-        this.numAnalysisEvents = 1;
     }
 
-    endAnalysis = () => {
-        if (this.analysedEvents < this.numAnalysisEvents) {
-            this.analysedEvents += 1;
-        }
-        if (this.analysedEvents >= this.numAnalysisEvents) {
-            DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd);
-        }
+    endAnalysis = (method) => {
+        DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 
     analyse = async () => {
         const analysisReqd = ProjectService.isAnalysisReqd();
+
+        let method = "";
         if (analysisReqd) {
             //save waveform data
-            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, "generate");
+            method = "generate"
+            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, method);
             console.log("starting media analysis");
-            await MediaAnalysis.start();
+            await MediaAnalysis.start(this.wavesurfer.drawer.width, 512); /* fft samples /2 */
         } else {
+            method = "load-from-disk"
+            console.log("starting load from disk")
             DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, "load-from-disk");
         }
         // each module should pick the items up
         //start loading analysis
-        this.cqtAnalyse();
+        this.cqtAnalyse(method);
     }
 
-    cqtAnalyse = async () => {
+    cqtAnalyse = async (method) => {
         const info = ProjectService.getProjectInfo();
         const cqtdata = await readFile(info.cqt);
-        const buffer = new ArrayBuffer(cqtdata.length);
-        const cqtview = new Uint8Array(buffer);
-        for (let i = 0; i < cqtdata.length; i += 1) {
-            cqtview[i] = cqtdata[i];
-        }
 
-        NumpyLoaderThread.send({ buffer })
-            .on('message', (response) => {
-                DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis);
-                /* start wv-cqt plugin */
-                const cqtp = ConstantQPlugin.create({
-                    container: "#spectrogram",
-                    labels: true,
-                    deferInit: false,
-                    pixelRatio: 1,
-                    fftSamples: 1024,
-                    specData: response.data,
-                })
-                this.wavesurfer.registerPlugins([cqtp]);
-                NumpyLoaderThread.kill();
-            })
-            .on('error', (error) => {
-                console.error('Worker errored:', error);
-            })
-            .on('exit', () => {
-                console.log("numpyloader thread ended");
-            });
+        DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis, method);
+        /* start wv-cqt plugin */
+        const cqtp = ConstantQPlugin.create({
+            container: "#spectrogram",
+            labels: true,
+            deferInit: false,
+            pixelRatio: 1,
+            fftSamples: 1024,
+            specData: cqtdata,
+        })
+        this.wavesurfer.registerPlugins([cqtp]);
+
+
+        /*  NumpyLoaderThread.send({ buffer })
+             .on('message', (response) => {
+                 NumpyLoaderThread.kill();
+             })
+             .on('error', (error) => {
+                 console.error('Worker errored:', error);
+             })
+             .on('exit', () => {
+                 console.log("numpyloader thread ended");
+             }); */
     }
 
     setFilters(filters) {
