@@ -75,6 +75,8 @@ class AnalysisBar extends Component {
             </div>
         ), {
                 autoClose: 60 * 1000,
+                pauseOnFocusLoss: false,
+                pauseOnHover: false,
             })
     }
 

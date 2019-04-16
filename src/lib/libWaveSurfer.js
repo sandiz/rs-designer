@@ -119,7 +119,6 @@ class MediaPlayerBase {
     cqtAnalyse = async (method) => {
         const info = ProjectService.getProjectInfo();
         const cqtdata = await readFile(info.cqt);
-
         DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis, method);
         /* start wv-cqt plugin */
         const cqtp = ConstantQPlugin.create({

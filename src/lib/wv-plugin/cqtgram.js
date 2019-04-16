@@ -2,9 +2,6 @@
 const bone = require('./1').bone_cmap;
 const spawn = require('threads').spawn;
 const { DispatcherService, DispatchEvents } = require("../../services/dispatcher");
-
-import { PNG } from 'pngjs/browser';
-
 /**
  * Render a constantq visualisation of the audio.
  */
@@ -195,6 +192,8 @@ export default class ConstantQPlugin {
     }
 
     drawSpectrogram(data, my) {
+        /*
+        pngjs
         new PNG({
             inputHasAlpha: false,
             colorType: 2,
@@ -206,7 +205,14 @@ export default class ConstantQPlugin {
             );
             my.spectrCc.putImageData(im, 0, 0);
             DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
-        })
+        })*/
+        const im = new ImageData(
+            new Uint8ClampedArray(data),
+            my.width,
+            my.height
+        );
+        my.spectrCc.putImageData(im, 0, 0);
+        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
     }
 
     olddrawSpectrogram(frequenciesData, my) {
