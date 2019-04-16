@@ -113,6 +113,7 @@ export class Project {
                     '',
                     true, /* readonly */
                 );
+                electron.app.addRecentDocument(dir);
                 this.projectInfo = json;
                 return this.projectInfo;
             }
