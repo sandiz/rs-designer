@@ -30,6 +30,7 @@ class ControllerBar extends Component {
     importStepsCompleted: [],
     song: 'Song Title',
     artist: 'Artist',
+    album: 'Album',
     mediaPlaying: false,
     progress: 0,
     projectDir: '',
@@ -210,6 +211,7 @@ class ControllerBar extends Component {
         this.setState({
           song: media.tags.common.title,
           artist: media.tags.common.artist,
+          album: media.tags.common.album,
           showModal: false,
         });
         this.updateProjectState(null);
@@ -391,24 +393,17 @@ class ControllerBar extends Component {
           <div className="vertical" />
             &nbsp;&nbsp;
           <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
-            <table className="info-table">
-              <tbody>
-                <tr>
-                  <td>
-                    <div className="song_div">
-                      <span className="song_span"> {this.state.song}</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="artist_div">
-                      <span className="artist_span"> {this.state.artist} </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="info-table" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="song_div">
+                <span className="song_span"> {this.state.song}</span>
+              </div>
+              <div className="artist_div">
+                <span className="artist_span"> {this.state.artist} </span>
+              </div>
+              <div className="artist_div">
+                <span className="artist_span"> {this.state.album} </span>
+              </div>
+            </div>
             &nbsp;&nbsp;
             &nbsp;
            <div className="vertical" />
