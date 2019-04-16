@@ -87,7 +87,9 @@ class AnalysisBar extends Component {
             type: toast.TYPE.INFO,
             autoClose: 5000,
             render: (
-                <div>
+                <div style={{
+                    fontSize: 18 + 'px',
+                }}>
                     <i className="far fa-check-circle" />
                     <span style={{ marginLeft: 5 + 'px' }}>
                         Analysis data {type} successfully!
