@@ -40,7 +40,7 @@ FUTURE
 - external input guitar (https://wasabi.i3s.unice.fr/AmpSimFA/)
 - external input piano (https://gogul09.github.io/software/deep-drum)
 - time signature warp (https://arrow.dit.ie/cgi/viewcontent.cgi?article=1080&context=argcon)
-- MIDI GUITAR 2/guitar midi input
+- MIDI GUITAR 2/guitar midi input (https://www.jamorigin.com/products/)
 
 
 MVP
