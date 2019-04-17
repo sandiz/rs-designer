@@ -12,5 +12,5 @@ echo "dist/analysis-cy size = $FILESIZE kb."
 
 if [ $# -eq 0 ]
 then
-    time ./dist/analysis-cy ~/Downloads/test-music/Ami\ Brishti\ Dekhechi\ Anjan\ Dutta.mp3 /tmp/ 10830 512
+    /usr/bin/time -l ./dist/analysis-cy ~/Downloads/test-music/Ami\ Brishti\ Dekhechi\ Anjan\ Dutta.mp3 /tmp/ 10830 512
 fi
