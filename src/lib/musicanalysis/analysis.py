@@ -207,15 +207,18 @@ if __name__ == '__main__':
         print("args: file dir width")
         sys.exit(0)
     start = time.time()
-
+    print("librosa load/decode")
     y, sr = librosa.load(sys.argv[1], sr=None)
     path = os.path.join(sys.argv[2], "media.wav")
-    librosa.output.write_wav(path, y, 44100)
+
+    y_hat = librosa.core.resample(y, sr, 44100, res_type='kaiser_fast')
+    librosa.output.write_wav(path, y_hat, 44100)
+
     print("librosa decode took " + str(time.time() - start))
 
     t1 = threading.Thread(target=thread_librosa, args=(y, sr))
     t3 = threading.Thread(target=key_detect_madmom, args=(path,))
-    t4 = threading.Thread(target=chords_detect_madmom, args=(path,))
+    t4 = threading.Thread(target=chords_detect_madmom, args=(path, ))
 
     t1.start()
     t3.start()

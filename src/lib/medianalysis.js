@@ -10,13 +10,12 @@ const remote = window.require('electron').remote
 const { isPackaged, getAppPath } = remote.app;
 
 const getMABinary = () => {
-    const root = window.process.cwd()
     let binaryPath = ''
     if (!window.isDev && isPackaged) {
         binaryPath = window.path.join(window.path.dirname(getAppPath()), '..', './Resources', './bin')
     }
     else {
-        binaryPath = window.path.join(root, './src/lib/musicanalysis/dist/');
+        binaryPath = './src/lib/musicanalysis/dist/';
     }
     return window.path.resolve(window.path.join(binaryPath, './analysis-cy'));
 }
@@ -31,9 +30,10 @@ class Spawner {
         const info = ProjectService.getProjectInfo();
         const dir = ProjectService.getProjectDir();
         if (info && dir) {
-            this.handle = spawn(`"${this.analysisBinary}"`, [info.media, dir, width, height], {
+            this.handle = spawn(`${this.analysisBinary}`, [info.media, dir, width, height], {
                 detached: true,
                 windowsHide: true,
+                shell: true,
             });
 
             this.handle.stdout.on('data', (data) => {
