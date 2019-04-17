@@ -27,8 +27,10 @@ export class Project {
         this.loaded = false;
         this.tmpHandle = null;
         this.isDirty = false;
+        this.projectFileName = ``;
 
-        this.projectInfo = defaultProjectInfo;
+        this.projectInfo = {}
+        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
         electron.app.on('before-quit', (e) => {
             this.unload();
         })
@@ -68,7 +70,7 @@ export class Project {
             this.tmpHandle.removeCallback();
             this.tmpHandle = null;
         }
-        this.projectInfo = defaultProjectInfo;
+        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
         this.projectFileName = ``;
     }
 
@@ -181,21 +183,25 @@ export class Project {
         DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
     }
 
-    updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false) => {
+    updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false, dispatch = true) => {
         const ext = window.path.extname(file);
         this.projectDirectory = dir;
         this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
         this.isTemporary = istemp;
         this.loaded = isloaded;
+        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
+        this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
+        this.projectInfo.original = file;
         if (!readOnly) {
-            this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
-            this.projectInfo.original = file;
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         }
-        DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
+        if (dispatch) {
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
+        }
     }
 
     createTemporaryProject = async (file) => {
+        this.unload();
         /* create temp dir */
         this.tmpHandle = tmp.dirSync({
             unsafeCleanup: true,
@@ -205,6 +211,8 @@ export class Project {
             true,
             true,
             file,
+            false,
+            false,
         );
 
         const src = file
