@@ -34,7 +34,6 @@ class Spawner {
             this.handle = spawn(`"${this.analysisBinary}"`, [info.media, dir, width, height], {
                 detached: true,
                 windowsHide: true,
-                shell: true,
             });
 
             this.handle.stdout.on('data', (data) => {
