@@ -79,7 +79,7 @@ class ControllerBar extends Component {
   }
 
   componentDidMount() {
-    DispatcherService.on(KeyboardEvents.ImportMedia, e => this.importMedia(null));
+    DispatcherService.on(KeyboardEvents.ImportMedia, e => this.importMedia(null, [], true));
     DispatcherService.on(KeyboardEvents.OpenProject, this.loadProject);
     DispatcherService.on(KeyboardEvents.SaveProject, this.saveProject);
 
@@ -179,10 +179,6 @@ class ControllerBar extends Component {
         return;
       }
 
-      if (ProjectService.isLoaded()) {
-        ProjectService.unload();
-      }
-
       let file = files[0];
       file = await ProjectService.createTemporaryProject(file);
       files = [file];
@@ -191,7 +187,6 @@ class ControllerBar extends Component {
       files = projectFiles;
       if (isTemporary) {
         let file = files[0];
-        ProjectService.unload()
         file = await ProjectService.createTemporaryProject(file);
         files = [file];
       }
@@ -317,6 +312,19 @@ class ControllerBar extends Component {
   }
 
   render = () => {
+    const tempo = this.state.tempo
+    const halfTempo = this.state.tempo >= 120 ? this.state.tempo / 2 : -1
+    let tempoSpan = null
+    if (halfTempo === -1) {
+      tempoSpan = (
+        <span title={this.state.tempo}>{this.state.tempo.toFixed()} bpm</span>
+      )
+    }
+    else {
+      tempoSpan = (
+        <span title={`[ ${halfTempo}, ${tempo}]`}>[ {halfTempo.toFixed()},{tempo.toFixed()} ] bpm</span>
+      )
+    }
     return (
       <div>
         <div className="controller_bar bg-light">
@@ -343,7 +351,7 @@ class ControllerBar extends Component {
               type="button"
               className="btn btn-secondary"
               onMouseDown={e => e.preventDefault()}
-              onClick={this.importMedia}>
+              onClick={e => this.importMedia(e, [], true)}>
               <i className="fas fa-music icon-center" /> &nbsp;
             <span className="btn-text">Import Media</span>
             </button>
@@ -431,7 +439,7 @@ class ControllerBar extends Component {
                       <div className="table-extra-info">
                         {
                           this.state.tempo > 0
-                            ? <span title={this.state.tempo}>{this.state.tempo.toFixed()} bpm</span>
+                            ? tempoSpan
                             : '--'
                         }
                         {

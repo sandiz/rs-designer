@@ -98,7 +98,6 @@ class MediaPlayerBase {
 
     analyse = async () => {
         const analysisReqd = ProjectService.isAnalysisReqd();
-
         let method = "";
         if (analysisReqd) {
             //save waveform data
