@@ -126,8 +126,8 @@ class ControllerBar extends Component {
   updateProjectState = async (e) => {
     const projectDir = ProjectService.getProjectDir();
     const info = ProjectService.getProjectInfo();
-    const tempo = info.tempo ? await ProjectService.readTempo() : 0;
-    const songKey = info.key ? await ProjectService.readSongKey() : ['--', '--'];
+    const tempo = info.tempo !== '' ? await ProjectService.readTempo() : 0;
+    const songKey = info.key !== '' ? await ProjectService.readSongKey() : ['--', '--'];
     this.setState({
       projectDir,
       tempo,
@@ -191,6 +191,7 @@ class ControllerBar extends Component {
       files = projectFiles;
       if (isTemporary) {
         let file = files[0];
+        ProjectService.unload()
         file = await ProjectService.createTemporaryProject(file);
         files = [file];
       }
