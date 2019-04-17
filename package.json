@@ -44,8 +44,9 @@
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
     "contributors:check": "all-contributors check",
-    "dist-mac": "yarn run build && yarn run electron-builder build --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
-    "dist-win": "yarn run build && yarn run electron-builder build --win -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null"
+    "build-ma": "cd src/lib/musicanalysis && ./bench.sh --compile",
+    "dist-mac": "yarn run build && yarn run build-ma && yarn run electron-builder build --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
+    "dist-win": "yarn run build && yarn run build-ma && yarn run electron-builder build --win -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.7.2",
@@ -79,6 +80,7 @@
     "files": [
       "src/",
       ".",
+      "src/lib/musicanalysis/dist/*",
       "!dev${/*}",
       "!samples${/*}",
       "!demos${/*}",
@@ -109,6 +111,9 @@
       "target": [
         "dmg",
         "zip"
+      ],
+      "electronLanguages": [
+        "en"
       ]
     },
     "win": {
@@ -123,7 +128,16 @@
       "buildResources": "src/assets/icons/",
       "output": "release-builds"
     },
-    "asar": "false",
+    "extraFiles": [
+      {
+        "from": "src/lib/musicanalysis/dist/",
+        "to": "Resources/bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": "true",
     "fileAssociations": [
       {
         "ext": "rsdbundle",

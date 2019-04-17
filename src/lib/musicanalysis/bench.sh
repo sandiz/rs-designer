@@ -10,4 +10,7 @@ FILESIZE=$(stat -f%z "dist/analysis-cy")
 FILESIZE=$((FILESIZE / (1024 ) ))
 echo "dist/analysis-cy size = $FILESIZE kb."
 
-./dist/analysis-cy ~/Downloads/test-music/Ami\ Brishti\ Dekhechi\ Anjan\ Dutta.mp3 /tmp/ 10830 512
+if [ $# -eq 0 ]
+then
+    time ./dist/analysis-cy ~/Downloads/test-music/Ami\ Brishti\ Dekhechi\ Anjan\ Dutta.mp3 /tmp/ 10830 512
+fi

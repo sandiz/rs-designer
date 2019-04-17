@@ -22,6 +22,9 @@ TODO
 - post madmom
     - chord bar
     - downbeat bar
+- build
+    - asar
+    - https://stackoverflow.com/questions/38361996/how-can-i-bundle-a-precompiled-binary-with-electron
 
 
 NEXT
