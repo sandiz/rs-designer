@@ -14,10 +14,10 @@ TODO
     - canvas piano bar 
     - time bar
     - copy timeline plugin
-    - wasm
 
--analysis
+- analysis
    - wavesurfer wave dump
+   - wasm
 
 - post madmom
     - chord bar
