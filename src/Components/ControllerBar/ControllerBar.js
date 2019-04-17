@@ -47,6 +47,7 @@ class ControllerBar extends Component {
       diff: 0,
       newTempo: 0,
     },
+    disableOpenSave: false,
   }
 
   constructor(props) {
@@ -87,6 +88,16 @@ class ControllerBar extends Component {
     DispatcherService.on(DispatchEvents.ProjectUpdate, this.updateProjectState);
     DispatcherService.on(DispatchEvents.PitchChange, this.onPitchChange);
     DispatcherService.on(DispatchEvents.TempoChange, this.onTempoChange);
+    DispatcherService.on(DispatchEvents.MediaAnalysisStart, this.analysisStart)
+    DispatcherService.on(DispatchEvents.MediaAnalysisEnd, this.analysisEnd)
+  }
+
+  analysisStart = () => {
+    this.setState({ disableOpenSave: true })
+  }
+
+  analysisEnd = () => {
+    this.setState({ disableOpenSave: false })
   }
 
   componentWillUnmount() {
@@ -347,6 +358,7 @@ class ControllerBar extends Component {
         <div className="controller_bar bg-light">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <button
+              disabled={this.state.disableOpenSave}
               type="button"
               onClick={this.loadProject}
               onMouseDown={e => e.preventDefault()}
@@ -356,6 +368,7 @@ class ControllerBar extends Component {
             </button>
             &nbsp;&nbsp;
           <button
+              disabled={this.state.disableOpenSave}
               type="button"
               onMouseDown={e => e.preventDefault()}
               onClick={this.saveProject}
