@@ -51,9 +51,10 @@ class ControllerBar extends Component {
 
   constructor(props) {
     super(props);
-    this.state = this.initialState;
+    this.state = { ...this.initialState }
     this.coverArtRef = React.createRef();
     this.waveformRef = React.createRef();
+    this.tempoSplit = 140;
 
     this.timerRef = {
       current: React.createRef(),
@@ -313,7 +314,7 @@ class ControllerBar extends Component {
 
   render = () => {
     const tempo = this.state.tempo
-    const halfTempo = this.state.tempo >= 120 ? this.state.tempo / 2 : -1
+    const halfTempo = this.state.tempo >= this.tempoSplit ? this.state.tempo / 2 : -1
     let tempoSpan = null
     if (halfTempo === -1) {
       tempoSpan = (
@@ -324,6 +325,22 @@ class ControllerBar extends Component {
       tempoSpan = (
         <span title={`[ ${halfTempo}, ${tempo}]`}>[ {halfTempo.toFixed()},{tempo.toFixed()} ] bpm</span>
       )
+    }
+
+    let tempoDiffSpan = null
+    if (this.state.tempoChange.diff > 0) {
+      if (halfTempo === -1) {
+        tempoDiffSpan = (
+          <span> * ({this.state.tempoChange.diff}%) = {this.state.tempoChange.newTempo} bpm</span>
+        )
+      }
+      else {
+        const nt = this.state.tempoChange.newTempo;
+        const ht = (halfTempo * this.state.tempoChange.diff / 100);
+        tempoDiffSpan = (
+          <span> * ({this.state.tempoChange.diff}%) = [ {ht.toFixed()}, {nt} ] bpm</span>
+        )
+      }
     }
     return (
       <div>
@@ -443,9 +460,7 @@ class ControllerBar extends Component {
                             : '--'
                         }
                         {
-                          this.state.tempoChange.diff > 0
-                            ? <span> * ({this.state.tempoChange.diff}%) = {this.state.tempoChange.newTempo} bpm</span>
-                            : null
+                          tempoDiffSpan
                         }
                       </div>
                     </td>

@@ -28,7 +28,7 @@ class EqualizerControls extends Component {
         for (let i = 0; i < this.numBands; i += 1) {
             this.bandRef[i] = React.createRef();
         }
-        this.state = this.initialState;
+        this.state = { ...this.initialState }
         this.filters = [];
     }
 
