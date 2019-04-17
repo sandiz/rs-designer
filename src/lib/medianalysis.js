@@ -30,7 +30,7 @@ class Spawner {
         const info = ProjectService.getProjectInfo();
         const dir = ProjectService.getProjectDir();
         if (info && dir) {
-            this.handle = spawn(`${this.analysisBinary}`, [info.media, dir, width, height], {
+            this.handle = spawn(`"${this.analysisBinary}"`, [info.media, dir, width, height], {
                 detached: true,
                 windowsHide: true,
                 shell: true,
