@@ -145,14 +145,15 @@ export class Project {
                 });
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
-                    const basen = window.path.parse(this.projectInfo.original).name;
+                    console.log(JSON.stringify(lastPInfo))
+                    console.log(window.path.parse(lastPInfo.original))
+                    const basen = window.path.parse(lastPInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
                     await copyDir(this.projectDirectory, dir, {
                         overwrite: true,
                     });
                     /* delete old temp dir */
-                    this.unload();
                     await this.updateProjectInfo(
                         dir,
                         false,
