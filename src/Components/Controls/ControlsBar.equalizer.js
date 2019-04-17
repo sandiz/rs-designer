@@ -6,6 +6,7 @@ import FrequencyGraph from './ControlsBar.frequencygraph';
 
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
+import WebAudioFilters, { FilterTypes } from '../../lib/filters/filters'
 
 const temp = {
     min: -40,
@@ -134,19 +135,22 @@ class EqualizerControls extends Component {
         this.toggleKaraoke();
     }
 
-    toggleKaraoke = () => {
+    toggleKaraoke = async () => {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
-            const sp = mediaPlayer.getScriptProcessor();
-            const ac = mediaPlayer.getBackend();
+            //const sp = mediaPlayer.getScriptProcessor();
+            const backend = mediaPlayer.getBackend();
+            const sp = await WebAudioFilters.createFilter(FilterTypes.karaoke, backend.ac);
+            if (sp == null) { return; }
             if (this.state.enableKaraoke) {
                 this.filters[this.numBands - 1].disconnect(0);
-                this.filters[this.numBands - 1].connect(sp);
-                sp.connect(ac.gainNode)
+                this.filters[this.numBands - 1].connect(sp).connect(backend.gainNode);
+                //sp.connect(backend.gainNode)
             } else {
-                this.filters[this.numBands - 1].connect(ac.gainNode);
+                this.filters[this.numBands - 1].connect(backend.gainNode);
                 sp.disconnect(0);////this.filters[0]);
             }
+            /*
             sp.onaudioprocess = (evt) => {
                 const inputL = evt.inputBuffer.getChannelData(0);
                 const inputR = evt.inputBuffer.getChannelData(1);
@@ -157,6 +161,7 @@ class EqualizerControls extends Component {
                     output[i] = (inputL[i] - inputR[i]) / 2;
                 }
             };
+            */
         }
     }
 
