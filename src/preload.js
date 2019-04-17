@@ -16,3 +16,4 @@ else {
     //eslint-disable-next-line
     window.path = require('path');
 }
+window.dirname = __dirname;

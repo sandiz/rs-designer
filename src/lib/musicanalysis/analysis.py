@@ -64,7 +64,7 @@ def draw(dB, width, height, file):
 
     surface = cairo.ImageSurface(cairo.FORMAT_RGB24, width, height)
     ctx = cairo.Context(surface)
-    start = time.clock()
+    start = time.time()
 
     for i in range(len(pixels)):
         for j in range(len(pixels[i])):
@@ -78,28 +78,28 @@ def draw(dB, width, height, file):
                 i, height - (j*heightFactor), 1, heightFactor)
             ctx.fill()
 
-    print ("pixel draw took " + str(time.clock() - start))
+    print ("pixel draw took " + str(time.time() - start))
 
-    #start = time.clock()
+    #start = time.time()
     # surface.write_to_png(file)  # Output to PNG
-    #print ("write png took " + str(time.clock() - start))
+    #print ("write png took " + str(time.time() - start))
 
-    start = time.clock()
+    start = time.time()
     data = surface.get_data()
     f = open(file, "w")
     f.write(data)
     f.close()
-    print ("write raw took " + str(time.clock() - start))
+    print ("write raw took " + str(time.time() - start))
 
 
 def export_to_png(dB, width, height, file):
     newdB = np.swapaxes(dB, 0, 1)
     # newdB = _resample(newdB, width)
     # zoomdB = scipy.ndimage.zoom(newdB, width/len(newdB))
-    start = time.clock()
+    start = time.time()
     zoomdB = resample(newdB, width)
     zoomdB2 = np.uint8(zoomdB)
-    print ("resampling took " + str(time.clock() - start))
+    print ("resampling took " + str(time.time() - start))
     draw(zoomdB2, width, height, file)
 
 
@@ -120,7 +120,7 @@ def beats_librosa(y, sr, onset_env):
 
 
 def cqt_librosa(y, sr):
-    start = time.clock()
+    start = time.time()
     b_p_o = 12 * 3
     n_bins = 7 * b_p_o
     C = librosa.hybrid_cqt(
@@ -131,7 +131,7 @@ def cqt_librosa(y, sr):
     )
 
     dB = librosa.amplitude_to_db(np.abs(C), ref=np.max)
-    print("cqt analysis took " + str(time.clock() - start))
+    print("cqt analysis took " + str(time.time() - start))
     oldWidth = C.shape[1]
     newWidth = int(sys.argv[3]) if len(sys.argv) >= 5 else C.shape[1]
 
@@ -167,19 +167,19 @@ def cqt_librosa(y, sr):
     '''
 
 
-def key_detect_madmom():
+def key_detect_madmom(path):
     args = argparse.Namespace()
     key = key_prediction_to_label(
-        CNNKeyRecognitionProcessor(**vars(args))(sys.argv[1]))
+        CNNKeyRecognitionProcessor(**vars(args))(path))
     path = os.path.join(sys.argv[2], "key")
     with open(path, 'w') as file:
         file.write(key)
     print("finished madmom:key detect")
 
 
-def chords_detect_madmom():
+def chords_detect_madmom(path):
     args = argparse.Namespace()
-    in_processor = DeepChromaProcessor(**vars(args))(sys.argv[1])
+    in_processor = DeepChromaProcessor(**vars(args))(path)
     chord_processor = DeepChromaChordRecognitionProcessor(**vars(args))
     chords = chord_processor(in_processor)
     path = os.path.join(sys.argv[2], "chords")
@@ -189,12 +189,9 @@ def chords_detect_madmom():
     print("finished madmom:chords detect")
 
 
-def thread_librosa():
-    start = time.clock()
+def thread_librosa(y, sr):
     print("starting librosa thread")
-    y, sr = librosa.load(sys.argv[1], sr=None)
     onset_env = librosa.onset.onset_strength(y, sr=sr)
-    print("librosa load took " + str(time.clock() - start))
     t1 = threading.Thread(target=cqt_librosa, args=(y, sr,))
     t3 = threading.Thread(target=beats_librosa, args=(y, sr, onset_env))
 
@@ -210,9 +207,15 @@ if __name__ == '__main__':
         print("args: file dir width")
         sys.exit(0)
     start = time.time()
-    t1 = threading.Thread(target=thread_librosa)
-    t3 = threading.Thread(target=key_detect_madmom)
-    t4 = threading.Thread(target=chords_detect_madmom)
+
+    y, sr = librosa.load(sys.argv[1], sr=None)
+    path = os.path.join(sys.argv[2], "media.wav")
+    librosa.output.write_wav(path, y, 44100)
+    print("librosa decode took " + str(time.time() - start))
+
+    t1 = threading.Thread(target=thread_librosa, args=(y, sr))
+    t3 = threading.Thread(target=key_detect_madmom, args=(path,))
+    t4 = threading.Thread(target=chords_detect_madmom, args=(path,))
 
     t1.start()
     t3.start()
@@ -222,4 +225,5 @@ if __name__ == '__main__':
     t3.join()
     t4.join()
     end = time.time()
+    os.unlink(path)
     print("\nTotal time: " + str(end - start) + " s")
