@@ -105,7 +105,14 @@ class MediaPlayerBase {
             method = "generate"
             DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, method);
             console.log("starting media analysis");
-            await MediaAnalysis.start(this.wavesurfer.drawer.width, 512); /* fft samples /2 */
+            MediaAnalysis.cancel()
+            try {
+                await MediaAnalysis.start(this.wavesurfer.drawer.width, 512); /* fft samples /2 */
+            }
+            catch (e) {
+                console.log("media analysis killed");
+                return;
+            }
         } else {
             method = "load-from-disk"
             console.log("starting load from disk")

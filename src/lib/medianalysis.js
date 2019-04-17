@@ -46,8 +46,13 @@ class Spawner {
 
             this.handle.on('close', (code) => {
                 console.log(`ma exited with code ${code}`);
-                ProjectService.updateExternalFiles();
-                resolve();
+                if (code === 0) {
+                    ProjectService.updateExternalFiles();
+                    resolve();
+                }
+                else {
+                    reject();
+                }
             });
 
             this.handle.on('error', (err) => {
@@ -58,7 +63,9 @@ class Spawner {
     });
 
     cancel = () => {
-        this.handle.kill();
+        if (this.handle) {
+            this.handle.kill();
+        }
     }
 }
 
