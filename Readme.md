@@ -15,13 +15,17 @@ TODO
     - time bar
     - copy timeline plugin
 
-- analysis
-   - wavesurfer wave dump
-   - wasm
-
-- post madmom
+- mir
     - chord bar
     - downbeat bar
+
+- analysis
+   - chord, downbeat uses python
+        - investigate py-to-wasm, pyinstaller, cython, python freeze
+   - convert to essentia (cqt, bpm, ~~key~~)
+   - convert essentia c++ to wasm
+        - break into web workers so we can process them as soon as its done
+
 
 
 NEXT

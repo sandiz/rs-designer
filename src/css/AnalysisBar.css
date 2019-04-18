@@ -53,3 +53,8 @@
 .notif-item-2 {
     width: 30%;
 }
+
+.spin {
+    width: 1rem !important;
+    height: 1rem !important;
+}

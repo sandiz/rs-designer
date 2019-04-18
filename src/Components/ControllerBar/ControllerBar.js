@@ -38,6 +38,7 @@ class ControllerBar extends Component {
     tonic: {
       key: '--',
       type: '--', //major or minor
+      confidence: 0,
     },
     pitchChange: {
       diff: 0,
@@ -146,6 +147,7 @@ class ControllerBar extends Component {
       tonic: {
         key: songKey[0],
         type: songKey[1],
+        confidence: songKey[2],
       },
     });
   }
@@ -481,7 +483,7 @@ class ControllerBar extends Component {
                   <tr>
                     <td>Song Key</td>
                     <td>
-                      <div className="table-extra-info">
+                      <div className="table-extra-info" title={`Confidence: ${(this.state.tonic.confidence * 100).toFixed(2)} %`}>
                         {
                           this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
                         }

@@ -145,8 +145,6 @@ export class Project {
                 });
                 if (dirs) {
                     const lastPInfo = this.projectInfo;
-                    console.log(JSON.stringify(lastPInfo))
-                    console.log(window.path.parse(lastPInfo.original))
                     const basen = window.path.parse(lastPInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
@@ -234,7 +232,7 @@ export class Project {
     readSongKey = async () => {
         const keyFile = this.projectInfo.key;
         const data = await readFile(keyFile)
-        const s = data.toString().split(" ")
+        const s = JSON.parse(data)
         return s;
     }
 }
