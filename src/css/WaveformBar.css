@@ -23,11 +23,12 @@
 }
 
 .waveform-collapse-root {
-    height: 252px;
+    height: 283px;
     margin-top: 10px;
 }
 
-#timeline {
+#timeline,
+#chordstimeline {
     background-color: white;
     border: 1px solid lightgray;
     padding: 4px;

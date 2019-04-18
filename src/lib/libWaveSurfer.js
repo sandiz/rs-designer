@@ -2,10 +2,12 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
+import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
 import { readTags, readFile } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
 
+const readline = window.require("readline");
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
 export const MediaPlayer = {
@@ -61,22 +63,6 @@ class MediaPlayerBase {
                     barRadius: false,
                     overviewBorderColor: "#303030",
                 }),
-                /*
-                SpectrogramPlugin.create({
-                    container: "#spectrogram",
-                    labels: true,
-                    deferInit: false,
-                    pixelRatio: 1,
-                    fftSamples: 1024,
-                }),
-                ConstantQPlugin.create({
-                    container: "#spectrogram",
-                    labels: true,
-                    deferInit: true,
-                    pixelRatio: 1,
-                    fftSamples: 1024,
-                })
-                */
             ],
         };
         // initialise like this
@@ -120,6 +106,7 @@ class MediaPlayerBase {
         // each module should pick the items up
         //start loading analysis
         this.cqtAnalyse(method);
+        this.chordAnalyse();
     }
 
     cqtAnalyse = async (method) => {
@@ -136,18 +123,32 @@ class MediaPlayerBase {
             specData: cqtdata,
         })
         this.wavesurfer.registerPlugins([cqtp]);
+    }
 
-
-        /*  NumpyLoaderThread.send({ buffer })
-             .on('message', (response) => {
-                 NumpyLoaderThread.kill();
-             })
-             .on('error', (error) => {
-                 console.error('Worker errored:', error);
-             })
-             .on('exit', () => {
-                 console.log("numpyloader thread ended");
-             }); */
+    chordAnalyse = async () => {
+        const info = ProjectService.getProjectInfo();
+        const lineReader = readline.createInterface({
+            input: window.electronFS.createReadStream(info.chords),
+        });
+        const chords = []
+        lineReader.on('line', (line) => {
+            const split = line.split(",")
+            const start = split[0]
+            const end = split[1]
+            const chord = split[2]
+            const splitch = chord.split(":")
+            const key = splitch[0]
+            const type = splitch[1]
+            chords.push([start, end, key, type])
+        });
+        lineReader.on('close', () => {
+            const ct = ChordsTimelinePlugin.create({
+                container: '#chordstimeline',
+                primaryColor: "#fff",
+                chords,
+            })
+            this.wavesurfer.registerPlugins([ct]);
+        })
     }
 
     setFilters(filters) {
