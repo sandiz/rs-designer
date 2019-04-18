@@ -57,24 +57,24 @@ class AnalysisBar extends Component {
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
                     <div className="notif-item">Key + Chords</div>
                     <div className="notif-item-2">
-                        <div className="spinner-grow text-primary float-right" role="status" />
+                        <div className="spin spinner-border text-primary float-right" role="status" />
                     </div>
                 </div>
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
                     <div className="notif-item">Tempo + Beats</div>
                     <div className="notif-item-2">
-                        <div className="spinner-grow text-primary float-right" role="status" />
+                        <div className="spin spinner-border text-primary float-right" role="status" />
                     </div>
                 </div>
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
                     <div className="notif-item">CQ Spectrogram</div>
                     <div className="notif-item-2">
-                        <div className="spinner-grow text-primary float-right" role="status" />
+                        <div className="spin spinner-border text-primary float-right" role="status" />
                     </div>
                 </div>
             </div>
         ), {
-                autoClose: (320 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~40 seconds */
+                autoClose: (640 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~80 seconds */
                 pauseOnFocusLoss: false,
                 pauseOnHover: false,
             })
