@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
+import Popover from 'react-bootstrap/Popover'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import { toast } from 'react-toastify';
 
 import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
@@ -8,7 +10,7 @@ import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import { getTransposedKey } from '../../lib/music-utils'
+import { getTransposedKey, getRelativeKey, getParalleKey } from '../../lib/music-utils'
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
@@ -23,6 +25,14 @@ const sec2time = (timeInSeconds) => {
 
   return pad(minutes, 2) + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
 }
+const popover = (title, body) => (
+  <Popover
+    id="popover-basic"
+    title={title}
+  >
+    {body}
+  </Popover>
+);
 
 class ControllerBar extends Component {
   initialState = {
@@ -355,6 +365,11 @@ class ControllerBar extends Component {
         )
       }
     }
+
+    const currPitch = this.state.pitchChange.diff === 0 ? this.state.tonic.key : this.state.pitchChange.newKey;
+    const relativeKey = getRelativeKey(currPitch, this.state.tonic.type);
+    const parallelKey = getParalleKey(currPitch, this.state.tonic.type);
+
     return (
       <div>
         <div className="controller_bar bg-light">
@@ -483,23 +498,59 @@ class ControllerBar extends Component {
                   <tr>
                     <td>Song Key</td>
                     <td>
-                      <div className="table-extra-info" title={`Confidence: ${(this.state.tonic.confidence * 100).toFixed(2)} %`}>
-                        {
-                          this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
-                        }
-                        {
-                          this.state.pitchChange.diff !== 0
-                            ? (
-                              <span>
-                                &nbsp;({
-                                  this.state.pitchChange.diff > 0 ? `+` : ``
-                                }
-                                {this.state.pitchChange.diff})
+                      <div className="table-extra-info">
+                        <OverlayTrigger
+                          trigger="click"
+                          placement="bottom"
+                          overlay={
+                            popover('Song Key',
+                              (
+                                <React.Fragment>
+                                  <div className="popover-div">
+                                    <span>Confidence</span>
+                                    <span className="float-right">
+                                      {(this.state.tonic.confidence * 100).toFixed(2)} %
+                                  </span>
+                                  </div>
+                                  <div className="popover-div">
+                                    <a
+                                      className="cur-pointer"
+                                      onClick={e => electron.shell.openExternal('https://essentia.upf.edu/documentation/reference/std_Key.html')}
+                                      title="Detection Profile">
+                                      <span>Profile</span>
+                                      <span className="float-right">bgate</span>
+                                    </a>
+                                  </div>
+                                  <div className="popover-div">
+                                    <span>Relative Key</span>
+                                    <span className="float-right">{relativeKey.join(' ')}</span>
+                                  </div>
+                                  <div className="popover-div">
+                                    <span>Parallel Key</span>
+                                    <span className="float-right">{parallelKey.join(' ')}</span>
+                                  </div>
+                                </React.Fragment>
+                              ))
+                          }>
+                          <span className="cur-pointer">
+                            {
+                              this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
+                            }
+                            {
+                              this.state.pitchChange.diff !== 0
+                                ? (
+                                  <span>
+                                    &nbsp;({
+                                      this.state.pitchChange.diff > 0 ? `+` : ``
+                                    }
+                                    {this.state.pitchChange.diff})
                                 = {this.state.pitchChange.newKey} {this.state.tonic.type}
-                              </span>
-                            )
-                            : null
-                        }
+                                  </span>
+                                )
+                                : null
+                            }
+                          </span>
+                        </OverlayTrigger>
                       </div>
                     </td>
                   </tr>
