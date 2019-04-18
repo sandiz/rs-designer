@@ -25,6 +25,9 @@ TODO
    - convert to essentia (cqt, bpm, ~~key~~)
    - convert essentia c++ to wasm
         - break into web workers so we can process them as soon as its done
+   - https://aubio.org/ (https://news.ycombinator.com/item?id=19681804)
+   - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
+
 
 
 
@@ -50,6 +53,9 @@ FUTURE
 MVP
 - Basic Scene with simple mp3 spectrogram/freq + guitar/bass/rhythm path
 - Save to psarc
+
+landing page
+- example (https://www.sqlgate.com/product/main-features)
 
 
 dev instructions
