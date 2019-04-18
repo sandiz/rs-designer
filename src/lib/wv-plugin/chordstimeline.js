@@ -275,6 +275,8 @@ export default class ChordsTimelinePlugin {
             totalWidth / this.maxCanvasElementWidth
         );
 
+        console.log("reqd canvases: " + requiredCanvases)
+
         while (this.canvases.length < requiredCanvases) {
             this.addCanvas();
         }

@@ -84,7 +84,7 @@ class AnalysisBar extends Component {
         const type = method === "generate" ? "cached" : "loaded"
         this.setState({ analysing: false });
         toast.update(this.toastId, {
-            type: toast.TYPE.INFO,
+            type: toast.TYPE.SUCCESS,
             autoClose: 5000,
             render: (
                 <div style={{

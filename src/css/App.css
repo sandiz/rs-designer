@@ -65,3 +65,22 @@ a:hover {
 .dark-toast {
     font-size: 20px;
 }
+
+.cur-pointer {
+    cursor: pointer;
+}
+
+/* default popover styles */
+.popover-header {
+    background-color: lightgray !important;
+    color: black !important;
+}
+
+.popover-body {
+    background: #fff !important;
+    color: black !important;
+}
+
+.arrow::after {
+    border-bottom-color: #fff !important;
+}

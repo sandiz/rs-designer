@@ -133,3 +133,7 @@
 .info_table tr {
     padding: 0px;
 }
+
+.popover-div {
+    width: 200px;
+}
