@@ -31,7 +31,7 @@ module.exports = function override(config, env) {
             {
                 loader: require.resolve('worklet-loader'),
                 options: {
-                    name: 'js/[hash].worklet.js'
+                    name: 'static/js/[hash].worklet.js'
                 }
             }
         ]
