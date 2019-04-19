@@ -42,16 +42,12 @@ class MediaPlayerBase {
             scrollParent: true,
             responsive: true,
             closeAudioContext: true,
-            forceDecode: true,
+            //forceDecode: true,
             plugins: [
                 TimelinePlugin.create({
                     container: '#timeline',
                     primaryColor: "#fff",
                     fontFamily: 'Roboto Condensed',
-                    //formatTimeCallback: formatTimeCallback,
-                    //timeInterval: timeInterval,
-                    //primaryLabelInterval: primaryLabelInterval,
-                    //secondaryLabelInterval: secondaryLabelInterval,
                 }),
                 MinimapPlugin.create({
                     container: "#minimap",
