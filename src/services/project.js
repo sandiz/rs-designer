@@ -259,6 +259,25 @@ export class Project {
             reject(err)
         })
     });
+
+    readBeats = async () => new Promise((resolve, reject) => {
+        const lineReader = readline.createInterface({
+            input: window.electronFS.createReadStream(this.projectInfo.beats),
+        });
+        const beats = []
+        lineReader.on('line', (line) => {
+            const split = line.replace(/\s+/g, ' ').trim().split(" ")
+            const start = split[0]
+            const bn = split[1]
+            beats.push([start, bn])
+        });
+        lineReader.on('close', () => {
+            resolve(beats);
+        })
+        lineReader.on('error', (err) => {
+            reject(err)
+        })
+    });
 }
 
 const ProjectService = new Project();

@@ -15,6 +15,7 @@ class WaveformBar extends Component {
             showTimeline: false,
             showMinimap: false,
             showChordsTimeline: false,
+            showBeatsTimeline: false,
             currentZoom: 1,
         }
         this.zoom = {
@@ -22,7 +23,7 @@ class WaveformBar extends Component {
             min: 1,
             default: 20,
         }
-        this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline']
+        this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']
     }
 
     componentWillMount = async () => {
@@ -39,11 +40,15 @@ class WaveformBar extends Component {
     }
 
     reset = () => {
-        this.setState({ showTimeline: false, showMinimap: false, showChordsTimeline: false });
+        this.setState({
+            showTimeline: false, showMinimap: false, showChordsTimeline: false, showBeatsTimeline: false,
+        });
     }
 
     ready = () => {
-        this.setState({ showTimeline: true, showMinimap: true, showChordsTimeline: true });
+        this.setState({
+            showTimeline: true, showMinimap: true, showChordsTimeline: true, showBeatsTimeline: true,
+        });
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const min = mediaPlayer.wavesurfer.params.minPxPerSec;
@@ -117,6 +122,7 @@ class WaveformBar extends Component {
                 <div className={expanded} id="">
                     <div className="waveform-container">
                         <div id="chordstimeline" style={{ display: this.state.showChordsTimeline ? "block" : "none" }} />
+                        <div id="beatstimeline" style={{ display: this.state.showBeatsTimeline ? "block" : "none" }} />
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
                         <div id="minimap" style={{ display: this.state.showMinimap ? "block" : "none" }} />

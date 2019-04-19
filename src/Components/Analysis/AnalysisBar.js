@@ -52,7 +52,7 @@ class AnalysisBar extends Component {
                 }}
                 className="flex-col">
                 {
-                    method === "generate" ? "Detecting.." : "Reading From Disk.."
+                    method === "generate" ? "Analysing.." : "Reading From Disk.."
                 }
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
                     <div className="notif-item">Key + Chords</div>
@@ -67,7 +67,7 @@ class AnalysisBar extends Component {
                     </div>
                 </div>
                 <div className="flex-row" style={{ fontSize: 14 + 'px' }}>
-                    <div className="notif-item">CQ Spectrogram</div>
+                    <div className="notif-item">Chromagram</div>
                     <div className="notif-item-2">
                         <div className="spin spinner-border text-primary float-right" role="status" />
                     </div>
@@ -132,7 +132,7 @@ class AnalysisBar extends Component {
                         <i className={faclass} />
                         {
                             !this.state.analysing
-                                ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
+                                ? <span style={{ marginLeft: 5 + 'px' }}>CHROMAGRAM</span>
                                 : (
                                     <div style={{ display: 'inline' }}>
                                         <span style={{ marginLeft: 5 + 'px' }}>WAITING FOR ANALYSIS TO END...</span>

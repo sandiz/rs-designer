@@ -70,3 +70,9 @@ dev instructions
     - yarn link wavesurfer.js
     - yarn install
 - yarn start
+
+- libraries to check for pr/updates
+    - madmom
+    - essentia
+    - librosa
+    - wavesurfer

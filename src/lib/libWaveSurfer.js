@@ -3,6 +3,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
+import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
 import { readTags, readFile } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
@@ -46,6 +47,7 @@ class MediaPlayerBase {
                 TimelinePlugin.create({
                     container: '#timeline',
                     primaryColor: "#fff",
+                    fontFamily: 'Roboto Condensed',
                     //formatTimeCallback: formatTimeCallback,
                     //timeInterval: timeInterval,
                     //primaryLabelInterval: primaryLabelInterval,
@@ -53,7 +55,7 @@ class MediaPlayerBase {
                 }),
                 MinimapPlugin.create({
                     container: "#minimap",
-                    waveColor: 'grey',
+                    waveColor: '#000',
                     progressColor: 'black',
                     height: 30,
                     showOverview: true,
@@ -106,6 +108,7 @@ class MediaPlayerBase {
         //start loading analysis
         this.cqtAnalyse(method);
         this.chordAnalyse();
+        this.beatsAnalyse();
     }
 
     cqtAnalyse = async (method) => {
@@ -130,6 +133,16 @@ class MediaPlayerBase {
             container: '#chordstimeline',
             primaryColor: "#fff",
             chords,
+        })
+        this.wavesurfer.registerPlugins([ct]);
+    }
+
+    beatsAnalyse = async () => {
+        const beats = await ProjectService.readBeats();
+        const ct = BeatsTimelinePlugin.create({
+            container: '#beatstimeline',
+            primaryColor: "#fff",
+            beats,
         })
         this.wavesurfer.registerPlugins([ct]);
     }
