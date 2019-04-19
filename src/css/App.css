@@ -72,8 +72,7 @@ a:hover {
 
 /* default popover styles */
 .popover-header {
-    background-color: lightgray !important;
-    color: black !important;
+    background-color: #929292 !important;
 }
 
 .popover-body {

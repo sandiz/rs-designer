@@ -4,6 +4,7 @@ import {
 import { DispatcherService, DispatchEvents } from './dispatcher';
 
 const electron = window.require('electron').remote;
+const readline = window.require("readline");
 const tmp = window.require('tmp');
 
 const defaultProjectInfo = {
@@ -235,6 +236,29 @@ export class Project {
         const s = JSON.parse(data)
         return s;
     }
+
+    readChords = async () => new Promise((resolve, reject) => {
+        const lineReader = readline.createInterface({
+            input: window.electronFS.createReadStream(this.projectInfo.chords),
+        });
+        const chords = []
+        lineReader.on('line', (line) => {
+            const split = line.split(",")
+            const start = split[0]
+            const end = split[1]
+            const chord = split[2]
+            const splitch = chord.split(":")
+            const key = splitch[0]
+            const type = splitch[1]
+            chords.push([start, end, key, type])
+        });
+        lineReader.on('close', () => {
+            resolve(chords);
+        })
+        lineReader.on('error', (err) => {
+            reject(err)
+        })
+    });
 }
 
 const ProjectService = new Project();

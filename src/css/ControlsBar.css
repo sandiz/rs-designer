@@ -226,3 +226,8 @@
     text-align: center;
     justify-content: center;
 }
+
+.chord-detect {
+    color: green;
+    font-weight: bold;
+}
