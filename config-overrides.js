@@ -37,5 +37,6 @@ module.exports = function override(config, env) {
         ]
     }
     //addBeforeRule(config.module.rules, fileLoaderRuleMatcher, rule);
+    config.module.rules.push(rule);
     return config;
 }
