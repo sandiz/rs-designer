@@ -23,7 +23,7 @@
 }
 
 .waveform-collapse-root {
-    height: 283px;
+    height: 275px;
     margin-top: 10px;
 }
 
@@ -49,4 +49,9 @@
 
 #zoom-slider {
     display: inline;
+}
+
+#chordstimeline {
+    padding: 0px;
+    background: inherit;
 }

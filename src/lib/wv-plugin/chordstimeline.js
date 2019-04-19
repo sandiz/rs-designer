@@ -275,7 +275,6 @@ export default class ChordsTimelinePlugin {
             totalWidth / this.maxCanvasElementWidth
         );
 
-        console.log("reqd canvases: " + requiredCanvases)
 
         while (this.canvases.length < requiredCanvases) {
             this.addCanvas();
@@ -341,7 +340,6 @@ export default class ChordsTimelinePlugin {
             (this.params.notchPercentHeight / 100) *
             this.pixelRatio;
         const pixelsPerSecond = width / duration;
-
         const formatTime = this.params.formatTimeCallback;
         // if parameter is function, call the function with
         // pixelsPerSecond, otherwise simply take the value as-is
@@ -367,53 +365,40 @@ export default class ChordsTimelinePlugin {
             curPixel += pixelsPerSecond * timeInterval;
         }
 
-        // iterate over each position
-        const renderPositions = cb => {
-            positioning.forEach(pos => {
-                cb(pos[0], pos[1], pos[2]);
-            });
-        };
-
-        // render primary labels
-        this.setFillStyles(this.params.primaryColor);
-        this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
-        this.setFillStyles(this.params.primaryFontColor);
-        renderPositions((i, curSeconds, curPixel) => {
-            if (i % primaryLabelInterval === 0) {
-                this.fillRect(curPixel, 0, 1, height1);
-                this.fillText(
-                    formatTime(curSeconds, pixelsPerSecond),
-                    curPixel + this.params.labelPadding * this.pixelRatio,
-                    height1
-                );
+        this.setFonts(`30px Roboto Condensed`);
+        this.params.chords.forEach((chordData, i) => {
+            let [start, end, chord, type] = chordData;
+            if (chord !== 'N') {
+                const startPixel = this.getPixelForSecond(start, positioning);
+                const endPixel = this.getPixelForSecond(end, positioning);
+                const color = (i % 2 ? '#436a88' : '#3b7eac');
+                this.setFillStyles(color);
+                const width = endPixel - startPixel;
+                this.fillRect(startPixel, 0, width, height1);
+                this.setFillStyles("#fff");
+                if (type == 'maj') type = '';
+                const text = chord + type;
+                const twidth = this.canvases[0].getContext('2d').measureText(text).width;
+                this.fillText(chord + type, startPixel + (width / 2) - (twidth / 2), height1 / 2 + 15); //width of text
+                i++;
             }
-        });
+        })
+    }
 
-        // render secondary labels
-        this.setFillStyles(this.params.secondaryColor);
-        this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
-        this.setFillStyles(this.params.secondaryFontColor);
-        renderPositions((i, curSeconds, curPixel) => {
-            if (i % secondaryLabelInterval === 0) {
-                this.fillRect(curPixel, 0, 1, height1);
-                this.fillText(
-                    formatTime(curSeconds, pixelsPerSecond),
-                    curPixel + this.params.labelPadding * this.pixelRatio,
-                    height1
-                );
-            }
-        });
+    getPixelForSecond(sec, positions) {
+        const fp = sec;
+        const round = Math.floor(fp);
+        // floor if diff < 0.3, +0.5 if 0.3>x>0.7, ceil > 0.7 
+        const diff = fp - round;
+        if (diff < 0.3) sec = round;
+        else if (diff >= 0.3 && diff < 0.7) sec = round + 0.5;
+        else if (diff >= 0.7) sec = Math.ceil(sec)
 
-        // render the actual notches (when no labels are used)
-        this.setFillStyles(this.params.unlabeledNotchColor);
-        renderPositions((i, curSeconds, curPixel) => {
-            if (
-                i % secondaryLabelInterval !== 0 &&
-                i % primaryLabelInterval !== 0
-            ) {
-                this.fillRect(curPixel, 0, 1, height2);
-            }
-        });
+        const [idx, _ign, _ign2] = positions[round];
+        for (let i = idx; idx < positions.length; i += 1) {
+            const [idx, refSecond, pixel] = positions[i];
+            if (refSecond === sec) return pixel;
+        }
     }
 
     /**
@@ -529,7 +514,7 @@ export default class ChordsTimelinePlugin {
      */
     defaultTimeInterval(pxPerSec) {
         if (pxPerSec >= 25) {
-            return 1;
+            return 0.5;
         } else if (pxPerSec * 5 >= 25) {
             return 5;
         } else if (pxPerSec * 15 >= 25) {
