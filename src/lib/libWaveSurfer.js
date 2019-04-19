@@ -7,7 +7,6 @@ import { readTags, readFile } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
 
-const readline = window.require("readline");
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
 export const MediaPlayer = {
@@ -126,29 +125,13 @@ class MediaPlayerBase {
     }
 
     chordAnalyse = async () => {
-        const info = ProjectService.getProjectInfo();
-        const lineReader = readline.createInterface({
-            input: window.electronFS.createReadStream(info.chords),
-        });
-        const chords = []
-        lineReader.on('line', (line) => {
-            const split = line.split(",")
-            const start = split[0]
-            const end = split[1]
-            const chord = split[2]
-            const splitch = chord.split(":")
-            const key = splitch[0]
-            const type = splitch[1]
-            chords.push([start, end, key, type])
-        });
-        lineReader.on('close', () => {
-            const ct = ChordsTimelinePlugin.create({
-                container: '#chordstimeline',
-                primaryColor: "#fff",
-                chords,
-            })
-            this.wavesurfer.registerPlugins([ct]);
+        const chords = await ProjectService.readChords();
+        const ct = ChordsTimelinePlugin.create({
+            container: '#chordstimeline',
+            primaryColor: "#fff",
+            chords,
         })
+        this.wavesurfer.registerPlugins([ct]);
     }
 
     setFilters(filters) {

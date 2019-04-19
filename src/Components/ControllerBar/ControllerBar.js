@@ -10,7 +10,10 @@ import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import { getTransposedKey, getRelativeKey, getParalleKey } from '../../lib/music-utils'
+import {
+  getTransposedKey, getRelativeKey, getParalleKey, getChordsInKey,
+  getUniqueChords,
+} from '../../lib/music-utils'
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
@@ -29,6 +32,10 @@ const popover = (title, body) => (
   <Popover
     id="popover-basic"
     title={title}
+    style={{
+      maxWidth: 500 + 'px',
+      width: 400 + 'px',
+    }}
   >
     {body}
   </Popover>
@@ -59,6 +66,7 @@ class ControllerBar extends Component {
       newTempo: 0,
     },
     disableOpenSave: false,
+    chords: [],
   }
 
   constructor(props) {
@@ -151,9 +159,12 @@ class ControllerBar extends Component {
     const info = ProjectService.getProjectInfo();
     const tempo = info.tempo !== '' ? await ProjectService.readTempo() : 0;
     const songKey = info.key !== '' ? await ProjectService.readSongKey() : ['--', '--'];
+    let chords = info.chords !== '' ? await ProjectService.readChords() : [];
+    chords = getUniqueChords(chords);
     this.setState({
       projectDir,
       tempo,
+      chords,
       tonic: {
         key: songKey[0],
         type: songKey[1],
@@ -368,7 +379,12 @@ class ControllerBar extends Component {
 
     const currPitch = this.state.pitchChange.diff === 0 ? this.state.tonic.key : this.state.pitchChange.newKey;
     const relativeKey = getRelativeKey(currPitch, this.state.tonic.type);
+
     const parallelKey = getParalleKey(currPitch, this.state.tonic.type);
+    const parallelChordsInKey = getChordsInKey(parallelKey[0], parallelKey[1]);
+
+    const currentKey = this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
+    const chordsInKey = getChordsInKey(currPitch, this.state.tonic.type);
 
     return (
       <div>
@@ -522,6 +538,21 @@ class ControllerBar extends Component {
                                     </a>
                                   </div>
                                   <div className="popover-div">
+                                    <span>Key</span>
+                                    <span className="float-right">{currentKey}</span>
+                                  </div>
+                                  <div className="popover-div">
+                                    <span>Key Chords</span>
+                                    <span className="float-right">[ {
+                                      chordsInKey.map((v, i) => {
+                                        if (this.state.chords.includes(v)) {
+                                          return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
+                                        }
+                                        return <span key={v}>{v}, </span>
+                                      })
+                                    } ]</span>
+                                  </div>
+                                  <div className="popover-div">
                                     <span>Relative Key</span>
                                     <span className="float-right">{relativeKey.join(' ')}</span>
                                   </div>
@@ -529,13 +560,22 @@ class ControllerBar extends Component {
                                     <span>Parallel Key</span>
                                     <span className="float-right">{parallelKey.join(' ')}</span>
                                   </div>
+                                  <div className="popover-div">
+                                    <span>Parrallel Chords</span>
+                                    <span className="float-right">[ {
+                                      parallelChordsInKey.map((v, i) => {
+                                        if (this.state.chords.includes(v)) {
+                                          return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
+                                        }
+                                        return <span key={v}>{v}, </span>
+                                      })
+                                    } ]</span>
+                                  </div>
                                 </React.Fragment>
                               ))
                           }>
                           <span className="cur-pointer">
-                            {
-                              this.state.tonic.key === '--' ? this.state.tonic.key : `${this.state.tonic.key} ${this.state.tonic.type}`
-                            }
+                            {currentKey}
                             {
                               this.state.pitchChange.diff !== 0
                                 ? (
