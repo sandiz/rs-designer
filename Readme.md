@@ -9,10 +9,10 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 
 TODO
 - misc
-    - artist/album editor
-    - kbd shortcuts for speed and tempo
     - global settings
     - disable kbd/enable kbd during modal
+    - artist/album editor
+    - kbd shortcuts for speed and tempo
     - soft pitch change (capo, guitar tuning)
 - cqt
     - colormap/cqtjs

@@ -589,7 +589,7 @@ class ControllerBar extends Component {
                                 </React.Fragment>
                               ))
                           }>
-                          <span className="cur-pointer">
+                          <a href="#">
                             {currentKey}
                             {
                               this.state.pitchChange.diff !== 0
@@ -604,7 +604,7 @@ class ControllerBar extends Component {
                                 )
                                 : null
                             }
-                          </span>
+                          </a>
                         </OverlayTrigger>
                       </div>
                     </td>

@@ -232,7 +232,8 @@ class MediaPlayerBase {
 
     setVolume(val) {
         if (this.wavesurfer) {
-            this.wavesurfer.setVolume(val);
+            const y = (Math.exp(val) - 1) / (Math.E - 1) /* logarithmic */
+            this.wavesurfer.setVolume(y);
         }
     }
 
