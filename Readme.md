@@ -11,7 +11,6 @@ TODO
 - misc
     - artist/album editor
     - kbd shortcuts for speed and tempo
-    - recents menu
     - global settings
     - disable kbd/enable kbd during modal
 
