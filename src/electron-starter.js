@@ -85,6 +85,17 @@ async function createWindow() {
                     }
                 },
                 { type: "separator" },
+                {
+                    label: 'Open Recent',
+                    role: 'recentdocuments',
+                    submenu: [
+                        {
+                            label: 'Clear Recent',
+                            role: 'clearrecentdocuments'
+                        }
+                    ]
+                },
+                { type: "separator" },
                 { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
             ]
         },
