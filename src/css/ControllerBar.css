@@ -10,7 +10,9 @@
     border: none;
     border-left: 1px solid hsla(200, 10%, 50%, 100);
     height: 60px;
-    width: 1px;
+    width: 12px;
+    margin-left: 12px;
+    margin-top: 0.75%;
 }
 
 .cover_img {
@@ -20,6 +22,7 @@
     margin: 6px;
     border: 1px solid gray;
     box-shadow: 1px 1px 0px dimgrey;
+    margin-left: -3px;
 }
 
 .navbar {
@@ -34,11 +37,36 @@
     font-size: 18px;
 }
 
+.controller_div {
+    width: 100%;
+    height: 85px;
+    justify-content: space-between;
+}
+
+.project_div {
+    width: 25%;
+}
+
+.ptop15 {
+    padding-top: 1.5%;
+}
+
+.controls_div {
+    width: 12.5%;
+}
+
 .timer_div {
-    position: absolute;
-    right: 25px;
-    width: 350px;
+    position: relative;
+    right: -5px;
+    width: 330px;
     text-align: center;
+    top: 11px;
+}
+
+.kabob_div {
+    position: relative;
+    right: -1vh;
+    top: 25px;
 }
 
 .current_time_span {
@@ -90,11 +118,13 @@
 }
 
 .info-table {
-    width: 246px;
+    width: 233px;
 }
 
 .info-table2 {
     width: 293px;
+    padding-top: .65%;
+    margin-left: -5px;
 }
 
 .table2 tr td:nth-child(1) {
