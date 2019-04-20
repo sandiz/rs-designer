@@ -15,10 +15,6 @@ TODO
     - time bar
     - copy timeline plugin
 
-- mir
-    - chord bar
-    - downbeat bar
-
 - analysis
    - chord, downbeat uses python
         - investigate py-to-wasm, pyinstaller, cython, python freeze
