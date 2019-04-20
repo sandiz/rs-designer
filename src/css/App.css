@@ -55,10 +55,11 @@ canvas {
 
 a {
     color: #fff;
+    transition: color 0.2s ease;
 }
 
 a:hover {
-    color: #fff;
+    color: #04ABED;
     text-decoration: none;
 }
 
