@@ -370,7 +370,7 @@ export default class ChordsTimelinePlugin {
             curPixel += pixelsPerSecond * timeInterval;
         }
 
-        this.setFonts(`30px Roboto Condensed`);
+        this.setFonts(`${fontSize}px Roboto Condensed`);
         this.params.chords.forEach((chordData, i) => {
             let [start, end, chord, type] = chordData;
             if (chord !== 'N') {

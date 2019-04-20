@@ -141,6 +141,7 @@ class MediaPlayerBase {
             container: '#chordstimeline',
             primaryColor: "#fff",
             chords,
+            fontSize: 15,
         })
         this.wavesurfer.registerPlugins([ct]);
     }
