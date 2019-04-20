@@ -402,245 +402,256 @@ class ControllerBar extends Component {
     const chordsInKey = getChordsInKey(currPitch, this.state.tonic.type);
 
     return (
-      <div>
+      <React.Fragment>
         <div className="controller_bar bg-light">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <button
-              disabled={this.state.disableOpenSave}
-              type="button"
-              onClick={this.loadProject}
-              onMouseDown={e => e.preventDefault()}
-              className="btn btn-secondary">
-              <i className="fas fa-folder-open icon-center" /> &nbsp;
-            <span className="btn-text">Open Project</span>
-            </button>
-            &nbsp;&nbsp;
-          <button
-              disabled={this.state.disableOpenSave}
-              type="button"
-              onMouseDown={e => e.preventDefault()}
-              onClick={this.saveProject}
-              className="btn btn-secondary">
-              <i className="fas fa-save icon-center" /> &nbsp;
-            <span className="btn-text">Save Project</span>
-            </button>
-            &nbsp;&nbsp;
-          <button
-              type="button"
-              className="btn btn-secondary"
-              onMouseDown={e => e.preventDefault()}
-              onClick={e => this.importMedia(e, [], true)}>
-              <i className="fas fa-music icon-center" /> &nbsp;
-            <span className="btn-text">Import Media</span>
-            </button>
-            &nbsp;&nbsp;&nbsp;
-          <div className="vertical" />
-
-            &nbsp;&nbsp;&nbsp;
-          <button
-              type="button"
-              className="btn btn-secondary"
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => this.mediaCmd("playpause")}>
-              {
-                this.state.mediaPlaying ? (
-                  <i className="fas fa-pause" />
-                )
-                  : (
-                    <i className="fas fa-play" />
-                  )
-              }
-            </button>
-            &nbsp;&nbsp;
-          <button
-              type="button"
-              className="btn btn-secondary"
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => this.mediaCmd("stop")}>
-              <i className="fas fa-stop" />
-            </button>
-            &nbsp;&nbsp;
-          <button
-              type="button"
-              className="btn btn-secondary"
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => this.mediaCmd("rewind")}>
-              <i className="fas fa-backward" />
-            </button>
-            &nbsp;&nbsp;
-           <button
-              type="button"
-              className="btn btn-secondary"
-              onMouseDown={e => e.preventDefault()}
-              onClick={() => this.mediaCmd("ffwd")}>
-              <i className="fas fa-forward" />
-            </button>
-            &nbsp;&nbsp;
-            &nbsp;
-          <div className="vertical" />
-            &nbsp;&nbsp;
-          <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
-            <div className="info-table" style={{ display: 'flex', flexDirection: 'column' }}>
-              <div className="song_div">
-                <span className="song_span"> {this.state.song}</span>
-              </div>
-              <div className="artist_div">
-                <span className="artist_span"> {this.state.artist} </span>
-              </div>
-              <div className="artist_div">
-                <span className="artist_span"> {this.state.album} </span>
-              </div>
-            </div>
-            &nbsp;&nbsp;
-            &nbsp;
-           <div className="vertical" />
-            &nbsp;&nbsp;
-            <div className="info-table2">
-              <table className="table2">
-                <tbody>
-                  <tr>
-                    <td>Project</td>
-                    <td>
-                      <div className="table-extra-info" title={this.state.projectDir}>
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            electron.remote.shell.showItemInFolder(this.state.projectDir)
-                          }}
-                        >{window.path.basename(this.state.projectDir)} </a>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Tempo</td>
-                    <td>
-                      <div className="table-extra-info">
-                        {
-                          this.state.tempo > 0
-                            ? tempoSpan
-                            : '--'
-                        }
-                        {
-                          tempoDiffSpan
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Song Key</td>
-                    <td>
-                      <div className="table-extra-info">
-                        <OverlayTrigger
-                          trigger="click"
-                          placement="bottom"
-                          overlay={
-                            popover('Song Key',
-                              (
-                                <React.Fragment>
-                                  <div className="popover-div">
-                                    <span>Confidence</span>
-                                    <span className="float-right">
-                                      {(this.state.tonic.confidence * 100).toFixed(2)} %
-                                  </span>
-                                  </div>
-                                  <div className="popover-div">
-                                    <a
-                                      className="cur-pointer"
-                                      onClick={e => electron.shell.openExternal('https://essentia.upf.edu/documentation/reference/std_Key.html')}
-                                      title="Detection Profile">
-                                      <span>Profile</span>
-                                      <span className="float-right">bgate</span>
-                                    </a>
-                                  </div>
-                                  <div className="popover-div">
-                                    <span>Key</span>
-                                    <span className="float-right">{this.state.pitchChange.diff !== 0 ? this.state.pitchChange.newKey : currentKey}</span>
-                                  </div>
-                                  <div className="popover-div">
-                                    <span>Key Chords</span>
-                                    <span className="float-right">[ {
-                                      chordsInKey.map((v, i) => {
-                                        if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
-                                          return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
-                                        }
-                                        return <span key={v}>{v}, </span>
-                                      })
-                                    } ]</span>
-                                  </div>
-                                  <div className="popover-div">
-                                    <span>Relative Key</span>
-                                    <span className="float-right">{relativeKey.join(' ')}</span>
-                                  </div>
-                                  <div className="popover-div">
-                                    <span>Parallel Key</span>
-                                    <span className="float-right">{parallelKey.join(' ')}</span>
-                                  </div>
-                                  <div className="popover-div">
-                                    <span>Parrallel Chords</span>
-                                    <span className="float-right">[ {
-                                      parallelChordsInKey.map((v, i) => {
-                                        if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
-                                          return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
-                                        }
-                                        return <span key={v}>{v}, </span>
-                                      })
-                                    } ]</span>
-                                  </div>
-                                </React.Fragment>
-                              ))
-                          }>
-                          <a href="#">
-                            {currentKey}
-                            {
-                              this.state.pitchChange.diff !== 0
-                                ? (
-                                  <span>
-                                    &nbsp;({
-                                      this.state.pitchChange.diff > 0 ? `+` : ``
-                                    }
-                                    {this.state.pitchChange.diff})
-                                = {this.state.pitchChange.newKey} {this.state.tonic.type}
-                                  </span>
-                                )
-                                : null
-                            }
-                          </a>
-                        </OverlayTrigger>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="timer_div">
-              <div>
-                <span className="current_time_span" ref={this.timerRef.current}>00:00.000</span>
-                <span className="total_time_span"><sub ref={this.timerRef.total}> 00:00.000</sub></span>
-              </div>
-              <div>
-                <div
-                  onClick={this.pbSeek}
-                  className="progress">
-                  <div
-                    ref={this.pbRef}
-                    className="progress-bar bg-info"
-                    role="progressbar"
-                    style={{
-                      width: 0 + '%',
-                      pointerEvents: "none",
-                    }}
-                    aria-valuenow="25"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    tabIndex="0"
-                  />
+            <div className="controller_div d-flex flex-row">
+              <div className="project_div d-flex flex-row justify-content-between ptop15">
+                <div>
+                  <button
+                    disabled={this.state.disableOpenSave}
+                    type="button"
+                    onClick={this.loadProject}
+                    onMouseDown={e => e.preventDefault()}
+                    className="btn btn-secondary">
+                    <i className="fas fa-folder-open icon-center" /> &nbsp;
+                  <span className="btn-text">Open Project</span>
+                  </button>
                 </div>
+                <div>
+                  <button
+                    disabled={this.state.disableOpenSave}
+                    type="button"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={this.saveProject}
+                    className="btn btn-secondary">
+                    <i className="fas fa-save icon-center" /> &nbsp;
+                    <span className="btn-text">Save Project</span>
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={e => this.importMedia(e, [], true)}>
+                    <i className="fas fa-music icon-center" /> &nbsp;
+                    <span className="btn-text">Import Media</span>
+                  </button>
+                </div>
+              </div>
+              <div className="vertical" />
+              <div className="controls_div d-flex flex-row justify-content-between ptop15">
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => this.mediaCmd("playpause")}>
+                    {
+                      this.state.mediaPlaying ? (
+                        <i className="fas fa-pause" />
+                      )
+                        : (
+                          <i className="fas fa-play" />
+                        )
+                    }
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => this.mediaCmd("stop")}>
+                    <i className="fas fa-stop" />
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => this.mediaCmd("rewind")}>
+                    <i className="fas fa-backward" />
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => this.mediaCmd("ffwd")}>
+                    <i className="fas fa-forward" />
+                  </button>
+                </div>
+              </div>
+              <div className="vertical" />
+              <div className="cover_art_div">
+                <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
+              </div>
+              <div className="info-table justify-content-center" style={{ display: 'flex', flexDirection: 'column' }}>
+                <div className="song_div">
+                  <span className="song_span"> {this.state.song}</span>
+                </div>
+                <div className="artist_div">
+                  <span className="artist_span"> {this.state.artist} </span>
+                </div>
+                <div className="artist_div">
+                  <span className="artist_span"> {this.state.album} </span>
+                </div>
+              </div>
+              <div className="vertical" />
+              <div className="info-table2">
+                <table className="table2">
+                  <tbody>
+                    <tr>
+                      <td>Project</td>
+                      <td>
+                        <div className="table-extra-info" title={this.state.projectDir}>
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              electron.remote.shell.showItemInFolder(this.state.projectDir)
+                            }}
+                          >{window.path.basename(this.state.projectDir)} </a>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Tempo</td>
+                      <td>
+                        <div className="table-extra-info">
+                          {
+                            this.state.tempo > 0
+                              ? tempoSpan
+                              : '--'
+                          }
+                          {
+                            tempoDiffSpan
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Song Key</td>
+                      <td>
+                        <div className="table-extra-info">
+                          <OverlayTrigger
+                            trigger="click"
+                            placement="bottom"
+                            overlay={
+                              popover('Song Key',
+                                (
+                                  <React.Fragment>
+                                    <div className="popover-div">
+                                      <span>Confidence</span>
+                                      <span className="float-right">
+                                        {(this.state.tonic.confidence * 100).toFixed(2)} %
+                                  </span>
+                                    </div>
+                                    <div className="popover-div">
+                                      <a
+                                        className="cur-pointer"
+                                        onClick={e => electron.shell.openExternal('https://essentia.upf.edu/documentation/reference/std_Key.html')}
+                                        title="Detection Profile">
+                                        <span>Profile</span>
+                                        <span className="float-right">bgate</span>
+                                      </a>
+                                    </div>
+                                    <div className="popover-div">
+                                      <span>Key</span>
+                                      <span className="float-right">{this.state.pitchChange.diff !== 0 ? this.state.pitchChange.newKey : currentKey}</span>
+                                    </div>
+                                    <div className="popover-div">
+                                      <span>Key Chords</span>
+                                      <span className="float-right">[ {
+                                        chordsInKey.map((v, i) => {
+                                          if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
+                                            return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
+                                          }
+                                          return <span key={v}>{v}, </span>
+                                        })
+                                      } ]</span>
+                                    </div>
+                                    <div className="popover-div">
+                                      <span>Relative Key</span>
+                                      <span className="float-right">{relativeKey.join(' ')}</span>
+                                    </div>
+                                    <div className="popover-div">
+                                      <span>Parallel Key</span>
+                                      <span className="float-right">{parallelKey.join(' ')}</span>
+                                    </div>
+                                    <div className="popover-div">
+                                      <span>Parrallel Chords</span>
+                                      <span className="float-right">[ {
+                                        parallelChordsInKey.map((v, i) => {
+                                          if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
+                                            return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
+                                          }
+                                          return <span key={v}>{v}, </span>
+                                        })
+                                      } ]</span>
+                                    </div>
+                                  </React.Fragment>
+                                ))
+                            }>
+                            <a href="#">
+                              {currentKey}
+                              {
+                                this.state.pitchChange.diff !== 0
+                                  ? (
+                                    <span>
+                                      &nbsp;({
+                                        this.state.pitchChange.diff > 0 ? `+` : ``
+                                      }
+                                      {this.state.pitchChange.diff})
+                                = {this.state.pitchChange.newKey} {this.state.tonic.type}
+                                    </span>
+                                  )
+                                  : null
+                              }
+                            </a>
+                          </OverlayTrigger>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="timer_div">
+                <div>
+                  <span className="current_time_span" ref={this.timerRef.current}>00:00.000</span>
+                  <span className="total_time_span"><sub ref={this.timerRef.total}> 00:00.000</sub></span>
+                </div>
+                <div>
+                  <div
+                    onClick={this.pbSeek}
+                    className="progress">
+                    <div
+                      ref={this.pbRef}
+                      className="progress-bar bg-info"
+                      role="progressbar"
+                      style={{
+                        width: 0 + '%',
+                        pointerEvents: "none",
+                      }}
+                      aria-valuenow="25"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      tabIndex="0"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="kabob_div">
+                <i className="fas fa-ellipsis-v" />
               </div>
             </div>
           </nav>
         </div>
         <ImportMediaModal show={this.state.showModal} completed={this.state.importStepsCompleted} />
-      </div>
+      </React.Fragment>
     );
   }
 }

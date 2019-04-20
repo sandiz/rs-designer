@@ -35,7 +35,7 @@ class App extends Component {
 
   render = () => {
     return (
-      <div>
+      <React.Fragment>
         <ControllerBar />
         <div id="app-flex">
           <WaveformBar />
@@ -55,7 +55,7 @@ class App extends Component {
           className="toast-container"
           toastClassName="dark-toast"
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
