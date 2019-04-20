@@ -25,6 +25,12 @@ class App extends Component {
     ipcRenderer.on('keyboard-shortcut', (e, d) => {
       DispatcherService.dispatch(d, null);
     });
+    window.addEventListener('keypress', (e) => {
+      if (e.keyCode === 32) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    })
   }
 
   render = () => {

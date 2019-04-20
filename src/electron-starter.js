@@ -230,9 +230,7 @@ const readKeyboardShortcuts = (template, index) => {
 
             electronLocalshortcut.register(
                 mainWindow, item.accelerator, () => {
-                    if (kbdShortcutsEnabled) {
-                        mainWindow.webContents.send('keyboard-shortcut', item.event);
-                    }
+                    handleKeyboard(item.event);
                 }
             );
 
