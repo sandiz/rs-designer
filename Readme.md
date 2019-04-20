@@ -14,7 +14,6 @@ TODO
     - global settings
     - disable kbd/enable kbd during modal
     - soft pitch change (capo, guitar tuning)
-
 - cqt
     - colormap/cqtjs
     - canvas piano bar 

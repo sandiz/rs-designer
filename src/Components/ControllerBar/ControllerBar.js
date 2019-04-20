@@ -180,7 +180,7 @@ class ControllerBar extends Component {
       this.importMedia(null, [pInfo.media]);
     }
     else {
-      toaster('error', 'far fa-check-circle', 'Project failed to load!', {
+      toaster('error', '', 'Project failed to load!', {
         toastId: 'load-project-toaster',
       });
     }
@@ -200,6 +200,7 @@ class ControllerBar extends Component {
       e.target.blur();
       e.preventDefault();
     }
+    this.mediaCmd("stop")
     let files = [];
     if (projectFiles.length === 0) {
       files = electron.remote.dialog.showOpenDialog({
@@ -506,7 +507,7 @@ class ControllerBar extends Component {
                           onClick={(e) => {
                             electron.remote.shell.showItemInFolder(this.state.projectDir)
                           }}
-                        >{this.state.projectDir} </a>
+                        >{window.path.basename(this.state.projectDir)} </a>
                       </div>
                     </td>
                   </tr>
