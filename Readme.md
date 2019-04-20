@@ -8,6 +8,13 @@ rs-designer - rocksmith cdlc generator and music transcription tool (pre alpha W
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)
 
 TODO
+- misc
+    - artist/album editor
+    - static font
+    - kbd shortcuts for speed and tempo
+    - recents menu
+    - global settings
+    - disable kbd/enable kbd during modal
 
 - cqt
     - colormap/cqtjs
