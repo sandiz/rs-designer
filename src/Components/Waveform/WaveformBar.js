@@ -120,7 +120,7 @@ class WaveformBar extends Component {
                     </span>
                 </div>
                 <div className={expanded} id="">
-                    <div className="waveform-container">
+                    <div className="waveform-container" id="container">
                         <div id="chordstimeline" style={{ display: this.state.showChordsTimeline ? "block" : "none" }} />
                         <div id="beatstimeline" style={{ display: this.state.showBeatsTimeline ? "block" : "none" }} />
                         <div id="waveform" />

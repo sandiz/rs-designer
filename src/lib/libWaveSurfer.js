@@ -198,6 +198,12 @@ class MediaPlayerBase {
         }
     }
 
+    seekTo(to) {
+        if (this.wavesurfer) {
+            this.wavesurfer.seekTo(to);
+        }
+    }
+
     seekAndCenter(progress) {
         if (this.wavesurfer) {
             this.wavesurfer.seekAndCenter(progress);

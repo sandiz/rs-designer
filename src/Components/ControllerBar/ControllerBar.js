@@ -280,6 +280,8 @@ class ControllerBar extends Component {
           DispatcherService.on(KeyboardEvents.Stop, this.stop);
           DispatcherService.on(KeyboardEvents.Rewind, this.rewind);
           DispatcherService.on(KeyboardEvents.FastForward, this.ffwd);
+          DispatcherService.on(KeyboardEvents.SeekStart, this.seekStart);
+          DispatcherService.on(KeyboardEvents.SeekEnd, this.seekEnd);
         }
       });
   }
@@ -291,6 +293,10 @@ class ControllerBar extends Component {
   ffwd = () => this.mediaCmd("ffwd");
 
   stop = () => this.mediaCmd("stop");
+
+  seekStart = () => this.mediaCmd("seek-start");
+
+  seekEnd = () => this.mediaCmd("seek-end");
   //eslint-disable-next-line
   mediaCmd(cmd, value = 0) {
     const mediaPlayer = MediaPlayer.instance;
@@ -312,6 +318,12 @@ class ControllerBar extends Component {
         case "seekAndCenter":
           mediaPlayer.seekAndCenter(value);
           break;
+        case "seek-start":
+          mediaPlayer.seekTo(0);
+          break;
+        case "seek-end":
+          mediaPlayer.seekTo(1);
+          break;
         default:
           break;
       }
@@ -325,6 +337,8 @@ class ControllerBar extends Component {
     DispatcherService.off(KeyboardEvents.Stop, this.stop);
     DispatcherService.off(KeyboardEvents.Rewind, this.rewind);
     DispatcherService.off(KeyboardEvents.FastForward, this.ffwd);
+    DispatcherService.off(KeyboardEvents.SeekStart, this.seekStart);
+    DispatcherService.off(KeyboardEvents.SeekEnd, this.seekEnd);
   }
 
   //eslint-disable-next-line

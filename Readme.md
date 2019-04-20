@@ -13,6 +13,7 @@ TODO
     - kbd shortcuts for speed and tempo
     - global settings
     - disable kbd/enable kbd during modal
+    - soft pitch change (capo, guitar tuning)
 
 - cqt
     - colormap/cqtjs

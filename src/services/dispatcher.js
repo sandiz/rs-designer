@@ -73,6 +73,8 @@ export const KeyboardEvents = {
     Stop: "shortcut-stop",
     Rewind: "shortcut-rewind",
     FastForward: "shortcut-fast-forward",
+    SeekStart: "shortcut-seek-start",
+    SeekEnd: "shortcut-seek-end",
     ImportMedia: "shortcut-import-media",
     SaveProject: "shortcut-save-project",
     OpenProject: "shortcut-open-project",

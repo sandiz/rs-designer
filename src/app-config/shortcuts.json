@@ -1,8 +1,8 @@
 {
     "global": [
         {
-            "label": "Play/Pause T",
-            "accelerator": "Enter",
+            "label": "Play/Pause",
+            "accelerator": "Space",
             "event": "shortcut-play-pause"
         },
         {
@@ -12,13 +12,23 @@
         },
         {
             "label": "Rewind",
-            "accelerator": "Alt+Left",
+            "accelerator": "CommandOrControl+Left",
             "event": "shortcut-rewind"
         },
         {
             "label": "Fast Forward",
-            "accelerator": "Alt+Right",
+            "accelerator": "CommandOrControl+Right",
             "event": "shortcut-fast-forward"
+        },
+        {
+            "label": "Seek to beginning",
+            "accelerator": "Alt+Left",
+            "event": "shortcut-seek-start"
+        },
+        {
+            "label": "Fast Forward",
+            "accelerator": "Alt+Right",
+            "event": "shortcut-seek-end"
         },
         {
             "type": "separator"
@@ -51,6 +61,10 @@
         {
             "accelerator": "A",
             "event": "shortcut-toggle-analysis-bar"
+        },
+        {
+            "accelerator": "Enter",
+            "event": "shortcut-play-pause"
         }
     ]
 }
