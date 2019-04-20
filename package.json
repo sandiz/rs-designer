@@ -29,6 +29,7 @@
     "soundtouchjs": "https://github.com/sandiz/SoundTouchJS.git",
     "threads": "^0.12.1",
     "tmp": "^0.1.0",
+    "typeface-roboto-condensed": "^0.0.54",
     "webpack-dev-server": "^3.1.1",
     "whatwg-fetch": "^3.0.0",
     "worklet-loader": "^1.0.0"
