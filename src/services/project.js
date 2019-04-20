@@ -1,7 +1,7 @@
 import {
     copyFile, writeFile, copyDir, readFile,
 } from '../lib/utils'
-import { DispatcherService, DispatchEvents } from './dispatcher';
+import { DispatcherService, DispatchEvents, KeyboardEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 
 const electron = window.require('electron').remote;
@@ -90,6 +90,7 @@ export class Project {
             if (window.isWin === true) {
                 delete filters[0];
             }
+            DispatcherService.dispatch(KeyboardEvents.Stop);
             dirs = electron.dialog.showOpenDialog({
                 title: "Open Project..",
                 buttonLabel: "Open",
@@ -140,6 +141,7 @@ export class Project {
     saveProject = async () => {
         if (this.loaded) {
             if (this.isTemporary) {
+                DispatcherService.dispatch(KeyboardEvents.Stop);
                 const dirs = electron.dialog.showOpenDialog({
                     title: "Choose directory to save project to..",
                     buttonLabel: "Save",
