@@ -9,6 +9,8 @@ import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
 import { DispatcherService } from './services/dispatcher';
 
+require('typeface-roboto-condensed')
+
 const ipcRenderer = window.require("electron").ipcRenderer;
 
 class App extends Component {

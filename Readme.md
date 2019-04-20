@@ -10,7 +10,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 TODO
 - misc
     - artist/album editor
-    - static font
     - kbd shortcuts for speed and tempo
     - recents menu
     - global settings
