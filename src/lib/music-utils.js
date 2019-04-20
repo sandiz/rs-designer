@@ -16,7 +16,7 @@ const rotateMode = (obj, times) => {
     return copy;
 }
 
-const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+export const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
 const cof =
 {
     majors: [...pitches],
@@ -107,6 +107,25 @@ export const getParalleKey = (key, type) => {
     }
 }
 
+export const getTransposedChords = (chords, value) => {
+    const t = [...chords];
+    for (let i = 0; i < t.length; i += 1) {
+        const chord = t[i];
+        if (chord.endsWith('m')) {
+            const key = chord.replace('m', '');
+            t[i] = getTransposedKey(key, value) + 'm';
+        }
+        else if (chord === 'N') {
+            t[i] = chord;
+        }
+        else {
+            t[i] = getTransposedKey(t[i], value);
+        }
+    }
+    //console.log(chords, value, t);
+    return t;
+}
+
 export const getTransposedKey = (key, value) => {
     const index = pitches.indexOf(key);
     if (index !== -1) {
@@ -115,7 +134,7 @@ export const getTransposedKey = (key, value) => {
             diff = (pitches.length) - Math.abs(diff);
         }
         else if (diff > pitches.length - 1) {
-            diff = diff - (pitches.length - 1)
+            diff = diff - (pitches.length)
         }
         return pitches[diff];
     }

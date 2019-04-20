@@ -2,6 +2,7 @@ import {
     copyFile, writeFile, copyDir, readFile,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents } from './dispatcher';
+import { pitches } from '../lib/music-utils';
 
 const electron = window.require('electron').remote;
 const readline = window.require("readline");
@@ -234,6 +235,17 @@ export class Project {
         const keyFile = this.projectInfo.key;
         const data = await readFile(keyFile)
         const s = JSON.parse(data)
+        let note = s[0];
+        if (note.endsWith('b')) {
+            //convert to sharp
+            note = note.replace('b', '');
+            let idx = pitches.indexOf(note);
+            if (idx !== -1) {
+                if (idx === 0) idx = pitches.length - 1;
+                const enharmonic = pitches[idx - 1];
+                s[0] = enharmonic;
+            }
+        }
         return s;
     }
 

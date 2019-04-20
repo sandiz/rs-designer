@@ -12,7 +12,7 @@ import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../service
 import ProjectService from '../../services/project';
 import {
   getTransposedKey, getRelativeKey, getParalleKey, getChordsInKey,
-  getUniqueChords,
+  getUniqueChords, getTransposedChords,
 } from '../../lib/music-utils'
 
 const electron = window.require("electron");
@@ -539,13 +539,13 @@ class ControllerBar extends Component {
                                   </div>
                                   <div className="popover-div">
                                     <span>Key</span>
-                                    <span className="float-right">{currentKey}</span>
+                                    <span className="float-right">{this.state.pitchChange.diff !== 0 ? this.state.pitchChange.newKey : currentKey}</span>
                                   </div>
                                   <div className="popover-div">
                                     <span>Key Chords</span>
                                     <span className="float-right">[ {
                                       chordsInKey.map((v, i) => {
-                                        if (this.state.chords.includes(v)) {
+                                        if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
                                           return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
                                         }
                                         return <span key={v}>{v}, </span>
@@ -564,7 +564,7 @@ class ControllerBar extends Component {
                                     <span>Parrallel Chords</span>
                                     <span className="float-right">[ {
                                       parallelChordsInKey.map((v, i) => {
-                                        if (this.state.chords.includes(v)) {
+                                        if (getTransposedChords(this.state.chords, this.state.pitchChange.diff).includes(v)) {
                                           return <span title="In Use" className="chord-detect" key={v}>{v}, </span>
                                         }
                                         return <span key={v}>{v}, </span>

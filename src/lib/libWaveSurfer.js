@@ -1,6 +1,7 @@
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
 import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
+import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
 import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
@@ -59,6 +60,17 @@ class MediaPlayerBase {
                     barGap: 0,
                     barRadius: false,
                     overviewBorderColor: "#303030",
+                }),
+                CursorPlugin.create({
+                    showTime: true,
+                    color: "#fff",
+                    zIndex: 999,
+                    opacity: 0.75,
+                    hideOnBlur: false,
+                    customStyle: {
+                        color: "#fff",
+                    },
+                    followCursorY: true,
                 }),
             ],
         };

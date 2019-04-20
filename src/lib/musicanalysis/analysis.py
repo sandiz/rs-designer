@@ -264,5 +264,5 @@ if __name__ == '__main__':
     t4.join()
     t5.join()
     end = time.time()
-    # os.unlink(path)
+    os.unlink(wavpath)
     print("\nTotal time: " + str(end - start) + " s")

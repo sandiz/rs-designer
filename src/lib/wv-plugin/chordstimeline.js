@@ -1,3 +1,6 @@
+import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
+import { getTransposedKey } from "../music-utils";
+
 /* eslint-disable */
 /**
  * @typedef {Object} TimelinePluginParams
@@ -77,6 +80,7 @@ export default class ChordsTimelinePlugin {
         ws.on('redraw', this._onRedraw);
         ws.on('zoom', this._onZoom);
 
+        DispatcherService.on(DispatchEvents.PitchChange, v => this.render(v));
         this.render();
     };
 
@@ -191,6 +195,7 @@ export default class ChordsTimelinePlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
+        DispatcherService.off(DispatchEvents.PitchChange, v => this.render(v));
     }
 
     /**
@@ -228,13 +233,13 @@ export default class ChordsTimelinePlugin {
      *
      * @private
      */
-    render() {
+    render(transpose = 0) {
         if (!this.wrapper) {
             this.createWrapper();
         }
         this.updateCanvases();
         this.updateCanvasesPositioning();
-        this.renderCanvases();
+        this.renderCanvases(transpose);
     }
 
     /**
@@ -319,7 +324,7 @@ export default class ChordsTimelinePlugin {
      *
      * @private
      */
-    renderCanvases() {
+    renderCanvases(transpose = 0) {
         const duration =
             this.wavesurfer.timeline.params.duration ||
             this.wavesurfer.backend.getDuration();
@@ -369,6 +374,7 @@ export default class ChordsTimelinePlugin {
         this.params.chords.forEach((chordData, i) => {
             let [start, end, chord, type] = chordData;
             if (chord !== 'N') {
+                chord = getTransposedKey(chord, transpose);
                 const startPixel = this.getPixelForSecond(start, positioning);
                 const endPixel = this.getPixelForSecond(end, positioning);
                 const color = (i % 2 ? '#436a88' : '#3b7eac');
