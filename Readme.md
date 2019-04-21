@@ -10,7 +10,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 TODO
 - misc
     - global settings
-    - artist/album editor
     - guitar tuner
 - cqt
     - colormap/cqtjs
