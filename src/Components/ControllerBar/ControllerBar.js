@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Popover from 'react-bootstrap/Popover'
+import Dropdown from 'react-bootstrap/Dropdown'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import { toast } from 'react-toastify';
 
+import CustomToggle from './CustomToggle'
 import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
 import { setStateAsync, toaster } from '../../lib/utils'
 import '../../css/ControllerBar.css'
@@ -361,6 +363,10 @@ class ControllerBar extends Component {
     this.pbRef.current.style.width = (per * 100) + "%";
   }
 
+  moreInfoSelect = (eventKey, event) => {
+    console.log(eventKey, event);
+  }
+
   render = () => {
     const tempo = this.state.tempo
     const halfTempo = this.state.tempo >= this.tempoSplit ? this.state.tempo / 2 : -1
@@ -644,8 +650,17 @@ class ControllerBar extends Component {
                   </div>
                 </div>
               </div>
-              <div className="kabob_div">
-                <i className="fas fa-ellipsis-v" />
+              <div className="kabob_div cur-pointer">
+                <Dropdown drop="left" onSelect={this.moreInfoSelect}>
+                  <Dropdown.Toggle variant="success" as={CustomToggle} id="dt">
+                    <i className="fas fa-ellipsis-v" />
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item eventKey="dt-settings">Settings</Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item eventKey="dt-quit">Quit</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </div>
             </div>
           </nav>
@@ -695,5 +710,4 @@ function ImportMediaModal(props) {
     </Modal>
   );
 }
-
 export default ControllerBar;

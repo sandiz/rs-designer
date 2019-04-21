@@ -124,7 +124,7 @@
 .info-table2 {
     width: 293px;
     padding-top: .65%;
-    margin-left: -5px;
+    margin-left: -7px;
 }
 
 .table2 tr td:nth-child(1) {
@@ -161,4 +161,8 @@
 
 .info_table tr {
     padding: 0px;
+}
+
+.dropdown-toggle::before {
+    display: none !important;
 }
