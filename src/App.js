@@ -7,7 +7,7 @@ import ControlsBar from './components/Controls/ControlsBar'
 import AnalysisBar from './components/Analysis/AnalysisBar';
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
-import { DispatcherService } from './services/dispatcher';
+import { DispatcherService, DispatchEvents } from './services/dispatcher';
 
 require('typeface-roboto-condensed')
 
@@ -19,18 +19,23 @@ class App extends Component {
     this.state = {
 
     };
+    this.enableKbdShortcuts = true;
   }
 
   componentDidMount() {
     ipcRenderer.on('keyboard-shortcut', (e, d) => {
-      DispatcherService.dispatch(d, null);
+      if (this.enableKbdShortcuts) {
+        DispatcherService.dispatch(d, null);
+      }
     });
     window.addEventListener('keypress', (e) => {
-      if (e.keyCode === 32) {
+      if (e.keyCode === 32 && this.enableKbdShortcuts) {
         e.preventDefault();
         e.stopImmediatePropagation();
       }
     })
+    DispatcherService.on(DispatchEvents.EnableShortcuts, () => { this.enableKbdShortcuts = true });
+    DispatcherService.on(DispatchEvents.DisableShortcuts, () => { this.enableKbdShortcuts = false });
   }
 
   render = () => {
