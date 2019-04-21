@@ -16,6 +16,7 @@ const defaultProjectInfo = {
     beats: '',
     key: '',
     chords: '',
+    metadata: null,
 }
 
 const projectExt = "rsdproject";
@@ -176,12 +177,27 @@ export class Project {
         return false;
     }
 
+    saveMetadata = async (media) => {
+        let buf = null;
+        if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
+            buf = media.tags.common.picture[0].data;
+        }
+        const metadata = {
+            song: media.tags.common.title,
+            artist: media.tags.common.artist,
+            album: media.tags.common.album,
+            image: buf ? buf.toString('base64') : '',
+        };
+        await writeFile(window.path.join(this.projectDirectory, "metadata.json"), JSON.stringify(metadata));
+    }
+
     updateExternalFiles = async () => {
         this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.raw');
         this.projectInfo.tempo = window.path.join(this.projectDirectory, 'tempo');
         this.projectInfo.beats = window.path.join(this.projectDirectory, 'beats');
         this.projectInfo.key = window.path.join(this.projectDirectory, 'key');
         this.projectInfo.chords = window.path.join(this.projectDirectory, 'chords');
+        this.projectInfo.metadata = window.path.join(this.projectDirectory, 'metadata.json');
         await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
     }
@@ -208,6 +224,7 @@ export class Project {
         /* create temp dir */
         this.tmpHandle = tmp.dirSync({
             unsafeCleanup: true,
+            postfix: ".rsdbundle",
         });
         this.updateProjectInfo(
             this.tmpHandle.name,
@@ -224,6 +241,13 @@ export class Project {
         await copyFile(src, dest);
 
         return dest;
+    }
+
+    readMetadata = async () => {
+        if (this.projectInfo.metadata == null) return null;
+        const mm = this.projectInfo.metadata;
+        const data = await readFile(mm)
+        return JSON.parse(data);
     }
 
     readTempo = async () => {
