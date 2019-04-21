@@ -28,6 +28,7 @@
     border: 1px solid gray;
     box-shadow: 1px 1px 0px dimgrey;
     margin-left: -3px;
+    margin-top: 0px;
 }
 
 .cover_img_lg {
@@ -136,8 +137,9 @@
 
 .info-table {
     width: 233px;
-    margin-left: 8px;
+    margin-left: 4px;
     flex: 1 1 233px;
+    margin-bottom: 5px;
 }
 
 .info-table2 {
