@@ -1,10 +1,11 @@
 import React from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
+import InputGroup from 'react-bootstrap/InputGroup'
 import PropTypes from 'prop-types';
 import * as nothumb from '../../assets/nothumb.jpg'
 import {
-    setStateAsync, disableKbdShortcuts, enableKbdShortcuts, readFile,
+    setStateAsync, disableKbdShortcuts, enableKbdShortcuts, readFile, fetchCover,
 } from '../../lib/utils';
 
 const electron = window.require("electron");
@@ -19,6 +20,7 @@ class MetadataEditorModal extends React.Component {
             album: props.metadata ? props.metadata.album : "",
             year: props.metadata ? props.metadata.year : "",
             image: props.metadata ? Buffer.from(props.metadata.image, 'base64') : "",
+            fetchingFromWeb: false,
         }
     }
 
@@ -35,6 +37,27 @@ class MetadataEditorModal extends React.Component {
                 this.coverArtRef.current.src = 'data:image/jpeg;base64,' + this.state.image.toString('base64')
             }
         }
+    }
+
+    fetchFromWeb = async (e) => {
+        this.setState({ fetchingFromWeb: true })
+        let url = "";
+        if (this.state.album.length > 0) {
+            url = await fetchCover(this.state.artist, this.state.album)
+        }
+        else {
+            url = await fetchCover(this.state.artist, this.state.song)
+        }
+        if (url !== "") {
+            const data = await fetch(url);
+            const body = await data.arrayBuffer();
+            this.setState({
+                image: Buffer.from(body),
+            });
+            this.updateImage();
+            console.log(url);
+        }
+        this.setState({ fetchingFromWeb: false })
     }
 
     uploadImage = async (e) => {
@@ -92,7 +115,7 @@ class MetadataEditorModal extends React.Component {
         return (
             <Modal
                 {...rest}
-                size="med"
+                size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
                 style={{
                     top: 15 + '%',
@@ -115,26 +138,38 @@ class MetadataEditorModal extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="d-flex flex-row">
-                        <div style={{ width: 50 + '%' }}>
+                        <div style={{ width: 72 + '%' }}>
                             <div className="d-flex flex-col">
-                                <Form.Group>
-                                    <Form.Control type="title" placeholder="Song Title" value={song} onChange={e => this.onChange(e, "song")} />
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Control type="artist" placeholder="Artist" value={artist} onChange={e => this.onChange(e, "artist")} />
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Control type="album" placeholder="Album" value={album} onChange={e => this.onChange(e, "album")} />
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Control type="year" placeholder="Year" value={year} onChange={e => this.onChange(e, "year")} />
-                                </Form.Group>
+                                <InputGroup className="mb-3">
+                                    <InputGroup.Prepend className="ig-prepend">
+                                        <InputGroup.Text id="basic-addon1">Song</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control type="title" value={song} onChange={e => this.onChange(e, "song")} />
+                                </InputGroup>
+                                <InputGroup className="mb-3">
+                                    <InputGroup.Prepend className="ig-prepend">
+                                        <InputGroup.Text id="basic-addon1">Artist</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control type="artist" value={artist} onChange={e => this.onChange(e, "artist")} />
+                                </InputGroup>
+                                <InputGroup className="mb-3">
+                                    <InputGroup.Prepend className="ig-prepend">
+                                        <InputGroup.Text id="basic-addon1">Album</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control type="album" value={album} onChange={e => this.onChange(e, "album")} />
+                                </InputGroup>
+                                <InputGroup className="mb-3">
+                                    <InputGroup.Prepend className="ig-prepend">
+                                        <InputGroup.Text id="basic-addon1">Year</InputGroup.Text>
+                                    </InputGroup.Prepend>
+                                    <Form.Control type="year" value={year} onChange={e => this.onChange(e, "year")} />
+                                </InputGroup>
                             </div>
                         </div>
                         <div
                             className="flex-col d-flex justify-content-center"
                             style={{
-                                width: 50 + '%',
+                                width: 28 + '%',
                                 display: 'flex',
                                 alignItems: 'center',
                             }}>
@@ -149,7 +184,17 @@ class MetadataEditorModal extends React.Component {
                                     justifyContent: 'center',
                                 }}>
                                 <div style={{ margin: 2 + 'px' }}>
-                                    <i className="fab fa-lastfm-square" />
+                                    {
+                                        !this.state.fetchingFromWeb
+                                            ? (
+                                                <a href="#" onClick={this.fetchFromWeb}>
+                                                    <i className="fab fa-lastfm-square" />
+                                                </a>
+                                            )
+                                            : (
+                                                <div className="spinner-border text-primary" role="status" />
+                                            )
+                                    }
                                 </div>
                                 <div style={{ marginLeft: 15 + 'px' }}>
                                     <a href="#" onClick={this.uploadImage}><i className="fas fa-upload" /></a>

@@ -187,3 +187,11 @@
 .dropdown-toggle::before {
     display: none !important;
 }
+
+.ig-prepend {
+    width: 60px;
+}
+
+#basic-addon1 {
+    width: 100%;
+}
