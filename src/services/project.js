@@ -1,5 +1,5 @@
 import {
-    copyFile, writeFile, copyDir, readFile,
+    copyFile, writeFile, copyDir, readFile, assign,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, KeyboardEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
@@ -177,15 +177,24 @@ export class Project {
         return false;
     }
 
+    assignMetadata = (media, mm) => {
+        assign(media, ["tags", "common", "title"], mm.song);
+        assign(media, ["tags", "common", "artist"], mm.artist);
+        assign(media, ["tags", "common", "album"], mm.album);
+        assign(media, ["tags", "common", "year"], mm.year);
+        assign(media, ["tags", "common", "picture"], [{ data: Buffer.from(mm.image, 'base64') }]);
+    }
+
     saveMetadata = async (media) => {
         let buf = null;
         if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
             buf = media.tags.common.picture[0].data;
         }
         const metadata = {
-            song: media.tags.common.title,
-            artist: media.tags.common.artist,
-            album: media.tags.common.album,
+            song: media.tags.common.title ? media.tags.common.title : "",
+            artist: media.tags.common.artist ? media.tags.common.artist : "",
+            album: media.tags.common.album ? media.tags.common.album : "",
+            year: media.tags.common.year ? media.tags.common.year : "",
             image: buf ? buf.toString('base64') : '',
         };
         await writeFile(window.path.join(this.projectDirectory, "metadata.json"), JSON.stringify(metadata));

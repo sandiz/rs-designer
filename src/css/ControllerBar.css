@@ -30,6 +30,16 @@
     margin-left: -3px;
 }
 
+.cover_img_lg {
+    width: 150px;
+    height: 150px;
+    background-size: contain;
+    margin: 6px;
+    border: 1px solid gray;
+    box-shadow: 1px 1px 0px dimgrey;
+    margin-left: -3px;
+}
+
 .navbar {
     padding: 0 1rem !important;
 }

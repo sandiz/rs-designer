@@ -67,6 +67,8 @@ export const DispatchEvents = {
     PitchChange: "pitch-change",
     TempoChange: "tempo-change",
     TransposeMode: "transpose-mode",
+    DisableShortcuts: "disable-kbd-shortcuts",
+    EnableShortcuts: "enable-kbd-shortcuts",
 }
 
 export const KeyboardEvents = {

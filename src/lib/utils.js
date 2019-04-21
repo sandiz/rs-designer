@@ -1,6 +1,10 @@
 /* eslint-disable */
 import React from 'react'
 import { toast } from 'react-toastify';
+import { DispatcherService, DispatchEvents } from '../services/dispatcher'
+
+const electron = window.require("electron");
+const ipcRenderer = electron.ipcRenderer;
 
 export const setStateAsync = (obj, state) => {
     return new Promise((resolve) => {
@@ -111,4 +115,14 @@ export const assign = (obj, keyPath, value) => {
         obj = obj[key];
     }
     obj[keyPath[lastKeyIndex]] = value;
+}
+
+export const disableKbdShortcuts = () => {
+    ipcRenderer.send('disable-kbd-shortcuts'); /* disable on electron level */
+    DispatcherService.dispatch(DispatchEvents.DisableShortcuts); /* disable on chromium level */
+}
+
+export const enableKbdShortcuts = () => {
+    ipcRenderer.send('enable-kbd-shortcuts');
+    DispatcherService.dispatch(DispatchEvents.EnableShortcuts);
 }

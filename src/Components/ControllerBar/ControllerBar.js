@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import Modal from 'react-bootstrap/Modal'
 import Popover from 'react-bootstrap/Popover'
 import Dropdown from 'react-bootstrap/Dropdown'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import { toast } from 'react-toastify';
 
 import CustomToggle from './CustomToggle'
-import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
+import { ImportMedia, MediaPlayer } from '../../lib/libWaveSurfer'
 import { setStateAsync, toaster, disableKeydown } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
@@ -16,6 +15,8 @@ import {
   getTransposedKey, getRelativeKey, getParalleKey, getChordsInKey,
   getUniqueChords, getTransposedChords,
 } from '../../lib/music-utils'
+import ImportMediaModal from './modalImportMedia'
+import MetadataEditorModal from './modalEditMetadata'
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
@@ -46,6 +47,7 @@ const popover = (title, body) => (
 class ControllerBar extends Component {
   initialState = {
     showModal: false,
+    showmetadataModal: false,
     importStepsCompleted: [],
     song: 'Song Title',
     artist: 'Artist',
@@ -69,6 +71,7 @@ class ControllerBar extends Component {
     },
     disableOpenSave: false,
     chords: [],
+    metadata: null,
   }
 
   constructor(props) {
@@ -165,6 +168,7 @@ class ControllerBar extends Component {
     const songKey = info.key !== '' ? await ProjectService.readSongKey() : ['--', '--'];
     let chords = info.chords !== '' ? await ProjectService.readChords() : [];
     chords = getUniqueChords(chords);
+    const metadata = info.metadata !== '' ? await ProjectService.readMetadata() : null;
     this.setState({
       projectDir,
       tempo,
@@ -174,6 +178,7 @@ class ControllerBar extends Component {
         type: songKey[1],
         confidence: songKey[2],
       },
+      metadata,
     });
   }
 
@@ -244,21 +249,8 @@ class ControllerBar extends Component {
       },
       (media) => {
         toast.dismiss();
-        this.setState({
-          song: media.tags.common.title,
-          artist: media.tags.common.artist,
-          album: media.tags.common.album,
-          showModal: false,
-        });
+        this.setMetadataToState(media);
         this.updateProjectState(null);
-
-        if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
-          const buf = media.tags.common.picture[0].data;
-          this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
-        }
-        else {
-          this.coverArtRef.current.src = nothumb.default;
-        }
 
         if (isTemporary) {
           ProjectService.saveMetadata(media);
@@ -293,6 +285,23 @@ class ControllerBar extends Component {
           DispatcherService.on(KeyboardEvents.SeekEnd, this.seekEnd);
         }
       });
+  }
+
+  setMetadataToState = (media) => {
+    this.setState({
+      song: media.tags.common.title,
+      artist: media.tags.common.artist,
+      album: media.tags.common.album,
+      showModal: false,
+    });
+
+    if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
+      const buf = media.tags.common.picture[0].data;
+      this.coverArtRef.current.src = 'data:image/jpeg;base64,' + buf.toString('base64')
+    }
+    else {
+      this.coverArtRef.current.src = nothumb.default;
+    }
   }
 
   play = () => this.mediaCmd("playpause");
@@ -377,6 +386,20 @@ class ControllerBar extends Component {
       default:
         break;
     }
+  }
+
+  onMetadataEditorClose = () => {
+    this.setState({ showmetadataModal: false });
+  }
+
+  onMetadataEditorSave = async (e, media) => {
+    if (ProjectService.isLoaded()) {
+      const obj = {};
+      ProjectService.assignMetadata(obj, media);
+      await ProjectService.saveMetadata(obj);
+      this.setMetadataToState(obj);
+    }
+    this.onMetadataEditorClose();
   }
 
   render = () => {
@@ -506,7 +529,9 @@ class ControllerBar extends Component {
               </div>
               <div className="vertical" />
               <div className="cover_art_div">
-                <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
+                <a href="#" onClick={e => this.setState({ showmetadataModal: true })}>
+                  <img alt="cover art" className="cover_img" src={nothumb.default} ref={this.coverArtRef} />
+                </a>
               </div>
               <div className="info-table justify-content-center" style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="song_div">
@@ -681,48 +706,14 @@ class ControllerBar extends Component {
           </nav>
         </div>
         <ImportMediaModal show={this.state.showModal} completed={this.state.importStepsCompleted} />
+        <MetadataEditorModal
+          metadata={this.state.metadata}
+          show={this.state.showmetadataModal}
+          onSave={this.onMetadataEditorSave}
+          onClose={this.onMetadataEditorClose} />
       </React.Fragment>
     );
   }
 }
 
-function ImportMediaModal(props) {
-  const spinnerActiveClass = "spinner-grow text-info spinner";
-  const spinnerCompleteClass = "spinner-grow-noanim text-success spinner"
-  const imComplete = props.completed.includes(ImportMediaStates.importing);
-  const rtComplete = props.completed.includes(ImportMediaStates.readingTags);
-  const wsComplete = props.completed.includes(ImportMediaStates.wavesurfing);
-  return (
-    <Modal
-      {...props}
-      size="med"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-      onHide={() => { }}
-    >
-      <Modal.Header>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Please Wait...
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        Importing Media
-           <div className={imComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-        <br />
-        Reading Tags
-           <div className={rtComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-        <br />
-        Wave Surfing
-           <div className={wsComplete ? spinnerCompleteClass : spinnerActiveClass} role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-        <br />
-      </Modal.Body>
-    </Modal>
-  );
-}
 export default ControllerBar;
