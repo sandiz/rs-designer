@@ -4,7 +4,7 @@ import '../../css/slider.css'
 import "../../lib/radiaslider/src/slider-circular"
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
-import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
+import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 
 class CircleControls extends Component {
@@ -172,6 +172,10 @@ class CircleControls extends Component {
         this.soundTouchNode = null;
         this.st.tempo = 1;
         this.st.pitch = 0;
+        DispatcherService.off(KeyboardEvents.IncreaseTempo, this.incTempo);
+        DispatcherService.off(KeyboardEvents.DecreaseTempo, this.decTempo);
+        DispatcherService.off(KeyboardEvents.IncreasePitch, this.incPitch);
+        DispatcherService.off(KeyboardEvents.DecreasePitch, this.decPitch);
     }
 
     ready = () => {
@@ -182,6 +186,11 @@ class CircleControls extends Component {
             this.volRef.current.innerHTML = "Vol: " + volume;
             this.volCallback({ value: volume });
             this.initTempoNode(mediaPlayer);
+
+            DispatcherService.on(KeyboardEvents.IncreaseTempo, this.incTempo);
+            DispatcherService.on(KeyboardEvents.DecreaseTempo, this.decTempo);
+            DispatcherService.on(KeyboardEvents.IncreasePitch, this.incPitch);
+            DispatcherService.on(KeyboardEvents.DecreasePitch, this.decPitch);
         }
         else {
             const volume = 100;
@@ -197,6 +206,27 @@ class CircleControls extends Component {
             this.pitchCallback({ value: semitones });
         }
     };
+
+    change = (type, dir) => {
+        switch (type) {
+            case "tempo":
+                this.tempoSlider.changeSlider(1, dir);
+                break;
+            case "pitch":
+                this.pitchSlider.changeSlider(1, dir);
+                break;
+            default:
+                break;
+        }
+    }
+
+    incTempo = () => this.change('tempo', 'inc');
+
+    decTempo = () => this.change('tempo', 'dec');
+
+    incPitch = () => this.change('pitch', 'inc');
+
+    decPitch = () => this.change('pitch', 'dec');
 
     //eslint-disable-next-line
     componentDidMount() {

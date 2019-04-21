@@ -187,6 +187,7 @@ class MediaPlayerBase {
 
     destroy() {
         if (this.wavesurfer) {
+            this.audioContext.close();
             this.wavesurfer.destroy();
         }
         return null;
