@@ -11,8 +11,13 @@
     border-left: 1px solid hsla(200, 10%, 50%, 100);
     height: 60px;
     width: 12px;
+    flex: 0 0 12px;
     margin-left: 12px;
-    margin-top: 0.75%;
+}
+
+.cover_art_div {
+    width: 70px;
+    flex: 0 0 70px;
 }
 
 .cover_img {
@@ -40,11 +45,12 @@
 .controller_div {
     width: 100%;
     height: 85px;
-    justify-content: space-between;
+    align-items: center;
 }
 
 .project_div {
-    width: 25%;
+    width: 420px;
+    flex: 0 0 420px;
 }
 
 .ptop15 {
@@ -52,7 +58,8 @@
 }
 
 .controls_div {
-    width: 12.5%;
+    width: 220px;
+    flex: 0 0 220px;
 }
 
 .timer_div {
@@ -60,13 +67,13 @@
     right: -5px;
     width: 330px;
     text-align: center;
-    top: 11px;
+    margin-left: 10px;
+    margin-right: 5px;
 }
 
 .kabob_div {
     position: relative;
     right: -1vh;
-    top: 25px;
 }
 
 .current_time_span {
@@ -119,12 +126,14 @@
 
 .info-table {
     width: 233px;
+    margin-left: 8px;
+    flex: 1 1 233px;
 }
 
 .info-table2 {
     width: 293px;
-    padding-top: .65%;
     margin-left: -7px;
+    flex: 0 0 293px;
 }
 
 .table2 tr td:nth-child(1) {
@@ -156,7 +165,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 240px;
+    max-width: 100%;
 }
 
 .info_table tr {

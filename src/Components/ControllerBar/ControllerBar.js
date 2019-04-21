@@ -412,7 +412,7 @@ class ControllerBar extends Component {
         <div className="controller_bar bg-light">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="controller_div d-flex flex-row">
-              <div className="project_div d-flex flex-row justify-content-between ptop15">
+              <div className="project_div d-flex flex-row justify-content-between">
                 <div>
                   <button
                     disabled={this.state.disableOpenSave}
@@ -447,7 +447,7 @@ class ControllerBar extends Component {
                 </div>
               </div>
               <div className="vertical" />
-              <div className="controls_div d-flex flex-row justify-content-between ptop15">
+              <div className="controls_div d-flex flex-row justify-content-between">
                 <div>
                   <button
                     type="button"
