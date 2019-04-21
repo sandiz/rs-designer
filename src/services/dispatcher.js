@@ -66,6 +66,7 @@ export const DispatchEvents = {
     ProjectUpdate: "project-update",
     PitchChange: "pitch-change",
     TempoChange: "tempo-change",
+    TransposeMode: "transpose-mode",
 }
 
 export const KeyboardEvents = {

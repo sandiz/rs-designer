@@ -6,7 +6,11 @@ import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
+import { setStateAsync } from '../../lib/utils';
 
+const defaultState = {
+    transposeMode: false,
+}
 class CircleControls extends Component {
     constructor(props) {
         super(props);
@@ -15,6 +19,7 @@ class CircleControls extends Component {
         this.tempoRef = React.createRef();
         this.soundTouchNode = null;
         this.st = new SoundTouch();
+        this.state = { ...defaultState };
     }
     //eslint-disable-next-line
     volCallback = (v) => {
@@ -37,6 +42,10 @@ class CircleControls extends Component {
 
     pitchCallback = (v) => {
         this.pitchRef.current.innerHTML = v.value;
+        if (this.state.transposeMode) {
+            DispatcherService.dispatch(DispatchEvents.PitchChange, v.value);
+            return;
+        }
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             DispatcherService.dispatch(DispatchEvents.PitchChange, v.value);
@@ -124,6 +133,7 @@ class CircleControls extends Component {
             },
         };
         mp.onplay(() => {
+            if (this.state.transposeMode) return;
             const mediaPlayer = MediaPlayer.instance;
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
@@ -158,6 +168,7 @@ class CircleControls extends Component {
             }
         })
         mp.onseek((per) => {
+            if (this.state.transposeMode) return;
             const mediaPlayer = MediaPlayer.instance;
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
@@ -176,6 +187,7 @@ class CircleControls extends Component {
         DispatcherService.off(KeyboardEvents.DecreaseTempo, this.decTempo);
         DispatcherService.off(KeyboardEvents.IncreasePitch, this.incPitch);
         DispatcherService.off(KeyboardEvents.DecreasePitch, this.decPitch);
+        this.setState({ transposeMode: false });
     }
 
     ready = () => {
@@ -234,7 +246,17 @@ class CircleControls extends Component {
 
         DispatcherService.on(DispatchEvents.MediaReset, this.reset);
         DispatcherService.on(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.on(DispatchEvents.TransposeMode, this.toggleTranspose)
         this.ready(); //set default values (fail path)
+    }
+
+    toggleTranspose = async (value) => {
+        await setStateAsync(this, { transposeMode: value });
+        const mediaPlayer = MediaPlayer.instance;
+        if (mediaPlayer.isPlaying() && this.state.transposeMode === false) {
+            mediaPlayer.playPause();
+            mediaPlayer.playPause();
+        }
     }
 
     render() {
@@ -260,7 +282,7 @@ class CircleControls extends Component {
                         <div className="canvas-root">
                             <canvas id="pitch-canvas" width="130" height="130" />
                         </div>
-                        <div className="pitch-text"> PITCH </div>
+                        <div className="pitch-text"> {this.state.transposeMode ? "TRANSPOSE" : "PITCH"} </div>
                         <div id="pitch_val" ref={this.pitchRef} className="pitch-inner-text" />
                     </div>
                 </div>
