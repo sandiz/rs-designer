@@ -5,7 +5,7 @@ import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
 import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
-import { readTags, readFile } from './utils'
+import { readTags, readFile, assign } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
 
@@ -187,7 +187,6 @@ class MediaPlayerBase {
 
     destroy() {
         if (this.wavesurfer) {
-            this.audioContext.close();
             this.wavesurfer.destroy();
         }
         return null;
@@ -329,7 +328,16 @@ export class ImportMedia {
         stateChangeCb(ImportMediaStates.importing);
 
         const media = {}
-        media.tags = await readTags(file)
+        if (ProjectService.isLoaded() && !ProjectService.isTemporary) {
+            const mm = await ProjectService.readMetadata();
+            assign(media, ["tags", "common", "title"], mm.song);
+            assign(media, ["tags", "common", "artist"], mm.artist);
+            assign(media, ["tags", "common", "album"], mm.album);
+            assign(media, ["tags", "common", "picture"], [{ data: Buffer.from(mm.image, 'base64') }]);
+        }
+        else {
+            media.tags = await readTags(file)
+        }
 
         stateChangeCb(ImportMediaStates.readingTags);
 

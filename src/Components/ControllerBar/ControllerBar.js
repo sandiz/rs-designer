@@ -260,6 +260,10 @@ class ControllerBar extends Component {
           this.coverArtRef.current.src = nothumb.default;
         }
 
+        if (isTemporary) {
+          ProjectService.saveMetadata(media);
+        }
+
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
           const total = mediaPlayer.getDuration();
