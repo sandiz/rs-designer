@@ -364,7 +364,13 @@ class ControllerBar extends Component {
   }
 
   moreInfoSelect = (eventKey, event) => {
-    console.log(eventKey, event);
+    switch (eventKey) {
+      case "dt-quit":
+        electron.remote.app.quit();
+        break;
+      default:
+        break;
+    }
   }
 
   render = () => {

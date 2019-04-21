@@ -90,6 +90,17 @@ class Slider {
         this.setSliderValue(obj.id, options.min);
     }
 
+    changeSlider(id, type) {
+        const slider = this.sliders[id];
+        let val = slider.normalizedValue;
+        if (type === "inc") val += slider.step;
+        else val -= slider.step;
+
+        if (val <= slider.min) val = 0;
+        else if (val >= slider.max) val = slider.max;
+
+        this.setSliderValue(id, val);
+    }
     // Sets (draws) slider band value given the band id and value
     setSliderValue(id, value) {
         const slider = this.sliders[id];

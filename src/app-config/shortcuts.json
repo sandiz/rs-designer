@@ -21,14 +21,37 @@
             "event": "shortcut-fast-forward"
         },
         {
-            "label": "Seek to beginning",
+            "label": "Seek to start",
             "accelerator": "Alt+Left",
             "event": "shortcut-seek-start"
         },
         {
-            "label": "Fast Forward",
+            "label": "Seek to end",
             "accelerator": "Alt+Right",
             "event": "shortcut-seek-end"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label": "Increase Tempo",
+            "accelerator": "CommandOrControl+Up",
+            "event": "shortcut-increase-tempo"
+        },
+        {
+            "label": "Decrease Tempo",
+            "accelerator": "CommandOrControl+Down",
+            "event": "shortcut-decrease-tempo"
+        },
+        {
+            "label": "Increase Pitch",
+            "accelerator": "CommandOrControl+=",
+            "event": "shortcut-increase-pitch"
+        },
+        {
+            "label": "Decrease Pitch",
+            "accelerator": "CommandOrControl+-",
+            "event": "shortcut-decrease-pitch"
         },
         {
             "type": "separator"
