@@ -5,6 +5,8 @@ import { DispatcherService, DispatchEvents } from '../services/dispatcher'
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
+const albumArt = require('./album-art');
+
 
 export const setStateAsync = (obj, state) => {
     return new Promise((resolve) => {
@@ -125,4 +127,32 @@ export const disableKbdShortcuts = () => {
 export const enableKbdShortcuts = () => {
     ipcRenderer.send('enable-kbd-shortcuts');
     DispatcherService.dispatch(DispatchEvents.EnableShortcuts);
+}
+
+export const fetchCover = async (artist, albumortrack, usealbum = true) => {
+    const a1 = artist.split("feat.")[0].trim();
+    let url = "";
+    const options = {
+        size: 'large',
+    }
+    if (usealbum) options.album = albumortrack
+    else options.track = albumortrack
+    url = await albumArt(
+        a1,
+        options,
+    );
+    //console.log("first search result: " + url);
+    if (url.toString().toLowerCase().includes("error:")) {
+        //eslint-disable-next-line
+        url = await albumArt(
+            a1,
+            { size: 'large' },
+        );
+        //console.log("second search result: " + url);
+    }
+    if (!url.toString().includes("http")) {
+        url = "";
+    }
+    //console.log("---")
+    return url;
 }
