@@ -90,3 +90,14 @@ export const toaster = (type = '', icon = 'far fa-check-circle', text, options =
     }
 
 }
+
+export const disableKeydown = (selector, key, cb = null) => {
+    document.querySelector(selector).addEventListener('keydown', (e) => {
+        if (e.key === key) {
+            e.target.blur();
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if(cb) cb();
+        }
+    })
+}

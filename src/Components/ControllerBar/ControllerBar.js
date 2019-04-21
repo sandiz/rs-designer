@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 import CustomToggle from './CustomToggle'
 import { ImportMedia, ImportMediaStates, MediaPlayer } from '../../lib/libWaveSurfer'
-import { setStateAsync, toaster } from '../../lib/utils'
+import { setStateAsync, toaster, disableKeydown } from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
@@ -111,6 +111,8 @@ class ControllerBar extends Component {
     DispatcherService.on(DispatchEvents.TempoChange, this.onTempoChange);
     DispatcherService.on(DispatchEvents.MediaAnalysisStart, this.analysisStart)
     DispatcherService.on(DispatchEvents.MediaAnalysisEnd, this.analysisEnd)
+
+    disableKeydown(".kabob_div", "Enter");
   }
 
   analysisStart = () => {
@@ -657,11 +659,14 @@ class ControllerBar extends Component {
                 </div>
               </div>
               <div className="kabob_div cur-pointer">
-                <Dropdown drop="left" onSelect={this.moreInfoSelect}>
+                <Dropdown
+                  drop="left"
+                  onSelect={this.moreInfoSelect}>
                   <Dropdown.Toggle variant="success" as={CustomToggle} id="dt">
                     <i className="fas fa-ellipsis-v" />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
+                    <Dropdown.Item eventKey="dt-tuner">Guitar Tuner</Dropdown.Item>
                     <Dropdown.Item eventKey="dt-settings">Settings</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item eventKey="dt-quit">Quit</Dropdown.Item>

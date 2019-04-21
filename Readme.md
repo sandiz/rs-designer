@@ -13,6 +13,7 @@ TODO
     - disable kbd/enable kbd during modal
     - artist/album editor
     - soft pitch change (capo, guitar tuning)
+    - guitar tuner
 - cqt
     - colormap/cqtjs
     - canvas piano bar 
