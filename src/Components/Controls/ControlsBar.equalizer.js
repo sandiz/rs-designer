@@ -19,6 +19,7 @@ class EqualizerControls extends Component {
         enableEQ: false,
         enableSpectrum: false,
         enableKaraoke: false,
+        enableTranspose: false,
     }
 
     constructor(props) {
@@ -227,6 +228,12 @@ class EqualizerControls extends Component {
                     enableKaraoke: !prevState.enableKaraoke,
                 }), () => this.toggleKaraoke());
                 break;
+            case "transpose":
+                this.setState(prevState => ({
+                    enableTranspose: !prevState.enableTranspose,
+                }), () => {
+                    DispatcherService.dispatch(DispatchEvents.TransposeMode, this.state.enableTranspose);
+                });
             default:
                 break;
         }
@@ -289,6 +296,13 @@ class EqualizerControls extends Component {
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "karaoke")} />
                                 <label className="custom-control-label" htmlFor="customSwitch3" />
+                            </div>
+                        </div>
+                        <div title="Pitch slider transpoes instead of affecting pitch">
+                            <span>Transpose Mode</span>
+                            <div className="custom-control custom-switch checkbox-right">
+                                <input type="checkbox" className="custom-control-input" id="customSwitch4" checked={this.state.enableTranspose} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "transpose")} />
+                                <label className="custom-control-label" htmlFor="customSwitch4" />
                             </div>
                         </div>
                     </div>

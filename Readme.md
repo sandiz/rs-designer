@@ -3,7 +3,7 @@
 </p>
 
 # Rocksmith Designer
-rs-designer - rocksmith cdlc generator and music transcription tool (pre alpha WIP)
+rs-designer - rocksmith cdlc generator and music transcription app (pre alpha WIP)
 
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)
 
@@ -12,7 +12,6 @@ TODO
     - global settings
     - disable kbd/enable kbd during modal
     - artist/album editor
-    - soft pitch change (capo, guitar tuning)
     - guitar tuner
 - cqt
     - colormap/cqtjs
