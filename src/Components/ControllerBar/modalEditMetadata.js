@@ -3,7 +3,11 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import PropTypes from 'prop-types';
 import * as nothumb from '../../assets/nothumb.jpg'
-import { setStateAsync, disableKbdShortcuts, enableKbdShortcuts } from '../../lib/utils';
+import {
+    setStateAsync, disableKbdShortcuts, enableKbdShortcuts, readFile,
+} from '../../lib/utils';
+
+const electron = window.require("electron");
 
 class MetadataEditorModal extends React.Component {
     constructor(props) {
@@ -31,6 +35,25 @@ class MetadataEditorModal extends React.Component {
                 this.coverArtRef.current.src = 'data:image/jpeg;base64,' + this.state.image.toString('base64')
             }
         }
+    }
+
+    uploadImage = async (e) => {
+        const files = electron.remote.dialog.showOpenDialog({
+            properties: ["openFile"],
+            filters: [
+                { name: 'JPG', extensions: ['jpg'] },
+                { name: 'PNG', extensions: ['png'] },
+            ],
+        });
+        if (files === null || typeof files === 'undefined' || files.length <= 0) {
+            return;
+        }
+        const file = files[0];
+        const data = await readFile(file);
+        this.setState({
+            image: data,
+        });
+        this.updateImage();
     }
 
     shouldComponentUpdate = async (nextProps, nextState) => {
@@ -129,7 +152,7 @@ class MetadataEditorModal extends React.Component {
                                     <i className="fab fa-lastfm-square" />
                                 </div>
                                 <div style={{ marginLeft: 15 + 'px' }}>
-                                    <i className="fas fa-upload" />
+                                    <a href="#" onClick={this.uploadImage}><i className="fas fa-upload" /></a>
                                 </div>
                             </div>
                         </div>
