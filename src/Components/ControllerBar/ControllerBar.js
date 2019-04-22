@@ -17,6 +17,7 @@ import {
 } from '../../lib/music-utils'
 import ImportMediaModal from './modalImportMedia'
 import MetadataEditorModal from './modalEditMetadata'
+import SettingsModal from './modalSettings';
 
 const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
@@ -48,6 +49,7 @@ class ControllerBar extends Component {
   initialState = {
     showModal: false,
     showmetadataModal: false,
+    showSettingsModal: true,
     importStepsCompleted: [],
     song: 'Song Title',
     artist: 'Artist',
@@ -383,9 +385,16 @@ class ControllerBar extends Component {
       case "dt-quit":
         electron.remote.app.quit();
         break;
+      case "dt-settings":
+        this.setState({ showSettingsModal: true });
+        break;
       default:
         break;
     }
+  }
+
+  onSettingsClose = () => {
+    this.setState({ showSettingsModal: false });
   }
 
   onMetadataEditorClose = () => {
@@ -711,6 +720,9 @@ class ControllerBar extends Component {
           show={this.state.showmetadataModal}
           onSave={this.onMetadataEditorSave}
           onClose={this.onMetadataEditorClose} />
+        <SettingsModal
+          show={this.state.showSettingsModal}
+          onClose={this.onSettingsClose} />
       </React.Fragment>
     );
   }
