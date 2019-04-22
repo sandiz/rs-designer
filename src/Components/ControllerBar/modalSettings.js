@@ -6,54 +6,74 @@ import {
     disableKbdShortcuts, enableKbdShortcuts,
 } from '../../lib/utils';
 import DraggableLayout from './draggableLayout'
+import ForageService, { SettingsForageKeys } from '../../services/forage';
 
+
+const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+};
 class SettingsModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            currentTab: 'general',
-        }
-        this.items = [
+        const items = [
             {
                 text: 'Controls',
                 id: 'control',
-                icon: <i className="fas fa-sliders-h" />,
+                icon: "fas fa-sliders-h",
                 checked: true,
             },
             {
                 text: 'Waveform',
                 id: 'waveform',
-                icon: <i className="fas fa-wave-square" />,
+                icon: "fas fa-wave-square",
                 checked: true,
             },
             {
                 text: 'Chromagram',
                 id: 'chromagram',
-                icon: <i className="far fa-chart-bar" />,
+                icon: "far fa-chart-bar",
                 checked: true,
             },
             {
                 text: 'Tabs',
                 id: 'tabs',
-                icon: <i className="fas fa-guitar" />,
+                icon: "fas fa-guitar",
                 checked: true,
             },
             {
                 text: 'CDLC Creator',
                 id: 'cdlc',
-                icon: <i className="fas fa-download" />,
+                icon: "fas fa-download",
                 checked: true,
             },
             {
                 text: 'Credits',
                 id: 'credits',
-                icon: <i className="fas fa-drum" />,
+                icon: "fas fa-drum",
                 checked: false,
             },
         ];
+        this.state = {
+            currentTab: 'layout',
+            layouts: items,
+            advanced: {
+                key_profile: 'bgate',
+                cqt_colormap: 'bone',
+            },
+
+        }
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
+        const ser = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
+        this.setState({
+            layouts: ser.layouts,
+            advanced: ser.advanced,
+        })
     }
 
     shouldComponentUpdate = async (nextProps, nextState) => {
@@ -67,20 +87,58 @@ class SettingsModal extends React.Component {
         return true;
     }
 
-    onSave = (e) => {
-
+    onSave = async (e) => {
+        this.props.onClose();
+        const {
+            //eslint-disable-next-line
+            currentTab,
+            ...rest
+        } = this.state;
+        await ForageService.set(SettingsForageKeys.APP_SETTINGS, rest);
     }
 
     onChange = (e, type) => {
-        const news = {}
-        news[type] = e.target.value;
-        this.setState(news);
+        const arr = { ...this.state.advanced }
+        arr[type] = e.target.value;
+        this.setState({
+            advanced: arr,
+        })
+    }
+
+    layoutDragEnd = (result) => {
+        if (!result.destination) {
+            return;
+        }
+
+        const layouts = reorder(
+            this.state.layouts,
+            result.source.index,
+            result.destination.index,
+        );
+
+        this.setState({
+            layouts,
+        });
+    }
+
+    layoutCheck = (id) => {
+        const layouts = Array.from(this.state.layouts);
+        for (let i = 0; i < layouts.length; i += 1) {
+            const item = layouts[i];
+            if (item.id === id) {
+                layouts[i].checked = !item.checked;
+                this.setState({
+                    layouts,
+                });
+                return;
+            }
+        }
     }
 
     render() {
         const {
             //eslint-disable-next-line
-            onSave, onClose, ...rest
+            onClose, ...rest
         } = this.props;
         return (
             <Modal
@@ -101,7 +159,15 @@ class SettingsModal extends React.Component {
                                     activeKey={this.state.currentTab}
                                     onSelect={currentTab => this.setState({ currentTab })}
                                 >
-                                    <Tab eventKey="general" title="General">
+                                    <Tab eventKey="layout" title="Layout">
+                                        <div className="gen-settings-tab">
+                                            <div className="ta-center">
+                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to toggle visibility</span>
+                                            </div>
+                                            <DraggableLayout items={this.state.layouts} onDragEnd={this.layoutDragEnd} onCheck={this.layoutCheck} />
+                                        </div>
+                                    </Tab>
+                                    <Tab eventKey="advanced" title="Advanced">
                                         <div className="gen-settings-tab">
                                             <div className="d-flex flex-row">
                                                 <div>
@@ -113,9 +179,13 @@ class SettingsModal extends React.Component {
                                                     </div>
                                                 </div>
                                                 <div className="ml-auto">
-                                                    <Form.Control as="select">
-                                                        <option>bgate</option>
+                                                    <Form.Control
+                                                        as="select"
+                                                        value={this.state.advanced.key_profile}
+                                                        onChange={e => this.onChange(e, "key_profile")}
+                                                    >
                                                         <option>2</option>
+                                                        <option value="bgate">bgate</option>
                                                         <option>3</option>
                                                         <option>4</option>
                                                         <option>5</option>
@@ -133,23 +203,19 @@ class SettingsModal extends React.Component {
                                                     </div>
                                                 </div>
                                                 <div className="ml-auto">
-                                                    <Form.Control as="select">
-                                                        <option>bone</option>
+                                                    <Form.Control
+                                                        as="select"
+                                                        value={this.state.advanced.cqt_colormap}
+                                                        onChange={e => this.onChange(e, "cqt_colormap")}
+                                                    >
                                                         <option>2</option>
+                                                        <option value="bone">bone</option>
                                                         <option>3</option>
                                                         <option>4</option>
                                                         <option>5</option>
                                                     </Form.Control>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Tab>
-                                    <Tab eventKey="layout" title="Layout">
-                                        <div className="gen-settings-tab">
-                                            <div className="ta-center">
-                                                <span className="text-muted">Drag drop to rearrange layout</span>
-                                            </div>
-                                            <DraggableLayout items={this.items} />
                                         </div>
                                     </Tab>
                                 </Tabs>

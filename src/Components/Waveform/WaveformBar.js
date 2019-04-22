@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import '../../css/WaveformBar.css'
 import "../../lib/radiaslider/src/slider-linear"
 import { setStateAsync } from '../../lib/utils';
@@ -104,7 +105,7 @@ class WaveformBar extends Component {
         const expanded = "waveform-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
-            <div className="waveform-header" id="b">
+            <div className="waveform-header" id={this.props.id} {...this.props}>
                 <div className="waveform-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
@@ -134,3 +135,11 @@ class WaveformBar extends Component {
 }
 
 export default WaveformBar;
+
+WaveformBar.propTypes = {
+    id: PropTypes.string,
+};
+
+WaveformBar.defaultProps = {
+    id: "b",
+};

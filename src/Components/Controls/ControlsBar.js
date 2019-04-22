@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import '../../css/ControlsBar.css'
 import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
@@ -37,7 +38,7 @@ class ControlBar extends Component {
         const expanded = "controls-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
-            <div className="controls-header" id="a">
+            <div className="controls-header" id={this.props.id} {...this.props}>
                 <div className="controls-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
@@ -61,6 +62,16 @@ class ControlBar extends Component {
 }
 
 export default ControlBar;
+
+
+ControlBar.propTypes = {
+    id: PropTypes.string,
+};
+
+ControlBar.defaultProps = {
+    id: "a",
+};
+
 
 //volume
 //tempo

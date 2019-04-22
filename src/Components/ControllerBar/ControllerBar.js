@@ -49,7 +49,7 @@ class ControllerBar extends Component {
   initialState = {
     showModal: false,
     showmetadataModal: false,
-    showSettingsModal: true,
+    showSettingsModal: false,
     importStepsCompleted: [],
     song: 'Song Title',
     artist: 'Artist',
