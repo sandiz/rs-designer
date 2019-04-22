@@ -195,3 +195,14 @@
 #basic-addon1 {
     width: 100%;
 }
+
+.cover_art_div img:hover {
+    border: 1px solid #04ABED;
+}
+
+
+.gen-settings-tab {
+    padding-left: 2px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}

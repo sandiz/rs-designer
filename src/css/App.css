@@ -15,7 +15,9 @@ body {
 }
 
 button,
-canvas {
+canvas,
+div,
+input {
     -webkit-app-region: no-drag;
 }
 
