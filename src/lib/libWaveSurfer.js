@@ -35,7 +35,7 @@ class MediaPlayerBase {
             progressColor: 'black',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
-            barWidth: 3,
+            //barWidth: 3, /* reenable when wv bug is fixed */
             barGap: 2,
             barRadius: true,
             height: 180,
