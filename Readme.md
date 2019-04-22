@@ -8,9 +8,6 @@ rs-designer - rocksmith cdlc generator and music transcription app (pre alpha WI
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)
 
 TODO
-- misc
-    - global settings
-    - guitar tuner
 - cqt
     - colormap/cqtjs
     - canvas piano bar 
@@ -35,6 +32,7 @@ NEXT
 https://opensheetmusicdisplay.github.io/
 https://wim.vree.org/js/ (vexflow/musicxml)
 - export to psarc/cdlc
+- guitar tuner
 - song playback
   - https://github.com/jussi-kalliokoski/audiolib.js
   - https://tonejs.github.io/
