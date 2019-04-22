@@ -19,7 +19,7 @@ class MetadataEditorModal extends React.Component {
             song: props.metadata ? props.metadata.song : "",
             album: props.metadata ? props.metadata.album : "",
             year: props.metadata ? props.metadata.year : "",
-            image: props.metadata ? Buffer.from(props.metadata.image, 'base64') : "",
+            image: props.metadata && props.metadata.image !== "" ? Buffer.from(props.metadata.image, 'base64') : "",
             fetchingFromWeb: false,
         }
     }
@@ -86,7 +86,7 @@ class MetadataEditorModal extends React.Component {
             song: nextProps.metadata ? nextProps.metadata.song : "",
             album: nextProps.metadata ? nextProps.metadata.album : "",
             year: nextProps.metadata ? nextProps.metadata.year : "",
-            image: nextProps.metadata ? Buffer.from(nextProps.metadata.image, 'base64') : "",
+            image: nextProps.metadata && nextProps.metadata.image !== "" ? Buffer.from(nextProps.metadata.image, 'base64') : "",
         });
         this.updateImage();
         if (nextProps.show) {

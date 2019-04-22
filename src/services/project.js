@@ -182,7 +182,9 @@ export class Project {
         assign(media, ["tags", "common", "artist"], mm.artist);
         assign(media, ["tags", "common", "album"], mm.album);
         assign(media, ["tags", "common", "year"], mm.year);
-        assign(media, ["tags", "common", "picture"], [{ data: Buffer.from(mm.image, 'base64') }]);
+        if (mm.image !== "") {
+            assign(media, ["tags", "common", "picture"], [{ data: Buffer.from(mm.image, 'base64') }]);
+        }
     }
 
     saveMetadata = async (media) => {
@@ -197,7 +199,8 @@ export class Project {
             year: media.tags.common.year ? media.tags.common.year : "",
             image: buf ? buf.toString('base64') : '',
         };
-        await writeFile(window.path.join(this.projectDirectory, "metadata.json"), JSON.stringify(metadata));
+        this.projectInfo.metadata = window.path.join(this.projectDirectory, 'metadata.json');
+        await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
     }
 
     updateExternalFiles = async () => {

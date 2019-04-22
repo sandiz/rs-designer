@@ -304,6 +304,7 @@ class ControllerBar extends Component {
     else {
       this.coverArtRef.current.src = nothumb.default;
     }
+    this.updateProjectState();
   }
 
   play = () => this.mediaCmd("playpause");
@@ -339,10 +340,13 @@ class ControllerBar extends Component {
           mediaPlayer.seekAndCenter(value);
           break;
         case "seek-start":
-          mediaPlayer.seekTo(0);
+          mediaPlayer.seekAndCenter(0);
           break;
         case "seek-end":
-          mediaPlayer.seekTo(1);
+          if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+          }
+          mediaPlayer.seekAndCenter(1);
           break;
         default:
           break;
