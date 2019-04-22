@@ -209,7 +209,9 @@ class SettingsModal extends React.Component {
                                                     <span>Chromagram Colormap</span>
                                                     <div>
                                                         <small className="text-muted d-inline-block">
-                                                           colormap used by chromagram
+                                                            colormap used by the chromagram. These are based on <a
+                                                                href="#"
+                                                                onClick={() => electron.shell.openExternal("https://matplotlib.org/2.0.2/examples/color/colormaps_reference.html")}>matplotlib colormaps.</a>
                                                         </small>
                                                     </div>
                                                 </div>
