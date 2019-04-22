@@ -43,6 +43,18 @@ input {
     order: 3;
 }
 
+#app-flex>#d {
+    order: 4;
+}
+
+#app-flex>#e {
+    order: 5;
+}
+
+#app-flex>#f {
+    order: 6;
+}
+
 .ta-center {
     text-align: center;
 }

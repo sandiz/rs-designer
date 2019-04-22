@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 
 import "../../css/AnalysisBar.css"
@@ -126,7 +127,7 @@ class AnalysisBar extends Component {
         const expanded = "mir-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
-            <div className="mir-header" id="c">
+            <div className="mir-header" id={this.props.id} {...this.props}>
                 <div className="mir-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
                         <i className={faclass} />
@@ -155,3 +156,12 @@ class AnalysisBar extends Component {
 }
 
 export default AnalysisBar;
+
+
+AnalysisBar.propTypes = {
+    id: PropTypes.string,
+};
+
+AnalysisBar.defaultProps = {
+    id: "c",
+};

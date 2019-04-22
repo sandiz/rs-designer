@@ -3,13 +3,6 @@ import React from "react";
 import PropTypes from 'prop-types';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-/*const reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-};*/
 
 const grid = 8;
 
@@ -69,13 +62,13 @@ class DraggableLayout extends React.PureComponent {
                                                                 type="checkbox"
                                                                 key={request.id}
                                                                 checked={request.checked}
-                                                                onChange={() => {
-                                                                    request.checked = !request.checked
-                                                                }} />
+                                                                onChange={() => this.props.onCheck(request.id)} />
                                                             : null
                                                     }
                                                     <div className="pl-flex-1">{request.text}</div>
-                                                    <div style={{ marginLeft: 'auto' }}>{request.icon}</div>
+                                                    <div style={{ marginLeft: 'auto' }}>
+                                                        <i className={request.icon} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -93,11 +86,13 @@ class DraggableLayout extends React.PureComponent {
 DraggableLayout.propTypes = {
     items: PropTypes.array,
     onDragEnd: PropTypes.func,
+    onCheck: PropTypes.func,
 };
 
 DraggableLayout.defaultProps = {
     items: [],
     onDragEnd: () => { },
+    onCheck: () => { },
 };
 
 export default DraggableLayout;
