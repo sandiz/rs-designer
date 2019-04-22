@@ -46,6 +46,7 @@ class App extends Component {
   settingsUpdate = async (k) => {
     if (k.key === SettingsForageKeys.APP_SETTINGS) {
       const appsettings = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
+      if (!appsettings) return;
       const layouts = appsettings.layouts;
       for (let i = 0; i < layouts.length; i += 1) {
         const item = layouts[i];

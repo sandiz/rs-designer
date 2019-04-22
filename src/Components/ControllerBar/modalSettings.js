@@ -8,6 +8,7 @@ import {
 import DraggableLayout from './draggableLayout'
 import ForageService, { SettingsForageKeys } from '../../services/forage';
 
+const electron = window.require("electron");
 
 const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
@@ -70,6 +71,7 @@ class SettingsModal extends React.Component {
 
     componentDidMount = async () => {
         const ser = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
+        if (!ser) return;
         this.setState({
             layouts: ser.layouts,
             advanced: ser.advanced,
@@ -170,11 +172,16 @@ class SettingsModal extends React.Component {
                                     <Tab eventKey="advanced" title="Advanced">
                                         <div className="gen-settings-tab">
                                             <div className="d-flex flex-row">
-                                                <div>
+                                                <div style={{ width: 71 + '%' }}>
                                                     <span>Key Detection Profile</span>
                                                     <div>
-                                                        <small className="text-muted">
-                                                            Description of settings goes here
+                                                        <small className="text-muted d-inline-block">
+                                                            the type of polyphic profile to use for key detection, profile types are defined&nbsp;
+                                                            <a
+                                                                onClick={() => electron.shell.openExternal("https://essentia.upf.edu/documentation/reference/std_Key.html")}
+                                                                href="#">
+                                                                here
+                                                            </a>
                                                         </small>
                                                     </div>
                                                 </div>
@@ -184,11 +191,15 @@ class SettingsModal extends React.Component {
                                                         value={this.state.advanced.key_profile}
                                                         onChange={e => this.onChange(e, "key_profile")}
                                                     >
-                                                        <option>2</option>
+                                                        <option value="diatonic">diatonic</option>
                                                         <option value="bgate">bgate</option>
-                                                        <option>3</option>
-                                                        <option>4</option>
-                                                        <option>5</option>
+                                                        <option value="krumhansi">krumhansl</option>
+                                                        <option value="temperley">temperley</option>
+                                                        <option value="shaath">shaath</option>
+                                                        <option value="edma">edma</option>
+                                                        <option value="edmm">edmm</option>
+                                                        <option value="braw">braw</option>
+                                                        <option value="edma">edma</option>
                                                     </Form.Control>
                                                 </div>
                                             </div>
@@ -197,8 +208,8 @@ class SettingsModal extends React.Component {
                                                 <div>
                                                     <span>Chromagram Colormap</span>
                                                     <div>
-                                                        <small className="text-muted">
-                                                            Description of settings goes here
+                                                        <small className="text-muted d-inline-block">
+                                                           colormap used by chromagram
                                                         </small>
                                                     </div>
                                                 </div>
@@ -208,11 +219,10 @@ class SettingsModal extends React.Component {
                                                         value={this.state.advanced.cqt_colormap}
                                                         onChange={e => this.onChange(e, "cqt_colormap")}
                                                     >
-                                                        <option>2</option>
+                                                        <option value="jet">jet</option>
                                                         <option value="bone">bone</option>
-                                                        <option>3</option>
-                                                        <option>4</option>
-                                                        <option>5</option>
+                                                        <option value="viridis">viridis</option>
+                                                        <option value="inferno">inferno</option>
                                                     </Form.Control>
                                                 </div>
                                             </div>
