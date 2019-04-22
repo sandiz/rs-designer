@@ -221,10 +221,12 @@ class SettingsModal extends React.Component {
                                                         value={this.state.advanced.cqt_colormap}
                                                         onChange={e => this.onChange(e, "cqt_colormap")}
                                                     >
-                                                        <option value="jet">jet</option>
-                                                        <option value="bone">bone</option>
-                                                        <option value="viridis">viridis</option>
-                                                        <option value="inferno">inferno</option>
+                                                        <option value="bone_r">bone</option>
+                                                        <option value="Spectral">Spectral</option>
+                                                        <option value="RdYlGn">Yellow-Green</option>
+                                                        <option value="RdGy">Gray</option>
+                                                        <option value="PuOr">Purple</option>
+                                                        <option value="RdBu">Blue</option>
                                                     </Form.Control>
                                                 </div>
                                             </div>
