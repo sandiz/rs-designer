@@ -371,6 +371,16 @@ export default class ChordsTimelinePlugin {
         }
 
         this.setFonts(`${fontSize}px Roboto Condensed`);
+        if (this.params.chords.length == 0) {
+            for (let i = 0; i < this.canvases.length; i += 1) {
+                this.util.style(this.canvases[i], {
+                    background: 'azure',
+                })
+            }
+
+            this.fillText("No info available", 10, height1 / 2 + 15);
+            return;
+        }
         this.params.chords.forEach((chordData, i) => {
             let [start, end, chord, type] = chordData;
             if (chord !== 'N') {
