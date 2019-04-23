@@ -204,7 +204,7 @@ export class Project {
     }
 
     updateExternalFiles = async () => {
-        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.raw');
+        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.raw.png');
         this.projectInfo.tempo = window.path.join(this.projectDirectory, 'tempo');
         this.projectInfo.beats = window.path.join(this.projectDirectory, 'beats');
         this.projectInfo.key = window.path.join(this.projectDirectory, 'key');

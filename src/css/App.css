@@ -14,9 +14,9 @@ body {
     -webkit-app-region: drag;
 }
 
+[data-react-beautiful-dnd-droppable="0"],
 button,
 canvas,
-div,
 input {
     -webkit-app-region: no-drag;
 }

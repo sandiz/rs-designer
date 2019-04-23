@@ -75,7 +75,7 @@ class AnalysisBar extends Component {
                 </div>
             </div>
         ), {
-                autoClose: (640 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~80 seconds */
+                autoClose: (800 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~100 seconds */
                 pauseOnFocusLoss: false,
                 pauseOnHover: false,
             })

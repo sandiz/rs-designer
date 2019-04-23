@@ -35,7 +35,7 @@ class MediaPlayerBase {
             progressColor: 'black',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
-            //barWidth: 3, /* reenable when wv bug is fixed */
+            barWidth: 3,
             barGap: 2,
             barRadius: true,
             height: 180,
@@ -103,7 +103,7 @@ class MediaPlayerBase {
             console.log("starting media analysis");
             MediaAnalysis.cancel()
             try {
-                await MediaAnalysis.start(this.wavesurfer.drawer.width, 512); /* fft samples /2 */
+                await MediaAnalysis.start(this.wavesurfer.drawer.width, 1024); /* fft samples /2 */
             }
             catch (e) {
                 console.log("media analysis killed");
@@ -128,9 +128,9 @@ class MediaPlayerBase {
         /* start wv-cqt plugin */
         const cqtp = ConstantQPlugin.create({
             container: "#spectrogram",
-            labels: true,
+            labels: false,
             deferInit: false,
-            pixelRatio: 1,
+            pixelRatio: 2,
             fftSamples: 1024,
             specData: cqtdata,
         })
