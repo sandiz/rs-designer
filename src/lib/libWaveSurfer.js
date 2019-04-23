@@ -21,6 +21,7 @@ export const ImportMediaStates = {
     wavesurfing: "wavesurfing",
 }
 
+const CQT_HEIGHT = 1024;
 class MediaPlayerBase {
     constructor(blob) {
         this.wavesurfer = null;
@@ -103,7 +104,7 @@ class MediaPlayerBase {
             console.log("starting media analysis");
             MediaAnalysis.cancel()
             try {
-                await MediaAnalysis.start(this.wavesurfer.drawer.width, 1024); /* fft samples /2 */
+                await MediaAnalysis.start(this.wavesurfer.drawer.width, CQT_HEIGHT); /* fft samples /2 */
             }
             catch (e) {
                 console.log("media analysis killed");
@@ -131,7 +132,7 @@ class MediaPlayerBase {
             labels: false,
             deferInit: false,
             pixelRatio: 2,
-            fftSamples: 1024,
+            height: CQT_HEIGHT,
             specData: cqtdata,
         })
         this.wavesurfer.registerPlugins([cqtp]);

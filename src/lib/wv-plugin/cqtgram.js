@@ -59,7 +59,7 @@ export default class ConstantQPlugin {
             this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
             this.fftSamples =
                 this.params.fftSamples || ws.params.fftSamples || 512;
-            this.height = 1024; //this.fftSamples / 2;
+            this.height = this.params.height; //this.fftSamples / 2;
             this.noverlap = params.noverlap;
             this.windowFunc = params.windowFunc;
             this.alpha = params.alpha;
