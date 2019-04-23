@@ -224,8 +224,8 @@ export default class ConstantQPlugin {
             my.height
         );
         my.spectrCc.putImageData(im, 0, 0);
-        */
         DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+        */
     }
 
     olddrawSpectrogram(frequenciesData, my) {
