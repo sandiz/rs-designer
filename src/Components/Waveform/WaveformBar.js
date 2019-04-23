@@ -123,21 +123,12 @@ class WaveformBar extends Component {
                         <i className="cur-pointer fas fa-search" onClick={this.resetZoom} />
                     </span>
                 </div>
-                <div className={expanded} id="">
+                <div
+                    className={expanded}
+                    style={{
+                        height: (this.state.analysing ? 238 : 278) + 'px',
+                    }}>
                     <div className="waveform-container" id="container">
-                        {
-                            this.state.analysing
-                                ? (
-                                    <div style={{
-                                        paddingLeft: 12 + 'px',
-                                        height: 40 + 'px',
-                                        paddingTop: 5 + 'px',
-                                    }}>
-                                        <small>Waiting for chord/beat analysis to end...</small>
-                                    </div>
-                                )
-                                : <div />
-                        }
                         <div id="chordstimeline" />
                         <div id="beatstimeline" style={{ display: this.state.showBeatsTimeline ? "block" : "none" }} />
                         <div id="waveform" />
