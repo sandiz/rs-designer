@@ -11,6 +11,8 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 - TODO
     - cqt
         - canvas piano bar 
+        - zoom
+        - webgl backend
 
     - analysis
        - chord, downbeat uses python
