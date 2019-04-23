@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import madmom
 from madmom.audio import SignalProcessor, DeepChromaProcessor
-from madmom.features import DeepChromaChordRecognitionProcessor, DBNDownBeatTrackingProcessor, RNNDownBeatProcessor
+from madmom.features import DeepChromaChordRecognitionProcessor, DBNDownBeatTrackingProcessor, RNNDownBeatProcessor, RNNBarProcessor, DBNBarTrackingProcessor
 from madmom.features.key import CNNKeyRecognitionProcessor, key_prediction_to_label
 import argparse
 import time
@@ -25,7 +25,7 @@ os.environ['LIBROSA_CACHE_LEVEL'] = '50'
 def draw(dB, width, height, file):
     print("exporting to (" + str(width) + " " + str(height) + ")")
     pixels = dB
-    heightFactor = 2.2
+    heightFactor = 4.2
 
     surface = cairo.ImageSurface(cairo.FORMAT_RGB24, width, height)
     ctx = cairo.Context(surface)
@@ -35,7 +35,7 @@ def draw(dB, width, height, file):
     import matplotlib.cm
     norm = matplotlib.colors.Normalize(vmin=0, vmax=255)
     pnorm = norm(pixels)
-    cmap = matplotlib.cm.get_cmap('Spectral')
+    cmap = matplotlib.cm.get_cmap('RdBu')
     newcolors = cmap(pixels)
 
     # RdYlGn,Spectral, RdGy, PuOr, RdBu
@@ -53,16 +53,16 @@ def draw(dB, width, height, file):
 
     print ("pixel draw took " + str(time.time() - start))
 
-    # start = time.time()
-    # surface.write_to_png(file + ".png")  # Output to PNG
-    # print ("write png took " + str(time.time() - start))
-
     start = time.time()
-    data = surface.get_data()
-    f = open(file, "w")
-    f.write(data)
-    f.close()
-    print ("write raw took " + str(time.time() - start))
+    surface.write_to_png(file + ".png")  # Output to PNG
+    print ("write png took " + str(time.time() - start))
+
+    #start = time.time()
+    #data = surface.get_data()
+    #f = open(file, "w")
+    # f.write(data)
+    # f.close()
+    #print ("write raw took " + str(time.time() - start))
 
 
 def export_to_png(dB, width, height, file, shdresample=True):
@@ -89,7 +89,7 @@ def beats_librosa(y, sr, onset_env):
     with open(path, 'w') as file:
         file.write(str(tempo3.tolist()))
 
-    path = os.path.join(sys.argv[2], "beats")
+    path = os.path.join(sys.argv[2], "beats_track")
     with open(path, 'w') as file:
         for beat in beats_cqt.tolist():
             file.write("%s\n" % beat)
@@ -149,8 +149,11 @@ def cqt_librosa(y, sr):
         n_bins=n_bins,
         # sparsity=0.9
     )
-
-    dB = librosa.amplitude_to_db(np.abs(C), ref=np.max)
+    print("cqt analysis took " + str(time.time() - start))
+    start = time.time()
+    H, P = librosa.decompose.hpss(C, margin=(3.0, 1.0))
+    print("decompose analysis took " + str(time.time() - start))
+    dB = librosa.amplitude_to_db(np.abs(H), ref=np.max)
     # import matplotlib.pyplot as plt
     # plt.figure(figsize=(12, 4))
     # plt.subplot(2, 1, 1)
@@ -198,9 +201,13 @@ def cqt_librosa(y, sr):
 def downbeat_detact_madmom(path):
     start = time.time()
     args = argparse.Namespace()
-    in_processor = RNNDownBeatProcessor(**vars(args))(path)
-    beats_processor = DBNDownBeatTrackingProcessor(
-        beats_per_bar=[3, 4], fps=100)
+    beats = np.round(np.loadtxt(os.path.join(sys.argv[2], "beats_track")), 3)
+    in_processor = RNNBarProcessor(fps=50)((path, beats))
+    beats_processor = DBNBarTrackingProcessor(beats_per_bar=[3, 4], fps=50)
+
+    #in_processor = RNNDownBeatProcessor(**vars(args))(path)
+    # beats_processor = DBNDownBeatTrackingProcessor(
+    #    beats_per_bar=[3, 4], fps=100)
     beats = beats_processor(in_processor)
     path = os.path.join(sys.argv[2], "beats")
 
@@ -288,6 +295,5 @@ if __name__ == '__main__':
     t3.join()
     t4.join()
     t5.join()
-    end = time.time()
     os.unlink(wavpath)
-    print("\nTotal time: " + str(end - start) + " s")
+    print("\nTotal time: " + str(time.time() - start) + " s")
