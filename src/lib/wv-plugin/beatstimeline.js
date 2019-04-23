@@ -355,6 +355,7 @@ export default class BeatsTimelinePlugin {
 
         this.setFonts(`22px Roboto Condensed`);
         let idx = 1;
+        console.log(this.params.beats)
         this.params.beats.forEach((beatsData, i) => {
             let [start, bn] = beatsData;
             const startPixel = Number.parseFloat(start) * pixelsPerSecond

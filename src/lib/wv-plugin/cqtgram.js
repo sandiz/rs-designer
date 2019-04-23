@@ -175,8 +175,11 @@ export default class ConstantQPlugin {
             document.createElement('canvas')
         ));
 
-        this.spectrCc = canvas.getContext('2d', {
+        this.spectrCc = canvas.getContext('webgl2', {
             alpha: false,
+            antialias: true,
+            depth: false,
+            powerPreference: "high-performance",
         });
 
         this.util.style(canvas, {
@@ -205,7 +208,10 @@ export default class ConstantQPlugin {
     }
 
     drawSpectrogram(data, my) {
-        new PNG({
+        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+
+        //for png
+        /*new PNG({
             inputHasAlpha: false,
             colorType: 2,
         }).parse(data, (error, data) => {
@@ -216,8 +222,9 @@ export default class ConstantQPlugin {
             );
             my.spectrCc.putImageData(im, 0, 0);
             DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
-        })
-        /*
+        })*/
+        //for raw data
+        /* 
         const im = new ImageData(
             new Uint8ClampedArray(data),
             my.width,
