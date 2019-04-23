@@ -168,7 +168,13 @@ class ControllerBar extends Component {
     const info = ProjectService.getProjectInfo();
     const tempo = info.tempo !== '' ? await ProjectService.readTempo() : 0;
     const songKey = info.key !== '' ? await ProjectService.readSongKey() : ['--', '--'];
-    let chords = info.chords !== '' ? await ProjectService.readChords() : [];
+    let chords = [];
+    try {
+      chords = info.chords !== '' ? await ProjectService.readChords() : [];
+    }
+    catch (ex) {
+      if (!Array.isArray(chords)) chords = []
+    }
     chords = getUniqueChords(chords);
     const metadata = info.metadata !== '' ? await ProjectService.readMetadata() : null;
     this.setState({
@@ -249,13 +255,14 @@ class ControllerBar extends Component {
         cis.push(state);
         this.setState({ importStepsCompleted: cis });
       },
-      (media) => {
+      async (media) => {
         toast.dismiss();
         this.setMetadataToState(media);
         this.updateProjectState(null);
 
         if (isTemporary) {
-          ProjectService.saveMetadata(media);
+          const mm = await ProjectService.saveMetadata(media);
+          this.setState({ metadata: mm });
         }
 
         const mediaPlayer = MediaPlayer.instance;

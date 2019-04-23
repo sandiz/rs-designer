@@ -201,6 +201,7 @@ export class Project {
         };
         this.projectInfo.metadata = window.path.join(this.projectDirectory, 'metadata.json');
         await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
+        return metadata;
     }
 
     updateExternalFiles = async () => {

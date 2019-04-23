@@ -143,7 +143,14 @@ class MediaPlayerBase {
     }
 
     chordAnalyse = async () => {
-        const chords = await ProjectService.readChords();
+        let chords = [];
+        try {
+            chords = await ProjectService.readChords();
+        }
+        catch (ex) {
+            if (!Array.isArray(chords)) chords = []
+        }
+
         const ct = ChordsTimelinePlugin.create({
             container: '#chordstimeline',
             primaryColor: "#fff",
@@ -154,7 +161,13 @@ class MediaPlayerBase {
     }
 
     beatsAnalyse = async () => {
-        const beats = await ProjectService.readBeats();
+        let beats = []
+        try {
+            beats = await ProjectService.readBeats();
+        }
+        catch (ex) {
+            if (!Array.isArray(beats)) beats = []
+        }
         const ct = BeatsTimelinePlugin.create({
             container: '#beatstimeline',
             primaryColor: "#fff",

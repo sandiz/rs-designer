@@ -11,8 +11,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 - TODO
     - cqt
         - canvas piano bar 
-        - time bar
-        - copy timeline plugin
 
     - analysis
        - chord, downbeat uses python
