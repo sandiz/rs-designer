@@ -134,6 +134,10 @@ class MediaPlayerBase {
             pixelRatio: 2,
             height: CQT_HEIGHT,
             specData: cqtdata,
+            cursorWidth: 1,
+            cursorColor: 'white',
+            waveColor: '#000',
+            progressColor: 'black',
         })
         this.wavesurfer.registerPlugins([cqtp]);
     }
