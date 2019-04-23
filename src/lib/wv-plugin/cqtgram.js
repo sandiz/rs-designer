@@ -43,9 +43,11 @@ export default class ConstantQPlugin {
         this._onWrapperClick = e => {
             this._wrapperClickHandler(e);
         };
+        this._onAudioprocess = currentTime => {
+            this.d2.progress(this.wavesurfer.backend.getPlayedPercents());
+        };
         this._onReady = () => {
             const drawer = (this.drawer = ws.drawer);
-
             this.container =
                 'string' == typeof params.container
                     ? document.querySelector(params.container)
@@ -69,8 +71,16 @@ export default class ConstantQPlugin {
             this.createCanvas();
             this.render();
 
+            this.d2 = new ws.Drawer(this.wrapper, this.params);
+            this.d2.init();
+            this.d2.setWidth(this.width)
+            this.util.style(this.d2.progressWave, {
+                "z-index": 6,
+            })
+
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
+            this.wavesurfer.on('audioprocess', this._onAudioprocess);
             DispatcherService.dispatch(DispatchEvents.MASpectrogramStart);
         };
     }
@@ -88,6 +98,7 @@ export default class ConstantQPlugin {
         this.unAll();
         this.wavesurfer.un('ready', this._onReady);
         this.wavesurfer.un('redraw', this._onRender);
+        this.wavesurfer.un('audioprocess', this._onAudioprocess);
         this.drawer.wrapper.removeEventListener('scroll', this._onScroll);
         this.wavesurfer = null;
         this.util = null;

@@ -18,6 +18,7 @@ class WaveformBar extends Component {
             showChordsTimeline: false,
             showBeatsTimeline: false,
             currentZoom: 1,
+            analysing: false,
         }
         this.zoom = {
             max: 200,
@@ -38,6 +39,8 @@ class WaveformBar extends Component {
         DispatcherService.on(DispatchEvents.MediaReset, this.reset);
         DispatcherService.on(DispatchEvents.MediaReady, this.ready);
         DispatcherService.on(KeyboardEvents.ToggleWaveform, this.toggle);
+        DispatcherService.on(DispatchEvents.MediaAnalysisStart, () => this.setState({ analysing: true }));
+        DispatcherService.on(DispatchEvents.MediaAnalysisEnd, () => this.setState({ analysing: false }));
     }
 
     reset = () => {
@@ -122,7 +125,20 @@ class WaveformBar extends Component {
                 </div>
                 <div className={expanded} id="">
                     <div className="waveform-container" id="container">
-                        <div id="chordstimeline" style={{ display: this.state.showChordsTimeline ? "block" : "none" }} />
+                        {
+                            this.state.analysing
+                                ? (
+                                    <div style={{
+                                        paddingLeft: 12 + 'px',
+                                        height: 40 + 'px',
+                                        paddingTop: 5 + 'px',
+                                    }}>
+                                        <small>Waiting for chord/beat analysis to end...</small>
+                                    </div>
+                                )
+                                : <div />
+                        }
+                        <div id="chordstimeline" />
                         <div id="beatstimeline" style={{ display: this.state.showBeatsTimeline ? "block" : "none" }} />
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
