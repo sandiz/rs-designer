@@ -46,7 +46,6 @@ export default class ConstantQPlugin {
             this._wrapperClickHandler(e);
         };
         this._onAudioprocess = currentTime => {
-            //this.d2.progress(this.wavesurfer.backend.getPlayedPercents());
         };
         this._onReady = () => {
             const drawer = (this.drawer = ws.drawer);
@@ -58,27 +57,38 @@ export default class ConstantQPlugin {
             if (!this.container) {
                 throw Error('No container for WaveSurfer constantq-gram');
             }
-            this.renderID = null
-            this.width = this.container.offsetWidth;
             this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
+            this.width = this.container.offsetWidth;
+            this.height = this.params.height; //this.fftSamples / 2;
             this.fftSamples =
                 this.params.fftSamples || ws.params.fftSamples || 512;
-            this.height = this.params.height; //this.fftSamples / 2;
-            this.noverlap = params.noverlap;
-            this.windowFunc = params.windowFunc;
-            this.alpha = params.alpha;
             this.specData = params.specData;
 
             this.createWrapper();
             this.createCanvas();
             this.render();
 
-            //this.d2 = new ws.Drawer(this.wrapper, this.params);
-            //this.d2.init();
-            //this.d2.setWidth(this.width)
-            //this.util.style(this.d2.progressWave, {
-            //    "z-index": 6,
-            //})
+            this.stats = new Stats()
+            this.renderID = null
+            this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            this.wrapper.appendChild(this.stats.dom);
+
+
+            this.renderer = new THREE.WebGLRenderer({
+                alpha: false,
+                antialias: false,
+                depth: false,
+                powerPreference: "high-performance",
+                canvas: this.canvas,
+            });
+            this.renderer.setSize(this.width, this.height);
+            this.renderer.setClearColor(0x000000, 1);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+
+            this.scene = new THREE.Scene();
+            this.camera = new THREE.OrthographicCamera(0, this.width / this.height, 0.1, 10000);
+            this.scene.add(this.camera);
+            this.texture = null;
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
@@ -112,6 +122,7 @@ export default class ConstantQPlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
+        if (this.texture) this.texture.dispose();
     }
 
     createWrapper() {
@@ -168,7 +179,7 @@ export default class ConstantQPlugin {
             this.loadFrequenciesData(this.frequenciesDataUrl);
         } else {
             const data = this.specData
-            this.drawSpectrogram(data, this);
+            this.drawSpectrogram(data);
             return;
         }
     }
@@ -180,81 +191,51 @@ export default class ConstantQPlugin {
         this.canvas.style.width = this.width;
     }
 
-    drawSpectrogram(data, my) {
-        const WIDTH = this.width;
-        const HEIGHT = this.height;
-        const stats = new Stats()
-        stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-        this.wrapper.appendChild(stats.dom);
-        const renderer = new THREE.WebGLRenderer({
-            alpha: false,
-            antialias: false,
-            depth: false,
-            powerPreference: "high-performance",
-            canvas: this.canvas,
-        });
-        renderer.setSize(WIDTH, HEIGHT);
-        renderer.setClearColor(0x000000, 1);
-        renderer.setPixelRatio(window.devicePixelRatio);
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(0, WIDTH / HEIGHT, 0.1, 10000);
-        scene.add(camera);
-
-        const textureLoader = new THREE.TextureLoader();
-        const dataURI = 'data:image/png;base64,' + data.toString('base64')
-        const texture = textureLoader.load(dataURI, (t) => {
-            const imgwidth = t.image.width
-            //const imgheight = t.image.HEIGHT
-            t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
-            const starthalfw = (WIDTH / 2 * this.pixelRatio) / imgwidth;
+    renderCQTScroll = () => {
+        if (this.texture) {
+            const starthalfw = (this.width / 2 * this.pixelRatio) / this.texture.image.width;
             const endhaflw = 1 - starthalfw
-            //t.repeat.y = HEIGHT / imgheight;
-            let i = 0;
-            // t.offset.y = (0 / HEIGHT) * t.repeat.y;
-            scene.background = t;
-            var render = () => {
-                const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
-                stats.update()
-                if (pp > starthalfw && pp < endhaflw) {
-                    t.offset.x = pp - starthalfw; //(i / WIDTH) * t.repeat.x;
-                }
-                else if (pp < starthalfw || pp > 1) {
-                    t.offset.x = 0;
-                }
-                this.renderID = requestAnimationFrame(render);
-                renderer.render(scene, camera);
-            };
-            render();
-        }, undefined, (err) => {
-            console.log(err)
-        });
-        texture.minFilter = THREE.LinearFilter
+
+            const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
+            if (pp > starthalfw && pp < endhaflw) {
+                this.texture.offset.x = pp - starthalfw; //(i / WIDTH) * t.repeat.x;
+            }
+            else if (pp < starthalfw || pp > 1) {
+                this.texture.offset.x = 0;
+            }
+        }
+        this.stats.update()
+        this.renderID = requestAnimationFrame(this.renderCQTScroll);
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    asyncTextureLoad = uri => new Promise((resolve, reject) => {
+        const tloader = new THREE.TextureLoader();
+        const texture = tloader.load(uri, t => resolve(t), undefined, err => reject(err))
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = false;
+    })
 
-        /* new PNG({
-             inputHasAlpha: false,
-             colorType: 2,
-         }).parse(data, (error, data) => {
-             const t = new THREE.DataTexture(data.data, data.width, data.height, THREE.RGBFormat);
-             t.minFilter = THREE.LinearFilter
-             t.generateMipmaps = false;
-             t.needsUpdate = true;
-             t.repeat.x = WIDTH / data.width;
-             let i = 0;
-             var render = function () {
-                 stats.update()
-                 requestAnimationFrame(render);
-                 i += 1;
-                 t.offset.x = (i / WIDTH) * t.repeat.x;
-                 scene.background = t;
-                 renderer.render(scene, camera);
-             };
-             render();
-         })*/
+    drawSpectrogram = async (data) => {
+        const WIDTH = this.width;
+        const dataURI = 'data:image/png;base64,' + data.toString('base64')
+        try {
+            const t = await this.asyncTextureLoad(dataURI);
+            this.texture = t;
+            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+            const imgwidth = t.image.width
+            t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
 
+            //t.repeat.y = HEIGHT / imgheight;
+            //t.offset.y = (0 / HEIGHT) * t.repeat.y;
+            this.scene.background = t;
+            this.renderCQTScroll();
+        }
+        catch (ex) {
+            console.log(ex)
+        }
 
-        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
         //for png
         /*new PNG({
             inputHasAlpha: false,
