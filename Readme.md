@@ -12,18 +12,20 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
     - cqt
         - canvas piano bar 
         - zoom
-        - webgl backend
+        - progress line
 
     - analysis
-       - chord, downbeat uses python
+        - chord, downbeat uses python
             - investigate py-to-wasm, pyinstaller, cython, python freeze
-       - convert to essentia (cqt, beats, bpm, ~~key~~)
-       - convert essentia c++ to wasm
+        - convert to essentia (cqt, beats, bpm, ~~key~~)
+        - convert essentia c++ to wasm
             - break into web workers so we can process them as soon as its done
+
+        - adhoc analysis, disable analysis if section is disabled
         - https://github.com/DavideBusacca/AudioDSP/blob/master/HPSS/HPSS.py
         - https://librosa.github.io/librosa/generated/librosa.decompose.hpss.html
-       - https://aubio.org/ (https://news.ycombinator.com/item?id=19681804)
-       - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
+        - https://aubio.org/ (https://news.ycombinator.com/item?id=19681804)
+        - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
 
 
 - NEXT
