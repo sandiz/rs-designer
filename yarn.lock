@@ -10923,6 +10923,11 @@ static-extend@^0.1.1:
     define-property "^0.2.5"
     object-copy "^0.1.0"
 
+stats-js@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/stats-js/-/stats-js-1.0.0.tgz#2bae33b4ec3c84939e7622a9ed0de1b44254e977"
+  integrity sha512-Qhuj/FgQ0xzmP2/tKTXjJLpkvdy6Eh71CweupNDJjRuUUSeAXP6NLy8yNHtnSY0DsOigh8TdyixyOEzlZVPDOA==
+
 "statuses@>= 1.3.1 < 2", "statuses@>= 1.4.0 < 2":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
@@ -11293,6 +11298,11 @@ threads@^0.12.1:
   dependencies:
     eventemitter3 "^2.0.2"
     native-promise-only "^0.8.1"
+
+three@^0.103.0:
+  version "0.103.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.103.0.tgz#63b3dbccc861caad93269618061a73dadebae71b"
+  integrity sha512-4WKRHTMt96sp+lX+Hx/eHtN9CWFyejDqr1ikgxZUJIkKEHVglSE7FY8n81NC6yWXqVSjUIQQppaxsoUe26Zi9g==
 
 throat@^4.0.0:
   version "4.1.0"

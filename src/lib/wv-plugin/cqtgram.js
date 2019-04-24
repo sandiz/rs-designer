@@ -3,6 +3,8 @@ const bone = require('./1').bone_cmap;
 const spawn = require('threads').spawn;
 const { DispatcherService, DispatchEvents } = require("../../services/dispatcher");
 const PNG = require('pngjs').PNG;
+const THREE = require('three');
+const Stats = require('stats-js');
 
 /**
  * Render a constantq visualisation of the audio.
@@ -44,7 +46,7 @@ export default class ConstantQPlugin {
             this._wrapperClickHandler(e);
         };
         this._onAudioprocess = currentTime => {
-            this.d2.progress(this.wavesurfer.backend.getPlayedPercents());
+            //this.d2.progress(this.wavesurfer.backend.getPlayedPercents());
         };
         this._onReady = () => {
             const drawer = (this.drawer = ws.drawer);
@@ -56,8 +58,8 @@ export default class ConstantQPlugin {
             if (!this.container) {
                 throw Error('No container for WaveSurfer constantq-gram');
             }
-
-            this.width = drawer.width;
+            this.renderID = null
+            this.width = this.container.offsetWidth;
             this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
             this.fftSamples =
                 this.params.fftSamples || ws.params.fftSamples || 512;
@@ -71,12 +73,12 @@ export default class ConstantQPlugin {
             this.createCanvas();
             this.render();
 
-            this.d2 = new ws.Drawer(this.wrapper, this.params);
-            this.d2.init();
-            this.d2.setWidth(this.width)
-            this.util.style(this.d2.progressWave, {
-                "z-index": 6,
-            })
+            //this.d2 = new ws.Drawer(this.wrapper, this.params);
+            //this.d2.init();
+            //this.d2.setWidth(this.width)
+            //this.util.style(this.d2.progressWave, {
+            //    "z-index": 6,
+            //})
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
@@ -95,6 +97,7 @@ export default class ConstantQPlugin {
     }
 
     destroy() {
+        cancelAnimationFrame(this.renderID)
         this.unAll();
         this.wavesurfer.un('ready', this._onReady);
         this.wavesurfer.un('redraw', this._onRender);
@@ -119,35 +122,12 @@ export default class ConstantQPlugin {
         const wsParams = this.wavesurfer.params;
         this.wrapper = document.createElement('constantq');
         // if labels are active
-        if (this.params.labels) {
-            const labelsEl = (this.labelsEl = document.createElement('canvas'));
-            labelsEl.classList.add('spec-labels');
-            this.drawer.style(labelsEl, {
-                left: 0,
-                position: 'absolute',
-                zIndex: 9,
-                height: `${this.height / this.pixelRatio}px`,
-                width: `${55 / this.pixelRatio}px`
-            });
-            this.wrapper.appendChild(labelsEl);
-            this.loadLabels(
-                'rgba(68,68,68,0.5)',
-                '12px',
-                '10px',
-                '',
-                '#fff',
-                '#f7f7f7',
-                'center',
-                '#specLabels'
-            );
-        }
-
         this.drawer.style(this.wrapper, {
             display: 'block',
             position: 'relative',
             userSelect: 'none',
             webkitUserSelect: 'none',
-            height: `${this.height / this.pixelRatio}px`
+            height: `${this.height}px`
         });
 
         if (wsParams.fillParent || wsParams.scrollParent) {
@@ -175,13 +155,6 @@ export default class ConstantQPlugin {
             document.createElement('canvas')
         ));
 
-        this.spectrCc = canvas.getContext('webgl2', {
-            alpha: false,
-            antialias: true,
-            depth: false,
-            powerPreference: "high-performance",
-        });
-
         this.util.style(canvas, {
             position: 'absolute',
             zIndex: 4
@@ -204,12 +177,84 @@ export default class ConstantQPlugin {
         const width = Math.round(this.width / this.pixelRatio) + 'px';
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.canvas.style.width = width;
+        this.canvas.style.width = this.width;
     }
 
     drawSpectrogram(data, my) {
-        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+        const WIDTH = this.width;
+        const HEIGHT = this.height;
+        const stats = new Stats()
+        stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+        this.wrapper.appendChild(stats.dom);
+        const renderer = new THREE.WebGLRenderer({
+            alpha: false,
+            antialias: false,
+            depth: false,
+            powerPreference: "high-performance",
+            canvas: this.canvas,
+        });
+        renderer.setSize(WIDTH, HEIGHT);
+        renderer.setClearColor(0x000000, 1);
+        renderer.setPixelRatio(window.devicePixelRatio);
 
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(0, WIDTH / HEIGHT, 0.1, 10000);
+        scene.add(camera);
+
+        const textureLoader = new THREE.TextureLoader();
+        const dataURI = 'data:image/png;base64,' + data.toString('base64')
+        const texture = textureLoader.load(dataURI, (t) => {
+            const imgwidth = t.image.width
+            //const imgheight = t.image.HEIGHT
+            t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
+            const starthalfw = (WIDTH / 2 * this.pixelRatio) / imgwidth;
+            const endhaflw = 1 - starthalfw
+            //t.repeat.y = HEIGHT / imgheight;
+            let i = 0;
+            // t.offset.y = (0 / HEIGHT) * t.repeat.y;
+            scene.background = t;
+            var render = () => {
+                const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
+                stats.update()
+                if (pp > starthalfw && pp < endhaflw) {
+                    t.offset.x = pp - starthalfw; //(i / WIDTH) * t.repeat.x;
+                }
+                else if (pp < starthalfw || pp > 1) {
+                    t.offset.x = 0;
+                }
+                this.renderID = requestAnimationFrame(render);
+                renderer.render(scene, camera);
+            };
+            render();
+        }, undefined, (err) => {
+            console.log(err)
+        });
+        texture.minFilter = THREE.LinearFilter
+        texture.generateMipmaps = false;
+
+        /* new PNG({
+             inputHasAlpha: false,
+             colorType: 2,
+         }).parse(data, (error, data) => {
+             const t = new THREE.DataTexture(data.data, data.width, data.height, THREE.RGBFormat);
+             t.minFilter = THREE.LinearFilter
+             t.generateMipmaps = false;
+             t.needsUpdate = true;
+             t.repeat.x = WIDTH / data.width;
+             let i = 0;
+             var render = function () {
+                 stats.update()
+                 requestAnimationFrame(render);
+                 i += 1;
+                 t.offset.x = (i / WIDTH) * t.repeat.x;
+                 scene.background = t;
+                 renderer.render(scene, camera);
+             };
+             render();
+         })*/
+
+
+        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
         //for png
         /*new PNG({
             inputHasAlpha: false,
