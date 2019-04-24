@@ -132,7 +132,7 @@ class MediaPlayerBase {
             labels: false,
             deferInit: false,
             pixelRatio: 2,
-            height: CQT_HEIGHT,
+            height: 512,
             specData: cqtdata,
             cursorWidth: 1,
             cursorColor: 'white',

@@ -125,12 +125,10 @@ class WaveformBar extends Component {
                 </div>
                 <div
                     className={expanded}
-                    style={{
-                        height: (this.state.analysing ? 238 : 278) + 'px',
-                    }}>
+                >
                     <div className="waveform-container" id="container">
-                        <div id="chordstimeline" />
-                        <div id="beatstimeline" style={{ display: this.state.showBeatsTimeline ? "block" : "none" }} />
+                        <div id="chordstimeline" style={{ height: 20 + 'px', display: this.state.showChordsTimeline ? "block" : "none" }} />
+                        <div id="beatstimeline" style={{ height: 20 + 'px', display: this.state.showBeatsTimeline ? "block" : "none" }} />
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
                         <div id="minimap" style={{ display: this.state.showMinimap ? "block" : "none" }} />
