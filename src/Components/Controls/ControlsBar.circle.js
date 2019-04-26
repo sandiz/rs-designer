@@ -139,8 +139,9 @@ class CircleControls extends Component {
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
             this.st.tempo = mediaPlayer.getPlaybackRate();
-            this.st.pitchSemitones = this.pitchSlider.sliders[1].normalizedValue;
-            if (this.st.tempo === 1 && this.st.pitchSemitones === 0) {
+            const normval = this.pitchSlider.sliders[1].normalizedValue;
+            this.st.pitchSemitones = normval;
+            if (this.st.tempo === 1 && normval === 0) {
                 if (this.soundTouchNode) {
                     this.soundTouchNode.disconnect();
                     backend.source.connect(backend.analyser);
