@@ -133,7 +133,7 @@ class WaveformBar extends Component {
                         <i className={faclass} />
                         <span style={{ marginLeft: 5 + 'px' }}>WAVEFORM</span>
                     </span>
-                    <span className="waveform-zoom">
+                    <span className="waveform-zoom" style={{ display: this.state.expanded ? "block" : "none" }}>
                         <i className="cur-pointer fas fa-search-minus" onClick={this.decreaseZoom} />
                         &nbsp;
                         <span>{this.state.currentZoom}x</span>
