@@ -35,6 +35,8 @@ export default class ConstantQPlugin {
         this.params = params;
         this.wavesurfer = ws;
         this.util = ws.util;
+        this.farTexture = null;
+        this.farSprite = null;
 
         this._onScroll = e => {
             this.updateScroll(e);
@@ -89,6 +91,26 @@ export default class ConstantQPlugin {
             */
 
             //this.farTexture = null;
+
+            this.renderer = PIXI.autoDetectRenderer({
+                width: this.width,
+                height: this.height,
+                view: this.canvas,
+                resolution: 1,
+                powerPreference: "high-performance",
+            });
+            this.stage = new PIXI.Container();
+            this.line = new PIXI.Graphics();
+            this.line.position.x = 0;
+            this.line.position.y = 0;
+            this.line.lineStyle(1, 0xFFFFFF, 1);
+            this.line.pivot.set(0, 0);
+            this.line.moveTo(0, 0);
+            this.line.lineTo(0, this.height);
+
+            this.scalex = 0.5 / 1;
+            this.scaley = 0.5 / 1
+
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
@@ -188,84 +210,76 @@ export default class ConstantQPlugin {
     }
 
     drawPixi = (data) => {
-        this.renderer = PIXI.autoDetectRenderer({
-            width: this.width,
-            height: this.height,
-            view: this.canvas,
-            resolution: 1,
-            powerPreference: "high-performance",
-        });
-        this.stage = new PIXI.Container();
-        this.line = new PIXI.Graphics();
-        this.line.position.x = 0;
-        this.line.position.y = 0;
-        this.line.lineStyle(1, 0xFFFFFF, 1);
-        this.line.pivot.set(0, 0);
-        this.line.moveTo(0, 0);
-        this.line.lineTo(0, this.height);
-
-        this.scalex = 0.5 / 1;
-        this.scaley = 0.5 / 1
-
         const dataURI = 'data:image/png;base64,' + data.toString('base64')
-        this.farTexture = PIXI.Texture.from(dataURI);
-        this.farTexture.on('update', () => {
-            // console.log(this.farTexture.width, this.farTexture.height);
-            // console.log(this.width, this.height);
-            this.far = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
+        if (this.farTexture === null) {
+            this.farTexture = PIXI.Texture.from(dataURI);
+            this.farTexture.on('update', () => {
+                // console.log(this.farTexture.width, this.farTexture.height);
+                // console.log(this.width, this.height);
+                this.initScene();
+            });
+        }
+        else {
+            this.initScene();
+        }
+    }
 
-            this.far.scale.y = this.scalex;
-            this.far.scale.x = this.scaley;
-            this.far.tilePosition.x = 0;
-            this.far.position.x = 0;
-            this.far.position.y = 0;
-            this.stage.addChild(this.far);
-            this.stage.addChild(this.line)
+    initScene = () => {
+        if (this.farSprite === null)
+            this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
+        this.farSprite.scale.y = this.scalex;
+        this.farSprite.scale.x = this.scaley;
+        this.farSprite.tilePosition.x = 0;
+        this.farSprite.position.x = 0;
+        this.farSprite.position.y = 0;
+        this.stage.addChild(this.farSprite);
+        this.stage.addChild(this.line)
 
-            this.renderID = requestAnimationFrame(this.update);
-            this.update();
-            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
-        });
+        this.update();
+        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
     }
 
     update = () => {
-        const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
-        const farscaledwidth = this.far.width * this.scalex;
-        const halfwidth = this.width / 2
-        const farw = (farscaledwidth) - (halfwidth);
-        const farpp = farw / (farscaledwidth)
-        const startpp = (halfwidth) / (farscaledwidth);
-        const farrppend = 1 - farpp
+        if (this.farTexture && this.farSprite) {
+            const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
+            const farscaledwidth = this.farSprite.width * this.scalex;
+            const halfwidth = this.width / 2
+            const farw = (farscaledwidth) - (halfwidth);
+            const farpp = farw / (farscaledwidth)
+            const startpp = (halfwidth) / (farscaledwidth);
+            const farrppend = 1 - farpp
 
-        const w = pp * (farscaledwidth)
-        if (w < halfwidth) {
-            this.line.clear();
-            this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.moveTo(w, 0);
-            this.line.lineTo(w, this.height);
-            this.lastw = this.width / 2;
-            this.far.tilePosition.x = 0;
-        }
-        else if (w > farw) {
-            const newpp = pp - farpp
-            const percent = newpp / farrppend
-            const newwidth = (halfwidth) + (percent * (halfwidth))
-            this.line.clear();
-            this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.moveTo(newwidth, 0);
-            this.line.lineTo(newwidth, this.height);
-            this.far.tilePosition.x = -(farpp - startpp) * (this.far.width);
-
-        }
-        else {
-            this.line.clear();
-            this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.moveTo(halfwidth, 0);
-            this.line.lineTo(halfwidth, this.height);
-            this.far.tilePosition.x = -(pp - startpp) * (this.far.width);
+            const w = pp * (farscaledwidth)
+            if (w < halfwidth) {
+                this.line.clear();
+                this.line.lineStyle(1, 0xFFFFFF, 1);
+                this.line.moveTo(w, 0);
+                this.line.lineTo(w, this.height);
+                this.lastw = this.width / 2;
+                this.farSprite.tilePosition.x = 0;
+            }
+            else if (w > farw) {
+                const newpp = pp - farpp
+                const percent = newpp / farrppend
+                const newwidth = (halfwidth) + (percent * (halfwidth))
+                this.line.clear();
+                this.line.lineStyle(1, 0xFFFFFF, 1);
+                this.line.moveTo(newwidth, 0);
+                this.line.lineTo(newwidth, this.height);
+                this.farSprite.tilePosition.x = -(farpp - startpp) * (this.farSprite.width);
+            }
+            else {
+                this.line.clear();
+                this.line.lineStyle(1, 0xFFFFFF, 1);
+                this.line.moveTo(halfwidth, 0);
+                this.line.lineTo(halfwidth, this.height);
+                this.farSprite.tilePosition.x = -(pp - startpp) * (this.farSprite.width);
+            }
         }
         this.stats.update();
         this.renderer.render(this.stage);
+        if (this.renderID != null)
+            cancelAnimationFrame(this.renderID)
         this.renderID = requestAnimationFrame(this.update);
     }
 
