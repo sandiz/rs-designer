@@ -37,6 +37,7 @@ export default class ConstantQPlugin {
         this.util = ws.util;
         this.farTexture = null;
         this.farSprite = null;
+        this.defaultZoom = 20; /*default zoom */
 
         this._onScroll = e => {
             this.updateScroll(e);
@@ -49,6 +50,11 @@ export default class ConstantQPlugin {
         };
         this._onZoom = pxPerSec => {
             console.log(pxPerSec)
+            const diff = pxPerSec - this.defaultZoom;
+            if (this.farSprite) {
+                this.farSprite.scale.x += diff * 0.025;
+                this.scalex = this.farSprite.scale.x;
+            }
         }
         this._onReady = () => {
             const drawer = (this.drawer = ws.drawer);
@@ -57,7 +63,6 @@ export default class ConstantQPlugin {
                     ? document.querySelector(params.container)
                     : params.container;
 
-            this.visiblityContainer = document.querySelector(params.visiblityContainer);
             if (!this.container) {
                 throw Error('No container for WaveSurfer constantq-gram');
             }
@@ -243,7 +248,7 @@ export default class ConstantQPlugin {
         this.farSprite.position.y = 0;
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line)
-
+        window.farSprite = this.farSprite;
         this.update();
         DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
     }
@@ -252,7 +257,7 @@ export default class ConstantQPlugin {
         if (this.farTexture && this.farSprite) {
             const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
             const farscaledwidth = this.farSprite.width * this.scalex;
-            const halfwidth = this.width / 2
+            const halfwidth = this.width * this.scalex
             const farw = (farscaledwidth) - (halfwidth);
             const farpp = farw / (farscaledwidth)
             const startpp = (halfwidth) / (farscaledwidth);
