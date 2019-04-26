@@ -340,23 +340,10 @@ export default class ChordsTimelinePlugin {
                 ? this.drawer.getWidth()
                 : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
         const height1 = this.params.height * this.pixelRatio;
-        const height2 =
-            this.params.height *
-            (this.params.notchPercentHeight / 100) *
-            this.pixelRatio;
         const pixelsPerSecond = width / duration;
-        const formatTime = this.params.formatTimeCallback;
-        // if parameter is function, call the function with
-        // pixelsPerSecond, otherwise simply take the value as-is
         const intervalFnOrVal = option =>
             typeof option === 'function' ? option(pixelsPerSecond) : option;
         const timeInterval = intervalFnOrVal(this.params.timeInterval);
-        const primaryLabelInterval = intervalFnOrVal(
-            this.params.primaryLabelInterval
-        );
-        const secondaryLabelInterval = intervalFnOrVal(
-            this.params.secondaryLabelInterval
-        );
 
         let curPixel = 0;
         let curSeconds = 0;
