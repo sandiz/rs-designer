@@ -243,6 +243,7 @@ export default class ConstantQPlugin {
         this.w = pp * (this.far.width / 2 * 1);// / this.far.width);
         const farw = (this.far.width / 2 * 1) - (this.width / 2);
         const farpp = farw / (this.far.width / 2 * 1)
+        const startpp = (this.width / 2) / (this.far.width / 2 * 1);
         const farrpstart = 0
         const farrppend = 1 - farpp
         //console.log(this.w, farw, farpp, farrpstart, farrppend);
@@ -252,7 +253,8 @@ export default class ConstantQPlugin {
             this.line.lineStyle(1, 0xFFFFFF, 1);
             this.line.moveTo(this.w, 0);
             this.line.lineTo(this.w, this.height);
-            this.lastw = this.width / 2
+            this.lastw = this.width / 2;
+            this.far.tilePosition.x = 0;
         }
         else if (this.w > farw) {
             const newpp = pp - farpp
@@ -262,12 +264,15 @@ export default class ConstantQPlugin {
             this.line.lineStyle(1, 0xFFFFFF, 1);
             this.line.moveTo(newwidth, 0);
             this.line.lineTo(newwidth, this.height);
+            this.far.tilePosition.x = -(farpp - startpp) * (this.far.width);
+
         }
         else {
             this.line.clear();
             this.line.lineStyle(1, 0xFFFFFF, 1);
             this.line.moveTo(this.width / 2, 0);
             this.line.lineTo(this.width / 2, this.height);
+            this.far.tilePosition.x = -(pp - startpp) * (this.far.width);
         }
         //this.far.tilePosition.x = -pp * (this.farTexture.width);
         //console.log(this.far.tilePosition.x, pp, this.farTexture.width);
