@@ -199,33 +199,28 @@ export default class ConstantQPlugin {
         this.line = new PIXI.Graphics();
         this.line.position.x = 0;
         this.line.position.y = 0;
-        this.line.lineStyle(1, 0xD5402B, 1);
+        this.line.lineStyle(1, 0xFFFFFF, 1);
         this.line.pivot.set(0, 0);
         this.line.moveTo(0, 0);
         this.line.lineTo(0, this.height);
 
+        this.scalex = 0.5 / 1;
+        this.scaley = 0.5 / 1
+
         const dataURI = 'data:image/png;base64,' + data.toString('base64')
         this.farTexture = PIXI.Texture.from(dataURI);
         this.farTexture.on('update', () => {
-            console.log(this.farTexture.width, this.farTexture.height);
-            console.log(this.width, this.height);
-            const nw = (this.width * this.pixelRatio) / this.farTexture.width
-            //console.log(nw, this.pixelRatio, this.farTexture.width, this.width, this.height);
-            //const far = new PIXI.Sprite(farTexture);
+            // console.log(this.farTexture.width, this.farTexture.height);
+            // console.log(this.width, this.height);
             this.far = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
 
-            //            t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
-            //this.far.tileScale.x = 0.5;
-
-            this.far.scale.y = 0.5;
-            this.far.scale.x = 0.5;
+            this.far.scale.y = this.scalex;
+            this.far.scale.x = this.scaley;
             this.far.tilePosition.x = 0;
             this.far.position.x = 0;
             this.far.position.y = 0;
             this.stage.addChild(this.far);
             this.stage.addChild(this.line)
-
-            this.w = 0
 
             this.renderID = requestAnimationFrame(this.update);
             this.update();
@@ -235,31 +230,26 @@ export default class ConstantQPlugin {
 
     update = () => {
         const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
-        //const starthalfw = (this.width / 2 * this.pixelRatio) / this.far.width;
-        //const endhaflw = 1 - starthalfw;
-        //console.log(pp, starthalfw);
-        //if (pp > 0) {
-        //const w = pp * this.width;
-        this.w = pp * (this.far.width / 2 * 1);// / this.far.width);
-        const farw = (this.far.width / 2 * 1) - (this.width / 2);
-        const farpp = farw / (this.far.width / 2 * 1)
-        const startpp = (this.width / 2) / (this.far.width / 2 * 1);
-        const farrpstart = 0
+        const farscaledwidth = this.far.width * this.scalex;
+        const halfwidth = this.width / 2
+        const farw = (farscaledwidth) - (halfwidth);
+        const farpp = farw / (farscaledwidth)
+        const startpp = (halfwidth) / (farscaledwidth);
         const farrppend = 1 - farpp
-        //console.log(this.w, farw, farpp, farrpstart, farrppend);
 
-        if (this.w < this.width / 2) {
+        const w = pp * (farscaledwidth)
+        if (w < halfwidth) {
             this.line.clear();
             this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.moveTo(this.w, 0);
-            this.line.lineTo(this.w, this.height);
+            this.line.moveTo(w, 0);
+            this.line.lineTo(w, this.height);
             this.lastw = this.width / 2;
             this.far.tilePosition.x = 0;
         }
-        else if (this.w > farw) {
+        else if (w > farw) {
             const newpp = pp - farpp
             const percent = newpp / farrppend
-            const newwidth = (this.width / 2) + (percent * (this.width / 2))
+            const newwidth = (halfwidth) + (percent * (halfwidth))
             this.line.clear();
             this.line.lineStyle(1, 0xFFFFFF, 1);
             this.line.moveTo(newwidth, 0);
@@ -270,16 +260,13 @@ export default class ConstantQPlugin {
         else {
             this.line.clear();
             this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.moveTo(this.width / 2, 0);
-            this.line.lineTo(this.width / 2, this.height);
+            this.line.moveTo(halfwidth, 0);
+            this.line.lineTo(halfwidth, this.height);
             this.far.tilePosition.x = -(pp - startpp) * (this.far.width);
         }
-        //this.far.tilePosition.x = -pp * (this.farTexture.width);
-        //console.log(this.far.tilePosition.x, pp, this.farTexture.width);
-        //}
         this.stats.update();
         this.renderer.render(this.stage);
-        requestAnimationFrame(this.update);
+        this.renderID = requestAnimationFrame(this.update);
     }
 
     updateCanvasStyle() {
