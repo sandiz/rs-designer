@@ -135,7 +135,6 @@ class MediaPlayerBase {
         /* start wv-cqt plugin */
         const cqtp = ConstantQPlugin.create({
             container: "#spectrogram",
-            visiblityContainer: "#mir-vis-container",
             labels: false,
             deferInit: false,
             pixelRatio: 2,
