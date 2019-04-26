@@ -69,6 +69,8 @@ export const DispatchEvents = {
     TransposeMode: "transpose-mode",
     DisableShortcuts: "disable-kbd-shortcuts",
     EnableShortcuts: "enable-kbd-shortcuts",
+    AboutToDraw: "about-to-draw",
+    FinishedDrawing: "finished-drawing",
 }
 
 export const KeyboardEvents = {

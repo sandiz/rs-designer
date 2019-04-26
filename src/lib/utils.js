@@ -156,3 +156,15 @@ export const fetchCover = async (artist, albumortrack, usealbum = true) => {
     //console.log("---")
     return url;
 }
+
+export const toggleNeverland = (container, toggle) => {
+    return;
+    if (toggle) {
+        container.current.style.position = "absolute";
+        container.current.style.left = "-100000px";
+    }
+    else {
+        container.current.style.position = "";
+        container.current.style.left = "";
+    }
+}

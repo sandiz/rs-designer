@@ -56,6 +56,7 @@ export default class ConstantQPlugin {
                     ? document.querySelector(params.container)
                     : params.container;
 
+            this.visiblityContainer = document.querySelector(params.visiblityContainer);
             if (!this.container) {
                 throw Error('No container for WaveSurfer constantq-gram');
             }
@@ -144,7 +145,6 @@ export default class ConstantQPlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
-        //if (this.farTexture) this.farTexture.dispose();
     }
 
     createWrapper() {
@@ -206,7 +206,15 @@ export default class ConstantQPlugin {
         //this.drawSpectrogram(data);
         this.drawPixi(data);
         return;
+    }
 
+    pauseUpdate = () => {
+        if (this.renderID)
+            cancelAnimationFrame(this.renderID);
+    }
+
+    resumeUpdate = () => {
+        this.renderID = requestAnimationFrame(this.update);
     }
 
     drawPixi = (data) => {

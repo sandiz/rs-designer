@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../../css/WaveformBar.css'
 import "../../lib/radiaslider/src/slider-linear"
-import { setStateAsync } from '../../lib/utils';
+import { setStateAsync, toggleNeverland } from '../../lib/utils';
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
@@ -26,6 +26,7 @@ class WaveformBar extends Component {
             default: 20,
         }
         this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']
+        this.containerRef = React.createRef();
     }
 
     componentWillMount = async () => {
@@ -41,6 +42,24 @@ class WaveformBar extends Component {
         DispatcherService.on(KeyboardEvents.ToggleWaveform, this.toggle);
         DispatcherService.on(DispatchEvents.MediaAnalysisStart, () => this.setState({ analysing: true }));
         DispatcherService.on(DispatchEvents.MediaAnalysisEnd, () => this.setState({ analysing: false }));
+        DispatcherService.on(DispatchEvents.AboutToDraw, this.aboutoDraw);
+        DispatcherService.on(DispatchEvents.FinishedDrawing, this.finishedDrawing);
+    }
+
+    aboutoDraw = (type) => {
+        if (type !== "waveform") return;
+        if (this.state.expanded === false) {
+            toggleNeverland(this.containerRef, true);
+            this.containerRef.current.classList.add("show");
+        }
+    }
+
+    finishedDrawing = (type) => {
+        if (type !== "waveform") return;
+        if (this.state.expanded === false) {
+            toggleNeverland(this.containerRef, false);
+            this.containerRef.current.classList.remove("show");
+        }
     }
 
     reset = () => {
@@ -124,6 +143,7 @@ class WaveformBar extends Component {
                     </span>
                 </div>
                 <div
+                    ref={this.containerRef}
                     className={expanded}
                 >
                     <div className="waveform-container" id="container">
