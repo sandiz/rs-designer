@@ -7,6 +7,7 @@ import "../../css/AnalysisBar.css"
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
+import { toggleNeverland } from '../../lib/utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -17,6 +18,7 @@ class AnalysisBar extends Component {
             analysing: false,
         }
         this.se_excludes = ['showMIR', 'analysing']
+        this.containerRef = React.createRef();
     }
 
     componentWillUnmount = () => {
@@ -40,6 +42,24 @@ class AnalysisBar extends Component {
         DispatcherService.on(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
 
         DispatcherService.on(KeyboardEvents.ToggleAnalysis, this.toggle);
+        DispatcherService.on(DispatchEvents.AboutToDraw, this.aboutoDraw);
+        DispatcherService.on(DispatchEvents.FinishedDrawing, this.finishedDrawing);
+    }
+
+    aboutoDraw = (type) => {
+        if (type !== "cqt") return;
+        if (this.state.expanded === false) {
+            toggleNeverland(this.containerRef, true);
+            this.containerRef.current.classList.add("show");
+        }
+    }
+
+    finishedDrawing = (type) => {
+        if (type !== "cqt") return;
+        if (this.state.expanded === false) {
+            toggleNeverland(this.containerRef, false);
+            this.containerRef.current.classList.remove("show");
+        }
     }
 
     analyseStart = (method) => {
@@ -119,6 +139,16 @@ class AnalysisBar extends Component {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
         }), async () => {
+            const mediaPlayer = MediaPlayer.instance;
+            if (mediaPlayer) {
+                if (this.state.expanded) {
+                    // start update
+                    mediaPlayer.wavesurfer.constantq.resumeUpdate();
+                }
+                else {
+                    mediaPlayer.wavesurfer.constantq.pauseUpdate();
+                }
+            }
             await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_excludes);
         });
     }
@@ -145,7 +175,7 @@ class AnalysisBar extends Component {
                         }
                     </span>
                 </div>
-                <div className={expanded} id="">
+                <div ref={this.containerRef} className={expanded} id="mir-vis-container">
                     <div className="mir-container">
                         <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }} />
                     </div>

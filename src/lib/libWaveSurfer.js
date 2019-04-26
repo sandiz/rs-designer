@@ -81,8 +81,10 @@ class MediaPlayerBase {
         this.wavesurfer = WaveSurfer.create(params);
 
         this.wavesurfer.loadBlob(blob);
+        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
+            DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
             this.analyse();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -117,9 +119,13 @@ class MediaPlayerBase {
         }
         // each module should pick the items up
         //start loading analysis
-        this.cqtAnalyse(method);
-        this.chordAnalyse();
-        this.beatsAnalyse();
+        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
+        await this.cqtAnalyse(method);
+        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
+        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
+        await this.chordAnalyse();
+        await this.beatsAnalyse();
+        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
     }
 
     cqtAnalyse = async (method) => {
@@ -129,6 +135,7 @@ class MediaPlayerBase {
         /* start wv-cqt plugin */
         const cqtp = ConstantQPlugin.create({
             container: "#spectrogram",
+            visiblityContainer: "#mir-vis-container",
             labels: false,
             deferInit: false,
             pixelRatio: 2,
