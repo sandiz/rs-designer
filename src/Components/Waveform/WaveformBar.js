@@ -21,8 +21,8 @@ class WaveformBar extends Component {
             analysing: false,
         }
         this.zoom = {
-            max: 200,
-            min: 1,
+            max: 80,
+            min: 13,
             default: 20,
         }
         this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']

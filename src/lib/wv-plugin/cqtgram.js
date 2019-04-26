@@ -52,8 +52,8 @@ export default class ConstantQPlugin {
             console.log(pxPerSec)
             const diff = pxPerSec - this.defaultZoom;
             if (this.farSprite) {
-                this.farSprite.scale.x += diff * 0.025;
-                this.scalex = this.farSprite.scale.x;
+                //  this.farSprite.scale.x += diff * 0.025;
+                //  this.scalex = this.farSprite.scale.x;
             }
         }
         this._onReady = () => {
@@ -120,8 +120,8 @@ export default class ConstantQPlugin {
 
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
-            ws.on('redraw', this._onRender);
-            ws.on('zoom', this._onZoom);
+            //ws.on('redraw', this._onRender);
+            //ws.on('zoom', this._onZoom);
             DispatcherService.dispatch(DispatchEvents.MASpectrogramStart);
         };
     }
