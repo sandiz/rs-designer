@@ -19,6 +19,7 @@
     "localforage": "^1.7.3",
     "music-metadata": "^3.5.2",
     "node-id3": "^0.1.7",
+    "pixi.js": "^4.8.7",
     "pngjs": "^3.4.0",
     "prop-types": "^15.6.2",
     "react": "^16.8.6",

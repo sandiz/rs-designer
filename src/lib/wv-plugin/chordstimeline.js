@@ -387,7 +387,7 @@ export default class ChordsTimelinePlugin {
                 chord = getTransposedKey(chord, transpose);
                 const startPixel = this.getPixelForSecond(start, positioning);
                 const endPixel = this.getPixelForSecond(end, positioning);
-                const color = (i % 2 ? '#436a88' : '#3b7eac');
+                const color = (i % 2 ? '#3b7eac' : '#436a88');
                 this.setFillStyles(color);
                 const width = endPixel - startPixel;
                 this.fillRect(startPixel, 0, width, height1);

@@ -52,10 +52,9 @@
     display: inline;
 }
 
-#chordstimeline,
-#beatstimeline {
+#chordstimeline {
     padding: 0px;
-    background: inherit;
+    background: #436988;
 }
 
 #beatstimeline {

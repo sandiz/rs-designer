@@ -6,6 +6,7 @@ const PNG = require('pngjs').PNG;
 const THREE = require('three');
 const Stats = require('stats-js');
 
+import * as PIXI from 'pixi.js'
 /**
  * Render a constantq visualisation of the audio.
  */
@@ -35,7 +36,6 @@ export default class ConstantQPlugin {
         this.wavesurfer = ws;
         this.util = ws.util;
 
-        this.frequenciesDataUrl = params.frequenciesDataUrl;
         this._onScroll = e => {
             this.updateScroll(e);
         };
@@ -60,20 +60,18 @@ export default class ConstantQPlugin {
             this.pixelRatio = this.params.pixelRatio || ws.params.pixelRatio;
             this.width = this.container.offsetWidth;
             this.height = this.params.height; //this.fftSamples / 2;
-            this.fftSamples =
-                this.params.fftSamples || ws.params.fftSamples || 512;
             this.specData = params.specData;
-
-            this.createWrapper();
-            this.createCanvas();
-            this.render();
 
             this.stats = new Stats()
             this.renderID = null
             this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+
+            this.createWrapper();
+            this.createCanvas();
+            this.render();
             this.wrapper.appendChild(this.stats.dom);
 
-
+            /*
             this.renderer = new THREE.WebGLRenderer({
                 alpha: false,
                 antialias: false,
@@ -88,7 +86,9 @@ export default class ConstantQPlugin {
             this.scene = new THREE.Scene();
             this.camera = new THREE.OrthographicCamera(0, this.width / this.height, 0.1, 10000);
             this.scene.add(this.camera);
-            this.texture = null;
+            */
+
+            //this.farTexture = null;
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
@@ -116,13 +116,13 @@ export default class ConstantQPlugin {
         this.wavesurfer = null;
         this.util = null;
         this.params = null;
-        this.specData = [];
+        this.specData = "";
         if (this.wrapper) {
             this.wrapper.removeEventListener('click', this._onWrapperClick);
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
-        if (this.texture) this.texture.dispose();
+        //if (this.farTexture) this.farTexture.dispose();
     }
 
     createWrapper() {
@@ -134,7 +134,7 @@ export default class ConstantQPlugin {
         this.wrapper = document.createElement('constantq');
         // if labels are active
         this.drawer.style(this.wrapper, {
-            display: 'block',
+            display: 'flex',
             position: 'relative',
             userSelect: 'none',
             webkitUserSelect: 'none',
@@ -149,6 +149,13 @@ export default class ConstantQPlugin {
             });
         }
         this.container.appendChild(this.wrapper);
+        this.progress = document.createElement("div");
+        this.drawer.style(this.progress, {
+            zIndex: 10,
+            height: 590 + 'px',
+            borderRight: "1px solid white",
+        });
+        this.wrapper.appendChild(this.progress);
 
         this.wrapper.addEventListener('click', this._onWrapperClick);
         //this.wrapper.addEventListener('scroll', (e) => this.drawer.fireEvent('scroll', e))
@@ -173,22 +180,108 @@ export default class ConstantQPlugin {
     }
 
     render() {
-        this.updateCanvasStyle();
+        const data = this.specData
+        //this.drawSpectrogram(data);
+        this.drawPixi(data);
+        return;
 
-        if (this.frequenciesDataUrl) {
-            this.loadFrequenciesData(this.frequenciesDataUrl);
-        } else {
-            const data = this.specData
-            this.drawSpectrogram(data);
-            return;
+    }
+
+    drawPixi = (data) => {
+        this.renderer = PIXI.autoDetectRenderer({
+            width: this.width,
+            height: this.height,
+            view: this.canvas,
+            resolution: 1,
+            powerPreference: "high-performance",
+        });
+        this.stage = new PIXI.Container();
+        this.line = new PIXI.Graphics();
+        this.line.position.x = 0;
+        this.line.position.y = 0;
+        this.line.lineStyle(1, 0xD5402B, 1);
+        this.line.pivot.set(0, 0);
+        this.line.moveTo(0, 0);
+        this.line.lineTo(0, this.height);
+
+        const dataURI = 'data:image/png;base64,' + data.toString('base64')
+        this.farTexture = PIXI.Texture.from(dataURI);
+        this.farTexture.on('update', () => {
+            console.log(this.farTexture.width, this.farTexture.height);
+            console.log(this.width, this.height);
+            const nw = (this.width * this.pixelRatio) / this.farTexture.width
+            //console.log(nw, this.pixelRatio, this.farTexture.width, this.width, this.height);
+            //const far = new PIXI.Sprite(farTexture);
+            this.far = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
+
+            //            t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
+            //this.far.tileScale.x = 0.5;
+
+            this.far.scale.y = 0.5;
+            this.far.scale.x = 0.5;
+            this.far.tilePosition.x = 0;
+            this.far.position.x = 0;
+            this.far.position.y = 0;
+            this.stage.addChild(this.far);
+            this.stage.addChild(this.line)
+
+            this.w = 0
+
+            this.renderID = requestAnimationFrame(this.update);
+            this.update();
+            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
+        });
+    }
+
+    update = () => {
+        const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
+        //const starthalfw = (this.width / 2 * this.pixelRatio) / this.far.width;
+        //const endhaflw = 1 - starthalfw;
+        //console.log(pp, starthalfw);
+        //if (pp > 0) {
+        //const w = pp * this.width;
+        this.w = pp * (this.far.width / 2 * 1);// / this.far.width);
+        const farw = (this.far.width / 2 * 1) - (this.width / 2);
+        const farpp = farw / (this.far.width / 2 * 1)
+        const farrpstart = 0
+        const farrppend = 1 - farpp
+        //console.log(this.w, farw, farpp, farrpstart, farrppend);
+
+        if (this.w < this.width / 2) {
+            this.line.clear();
+            this.line.lineStyle(1, 0xFFFFFF, 1);
+            this.line.moveTo(this.w, 0);
+            this.line.lineTo(this.w, this.height);
+            this.lastw = this.width / 2
         }
+        else if (this.w > farw) {
+            const newpp = pp - farpp
+            const percent = newpp / farrppend
+            const newwidth = (this.width / 2) + (percent * (this.width / 2))
+            this.line.clear();
+            this.line.lineStyle(1, 0xFFFFFF, 1);
+            this.line.moveTo(newwidth, 0);
+            this.line.lineTo(newwidth, this.height);
+        }
+        else {
+            this.line.clear();
+            this.line.lineStyle(1, 0xFFFFFF, 1);
+            this.line.moveTo(this.width / 2, 0);
+            this.line.lineTo(this.width / 2, this.height);
+        }
+        //this.far.tilePosition.x = -pp * (this.farTexture.width);
+        //console.log(this.far.tilePosition.x, pp, this.farTexture.width);
+        //}
+        this.stats.update();
+        this.renderer.render(this.stage);
+        requestAnimationFrame(this.update);
     }
 
     updateCanvasStyle() {
-        const width = Math.round(this.width / this.pixelRatio) + 'px';
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-        this.canvas.style.width = this.width;
+        //const width = Math.round(this.width / this.pixelRatio) + 'px';
+        //this.canvas.width = this.width;
+        //this.canvas.height = this.height;
+        //this.canvas.style.width = this.width;
     }
 
     renderCQTScroll = () => {
@@ -197,12 +290,21 @@ export default class ConstantQPlugin {
             const endhaflw = 1 - starthalfw
 
             const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
+            const rx = this.texture.image.width / this.pixelRatio;
             if (pp > starthalfw && pp < endhaflw) {
                 this.texture.offset.x = pp - starthalfw; //(i / WIDTH) * t.repeat.x;
             }
-            else if (pp < starthalfw || pp > 1) {
+            else if (pp < starthalfw) {
                 this.texture.offset.x = 0;
+                //this.progress.style.width = (pp * rx) + "px"
             }
+            else if (pp > endhaflw) {
+                //this.progress.style.width = (pp * rx) + "px"
+            }
+            else if (pp > 1) {
+                //this.progress.style.width = 0 + "px"
+            }
+
         }
         this.stats.update()
         this.renderID = requestAnimationFrame(this.renderCQTScroll);
@@ -261,192 +363,9 @@ export default class ConstantQPlugin {
         */
     }
 
-    olddrawSpectrogram(frequenciesData, my) {
-        const spectrCc = my.spectrCc;
-        const offscrenCanvas = new OffscreenCanvas(this.canvas.width, this.canvas.height);
-        const length = my.wavesurfer.backend.getDuration();
-        const height = my.height;
-        const pixels = my.resample(frequenciesData);
-        //const pixels = frequenciesData;
-        const heightFactor = 2.2; //my.buffer ? 2 / my.buffer.numberOfChannels : 1;
-        let i;
-        let j;
-
-        const thread = spawn((input, done) => {
-            const offscreenContext = input.canvas.getContext("2d", {
-                alpha: false,
-            });
-            for (i = 0; i < input.pixels.length; i++) {
-                for (j = 0; j < input.pixels[i].length; j++) {
-                    //const colorValue = 255 - pixels[i][j];
-                    var colorValue = 255 - input.pixels[i][j],
-                        rgb = input.bone[input.pixels[i][j]];
-
-                    offscreenContext.fillStyle = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
-                    offscreenContext.fillRect(
-                        i,
-                        input.height - j * input.heightFactor,
-                        1,
-                        input.heightFactor
-                    );
-                }
-            }
-            const pixels = offscreenContext.getImageData(0, 0, input.canvas.width, input.canvas.height);
-            done.transfer({ pixels: pixels.data.buffer, }, [pixels.data.buffer]);
-        });
-
-        thread.send({
-            pixels,
-            bone,
-            height,
-            heightFactor,
-            canvas: offscrenCanvas
-        },
-            [offscrenCanvas])
-            .on('message', (response) => {
-                let pixels = new ImageData(
-                    new Uint8ClampedArray(response.pixels),
-                    this.canvas.width,
-                    this.canvas.height
-                );
-                spectrCc.putImageData(pixels, 0, 0);
-                thread.kill();
-            })
-            .on('error', (error) => {
-                console.error('Worker errored:', error);
-            })
-            .on('exit', () => {
-                console.log("wv-cqt thread ended");
-                DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
-            });
-
-    }
-
-    freqType(freq) {
-        return freq >= 1000 ? (freq / 1000).toFixed(1) : Math.round(freq);
-    }
-
-    unitType(freq) {
-        return freq >= 1000 ? 'KHz' : 'Hz';
-    }
-
-    loadLabels(
-        bgFill,
-        fontSizeFreq,
-        fontSizeUnit,
-        fontType,
-        textColorFreq,
-        textColorUnit,
-        textAlign,
-        container
-    ) {
-        const frequenciesHeight = this.height;
-        bgFill = bgFill || 'rgba(68,68,68,0)';
-        fontSizeFreq = fontSizeFreq || '12px';
-        fontSizeUnit = fontSizeUnit || '10px';
-        fontType = fontType || 'Helvetica';
-        textColorFreq = textColorFreq || '#fff';
-        textColorUnit = textColorUnit || '#fff';
-        textAlign = textAlign || 'center';
-        container = container || '#specLabels';
-        const getMaxY = frequenciesHeight || 512;
-        const labelIndex = 5 * (getMaxY / 256);
-        const freqStart = 0;
-        const step =
-            (this.wavesurfer.backend.ac.sampleRate / 2 - freqStart) /
-            labelIndex;
-
-        const ctx = this.labelsEl.getContext('2d');
-        this.labelsEl.height = this.height;
-        this.labelsEl.width = 55;
-
-        ctx.fillStyle = bgFill;
-        ctx.fillRect(0, 0, 55, getMaxY);
-        ctx.fill();
-        let i;
-
-        for (i = 0; i <= labelIndex; i++) {
-            ctx.textAlign = textAlign;
-            ctx.textBaseline = 'middle';
-
-            const freq = freqStart + step * i;
-            const index = Math.round(
-                (freq / (this.sampleRate / 2)) * this.fftSamples
-            );
-            const label = this.freqType(freq);
-            const units = this.unitType(freq);
-            const x = 16;
-            const yLabelOffset = 2;
-
-            if (i == 0) {
-                ctx.fillStyle = textColorUnit;
-                ctx.font = fontSizeUnit + ' ' + fontType;
-                ctx.fillText(units, x + 24, getMaxY + i - 10);
-                ctx.fillStyle = textColorFreq;
-                ctx.font = fontSizeFreq + ' ' + fontType;
-                ctx.fillText(label, x, getMaxY + i - 10);
-            } else {
-                ctx.fillStyle = textColorUnit;
-                ctx.font = fontSizeUnit + ' ' + fontType;
-                ctx.fillText(units, x + 24, getMaxY - i * 50 + yLabelOffset);
-                ctx.fillStyle = textColorFreq;
-                ctx.font = fontSizeFreq + ' ' + fontType;
-                ctx.fillText(label, x, getMaxY - i * 50 + yLabelOffset);
-            }
-        }
-    }
-
     updateScroll(e) {
         if (this.wrapper) {
             this.wrapper.scrollLeft = e.target.scrollLeft;
         }
-    }
-
-    resample(oldMatrix) {
-        const columnsNumber = 1;//this.width;
-        const newMatrix = [];
-
-        const oldPiece = 1 / oldMatrix.length;
-        const newPiece = 1 / columnsNumber;
-        let i;
-
-        for (i = 0; i < columnsNumber; i++) {
-            const column = new Array(oldMatrix[0].length);
-            let j;
-
-            for (j = 0; j < oldMatrix.length; j++) {
-                const oldStart = j * oldPiece;
-                const oldEnd = oldStart + oldPiece;
-                const newStart = i * newPiece;
-                const newEnd = newStart + newPiece;
-
-                const overlap =
-                    oldEnd <= newStart || newEnd <= oldStart
-                        ? 0
-                        : Math.min(Math.max(oldEnd, newStart), Math.max(newEnd, oldStart)) -
-                        Math.max(Math.min(oldEnd, newStart), Math.min(newEnd, oldStart));
-                let k;
-                /* eslint-disable max-depth */
-                if (overlap > 0) {
-                    for (k = 0; k < oldMatrix[0].length; k++) {
-                        if (column[k] == null) {
-                            column[k] = 0;
-                        }
-                        column[k] += (overlap / newPiece) * oldMatrix[j][k];
-                    }
-                }
-                /* eslint-enable max-depth */
-            }
-
-            const intColumn = new Uint8Array(oldMatrix[0].length);
-            let m;
-
-            for (m = 0; m < oldMatrix[0].length; m++) {
-                intColumn[m] = column[m];
-            }
-            newMatrix.push(intColumn);
-        }
-
-        return newMatrix;
     }
 }
