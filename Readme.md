@@ -13,6 +13,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - canvas piano bar 
         - zoom
         - progress line
+        - pixi
+        - remove resample
+        - fix chords/beats timeline
 
     - analysis
         - chord, downbeat uses python
