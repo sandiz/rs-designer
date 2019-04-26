@@ -257,7 +257,7 @@ export default class ConstantQPlugin {
         if (this.farTexture && this.farSprite) {
             const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
             const farscaledwidth = this.farSprite.width * this.scalex;
-            const halfwidth = this.width * this.scalex
+            const halfwidth = this.width / 2;
             const farw = (farscaledwidth) - (halfwidth);
             const farpp = farw / (farscaledwidth)
             const startpp = (halfwidth) / (farscaledwidth);
