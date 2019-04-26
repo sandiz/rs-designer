@@ -47,8 +47,9 @@ export default class ConstantQPlugin {
         this._onWrapperClick = e => {
             this._wrapperClickHandler(e);
         };
-        this._onAudioprocess = currentTime => {
-        };
+        this._onZoom = pxPerSec => {
+            console.log(pxPerSec)
+        }
         this._onReady = () => {
             const drawer = (this.drawer = ws.drawer);
             this.container =
@@ -115,7 +116,7 @@ export default class ConstantQPlugin {
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             ws.on('redraw', this._onRender);
-            this.wavesurfer.on('audioprocess', this._onAudioprocess);
+            ws.on('zoom', this._onZoom);
             DispatcherService.dispatch(DispatchEvents.MASpectrogramStart);
         };
     }
@@ -235,8 +236,8 @@ export default class ConstantQPlugin {
     initScene = () => {
         if (this.farSprite === null)
             this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
-        this.farSprite.scale.y = this.scalex;
-        this.farSprite.scale.x = this.scaley;
+        this.farSprite.scale.y = this.scaley;
+        this.farSprite.scale.x = this.scalex;
         this.farSprite.tilePosition.x = 0;
         this.farSprite.position.x = 0;
         this.farSprite.position.y = 0;
