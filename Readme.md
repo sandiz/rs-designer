@@ -11,11 +11,12 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 - TODO
     - cqt
         - canvas piano bar 
-        - zoom
+        - zoom buttons + func
+        - resize
         - remove resample
         - soundtouch audioworklet
         - settings fps, power pref
-        - draw cqt if cqt is enabled
+        - fix drag
 
     - analysis
         - chord, downbeat uses python

@@ -6,7 +6,7 @@ import {
     disableKbdShortcuts, enableKbdShortcuts,
 } from '../../lib/utils';
 import DraggableLayout from './draggableLayout'
-import ForageService, { SettingsForageKeys } from '../../services/forage';
+import { SettingsService, SettingsModel } from '../../services/settings';
 
 const electron = window.require("electron");
 
@@ -20,57 +20,15 @@ const reorder = (list, startIndex, endIndex) => {
 class SettingsModal extends React.Component {
     constructor(props) {
         super(props);
-        const items = [
-            {
-                text: 'Controls',
-                id: 'control',
-                icon: "fas fa-sliders-h",
-                checked: true,
-            },
-            {
-                text: 'Waveform',
-                id: 'waveform',
-                icon: "fas fa-wave-square",
-                checked: true,
-            },
-            {
-                text: 'Chromagram',
-                id: 'chromagram',
-                icon: "far fa-chart-bar",
-                checked: true,
-            },
-            {
-                text: 'Tabs',
-                id: 'tabs',
-                icon: "fas fa-guitar",
-                checked: true,
-            },
-            {
-                text: 'CDLC Creator',
-                id: 'cdlc',
-                icon: "fas fa-download",
-                checked: true,
-            },
-            {
-                text: 'Credits',
-                id: 'credits',
-                icon: "fas fa-drum",
-                checked: false,
-            },
-        ];
         this.state = {
             currentTab: 'layout',
-            layouts: items,
-            advanced: {
-                key_profile: 'bgate',
-                cqt_colormap: 'bone',
-            },
-
+            ...SettingsModel,
         }
     }
 
     componentDidMount = async () => {
-        const ser = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
+        // const ser = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
+        const ser = await SettingsService.getAll();
         if (!ser) return;
         this.setState({
             layouts: ser.layouts,
@@ -96,7 +54,7 @@ class SettingsModal extends React.Component {
             currentTab,
             ...rest
         } = this.state;
-        await ForageService.set(SettingsForageKeys.APP_SETTINGS, rest);
+        await SettingsService.setAll(rest);
     }
 
     onChange = (e, type) => {

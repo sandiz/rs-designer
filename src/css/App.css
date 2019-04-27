@@ -98,3 +98,7 @@ a:hover {
 .arrow::after {
     border-bottom-color: #fff !important;
 }
+
+.dot-separator {
+    color: #04ABED;
+}

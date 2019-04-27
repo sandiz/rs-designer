@@ -343,6 +343,7 @@ export default class ChordsTimelinePlugin {
                 : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
         const height1 = this.params.height * this.pixelRatio;
         const pixelsPerSecond = width / duration;
+        console.log(width, duration);
         const intervalFnOrVal = option =>
             typeof option === 'function' ? option(pixelsPerSecond) : option;
         const timeInterval = intervalFnOrVal(this.params.timeInterval);
@@ -353,6 +354,7 @@ export default class ChordsTimelinePlugin {
         // build an array of position data with index, second and pixel data,
         // this is then used multiple times below
         const positioning = [];
+        console.log(timeInterval)
         for (i = 0; i < totalSeconds / timeInterval; i++) {
             positioning.push([i, curSeconds, curPixel]);
             curSeconds += timeInterval;
@@ -400,7 +402,7 @@ export default class ChordsTimelinePlugin {
         else if (diff >= 0.7) sec = Math.ceil(sec)
 
         const [idx, _ign, _ign2] = positions[round];
-        for (let i = idx; idx < positions.length; i += 1) {
+        for (let i = idx; i < positions.length; i += 1) {
             const [idx, refSecond, pixel] = positions[i];
             if (refSecond === sec) return pixel;
         }
