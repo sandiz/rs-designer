@@ -134,7 +134,7 @@ class SettingsModal extends React.Component {
                                     <Tab eventKey="layout" title="Layout">
                                         <div className="gen-settings-tab">
                                             <div className="ta-center">
-                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to add/remove modules</span>
+                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to toggle modules</span>
                                             </div>
                                             <DraggableLayout items={this.state.layouts} onDragEnd={this.layoutDragEnd} onCheck={this.layoutCheck} />
                                         </div>
@@ -203,10 +203,10 @@ class SettingsModal extends React.Component {
                                             <br />
                                             <div className="d-flex flex-row">
                                                 <div style={{ width: 71 + '%' }}>
-                                                    <span>Enable FPS</span>
+                                                    <span>Stats Meter</span>
                                                     <div>
                                                         <small className="text-muted d-inline-block">
-                                                            show fps/mem/ms stats, click on the meter to toggle between states
+                                                            shows fps/mem/ms stats, clicking on the meter toggles states
                                                         </small>
                                                     </div>
                                                 </div>
@@ -227,7 +227,7 @@ class SettingsModal extends React.Component {
                                                     <span>GPU Power Preference</span>
                                                     <div>
                                                         <small className="text-muted d-inline-block">
-                                                            provides a hint to the renderer indicating what configuration of GPU is suitable for WebGL context.
+                                                            provides a hint to the renderer indicating what configuration of GPU is suitable for WebGL context. (changes take effect on open/import)
                                                         </small>
                                                     </div>
                                                 </div>

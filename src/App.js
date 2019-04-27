@@ -5,6 +5,7 @@ import ControllerBar from './components/ControllerBar/ControllerBar'
 import WaveformBar from './components/Waveform/WaveformBar'
 import ControlsBar from './components/Controls/ControlsBar'
 import AnalysisBar from './components/Analysis/AnalysisBar';
+import FPSMeter from './components/fpsmeter'
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
@@ -93,6 +94,7 @@ class App extends Component {
           <WaveformBar id={this.state.waveform.idx} style={{ display: this.state.waveform.checked ? 'block' : 'none' }} />
           <AnalysisBar id={this.state.chromagram.idx} style={{ display: this.state.chromagram.checked ? 'block' : 'none' }} />
         </div>
+        <FPSMeter />
         <ToastContainer
           position="bottom-right"
           autoClose={5000}
