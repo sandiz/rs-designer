@@ -16,7 +16,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - remove resample
         - soundtouch audioworklet
         - settings fps, power pref
-        - fix drag
 
     - analysis
         - chord, downbeat uses python

@@ -129,6 +129,14 @@ export const enableKbdShortcuts = () => {
     DispatcherService.dispatch(DispatchEvents.EnableShortcuts);
 }
 
+export const disableBodyDrag = () => {
+    document.body.style["-webkit-app-region"] = "no-drag";
+}
+
+export const enableBodyDrag = () => {
+    document.body.style["-webkit-app-region"] = "drag";
+}
+
 export const fetchCover = async (artist, albumortrack, usealbum = true) => {
     const a1 = artist.split("feat.")[0].trim();
     let url = "";
