@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal'
 import { Tabs, Tab, Form } from 'react-bootstrap'
 import PropTypes from 'prop-types';
 import {
-    disableKbdShortcuts, enableKbdShortcuts,
+    disableKbdShortcuts, enableKbdShortcuts, enableBodyDrag, disableBodyDrag,
 } from '../../lib/utils';
 import DraggableLayout from './draggableLayout'
 import { SettingsService, SettingsModel } from '../../services/settings';
@@ -40,9 +40,11 @@ class SettingsModal extends React.Component {
         if (nextProps === this.props) return false;
         if (nextProps.show) {
             disableKbdShortcuts();
+            disableBodyDrag();
         }
         else {
             enableKbdShortcuts();
+            enableBodyDrag();
         }
         return true;
     }
@@ -122,7 +124,7 @@ class SettingsModal extends React.Component {
                                     <Tab eventKey="layout" title="Layout">
                                         <div className="gen-settings-tab">
                                             <div className="ta-center">
-                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to toggle visibility</span>
+                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to add/remove modules</span>
                                             </div>
                                             <DraggableLayout items={this.state.layouts} onDragEnd={this.layoutDragEnd} onCheck={this.layoutCheck} />
                                         </div>
