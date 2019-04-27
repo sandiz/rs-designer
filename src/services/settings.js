@@ -72,6 +72,7 @@ class SettingsBase {
         const all = await this.getAll();
         const fields = all[category];
         if (field in fields) {
+            console.log(fields[field]);
             return fields[field];
         }
         return null;

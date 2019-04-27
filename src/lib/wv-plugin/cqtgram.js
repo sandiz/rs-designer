@@ -57,7 +57,7 @@ export default class ConstantQPlugin {
                 //  this.scalex = this.farSprite.scale.x;
             }
         }
-        this._onReady = () => {
+        this._onReady = async () => {
             const drawer = (this.drawer = ws.drawer);
             this.container =
                 'string' == typeof params.container
@@ -73,18 +73,9 @@ export default class ConstantQPlugin {
             this.specData = params.specData;
 
             this.renderID = null
-            this.stats = null;
 
             this.createWrapper();
             this.createCanvas();
-            this.render();
-            console.log(this.width)
-
-            if (SettingsService.getSettingValue("advanced", "show_fps") === true) {
-                this.stats = new Stats()
-                this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-                this.wrapper.appendChild(this.stats.dom);
-            }
 
             /*
             this.renderer = new THREE.WebGLRenderer({
@@ -112,6 +103,7 @@ export default class ConstantQPlugin {
                 resolution: 1,
                 desynchronized: true,
                 backgroundColor: 0x303030,
+                powerPreference: await SettingsService.getSettingValue('advanced', 'power_preference'),
             });
             this.stage = new PIXI.Container();
             this.line = new PIXI.Graphics();
@@ -125,6 +117,8 @@ export default class ConstantQPlugin {
             this.scalex = 0.5 / 1;
             this.scaley = 0.5 / 1
 
+
+            this.render();
 
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             //ws.on('redraw', this._onRender);
@@ -243,7 +237,7 @@ export default class ConstantQPlugin {
         }
     }
 
-    initScene = () => {
+    initScene = async () => {
         if (this.farSprite === null)
             this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
         this.farSprite.scale.y = this.scaley;
@@ -252,7 +246,14 @@ export default class ConstantQPlugin {
         this.farSprite.position.x = 0;
         this.farSprite.position.y = 0;
         this.stage.addChild(this.farSprite);
-        this.stage.addChild(this.line)
+        this.stage.addChild(this.line);
+        /*
+        if (await SettingsService.getSettingValue("advanced", "show_fps") === true) {
+            this.stats = new Stats()
+            this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            this.wrapper.appendChild(this.stats.dom);
+        }
+        */
         if (this.renderID != null)
             cancelAnimationFrame(this.renderID)
         this.update();
@@ -295,8 +296,6 @@ export default class ConstantQPlugin {
                 this.farSprite.tilePosition.x = -(pp - startpp) * (this.farSprite.width);
             }
         }
-        if (this.stats)
-            this.stats.update();
         this.renderer.render(this.stage);
         this.renderID = requestAnimationFrame(this.update);
     }
