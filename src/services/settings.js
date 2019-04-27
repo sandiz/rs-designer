@@ -67,6 +67,15 @@ class SettingsBase {
         }
         return false;
     }
+
+    getSettingValue = async (category, field) => {
+        const all = await this.getAll();
+        const fields = all[category];
+        if (field in fields) {
+            return fields[field];
+        }
+        return null;
+    }
 }
 
 export const SettingsService = new SettingsBase();

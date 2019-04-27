@@ -145,7 +145,7 @@ class SettingsModal extends React.Component {
                                                         </small>
                                                     </div>
                                                 </div>
-                                                <div className="ml-auto">
+                                                <div className="ml-auto mt-14">
                                                     <Form.Control
                                                         as="select"
                                                         value={this.state.advanced.key_profile}
@@ -165,7 +165,7 @@ class SettingsModal extends React.Component {
                                             </div>
                                             <br />
                                             <div className="d-flex flex-row">
-                                                <div>
+                                                <div style={{ width: 71 + '%' }}>
                                                     <span>Chromagram Colormap</span>
                                                     <div>
                                                         <small className="text-muted d-inline-block">
@@ -175,7 +175,7 @@ class SettingsModal extends React.Component {
                                                         </small>
                                                     </div>
                                                 </div>
-                                                <div className="ml-auto">
+                                                <div className="ml-auto mt-14">
                                                     <Form.Control
                                                         as="select"
                                                         value={this.state.advanced.cqt_colormap}
@@ -188,6 +188,27 @@ class SettingsModal extends React.Component {
                                                         <option value="PuOr">Purple</option>
                                                         <option value="RdBu">Blue</option>
                                                     </Form.Control>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div className="d-flex flex-row">
+                                                <div style={{ width: 71 + '%' }}>
+                                                    <span>Enable FPS</span>
+                                                    <div>
+                                                        <small className="text-muted d-inline-block">
+                                                            show fps/mem/ms stats, click on the meter to toggle between states
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div className="ml-auto mt-14">
+                                                    <input
+                                                        style={{
+                                                            marginRight: 10 + 'px',
+                                                            marginTop: 5 + 'px',
+                                                        }}
+                                                        type="checkbox"
+                                                        checked={this.state.advanced.show_fps}
+                                                        onChange={e => this.onChange(e, "show_fps")} />
                                                 </div>
                                             </div>
                                         </div>

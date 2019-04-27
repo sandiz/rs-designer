@@ -128,53 +128,72 @@ class MediaPlayerBase {
         const info = ProjectService.getProjectInfo();
         const cqtdata = await readFile(info.cqt);
         /* start wv-cqt plugin */
-        const cqtp = ConstantQPlugin.create({
-            container: "#spectrogram",
-            labels: false,
-            deferInit: false,
-            pixelRatio: 2,
-            height: 512,
-            specData: cqtdata,
-            cursorWidth: 1,
-            cursorColor: 'white',
-            waveColor: '#000',
-            progressColor: 'black',
-        })
-        this.wavesurfer.registerPlugins([cqtp]);
+        const activePlugins = this.wavesurfer.getActivePlugins();
+        if (activePlugins.constantq === true) {
+            this.wavesurfer.constantq.render();
+            console.log("reuse")
+        }
+        else {
+            console.log("create")
+            const cqtp = ConstantQPlugin.create({
+                container: "#spectrogram",
+                labels: false,
+                deferInit: false,
+                pixelRatio: 2,
+                height: 512,
+                specData: cqtdata,
+                cursorWidth: 1,
+                cursorColor: 'white',
+                waveColor: '#000',
+                progressColor: 'black',
+            })
+            this.wavesurfer.registerPlugins([cqtp]);
+        }
     }
 
     chordAnalyse = async () => {
-        let chords = [];
-        try {
-            chords = await ProjectService.readChords();
+        const activePlugins = this.wavesurfer.getActivePlugins();
+        if (activePlugins.chordstimeline === true) {
+            this.wavesurfer.chordstimeline.render();
         }
-        catch (ex) {
-            if (!Array.isArray(chords)) chords = []
+        else {
+            let chords = [];
+            try {
+                chords = await ProjectService.readChords();
+            }
+            catch (ex) {
+                if (!Array.isArray(chords)) chords = []
+            }
+            const ct = ChordsTimelinePlugin.create({
+                container: '#chordstimeline',
+                primaryColor: "#fff",
+                chords,
+                fontSize: 15,
+            })
+            this.wavesurfer.registerPlugins([ct]);
         }
-
-        const ct = ChordsTimelinePlugin.create({
-            container: '#chordstimeline',
-            primaryColor: "#fff",
-            chords,
-            fontSize: 15,
-        })
-        this.wavesurfer.registerPlugins([ct]);
     }
 
     beatsAnalyse = async () => {
-        let beats = []
-        try {
-            beats = await ProjectService.readBeats();
+        const activePlugins = this.wavesurfer.getActivePlugins();
+        if (activePlugins.beatstimeline === true) {
+            this.wavesurfer.beatstimeline.render();
         }
-        catch (ex) {
-            if (!Array.isArray(beats)) beats = []
+        else {
+            let beats = []
+            try {
+                beats = await ProjectService.readBeats();
+            }
+            catch (ex) {
+                if (!Array.isArray(beats)) beats = []
+            }
+            const ct = BeatsTimelinePlugin.create({
+                container: '#beatstimeline',
+                primaryColor: "#fff",
+                beats,
+            })
+            this.wavesurfer.registerPlugins([ct]);
         }
-        const ct = BeatsTimelinePlugin.create({
-            container: '#beatstimeline',
-            primaryColor: "#fff",
-            beats,
-        })
-        this.wavesurfer.registerPlugins([ct]);
     }
 
     setFilters(filters) {

@@ -101,3 +101,7 @@ a:hover {
 .dot-separator {
     color: #04ABED;
 }
+
+.mt-14 {
+    margin-top: 14px;
+}
