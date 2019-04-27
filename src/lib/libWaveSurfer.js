@@ -91,17 +91,13 @@ class MediaPlayerBase {
         });
     }
 
-    endAnalysis = (method) => {
-        DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
-    }
-
     analyse = async () => {
         const analysisReqd = ProjectService.isAnalysisReqd();
         let method = "";
+        DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, method);
         if (analysisReqd) {
             //save waveform data
             method = "generate"
-            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, method);
             console.log("starting media analysis");
             MediaAnalysis.cancel()
             try {
@@ -114,19 +110,18 @@ class MediaPlayerBase {
         } else {
             method = "load-from-disk"
             console.log("starting load from disk")
-            DispatcherService.dispatch(DispatchEvents.MediaAnalysisStart, "load-from-disk");
         }
         // each module should pick the items up
         //start loading analysis
         await this.cqtAnalyse(method);
         await this.chordAnalyse();
         await this.beatsAnalyse();
+        DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 
     cqtAnalyse = async (method) => {
         const info = ProjectService.getProjectInfo();
         const cqtdata = await readFile(info.cqt);
-        DispatcherService.on(DispatchEvents.MASpectrogramEnd, this.endAnalysis, method);
         /* start wv-cqt plugin */
         const cqtp = ConstantQPlugin.create({
             container: "#spectrogram",
