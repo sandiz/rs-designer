@@ -136,7 +136,6 @@ class CircleControls extends Component {
                 return Math.min(numFrames, length - position);
             },
         };
-        console.log(source);
         mp.onplay(async () => {
             if (this.state.transposeMode) return;
             const mediaPlayer = MediaPlayer.instance;

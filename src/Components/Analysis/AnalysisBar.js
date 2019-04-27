@@ -16,6 +16,7 @@ class AnalysisBar extends Component {
             expanded: true,
             showMIR: false,
             analysing: false,
+            currentZoom: 1,
         }
         this.se_excludes = ['showMIR', 'analysing']
         this.containerRef = React.createRef();
@@ -153,6 +154,13 @@ class AnalysisBar extends Component {
         });
     }
 
+    refresh = () => {
+        const mp = MediaPlayer.instance;
+        if (mp) {
+            mp.cqtAnalyse();
+        }
+    }
+
     render() {
         const expanded = "mir-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
@@ -173,6 +181,18 @@ class AnalysisBar extends Component {
                                     </div>
                                 )
                         }
+                    </span>
+                    <span className="ta-right float-right" style={{ display: this.state.expanded ? "block" : "none" }}>
+                        <span>
+                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} />
+                        </span>
+                        <span className="dot-separator"> • </span>
+                        <i className="cur-pointer fas fa-search-minus" onClick={this.decreaseZoom} />
+                        &nbsp;
+                        <span>{this.state.currentZoom}x</span>
+                        &nbsp;&nbsp;
+                        <i className="cur-pointer fas fa-search-plus" onClick={this.increaseZoom} />
+                        <i className="cur-pointer fas fa-search" onClick={this.resetZoom} />
                     </span>
                 </div>
                 <div ref={this.containerRef} className={expanded} id="mir-vis-container">

@@ -123,6 +123,15 @@ class WaveformBar extends Component {
         });
     }
 
+    refresh = async () => {
+        const mp = MediaPlayer.instance;
+        if (mp) {
+            mp.wavesurfer.drawer.fireEvent('redraw');
+            await mp.chordAnalyse();
+            await mp.beatsAnalyse();
+        }
+    }
+
     render() {
         const expanded = "waveform-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
@@ -133,7 +142,11 @@ class WaveformBar extends Component {
                         <i className={faclass} />
                         <span style={{ marginLeft: 5 + 'px' }}>WAVEFORM</span>
                     </span>
-                    <span className="waveform-zoom" style={{ display: this.state.expanded ? "block" : "none" }}>
+                    <span className="ta-right float-right" style={{ display: this.state.expanded ? "block" : "none" }}>
+                        <span>
+                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} />
+                        </span>
+                        <span className="dot-separator"> • </span>
                         <i className="cur-pointer fas fa-search-minus" onClick={this.decreaseZoom} />
                         &nbsp;
                         <span>{this.state.currentZoom}x</span>

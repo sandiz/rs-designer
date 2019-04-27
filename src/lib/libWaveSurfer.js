@@ -8,6 +8,7 @@ import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
 import { readTags, readFile } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
+import { SettingsService } from '../services/settings';
 
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
@@ -113,9 +114,13 @@ class MediaPlayerBase {
         }
         // each module should pick the items up
         //start loading analysis
-        await this.cqtAnalyse(method);
-        await this.chordAnalyse();
-        await this.beatsAnalyse();
+        if (await SettingsService.isLayoutAvailable("chromagram")) {
+            await this.cqtAnalyse(method);
+        }
+        if (await SettingsService.isLayoutAvailable("waveform")) {
+            await this.chordAnalyse();
+            await this.beatsAnalyse();
+        }
         DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 
