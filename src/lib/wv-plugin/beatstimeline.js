@@ -1,3 +1,5 @@
+import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
+
 /* eslint-disable */
 /**
  * @typedef {Object} TimelinePluginParams
@@ -229,12 +231,14 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     render() {
+        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
         if (!this.wrapper) {
             this.createWrapper();
         }
         this.updateCanvases();
         this.updateCanvasesPositioning();
         this.renderCanvases();
+        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
     }
 
     /**

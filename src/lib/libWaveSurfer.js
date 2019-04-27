@@ -26,7 +26,6 @@ class MediaPlayerBase {
     constructor(blob) {
         this.wavesurfer = null;
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        this.scriptProcessor = this.audioContext.createScriptProcessor(2048 /*bufferSize*/, 2 /*num inputs*/, 1 /*num outputs*/);
         const params = {
             audioContext: this.audioContext,
             container: '#waveform',
@@ -44,7 +43,7 @@ class MediaPlayerBase {
             scrollParent: true,
             responsive: true,
             closeAudioContext: true,
-            //forceDecode: true,
+            forceDecode: true,
             plugins: [
                 TimelinePlugin.create({
                     container: '#timeline',
@@ -119,13 +118,9 @@ class MediaPlayerBase {
         }
         // each module should pick the items up
         //start loading analysis
-        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
         await this.cqtAnalyse(method);
-        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
-        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
         await this.chordAnalyse();
         await this.beatsAnalyse();
-        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
     }
 
     cqtAnalyse = async (method) => {
@@ -186,13 +181,6 @@ class MediaPlayerBase {
         if (this.wavesurfer) {
             this.wavesurfer.backend.setFilters(filters);
         }
-    }
-
-    getScriptProcessor() {
-        if (this.wavesurfer) {
-            return this.scriptProcessor;
-        }
-        return null;
     }
 
     getPostAnalyser() {
