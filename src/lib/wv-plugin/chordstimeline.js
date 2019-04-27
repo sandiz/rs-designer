@@ -234,14 +234,12 @@ export default class ChordsTimelinePlugin {
      * @private
      */
     render(transpose = 0) {
-        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
         if (!this.wrapper) {
             this.createWrapper();
         }
         this.updateCanvases();
         this.updateCanvasesPositioning();
         this.renderCanvases(transpose);
-        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
     }
 
     /**

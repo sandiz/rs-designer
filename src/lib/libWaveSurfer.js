@@ -137,14 +137,14 @@ class MediaPlayerBase {
     }
 
     cqtAnalyse = async () => {
-        const info = ProjectService.getProjectInfo();
-        const cqtdata = await readFile(info.cqt);
         /* start wv-cqt plugin */
         const activePlugins = this.wavesurfer.getActivePlugins();
         if (activePlugins.constantq === true) {
             this.wavesurfer.constantq.render();
         }
         else {
+            const info = ProjectService.getProjectInfo();
+            const cqtdata = await readFile(info.cqt);
             const cqtp = ConstantQPlugin.create({
                 container: "#spectrogram",
                 labels: false,
