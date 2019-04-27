@@ -129,8 +129,7 @@ class WaveformBar extends Component {
         const mp = MediaPlayer.instance;
         if (mp) {
             mp.wavesurfer.drawer.fireEvent('redraw');
-            await mp.chordAnalyse();
-            await mp.beatsAnalyse();
+            await mp.WAVEFORM();
         }
     }
 

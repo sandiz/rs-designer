@@ -114,27 +114,37 @@ class MediaPlayerBase {
         }
         // each module should pick the items up
         //start loading analysis
-        if (await SettingsService.isLayoutAvailable("chromagram")) {
-            await this.cqtAnalyse(method);
-        }
-        if (await SettingsService.isLayoutAvailable("waveform")) {
-            await this.chordAnalyse();
-            await this.beatsAnalyse();
-        }
+        await this.CQT();
+        await this.WAVEFORM();
         DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 
-    cqtAnalyse = async (method) => {
+    CQT = async () => {
+        if (await SettingsService.isLayoutAvailable("chromagram")) {
+            DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
+            await this.cqtAnalyse();
+            DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
+        }
+    }
+
+    WAVEFORM = async () => {
+        if (await SettingsService.isLayoutAvailable("waveform")) {
+            DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
+            await this.chordAnalyse();
+            await this.beatsAnalyse();
+            DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
+        }
+    }
+
+    cqtAnalyse = async () => {
         const info = ProjectService.getProjectInfo();
         const cqtdata = await readFile(info.cqt);
         /* start wv-cqt plugin */
         const activePlugins = this.wavesurfer.getActivePlugins();
         if (activePlugins.constantq === true) {
             this.wavesurfer.constantq.render();
-            console.log("reuse")
         }
         else {
-            console.log("create")
             const cqtp = ConstantQPlugin.create({
                 container: "#spectrogram",
                 labels: false,

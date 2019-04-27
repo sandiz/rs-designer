@@ -58,7 +58,6 @@ export default class ConstantQPlugin {
             }
         }
         this._onReady = () => {
-            DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
             const drawer = (this.drawer = ws.drawer);
             this.container =
                 'string' == typeof params.container
@@ -214,11 +213,9 @@ export default class ConstantQPlugin {
     }
 
     render() {
-        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
         const data = this.specData
         //this.drawSpectrogram(data);
         this.drawPixi(data);
-        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
         return;
     }
 
