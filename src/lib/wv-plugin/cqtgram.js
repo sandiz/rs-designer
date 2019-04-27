@@ -7,6 +7,7 @@ const THREE = require('three');
 const Stats = require('stats-js');
 
 import * as PIXI from 'pixi.js'
+import { SettingsService } from '../../services/settings';
 /**
  * Render a constantq visualisation of the audio.
  */
@@ -57,6 +58,7 @@ export default class ConstantQPlugin {
             }
         }
         this._onReady = () => {
+            DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
             const drawer = (this.drawer = ws.drawer);
             this.container =
                 'string' == typeof params.container
@@ -71,14 +73,19 @@ export default class ConstantQPlugin {
             this.height = this.params.height; //this.fftSamples / 2;
             this.specData = params.specData;
 
-            this.stats = new Stats()
             this.renderID = null
-            this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            this.stats = null;
 
             this.createWrapper();
             this.createCanvas();
             this.render();
-            this.wrapper.appendChild(this.stats.dom);
+            console.log(this.width)
+
+            if (SettingsService.getSettingValue("advanced", "show_fps") === true) {
+                this.stats = new Stats()
+                this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+                this.wrapper.appendChild(this.stats.dom);
+            }
 
             /*
             this.renderer = new THREE.WebGLRenderer({
@@ -249,6 +256,8 @@ export default class ConstantQPlugin {
         this.farSprite.position.y = 0;
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line)
+        if (this.renderID != null)
+            cancelAnimationFrame(this.renderID)
         this.update();
     }
 
@@ -289,10 +298,9 @@ export default class ConstantQPlugin {
                 this.farSprite.tilePosition.x = -(pp - startpp) * (this.farSprite.width);
             }
         }
-        this.stats.update();
+        if (this.stats)
+            this.stats.update();
         this.renderer.render(this.stage);
-        if (this.renderID != null)
-            cancelAnimationFrame(this.renderID)
         this.renderID = requestAnimationFrame(this.update);
     }
 
@@ -325,7 +333,8 @@ export default class ConstantQPlugin {
             }
 
         }
-        this.stats.update()
+        if (this.stats)
+            this.stats.update()
         this.renderID = requestAnimationFrame(this.renderCQTScroll);
         this.renderer.render(this.scene, this.camera);
     }
