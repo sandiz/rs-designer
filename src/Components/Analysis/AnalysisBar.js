@@ -156,10 +156,10 @@ class AnalysisBar extends Component {
         });
     }
 
-    refresh = () => {
+    refresh = async () => {
         const mp = MediaPlayer.instance;
         if (mp) {
-            mp.cqtAnalyse();
+            await mp.CQT();
         }
     }
 
