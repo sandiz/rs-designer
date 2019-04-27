@@ -170,9 +170,14 @@ app.on("ready", () => {
     createWindow();
     if (isDev) {
         //add web-audio visual debugger
-        BrowserWindow.addDevToolsExtension(
-            path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0')
-        )
+        const _webaudioExt = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0');
+        if (fs.existsSync(_webaudioExt))
+            BrowserWindow.addDevToolsExtension(_webaudioExt);
+
+        const _reactExt = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
+        //add react devtools
+        if (fs.existsSync(_reactExt))
+            BrowserWindow.addDevToolsExtension(_reactExt);
     }
     sendOpenFileRequest();
     ready = true;
@@ -198,7 +203,7 @@ sendOpenFileRequest = () => {
         setTimeout(() => {
             mainWindow.webContents.send('open-file', incomingPath);
             incomingPath = "";
-        }, 1000);
+        }, 500);
     }
 }
 

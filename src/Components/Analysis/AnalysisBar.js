@@ -142,12 +142,15 @@ class AnalysisBar extends Component {
         }), async () => {
             const mediaPlayer = MediaPlayer.instance;
             if (mediaPlayer) {
-                if (this.state.expanded) {
-                    // start update
-                    mediaPlayer.wavesurfer.constantq.resumeUpdate();
-                }
-                else {
-                    mediaPlayer.wavesurfer.constantq.pauseUpdate();
+                const acPlugins = mediaPlayer.wavesurfer.getActivePlugins();
+                if (acPlugins.constantq === true) {
+                    if (this.state.expanded) {
+                        // start update
+                        mediaPlayer.wavesurfer.constantq.resumeUpdate();
+                    }
+                    else {
+                        mediaPlayer.wavesurfer.constantq.pauseUpdate();
+                    }
                 }
             }
             await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_excludes);

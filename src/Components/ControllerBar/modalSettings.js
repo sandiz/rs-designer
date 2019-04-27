@@ -221,6 +221,28 @@ class SettingsModal extends React.Component {
                                                         onChange={e => this.onCheckboxChange(e, "show_fps")} />
                                                 </div>
                                             </div>
+                                            <br />
+                                            <div className="d-flex flex-row">
+                                                <div style={{ width: 71 + '%' }}>
+                                                    <span>GPU Power Preference</span>
+                                                    <div>
+                                                        <small className="text-muted d-inline-block">
+                                                            provides a hint to the renderer indicating what configuration of GPU is suitable for WebGL context.
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div className="ml-auto mt-14">
+                                                    <Form.Control
+                                                        as="select"
+                                                        value={this.state.advanced.power_preference}
+                                                        onChange={e => this.onSelectChange(e, "power_preference")}
+                                                    >
+                                                        <option value="default">default</option>
+                                                        <option value="high-performance">high-performance</option>
+                                                        <option value="low-power">low-power</option>
+                                                    </Form.Control>
+                                                </div>
+                                            </div>
                                         </div>
                                     </Tab>
                                 </Tabs>

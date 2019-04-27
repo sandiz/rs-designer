@@ -95,7 +95,8 @@ export default class ConstantQPlugin {
             */
 
             //this.farTexture = null;
-
+            const ppref = await SettingsService.getSettingValue('advanced', 'power_preference');
+            console.log("using gpu power preference: " + ppref);
             this.renderer = PIXI.autoDetectRenderer({
                 width: this.width,
                 height: this.height,
@@ -103,20 +104,11 @@ export default class ConstantQPlugin {
                 resolution: 1,
                 desynchronized: true,
                 backgroundColor: 0x303030,
-                powerPreference: await SettingsService.getSettingValue('advanced', 'power_preference'),
+                powerPreference: ppref,
             });
-            this.stage = new PIXI.Container();
-            this.line = new PIXI.Graphics();
-            this.line.position.x = 0;
-            this.line.position.y = 0;
-            this.line.lineStyle(1, 0xFFFFFF, 1);
-            this.line.pivot.set(0, 0);
-            this.line.moveTo(0, 0);
-            this.line.lineTo(0, this.height);
-
+            this.stage = null;
             this.scalex = 0.5 / 1;
             this.scaley = 0.5 / 1
-
 
             this.render();
 
@@ -149,6 +141,10 @@ export default class ConstantQPlugin {
             this.wrapper.removeEventListener('click', this._onWrapperClick);
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
+        }
+        if (this.stage) {
+            this.stage.destroy();
+            this.stage = null;
         }
     }
 
@@ -238,6 +234,17 @@ export default class ConstantQPlugin {
     }
 
     initScene = async () => {
+        //if (this.stage != null) {
+        //    this.stage.destroy();
+        //}
+        this.stage = new PIXI.Container();
+        this.line = new PIXI.Graphics();
+        this.line.position.x = 0;
+        this.line.position.y = 0;
+        this.line.lineStyle(1, 0xFFFFFF, 1);
+        this.line.pivot.set(0, 0);
+        this.line.moveTo(0, 0);
+        this.line.lineTo(0, this.height);
         if (this.farSprite === null)
             this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
         this.farSprite.scale.y = this.scaley;
@@ -245,6 +252,7 @@ export default class ConstantQPlugin {
         this.farSprite.tilePosition.x = 0;
         this.farSprite.position.x = 0;
         this.farSprite.position.y = 0;
+
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line);
         /*
