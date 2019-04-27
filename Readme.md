@@ -13,6 +13,7 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - canvas piano bar 
         - zoom
         - remove resample
+        - audioworklet
 
     - analysis
         - chord, downbeat uses python

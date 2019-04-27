@@ -104,7 +104,7 @@ export default class ConstantQPlugin {
                 height: this.height,
                 view: this.canvas,
                 resolution: 1,
-                powerPreference: "high-performance",
+                desynchronized: true,
             });
             this.stage = new PIXI.Container();
             this.line = new PIXI.Graphics();
@@ -140,7 +140,6 @@ export default class ConstantQPlugin {
         this.unAll();
         this.wavesurfer.un('ready', this._onReady);
         this.wavesurfer.un('redraw', this._onRender);
-        this.wavesurfer.un('audioprocess', this._onAudioprocess);
         this.drawer.wrapper.removeEventListener('scroll', this._onScroll);
         this.wavesurfer = null;
         this.util = null;
@@ -208,9 +207,11 @@ export default class ConstantQPlugin {
     }
 
     render() {
+        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
         const data = this.specData
         //this.drawSpectrogram(data);
         this.drawPixi(data);
+        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
         return;
     }
 

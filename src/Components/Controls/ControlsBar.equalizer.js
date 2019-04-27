@@ -139,9 +139,8 @@ class EqualizerControls extends Component {
     toggleKaraoke = async () => {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
-            //const sp = mediaPlayer.getScriptProcessor();
             const backend = mediaPlayer.getBackend();
-            const sp = await WebAudioFilters.createFilter(FilterTypes.karaoke, backend.ac);
+            const sp = await WebAudioFilters.createFilter(FilterTypes.karaoke, backend);
             if (sp == null) { return; }
             if (this.state.enableKaraoke) {
                 this.filters[this.numBands - 1].disconnect(0);
@@ -151,18 +150,6 @@ class EqualizerControls extends Component {
                 this.filters[this.numBands - 1].connect(backend.gainNode);
                 sp.disconnect(0);////this.filters[0]);
             }
-            /*
-            sp.onaudioprocess = (evt) => {
-                const inputL = evt.inputBuffer.getChannelData(0);
-                const inputR = evt.inputBuffer.getChannelData(1);
-                const output = evt.outputBuffer.getChannelData(0);
-                const len = inputL.length;
-                let i = 0;
-                for (; i < len; i += 1) {
-                    output[i] = (inputL[i] - inputR[i]) / 2;
-                }
-            };
-            */
         }
     }
 

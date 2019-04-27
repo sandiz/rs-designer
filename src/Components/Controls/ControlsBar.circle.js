@@ -2,11 +2,14 @@ import React, { Component } from 'react'
 import '../../css/ControlsBar.css'
 import '../../css/slider.css'
 import "../../lib/radiaslider/src/slider-circular"
-import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
+import { SoundTouch, SimpleFilter, getWebAudioNode } from "soundtouchjs";
+//import { SoundTouch } from "soundtouchjs";
+
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import { setStateAsync } from '../../lib/utils';
+// import WebAudioFilters, { FilterTypes } from '../../lib/filters/filters';
 
 const defaultState = {
     transposeMode: false,
@@ -112,8 +115,9 @@ class CircleControls extends Component {
         const l = buffer.getChannelData(0);
         const r = channels > 1 ? buffer.getChannelData(1) : l;
         const length = buffer.length;
-        let seekingPos = null;
         let seekingDiff = 0;
+        let seekingPos = null;
+
 
         const source = {
             extract: (target, numFrames, position) => {
@@ -132,16 +136,19 @@ class CircleControls extends Component {
                 return Math.min(numFrames, length - position);
             },
         };
-        mp.onplay(() => {
+        console.log(source);
+        mp.onplay(async () => {
             if (this.state.transposeMode) return;
             const mediaPlayer = MediaPlayer.instance;
             const backend = mediaPlayer.getBackend();
+            // const length = backend.buffer.length;
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
-            this.st.tempo = mediaPlayer.getPlaybackRate();
+            const tempo = mediaPlayer.getPlaybackRate();
             const normval = this.pitchSlider.sliders[1].normalizedValue;
+            this.st.tempo = mediaPlayer.getPlaybackRate();
             this.st.pitchSemitones = normval;
-            if (this.st.tempo === 1 && normval === 0) {
+            if (tempo === 1 && normval === 0) {
                 if (this.soundTouchNode) {
                     this.soundTouchNode.disconnect();
                     backend.source.connect(backend.analyser);
@@ -154,9 +161,24 @@ class CircleControls extends Component {
                         backend.ac,
                         filter,
                     );
+                    //this.soundTouchNode = await WebAudioFilters.createFilter(
+                    //    FilterTypes.soundtouch,
+                    //    backend,
+                    //);
                 }
+
                 backend.source.disconnect(backend.analyser);
                 backend.source.connect(this.soundTouchNode);
+
+                /*
+                this.soundTouchNode.port.postMessage({
+                    type: "update",
+                    tempo: mediaPlayer.getPlaybackRate(),
+                    pitchSemitones: normval,
+                    seekingPos,
+                    length,
+                });
+                */
                 this.soundTouchNode.connect(backend.analyser);
             }
         })
@@ -174,6 +196,16 @@ class CircleControls extends Component {
             const backend = mediaPlayer.getBackend();
             //eslint-disable-next-line
             seekingPos = ~~(backend.getPlayedPercents() * length);
+            /*
+            const normval = this.pitchSlider.sliders[1].normalizedValue;
+            this.soundTouchNode.port.postMessage({
+                type: "update",
+                tempo: mediaPlayer.getPlaybackRate(),
+                pitchSemitones: normval,
+                seekingPos,
+                length,
+            });
+            */
         })
     }
 
