@@ -13,7 +13,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - canvas piano bar 
         - zoom
         - remove resample
-        - audioworklet
+        - soundtouch audioworklet
+        - settings fps, power pref
+        - draw cqt if cqt is enabled
 
     - analysis
         - chord, downbeat uses python

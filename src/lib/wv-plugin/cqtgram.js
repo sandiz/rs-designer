@@ -105,6 +105,7 @@ export default class ConstantQPlugin {
                 view: this.canvas,
                 resolution: 1,
                 desynchronized: true,
+                backgroundColor: 0x303030,
             });
             this.stage = new PIXI.Container();
             this.line = new PIXI.Graphics();
@@ -122,7 +123,6 @@ export default class ConstantQPlugin {
             drawer.wrapper.addEventListener('scroll', this._onScroll);
             //ws.on('redraw', this._onRender);
             //ws.on('zoom', this._onZoom);
-            DispatcherService.dispatch(DispatchEvents.MASpectrogramStart);
         };
     }
 
@@ -249,9 +249,7 @@ export default class ConstantQPlugin {
         this.farSprite.position.y = 0;
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line)
-        window.farSprite = this.farSprite;
         this.update();
-        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
     }
 
     update = () => {
@@ -346,7 +344,6 @@ export default class ConstantQPlugin {
         try {
             const t = await this.asyncTextureLoad(dataURI);
             this.texture = t;
-            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
             const imgwidth = t.image.width
             t.repeat.x = (WIDTH * this.pixelRatio) / imgwidth;
 
@@ -370,7 +367,6 @@ export default class ConstantQPlugin {
                 data.height
             );
             my.spectrCc.putImageData(im, 0, 0);
-            DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
         })*/
         //for raw data
         /* 
@@ -380,7 +376,6 @@ export default class ConstantQPlugin {
             my.height
         );
         my.spectrCc.putImageData(im, 0, 0);
-        DispatcherService.dispatch(DispatchEvents.MASpectrogramEnd);
         */
     }
 
