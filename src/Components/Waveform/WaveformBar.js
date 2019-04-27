@@ -50,9 +50,7 @@ class WaveformBar extends Component {
         if (type !== "waveform") return;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, true);
-            if (!this.containerRef.current.classList.contains("show")) {
-                this.containerRef.current.classList.add("show");
-            }
+            this.containerRef.current.classList.toggle("show", true);
         }
     }
 
@@ -60,7 +58,7 @@ class WaveformBar extends Component {
         if (type !== "waveform") return;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, false);
-            this.containerRef.current.classList.remove("show");
+            this.containerRef.current.classList.toggle("show", false);
         }
     }
 

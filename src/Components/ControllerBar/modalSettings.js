@@ -59,12 +59,22 @@ class SettingsModal extends React.Component {
         await SettingsService.setAll(rest);
     }
 
-    onChange = (e, type) => {
-        const arr = { ...this.state.advanced }
+    onSelectChange = (e, type, category = 'advanced') => {
+        const arr = { ...this.state[category] }
         arr[type] = e.target.value;
-        this.setState({
-            advanced: arr,
-        })
+        const news = {}
+        news[category] = arr;
+
+        this.setState(news);
+    }
+
+    onCheckboxChange = (e, type, category = 'advanced') => {
+        const arr = { ...this.state[category] }
+        arr[type] = e.target.checked;
+
+        const news = {}
+        news[category] = arr;
+        this.setState(news);
     }
 
     layoutDragEnd = (result) => {
@@ -149,7 +159,7 @@ class SettingsModal extends React.Component {
                                                     <Form.Control
                                                         as="select"
                                                         value={this.state.advanced.key_profile}
-                                                        onChange={e => this.onChange(e, "key_profile")}
+                                                        onChange={e => this.onSelectChange(e, "key_profile")}
                                                     >
                                                         <option value="diatonic">diatonic</option>
                                                         <option value="bgate">bgate</option>
@@ -179,7 +189,7 @@ class SettingsModal extends React.Component {
                                                     <Form.Control
                                                         as="select"
                                                         value={this.state.advanced.cqt_colormap}
-                                                        onChange={e => this.onChange(e, "cqt_colormap")}
+                                                        onChange={e => this.onSelectChange(e, "cqt_colormap")}
                                                     >
                                                         <option value="bone_r">bone</option>
                                                         <option value="Spectral">Spectral</option>
@@ -208,7 +218,7 @@ class SettingsModal extends React.Component {
                                                         }}
                                                         type="checkbox"
                                                         checked={this.state.advanced.show_fps}
-                                                        onChange={e => this.onChange(e, "show_fps")} />
+                                                        onChange={e => this.onCheckboxChange(e, "show_fps")} />
                                                 </div>
                                             </div>
                                         </div>

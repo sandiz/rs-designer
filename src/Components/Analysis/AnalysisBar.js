@@ -51,9 +51,7 @@ class AnalysisBar extends Component {
         if (type !== "cqt") return;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, true);
-            if (!this.containerRef.current.classList.contains("show")) {
-                this.containerRef.current.classList.add("show");
-            }
+            this.containerRef.current.classList.toggle("show", true);
         }
     }
 
@@ -61,7 +59,7 @@ class AnalysisBar extends Component {
         if (type !== "cqt") return;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, false);
-            this.containerRef.current.classList.remove("show");
+            this.containerRef.current.classList.toggle("show", false);
         }
     }
 
