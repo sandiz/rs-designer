@@ -129,6 +129,17 @@ class AnalysisBar extends Component {
         this.setState({ showMIR: true });
     }
 
+    zoom = (type) => {
+        const mediaPlayer = MediaPlayer.instance;
+        if (mediaPlayer) {
+            const active = mediaPlayer.wavesurfer.getActivePlugins();
+            if (active.constantq === true) {
+                const val = mediaPlayer.wavesurfer.constantq.zoom(type);
+                this.setState({ currentZoom: val + 1 });
+            }
+        }
+    }
+
     loadSpec = () => {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
@@ -190,12 +201,12 @@ class AnalysisBar extends Component {
                             <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} />
                         </span>
                         <span className="dot-separator"> • </span>
-                        <i className="cur-pointer fas fa-search-minus" onClick={this.decreaseZoom} />
+                        <i className="cur-pointer fas fa-search-minus" onClick={e => this.zoom('dec')} />
                         &nbsp;
                         <span>{this.state.currentZoom}x</span>
                         &nbsp;&nbsp;
-                        <i className="cur-pointer fas fa-search-plus" onClick={this.increaseZoom} />
-                        <i className="cur-pointer fas fa-search" onClick={this.resetZoom} />
+                        <i className="cur-pointer fas fa-search-plus" onClick={e => this.zoom('inc')} />
+                        <i className="cur-pointer fas fa-search" onClick={e => this.zoom('reset')} />
                     </span>
                 </div>
                 <div ref={this.containerRef} className={expanded} id="mir-vis-container">
