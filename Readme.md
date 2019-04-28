@@ -12,7 +12,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
     - cqt
         - canvas piano bar 
         - zoom buttons + func
-        - resize
         - remove resample
         - soundtouch audioworklet
 
