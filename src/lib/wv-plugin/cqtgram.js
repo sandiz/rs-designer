@@ -112,10 +112,18 @@ export default class ConstantQPlugin {
 
             this.render();
 
-            drawer.wrapper.addEventListener('scroll', this._onScroll);
+            //drawer.wrapper.addEventListener('scroll', this._onScroll);
             //ws.on('redraw', this._onRender);
             //ws.on('zoom', this._onZoom);
+            window.addEventListener('resize', this.resize);
         };
+    }
+
+    resize = () => {
+        if (this.renderer)
+            this.renderer.resize(this.container.offsetWidth, this.params.height);
+        this.width = this.container.offsetWidth;
+        this.height = this.params.height
     }
 
     init() {
