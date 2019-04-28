@@ -11,6 +11,8 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 - TODO
     - cqt
         - click to seek
+        - note hover
+        - tranpose 
 
     - analysis
         - chord, downbeat uses python

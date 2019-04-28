@@ -201,11 +201,11 @@ class AnalysisBar extends Component {
                     </span>
                     <span className="ta-right float-right" style={{ display: this.state.expanded ? "block" : "none" }}>
                         <span>
-                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} />
+                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} title="Rerender stage" />
                         </span>
                         <span className="dot-separator"> • </span>
                         <span>
-                            <i className="cur-pointer fas fa-arrows-alt-v" onClick={e => this.zoom('stretch')} />
+                            <i className="cur-pointer fas fa-arrows-alt-v" title="Zoom Vertically" onClick={e => this.zoom('stretch')} />
                         </span>
                         <span className="dot-separator"> • </span>
                         <i className="cur-pointer fas fa-search-minus" onClick={e => this.zoom('dec')} />
