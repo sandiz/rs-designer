@@ -10,9 +10,7 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 # roadmap
 - TODO
     - cqt
-        - canvas piano bar 
-        - remove resample
-        - soundtouch audioworklet
+        - click to seek
 
     - analysis
         - chord, downbeat uses python
@@ -26,6 +24,8 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - https://librosa.github.io/librosa/generated/librosa.decompose.hpss.html
         - https://aubio.org/ (https://news.ycombinator.com/item?id=19681804)
         - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
+    - misc
+        - soundtouch worklet
 
 
 - NEXT

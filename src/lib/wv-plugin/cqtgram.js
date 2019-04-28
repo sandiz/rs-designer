@@ -98,10 +98,11 @@ export default class ConstantQPlugin {
                 powerPreference: ppref,
             });
             this.stage = null;
+            this.defaultHeight = 512;
             this.defaultZoom = 0.5 / 1;
             this.zoomdiff = 0.1;
             this.min = this.defaultZoom;
-            this.max = this.min * 50;
+            this.max = this.min * 20;
             this.scalex = this.defaultZoom;
             this.scaley = 0.5 / 1
 
@@ -115,6 +116,7 @@ export default class ConstantQPlugin {
     }
 
     zoom = (type) => {
+        console.log(type)
         switch (type) {
             case "inc":
                 if (this.scalex >= this.max)
@@ -128,6 +130,19 @@ export default class ConstantQPlugin {
                 break;
             case "reset":
                 this.scalex = this.defaultZoom;
+                break;
+            case "stretch":
+                console.log(this.params.height)
+                if (this.params.height === this.defaultHeight) {
+                    this.height = this.params.height = this.defaultHeight * 2;
+                    this.scaley = this.defaultZoom * 2;
+                }
+                else {
+                    this.height = this.params.height = this.defaultHeight;
+                    this.scaley = this.defaultZoom;
+                }
+                this.renderer.resize(this.renderer.width, this.params.height);
+                this.wrapper.style.height = this.height + "px";
                 break;
         }
         this.render();
@@ -278,6 +293,7 @@ export default class ConstantQPlugin {
 
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line);
+        this.drawScale();
 
         if (this.renderID != null)
             cancelAnimationFrame(this.renderID)
@@ -323,6 +339,46 @@ export default class ConstantQPlugin {
         }
         this.renderer.render(this.stage);
         this.renderID = requestAnimationFrame(this.update);
+    }
+
+    drawScale = () => {
+        const repeat = this.height / (12 * 7)
+        let y = 0;
+        let note = 8;
+        for (let i = 0; i < 12 * 7; i += 1) {
+            let width = 60
+            let text = null
+            const smallwidth = width / 1.5
+            const newscaleline = new PIXI.Graphics();
+            newscaleline.position.x = 0;
+            newscaleline.position.y = y;
+            if (i % 12 === 0) {
+                text = new PIXI.Text('C' + note, {
+                    fontFamily: 'Roboto Condensed',
+                    fontSize: 16,
+                    fill: 0xffffff,
+                    align: 'center',
+                    stroke: "black",
+                    strokeThickness: 3
+                });
+                text.position.x = width / 2;
+                text.position.y = y
+                newscaleline.lineStyle(2, 0x4b4c4e, 1);
+                note--;
+            }
+            else {
+                width = smallwidth;
+                newscaleline.lineStyle(1, 0xffffff, 1);
+            }
+            newscaleline.pivot.set(0, width / 2);
+            newscaleline.rotation = 1.5708
+            newscaleline.moveTo(0, 0);
+            newscaleline.lineTo(0, width);
+            this.stage.addChild(newscaleline)
+            if (text)
+                this.stage.addChild(text)
+            y += repeat;
+        }
     }
 
     updateCanvasStyle() {
