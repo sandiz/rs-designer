@@ -130,10 +130,13 @@ class AnalysisBar extends Component {
     }
 
     zoom = (type) => {
+        console.log(type);
+
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const active = mediaPlayer.wavesurfer.getActivePlugins();
             if (active.constantq === true) {
+                console.log(type);
                 const val = mediaPlayer.wavesurfer.constantq.zoom(type);
                 this.setState({ currentZoom: val + 1 });
             }
@@ -199,6 +202,10 @@ class AnalysisBar extends Component {
                     <span className="ta-right float-right" style={{ display: this.state.expanded ? "block" : "none" }}>
                         <span>
                             <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} />
+                        </span>
+                        <span className="dot-separator"> • </span>
+                        <span>
+                            <i className="cur-pointer fas fa-arrows-alt-v" onClick={e => this.zoom('stretch')} />
                         </span>
                         <span className="dot-separator"> • </span>
                         <i className="cur-pointer fas fa-search-minus" onClick={e => this.zoom('dec')} />
