@@ -38,7 +38,6 @@ export default class ConstantQPlugin {
         this.util = ws.util;
         this.farTexture = null;
         this.farSprite = null;
-        this.defaultZoom = 20; /*default zoom */
 
         this._onScroll = e => {
             this.updateScroll(e);
@@ -49,14 +48,6 @@ export default class ConstantQPlugin {
         this._onWrapperClick = e => {
             this._wrapperClickHandler(e);
         };
-        this._onZoom = pxPerSec => {
-            console.log(pxPerSec)
-            const diff = pxPerSec - this.defaultZoom;
-            if (this.farSprite) {
-                //  this.farSprite.scale.x += diff * 0.025;
-                //  this.scalex = this.farSprite.scale.x;
-            }
-        }
         this._onReady = async () => {
             const drawer = (this.drawer = ws.drawer);
             this.container =
@@ -107,7 +98,11 @@ export default class ConstantQPlugin {
                 powerPreference: ppref,
             });
             this.stage = null;
-            this.scalex = 0.5 / 1;
+            this.defaultZoom = 0.5 / 1;
+            this.zoomdiff = 0.1;
+            this.min = this.defaultZoom;
+            this.max = this.min * 50;
+            this.scalex = this.defaultZoom;
             this.scaley = 0.5 / 1
 
             this.render();
@@ -117,6 +112,26 @@ export default class ConstantQPlugin {
             //ws.on('zoom', this._onZoom);
             window.addEventListener('resize', this.resize);
         };
+    }
+
+    zoom = (type) => {
+        switch (type) {
+            case "inc":
+                if (this.scalex >= this.max)
+                    break;
+                this.scalex += this.zoomdiff;
+                break;
+            case "dec":
+                if (this.scalex <= this.min)
+                    break;
+                this.scalex -= this.zoomdiff;
+                break;
+            case "reset":
+                this.scalex = this.defaultZoom;
+                break;
+        }
+        this.render();
+        return Math.round((this.scalex - this.defaultZoom) * 10);
     }
 
     resize = () => {
@@ -263,13 +278,7 @@ export default class ConstantQPlugin {
 
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line);
-        /*
-        if (await SettingsService.getSettingValue("advanced", "show_fps") === true) {
-            this.stats = new Stats()
-            this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-            this.wrapper.appendChild(this.stats.dom);
-        }
-        */
+
         if (this.renderID != null)
             cancelAnimationFrame(this.renderID)
         this.update();
