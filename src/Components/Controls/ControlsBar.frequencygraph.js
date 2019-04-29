@@ -52,7 +52,7 @@ class FrequencyGraph extends Component {
             this.analyser.fftSize = 8192;
             this.bufferLength = this.analyser.frequencyBinCount;
 
-            this.audioMotion = AudioMotionInitialize(mediaPlayer.audioContext, this.analyser, this.canvas, this.bufferLength);
+            this.audioMotion = AudioMotionInitialize(mediaPlayer.wavesurfer.backend.ac, this.analyser, this.canvas, this.bufferLength);
         }
     }
 
