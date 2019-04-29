@@ -302,7 +302,7 @@ export default class ConstantQPlugin {
 
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line);
-        this.stage.addChild(this.cursorline);
+        //this.stage.addChild(this.cursorline);
         this.drawScale();
 
         if (this.renderID != null)
