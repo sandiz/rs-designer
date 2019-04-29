@@ -1,11 +1,4 @@
 /* eslint-disable */
-const bone = require('./1').bone_cmap;
-const spawn = require('threads').spawn;
-const { DispatcherService, DispatchEvents } = require("../../services/dispatcher");
-const PNG = require('pngjs').PNG;
-const THREE = require('three');
-const Stats = require('stats-js');
-
 import * as PIXI from 'pixi.js'
 import { SettingsService } from '../../services/settings';
 /**
@@ -116,7 +109,6 @@ export default class ConstantQPlugin {
     }
 
     zoom = (type) => {
-        console.log(type)
         switch (type) {
             case "inc":
                 if (this.scalex >= this.max)
@@ -132,7 +124,6 @@ export default class ConstantQPlugin {
                 this.scalex = this.defaultZoom;
                 break;
             case "stretch":
-                console.log(this.params.height)
                 if (this.params.height === this.defaultHeight) {
                     this.height = this.params.height = this.defaultHeight * 2;
                     this.scaley = this.defaultZoom * 2;
@@ -283,16 +274,35 @@ export default class ConstantQPlugin {
         this.line.pivot.set(0, 0);
         this.line.moveTo(0, 0);
         this.line.lineTo(0, this.height);
-        if (this.farSprite === null)
+        if (this.farSprite === null) {
             this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
+            // this.farSprite.on('pointerup', this.onClick);
+            // this.farSprite.on('mouseover', this.onMouseOver);
+            // this.farSprite.on('mouseout', this.onMouseOut);
+            // this.farSprite.on('mousemove', this.onMouseMove);
+        }
         this.farSprite.scale.y = this.scaley;
         this.farSprite.scale.x = this.scalex;
         this.farSprite.tilePosition.x = 0;
         this.farSprite.position.x = 0;
         this.farSprite.position.y = 0;
+        this.farSprite.interactive = true;
+
+        /*
+        this.cursorline = new PIXI.Graphics();
+        this.cursorline.position.x = 0;
+        this.cursorline.position.y = 0;
+        this.cursorline.lineStyle(1, 0xbb4034, 1);
+        this.cursorline.pivot.set(0, 0);
+        this.cursorline.moveTo(0, 0);
+        this.cursorline.lineTo(0, this.height);
+        this.cursorline.visible = false;
+        */
+
 
         this.stage.addChild(this.farSprite);
         this.stage.addChild(this.line);
+        this.stage.addChild(this.cursorline);
         this.drawScale();
 
         if (this.renderID != null)
@@ -309,7 +319,6 @@ export default class ConstantQPlugin {
             const farpp = farw / (farscaledwidth)
             const startpp = (halfwidth) / (farscaledwidth);
             const farrppend = 1 - farpp
-
             const w = pp * (farscaledwidth)
             if (w < halfwidth) {
                 this.line.clear();
@@ -379,6 +388,33 @@ export default class ConstantQPlugin {
                 this.stage.addChild(text)
             y += repeat;
         }
+    }
+
+    onMouseOut = (e) => {
+        this.cursorline.visible = false;
+    }
+
+    onMouseOver = (e) => {
+        this.cursorline.visible = true;
+    }
+
+    onMouseMove = (e) => {
+        const x = e.data.global.x;
+        this.cursorline.position.x = x;
+    }
+
+    onClick = (e) => {
+        const x = e.data.global.x;
+        const tpx = Math.abs(this.farSprite.tilePosition.x) * this.scalex
+        let pos = 0
+        if (tpx > this.width)
+            pos = (x + tpx + this.width)
+        else
+            pos = (x + tpx)
+        const per = pos / (this.farSprite.width * this.scalex)
+        console.log(per, this.farSprite.tilePosition.x, pos);
+        if (per <= 1)
+            this.wavesurfer.seekTo(per);
     }
 
     updateCanvasStyle() {
