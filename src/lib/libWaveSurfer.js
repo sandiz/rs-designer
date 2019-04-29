@@ -26,9 +26,7 @@ const CQT_HEIGHT = 1024;
 class MediaPlayerBase {
     constructor(blob) {
         this.wavesurfer = null;
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const params = {
-            audioContext: this.audioContext,
             container: '#waveform',
             waveColor: '#04ABED',
             //progressColor: 'hsla(200, 100%, 30%, 0.5)',
@@ -62,19 +60,6 @@ class MediaPlayerBase {
                     barRadius: false,
                     overviewBorderColor: "azure",
                 }),
-                /*
-                CursorPlugin.create({
-                    showTime: false,
-                    color: "#fff",
-                    zIndex: 5,
-                    opacity: 1,
-                    hideOnBlur: false,
-                    customStyle: {
-                        color: "#fff",
-                        padding: '2px',
-                        'font-size': '10px',
-                    },
-                }),*/
             ],
         };
         // initialise like this
