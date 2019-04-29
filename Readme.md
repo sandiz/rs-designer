@@ -14,6 +14,7 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - note hover
         - tranpose 
 
+    - webgl waveform
     - analysis
         - chord, downbeat uses python
             - investigate py-to-wasm, pyinstaller, cython, python freeze
