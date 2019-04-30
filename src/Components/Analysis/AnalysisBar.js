@@ -130,13 +130,10 @@ class AnalysisBar extends Component {
     }
 
     zoom = (type) => {
-        console.log(type);
-
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             const active = mediaPlayer.wavesurfer.getActivePlugins();
             if (active.constantq === true) {
-                console.log(type);
                 const val = mediaPlayer.wavesurfer.constantq.zoom(type);
                 this.setState({ currentZoom: val + 1 });
             }

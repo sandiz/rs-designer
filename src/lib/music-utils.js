@@ -152,3 +152,7 @@ export const getUniqueChords = (chords_analysis_data) => {
     const uniq = [...new Set(onlyChords)];
     return uniq;
 }
+
+export const semitonesForTempoChange = (start_bpm, end_bpm) => {
+    return Math.round((Math.log(end_bpm / start_bpm) / 0.05776227) * 100) / 100;     // calculate math function
+}

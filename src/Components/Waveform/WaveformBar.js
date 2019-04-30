@@ -107,10 +107,8 @@ class WaveformBar extends Component {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
             await setStateAsync(this, { currentZoom: this.zoom.default });
-
             mediaPlayer.zoom(Number(this.state.currentZoom));
         } else {
-            console.log("rezb");
             await setStateAsync(this, { currentZoom: 1 });
         }
     }
