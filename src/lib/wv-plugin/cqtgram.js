@@ -275,7 +275,7 @@ export default class ConstantQPlugin {
         this.line.moveTo(0, 0);
         this.line.lineTo(0, this.height);
         if (this.farSprite === null) {
-            this.farSprite = new PIXI.TilingSprite(this.farTexture, this.farTexture.width, this.farTexture.height);
+            this.farSprite = new PIXI.Sprite(this.farTexture, this.farTexture.width, this.farTexture.height);
             // this.farSprite.on('pointerup', this.onClick);
             // this.farSprite.on('mouseover', this.onMouseOver);
             // this.farSprite.on('mouseout', this.onMouseOut);
@@ -283,7 +283,6 @@ export default class ConstantQPlugin {
         }
         this.farSprite.scale.y = this.scaley;
         this.farSprite.scale.x = this.scalex;
-        this.farSprite.tilePosition.x = 0;
         this.farSprite.position.x = 0;
         this.farSprite.position.y = 0;
         this.farSprite.interactive = true;
@@ -313,7 +312,7 @@ export default class ConstantQPlugin {
     update = () => {
         if (this.farTexture && this.farSprite) {
             const pp = this.wavesurfer ? this.wavesurfer.backend.getPlayedPercents() : 0;
-            const farscaledwidth = this.farSprite.width * this.scalex;
+            const farscaledwidth = this.farSprite.width;
             const halfwidth = this.width / 2;
             const farw = (farscaledwidth) - (halfwidth);
             const farpp = farw / (farscaledwidth)
@@ -326,7 +325,7 @@ export default class ConstantQPlugin {
                 this.line.moveTo(w, 0);
                 this.line.lineTo(w, this.height);
                 this.lastw = this.width / 2;
-                this.farSprite.tilePosition.x = 0;
+                this.farSprite.position.x = 0;
             }
             else if (w > farw) {
                 const newpp = pp - farpp
@@ -336,14 +335,14 @@ export default class ConstantQPlugin {
                 this.line.lineStyle(1, 0xFFFFFF, 1);
                 this.line.moveTo(newwidth, 0);
                 this.line.lineTo(newwidth, this.height);
-                this.farSprite.tilePosition.x = -(farpp - startpp) * (this.farSprite.width);
+                this.farSprite.position.x = -(farpp - startpp) * (this.farSprite.width);
             }
             else {
                 this.line.clear();
                 this.line.lineStyle(1, 0xFFFFFF, 1);
                 this.line.moveTo(halfwidth, 0);
                 this.line.lineTo(halfwidth, this.height);
-                this.farSprite.tilePosition.x = -(pp - startpp) * (this.farSprite.width);
+                this.farSprite.position.x = -(pp - startpp) * (this.farSprite.width);
             }
         }
         this.renderer.render(this.stage);
