@@ -13,7 +13,6 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - click to seek
         - note hover
         - tranpose 
-    - wavesurfer perf
     - detune/playback rate
     - analysis
         - chord, downbeat uses python
