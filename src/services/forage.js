@@ -7,6 +7,7 @@ export const SettingsForageKeys = {
     CONTROL_SETTINGS: "control-settings",
     WAVEFORM_SETTINGS: "waveform-settings",
     ANALYSIS_SETTINGS: "analysis-settings",
+    PROJECT_SETTINGS: "project-settings",
 }
 
 export const Store = {

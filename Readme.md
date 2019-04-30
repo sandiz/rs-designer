@@ -13,7 +13,10 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - click to seek
         - note hover
         - tranpose 
-    - detune/playback rate
+    - webgl
+        - consolidate chords/beats/timeline
+        - convert drawer to use one canvas only
+        - change plugins if necessary
     - analysis
         - chord, downbeat uses python
             - investigate py-to-wasm, pyinstaller, cython, python freeze
@@ -28,6 +31,7 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
     - misc
         - soundtouch worklet
+        - detune/playback rate
 
 
 - NEXT
@@ -40,6 +44,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - https://github.com/jussi-kalliokoski/audiolib.js
         - https://tonejs.github.io/
         - pydub
+    - libgit2 for tab history
+    - idle callback for long tunning tasks
+    - yt importer node-ytdl-core
 
 
 - FUTURE
