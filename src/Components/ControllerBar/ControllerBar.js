@@ -268,19 +268,32 @@ class ControllerBar extends Component {
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
           const total = mediaPlayer.getDuration();
-          this.timerRef.total.current.innerHTML = sec2time(total);
-          mediaPlayer.timer((time) => {
+          this.timerRef.total.current.textContent = sec2time(total);
+          //mediaPlayer.timer((time) => {
+
+          let handlePP = null;
+          const updatePP = () => {
+            const time = mediaPlayer.getCurrent();
             const per = (Math.round(time) / Math.round(total)).toFixed(2);
             this.updateProgressBar(per, time);
-          });
+            handlePP = requestAnimationFrame(updatePP);
+          };
+
           mediaPlayer.finish(() => {
             this.setState({ mediaPlaying: false });
+            if (handlePP != null) {
+              cancelAnimationFrame(handlePP)
+            }
           });
           mediaPlayer.onplay(() => {
             this.setState({ mediaPlaying: true });
+            updatePP();
           })
           mediaPlayer.onpause(() => {
             this.setState({ mediaPlaying: false });
+            if (handlePP != null) {
+              cancelAnimationFrame(handlePP)
+            }
           })
           mediaPlayer.onseek((per) => {
             this.updateProgressBar(per, mediaPlayer.getCurrent());
@@ -335,7 +348,7 @@ class ControllerBar extends Component {
           break;
         case "stop":
           mediaPlayer.stop();
-          this.timerRef.current.current.innerHTML = "00:00.000";
+          this.timerRef.current.current.textContent = "00:00.000";
           break;
         case "rewind":
           mediaPlayer.rewind();
@@ -387,7 +400,7 @@ class ControllerBar extends Component {
   }
 
   updateProgressBar(per, time) {
-    this.timerRef.current.current.innerHTML = sec2time(time);
+    this.timerRef.current.current.textContent = sec2time(time);
     this.pbRef.current.style.width = (per * 100) + "%";
   }
 
