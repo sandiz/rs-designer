@@ -1,14 +1,15 @@
 import WaveSurfer from 'wavesurfer.js';
-import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
-import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
+//import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 //import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
 import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
+import TimelinePlugin from './wv-plugin/timeline'
 import { readTags, readFile } from './utils'
 import { MediaAnalysis } from './medianalysis'
 import ProjectService from '../services/project';
 import { SettingsService } from '../services/settings';
+import PixiCanvas from './wv-plugin/drawer.pixicanvas';
 
 const { DispatcherService, DispatchEvents } = require("../services/dispatcher");
 
@@ -27,19 +28,20 @@ class MediaPlayerBase {
     constructor(blob) {
         this.wavesurfer = null;
         const params = {
+            renderer: PixiCanvas,
             container: '#waveform',
             waveColor: '#04ABED',
             //progressColor: 'hsla(200, 100%, 30%, 0.5)',
             //waveColor: 'grey',
-            progressColor: 'black',
+            progressColor: '#04ABED',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
             //barWidth: 3,
             //barGap: 2,
             //barRadius: true,
-            //height: 180,
+            height: 224,
             barHeight: 1,
-            scrollParent: true,
+            scrollParent: false,
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
@@ -49,7 +51,7 @@ class MediaPlayerBase {
                     primaryColor: "#fff",
                     fontFamily: 'Roboto Condensed',
                 }),
-                MinimapPlugin.create({
+                /*MinimapPlugin.create({
                     container: "#minimap",
                     waveColor: '#000',
                     progressColor: 'black',
@@ -59,7 +61,7 @@ class MediaPlayerBase {
                     barGap: 0,
                     barRadius: false,
                     overviewBorderColor: "azure",
-                }),
+                }),*/
             ],
         };
         // initialise like this
@@ -99,8 +101,8 @@ class MediaPlayerBase {
         }
         // each module should pick the items up
         //start loading analysis
-        await this.CQT();
-        await this.WAVEFORM();
+        //await this.WAVEFORM();
+        //await this.CQT();
         DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 

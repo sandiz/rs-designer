@@ -1,8 +1,7 @@
-import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
-import { getTransposedKey } from "../music-utils";
-import { string2hex } from "../utils";
-
 /* eslint-disable */
+import * as PIXI from 'pixi.js'
+import { string2hex } from '../utils';
+import { black } from 'ansi-colors';
 /**
  * @typedef {Object} TimelinePluginParams
  * @desc Extends the `WavesurferParams` wavesurfer was initialised with
@@ -31,12 +30,38 @@ import { string2hex } from "../utils";
  * labels in primary color
  * @property {function} secondaryLabelInterval (pxPerSec) -> cadence between
  * labels in secondary color
+ * @property {?number} offset Offset for the timeline start in seconds. May also be
+ * negative.
  * @property {?boolean} deferInit Set to true to manually call
  * `initPlugin('timeline')`
  */
 
-
-export default class ChordsTimelinePlugin {
+/**
+ * Adds a timeline to the waveform.
+ *
+ * @implements {PluginClass}
+ * @extends {Observer}
+ * @example
+ * // es6
+ * import TimelinePlugin from 'wavesurfer.timeline.js';
+ *
+ * // commonjs
+ * var TimelinePlugin = require('wavesurfer.timeline.js');
+ *
+ * // if you are using <script> tags
+ * var TimelinePlugin = window.WaveSurfer.timeline;
+ *
+ * // ... initialising wavesurfer with the plugin
+ * var wavesurfer = WaveSurfer.create({
+ *   // wavesurfer options ...
+ *   plugins: [
+ *     TimelinePlugin.create({
+ *       // plugin options ...
+ *     })
+ *   ]
+ * });
+ */
+export default class TimelinePlugin {
     /**
      * Timeline plugin definition factory
      *
@@ -48,10 +73,10 @@ export default class ChordsTimelinePlugin {
      */
     static create(params) {
         return {
-            name: 'chordstimeline',
+            name: 'timeline',
             deferInit: params && params.deferInit ? params.deferInit : false,
             params: params,
-            instance: ChordsTimelinePlugin
+            instance: TimelinePlugin
         };
     }
 
@@ -76,12 +101,13 @@ export default class ChordsTimelinePlugin {
             ws.drawer.maxCanvasElementWidth ||
             Math.round(this.maxCanvasWidth / this.pixelRatio);
 
+        this.textStyle = null;
+        this.textCache = {};
         // add listeners
         ws.drawer.wrapper.addEventListener('scroll', this._onScroll);
         ws.on('redraw', this._onRedraw);
         ws.on('zoom', this._onZoom);
 
-        DispatcherService.on(DispatchEvents.PitchChange, v => this.render(v));
         this.render();
     };
 
@@ -102,14 +128,6 @@ export default class ChordsTimelinePlugin {
      */
     constructor(params, ws) {
         /** @private */
-        this.container =
-            'string' == typeof params.container
-                ? document.querySelector(params.container)
-                : params.container;
-
-        if (!this.container) {
-            throw new Error('No container for wavesurfer timeline');
-        }
         /** @private */
         this.wavesurfer = ws;
         /** @private */
@@ -133,7 +151,8 @@ export default class ChordsTimelinePlugin {
                 formatTimeCallback: this.defaultFormatTimeCallback,
                 timeInterval: this.defaultTimeInterval,
                 primaryLabelInterval: this.defaultPrimaryLabelInterval,
-                secondaryLabelInterval: this.defaultSecondaryLabelInterval
+                secondaryLabelInterval: this.defaultSecondaryLabelInterval,
+                offset: 0
             },
             params
         );
@@ -196,7 +215,6 @@ export default class ChordsTimelinePlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
-        DispatcherService.off(DispatchEvents.PitchChange, v => this.render(v));
         for (let i = 0; i < this.canvases.length; i += 1) {
             this.canvases[i].destroy();
         }
@@ -237,13 +255,8 @@ export default class ChordsTimelinePlugin {
      *
      * @private
      */
-    render(transpose = 0) {
-        if (!this.wrapper) {
-            this.createWrapper();
-        }
-        this.updateCanvases();
-        this.updateCanvasesPositioning();
-        this.renderCanvases(transpose);
+    render() {
+        this.renderCanvases();
     }
 
     /**
@@ -259,6 +272,7 @@ export default class ChordsTimelinePlugin {
             view: canvas,
             transparent: true,
         })
+
         this.canvases.push(app);
         this.util.style(canvas, {
             position: 'absolute',
@@ -287,7 +301,6 @@ export default class ChordsTimelinePlugin {
         const requiredCanvases = Math.ceil(
             totalWidth / this.maxCanvasElementWidth
         );
-
 
         while (this.canvases.length < requiredCanvases) {
             this.addCanvas();
@@ -333,8 +346,9 @@ export default class ChordsTimelinePlugin {
      *
      * @private
      */
-    renderCanvases(transpose = 0) {
+    renderCanvases() {
         const duration =
+            this.wavesurfer.timeline.params.duration ||
             this.wavesurfer.backend.getDuration();
 
         if (duration <= 0) {
@@ -343,17 +357,28 @@ export default class ChordsTimelinePlugin {
         const wsParams = this.wavesurfer.params;
         const fontSize = this.params.fontSize * wsParams.pixelRatio;
         const totalSeconds = parseInt(duration, 10) + 1;
-        const width =
-            wsParams.fillParent && !wsParams.scrollParent
-                ? this.drawer.getWidth()
-                : this.drawer.wrapper.scrollWidth * wsParams.pixelRatio;
-        const height1 = this.params.height * this.pixelRatio;
+        const width = this.wavesurfer.drawer.getWidthFromEntry() * devicePixelRatio
+        const height1 = 20 * devicePixelRatio;
+        const height2 =
+            height1 *
+            (this.params.notchPercentHeight / 100) *
+            devicePixelRatio;
         const pixelsPerSecond = width / duration;
+
+        const formatTime = this.params.formatTimeCallback;
+        // if parameter is function, call the function with
+        // pixelsPerSecond, otherwise simply take the value as-is
         const intervalFnOrVal = option =>
             typeof option === 'function' ? option(pixelsPerSecond) : option;
         const timeInterval = intervalFnOrVal(this.params.timeInterval);
+        const primaryLabelInterval = intervalFnOrVal(
+            this.params.primaryLabelInterval
+        );
+        const secondaryLabelInterval = intervalFnOrVal(
+            this.params.secondaryLabelInterval
+        );
 
-        let curPixel = 0;
+        let curPixel = pixelsPerSecond * this.params.offset;
         let curSeconds = 0;
         let i;
         // build an array of position data with index, second and pixel data,
@@ -365,56 +390,59 @@ export default class ChordsTimelinePlugin {
             curPixel += pixelsPerSecond * timeInterval;
         }
 
-        this.canvases.forEach((app) => {
-            while (app.stage.children[0]) { app.stage.removeChild(app.stage.children[0]); }
-            const gr = new PIXI.Graphics();
-            app.stage.addChild(gr);
-        })
+        // iterate over each position
+        const renderPositions = cb => {
+            positioning.forEach(pos => {
+                cb(pos[0], pos[1], pos[2]);
+            });
+        };
 
-        this.setFonts(`${fontSize}px Roboto Condensed`);
-        if (this.params.chords.length == 0) {
-            for (let i = 0; i < this.canvases.length; i += 1) {
-                this.util.style(this.canvases[i], {
-                    background: 'azure',
-                })
+        [this.graphicsHandle, this.timelineContainer] = this.wavesurfer.drawer.getGraphicsHandle("timeline");
+        this.graphicsHandle.clear();
+        this.graphicsHandle.beginFill(0xf0f8ff);
+        this.graphicsHandle.drawRect(0, 0, width, height2)
+        this.graphicsHandle.endFill();
+
+        // render primary labels
+        this.setFillStyles(this.params.primaryColor);
+        this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
+        this.setFillStyles(this.params.primaryFontColor);
+        renderPositions((i, curSeconds, curPixel) => {
+            if (i % primaryLabelInterval === 0) {
+                this.fillRect(curPixel, 0, 1, height2);
+                this.fillText(
+                    formatTime(curSeconds, pixelsPerSecond),
+                    curPixel + this.params.labelPadding * devicePixelRatio,
+                    height2, this.params.primaryFontColor
+                );
             }
+        });
 
-            this.fillText("No info available", 10, height1 / 2 + 15, "#ffffff");
-            return;
-        }
-        this.params.chords.forEach((chordData, i) => {
-            let [start, end, chord, type] = chordData;
-            if (chord !== 'N') {
-                chord = getTransposedKey(chord, transpose);
-                const startPixel = this.getPixelForSecond(start, positioning);
-                const endPixel = this.getPixelForSecond(end, positioning);
-                const color = (i % 2 ? '#3b7eac' : '#436a88');
-                this.setFillStyles(color);
-                const width = endPixel - startPixel;
-                this.fillRect(startPixel, 0, width, height1);
-                this.setFillStyles("#fff");
-                if (type == 'maj') type = '';
-                const text = chord + type;
-                this.fillText(chord + type, startPixel + (width / 2), height1 / 2 + 15, "#ffffff"); //width of text
-                i++;
+        // render secondary labels
+        this.setFillStyles(this.params.secondaryColor);
+        this.setFonts(`${fontSize}px ${this.params.fontFamily}`);
+        this.setFillStyles(this.params.secondaryFontColor);
+        renderPositions((i, curSeconds, curPixel) => {
+            if (i % secondaryLabelInterval === 0) {
+                this.fillRect(curPixel, 0, 1, height2);
+                //this.fillText(
+                //    formatTime(curSeconds, pixelsPerSecond),
+                //    curPixel + this.params.labelPadding * devicePixelRatio,
+                //    height1, this.params.secondaryFontColor
+                //);
             }
-        })
-    }
+        });
 
-    getPixelForSecond(sec, positions) {
-        const fp = sec;
-        const round = Math.floor(fp);
-        // floor if diff < 0.3, +0.5 if 0.3>x>0.7, ceil > 0.7 
-        const diff = fp - round;
-        if (diff < 0.3) sec = round;
-        else if (diff >= 0.3 && diff < 0.7) sec = round + 0.5;
-        else if (diff >= 0.7) sec = Math.ceil(sec)
-
-        const [idx, _ign, _ign2] = positions[round];
-        for (let i = idx; i < positions.length; i += 1) {
-            const [idx, refSecond, pixel] = positions[i];
-            if (refSecond === sec) return pixel;
-        }
+        // render the actual notches (when no labels are used)
+        this.setFillStyles(this.params.unlabeledNotchColor);
+        renderPositions((i, curSeconds, curPixel) => {
+            if (
+                i % secondaryLabelInterval !== 0 &&
+                i % primaryLabelInterval !== 0
+            ) {
+                this.fillRect(curPixel, height2 / 2, 1, height2 / 2);
+            }
+        });
     }
 
     /**
@@ -424,11 +452,8 @@ export default class ChordsTimelinePlugin {
      * @private
      */
     setFillStyles(fillStyle) {
-        this.canvases.forEach(app => {
-            const gr = app.stage.getChildAt(0);
-            gr.endFill();
-            gr.beginFill(string2hex(fillStyle));
-        });
+        this.graphicsHandle.endFill()
+        this.graphicsHandle.beginFill(string2hex(fillStyle))
     }
 
     /**
@@ -438,7 +463,7 @@ export default class ChordsTimelinePlugin {
      * @private
      */
     setFonts(font) {
-        //this.canvases.forEach(canvas => {
+        //this.canvases.forEach(app => {
         //    canvas.getContext('2d').font = font;
         //});
     }
@@ -455,26 +480,41 @@ export default class ChordsTimelinePlugin {
      * @private
      */
     fillRect(x, y, width, height) {
-        this.canvases.forEach((app, i) => {
-            const leftOffset = i * this.maxCanvasWidth;
 
-            const intersection = {
-                x1: Math.max(x, i * this.maxCanvasWidth),
-                y1: y,
-                x2: Math.min(x + width, i * this.maxCanvasWidth + app.view.width),
-                y2: y + height
-            };
+        this.graphicsHandle.drawRect(x, y, width, height)
+        /*
+        const intersection = {
+            x1: Math.max(x, i * this.maxCanvasWidth),
+            y1: y,
+            x2: Math.min(x + width, i * this.maxCanvasWidth + app.view.width),
+            y2: y + height
+        };
 
-            if (intersection.x1 < intersection.x2) {
-                const gr = app.stage.getChildAt(0);
-                gr.drawRect(
-                    intersection.x1 - leftOffset,
-                    intersection.y1,
-                    intersection.x2 - intersection.x1,
-                    intersection.y2 - intersection.y1
-                );
-            }
-        });
+        if (intersection.x1 < intersection.x2) {
+            const gr = app.stage.getChildAt(0);
+            gr.drawRect(
+                intersection.x1 - leftOffset,
+                intersection.y1,
+                intersection.x2 - intersection.x1,
+                intersection.y2 - intersection.y1
+            );
+        }*/
+    }
+
+    getTextObj = (text, color) => {
+        var textStyle = new PIXI.TextStyle({
+            fontFamily: 'Roboto Condensed',
+            fontSize: this.params.fontSize * devicePixelRatio,
+            fill: string2hex(color),
+            align: 'center',
+            dropShadow: false,
+            //fontWeight: 'lighter',
+        })
+        if (text in this.textCache)
+            return this.textCache[text];
+
+        this.textCache[text] = new PIXI.Text(text, textStyle);
+        return this.textCache[text];
     }
 
     /**
@@ -486,34 +526,12 @@ export default class ChordsTimelinePlugin {
      * @private
      */
     fillText(text, x, y, color) {
-        let textWidth;
-        let xOffset = 0;
-
-        this.canvases.forEach(app => {
-            const canvasWidth = app.view.width;
-
-            if (xOffset > x + textWidth) {
-                return;
-            }
-            if (xOffset + canvasWidth > x) {
-                const wsParams = this.wavesurfer.params;
-                let style = new PIXI.TextStyle({
-                    fontFamily: 'Roboto Condensed',
-                    fontSize: this.params.fontSize * wsParams.pixelRatio,
-                    fill: string2hex(color),
-                    align: 'center',
-                    dropShadow: false,
-                })
-                text = text.toString();
-                const textObj = new PIXI.Text(text, style)
-                textWidth = PIXI.TextMetrics.measureText(text, style).width;
-                textObj.position.x = x - xOffset - textWidth / 2;
-                textObj.position.y = app.view.height - y;
-                app.stage.addChild(textObj);
-            }
-
-            xOffset += canvasWidth;
-        });
+        text = text.toString();
+        const textObj = this.getTextObj(text, color);
+        //let textWidth = PIXI.TextMetrics.measureText(text, style).width;
+        textObj.position.x = x;
+        textObj.position.y = (y / (devicePixelRatio));
+        this.timelineContainer.addChild(textObj);
     }
 
     /**
@@ -541,7 +559,7 @@ export default class ChordsTimelinePlugin {
      */
     defaultTimeInterval(pxPerSec) {
         if (pxPerSec >= 25) {
-            return 0.5;
+            return 1;
         } else if (pxPerSec * 5 >= 25) {
             return 5;
         } else if (pxPerSec * 15 >= 25) {
