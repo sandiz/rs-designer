@@ -81,17 +81,26 @@ export default class ConstantQPlugin {
             //this.farTexture = null;
             const ppref = await SettingsService.getSettingValue('advanced', 'power_preference');
             console.log("using gpu power preference: " + ppref);
-            this.renderer = PIXI.autoDetectRenderer({
-                width: this.width,
-                height: this.height,
-                view: this.canvas,
-                resolution: 1,
-                desynchronized: true,
-                backgroundColor: 0x303030,
+            const ctx = this.canvas.getContext("webgl2", {
                 powerPreference: ppref,
                 depth: false,
+                alpha: false,
+                preserveDrawingBuffer: true,
+                desynchronized: true,
+                antialias: false,
+                transparent: false,
             });
-            //console.log(this.renderer.gl.getContextAttributes());
+            this.renderer = new PIXI.Renderer({
+                width: this.width,
+                //height: this.height,
+                view: this.canvas,
+                resolution: 1,
+                //desynchronized: true,
+                backgroundColor: 0x303030,
+                //powerPreference: ppref,
+                //depth: false,
+                context: ctx,
+            });
             this.stage = null;
             this.defaultHeight = 512;
             this.defaultZoom = 0.5 / 1;
