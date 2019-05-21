@@ -1,5 +1,4 @@
 import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
-import { string2hex } from "../utils";
 
 /* eslint-disable */
 /**
@@ -194,9 +193,6 @@ export default class BeatsTimelinePlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
-        for (let i = 0; i < this.canvases.length; i += 1) {
-            this.canvases[i].destroy();
-        }
     }
 
     /**
@@ -254,11 +250,7 @@ export default class BeatsTimelinePlugin {
         const canvas = this.wrapper.appendChild(
             document.createElement('canvas')
         );
-        const app = new PIXI.Application({
-            view: canvas,
-            transparent: true,
-        })
-        this.canvases.push(app);
+        this.canvases.push(canvas);
         this.util.style(canvas, {
             position: 'absolute',
             zIndex: 4
@@ -271,8 +263,8 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     removeCanvas() {
-        const app = this.canvases.pop();
-        app.view.parentElement.removeChild(app.view);
+        const canvas = this.canvases.pop();
+        canvas.parentElement.removeChild(canvas);
     }
 
     /**
@@ -305,7 +297,7 @@ export default class BeatsTimelinePlugin {
     updateCanvasesPositioning() {
         // cache length for performance
         const canvasesLength = this.canvases.length;
-        this.canvases.forEach((app, i) => {
+        this.canvases.forEach((canvas, i) => {
             // canvas width is the max element width, or if it is the last the
             // required width
             const canvasWidth =
@@ -314,12 +306,11 @@ export default class BeatsTimelinePlugin {
                     this.maxCanvasElementWidth * (canvasesLength - 1)
                     : this.maxCanvasElementWidth;
             // set dimensions and style
-            app.view.width = canvasWidth * this.pixelRatio;
+            canvas.width = canvasWidth * this.pixelRatio;
             // on certain pixel ratios the canvas appears cut off at the bottom,
             // therefore leave 1px extra
-            app.view.height = (this.params.height + 1) * this.pixelRatio;
-            app.renderer.resize(app.view.width, app.view.height);
-            this.util.style(app.view, {
+            canvas.height = (this.params.height + 1) * this.pixelRatio;
+            this.util.style(canvas, {
                 width: `${canvasWidth}px`,
                 height: `${this.params.height}px`,
                 left: `${i * this.maxCanvasElementWidth}px`
@@ -366,12 +357,6 @@ export default class BeatsTimelinePlugin {
             this.params.secondaryLabelInterval
         );
 
-        this.canvases.forEach((app) => {
-            while (app.stage.children[0]) { app.stage.removeChild(app.stage.children[0]); }
-            const gr = new PIXI.Graphics();
-            app.stage.addChild(gr);
-        })
-
         this.setFonts(`22px Roboto Condensed`);
         let idx = 1;
         this.params.beats.forEach((beatsData, i) => {
@@ -394,7 +379,7 @@ export default class BeatsTimelinePlugin {
                 this.fillText(
                     idx,
                     startPixel + this.params.labelPadding * this.pixelRatio,
-                    height1 / 2 + 15, "#000000"
+                    height1 / 2 + 15,
                 );
                 idx++;
             }
@@ -409,10 +394,8 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     setFillStyles(fillStyle) {
-        this.canvases.forEach(app => {
-            const gr = app.stage.getChildAt(0);
-            gr.endFill();
-            gr.beginFill(string2hex(fillStyle));
+        this.canvases.forEach(canvas => {
+            canvas.getContext('2d').fillStyle = fillStyle;
         });
     }
 
@@ -423,9 +406,9 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     setFonts(font) {
-        //this.canvases.forEach(canvas => {
-        //    canvas.getContext('2d').font = font;
-        //});
+        this.canvases.forEach(canvas => {
+            canvas.getContext('2d').font = font;
+        });
     }
 
     /**
@@ -440,24 +423,25 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     fillRect(x, y, width, height) {
-        this.canvases.forEach((app, i) => {
+        this.canvases.forEach((canvas, i) => {
             const leftOffset = i * this.maxCanvasWidth;
 
             const intersection = {
                 x1: Math.max(x, i * this.maxCanvasWidth),
                 y1: y,
-                x2: Math.min(x + width, i * this.maxCanvasWidth + app.view.width),
+                x2: Math.min(x + width, i * this.maxCanvasWidth + canvas.width),
                 y2: y + height
             };
 
             if (intersection.x1 < intersection.x2) {
-                const gr = app.stage.getChildAt(0);
-                gr.drawRect(
-                    intersection.x1 - leftOffset,
-                    intersection.y1,
-                    intersection.x2 - intersection.x1,
-                    intersection.y2 - intersection.y1
-                );
+                canvas
+                    .getContext('2d')
+                    .fillRect(
+                        intersection.x1 - leftOffset,
+                        intersection.y1,
+                        intersection.x2 - intersection.x1,
+                        intersection.y2 - intersection.y1
+                    );
             }
         });
     }
@@ -470,33 +454,21 @@ export default class BeatsTimelinePlugin {
      * @param {number} y
      * @private
      */
-    fillText(text, x, y, color) {
+    fillText(text, x, y) {
         let textWidth;
         let xOffset = 0;
 
-        this.canvases.forEach(app => {
-            const canvasWidth = app.view.width;
+        this.canvases.forEach(canvas => {
+            const context = canvas.getContext('2d');
+            const canvasWidth = context.canvas.width;
 
             if (xOffset > x + textWidth) {
                 return;
             }
 
             if (xOffset + canvasWidth > x) {
-                const wsParams = this.wavesurfer.params;
-                let style = new PIXI.TextStyle({
-                    fontFamily: 'Roboto Condensed',
-                    fontSize: '22px',
-                    fill: string2hex(color),
-                    align: 'center',
-                    dropShadow: false,
-                    fontWeight: 'lighter',
-                })
-                text = text.toString();
-                const textObj = new PIXI.Text(text, style)
-                textWidth = PIXI.TextMetrics.measureText(text, style).width;
-                textObj.position.x = x - xOffset;
-                textObj.position.y = app.view.height - y;
-                app.stage.addChild(textObj);
+                textWidth = context.measureText(text).width;
+                context.fillText(text, x - xOffset, y);
             }
 
             xOffset += canvasWidth;

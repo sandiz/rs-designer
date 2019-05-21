@@ -41,7 +41,6 @@
 #minimap {
     background-color: #436a88;
     padding: 1px;
-    border-top: 1px solid white;
 }
 
 .waveform-zoom {
@@ -61,8 +60,4 @@
 #beatstimeline {
     padding: 0px;
     background-color: azure;
-}
-
-#waveform {
-    height: 190px;
 }

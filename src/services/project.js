@@ -3,7 +3,6 @@ import {
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, KeyboardEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
-import ForageService, { SettingsForageKeys } from './forage';
 
 const electron = window.require('electron').remote;
 const readline = window.require("readline");
@@ -23,10 +22,6 @@ const defaultProjectInfo = {
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
 
-export const ProjectSettingsModel = {
-    lastOpenedProject: null,
-    recents: [],
-}
 export class Project {
     constructor() {
         tmp.setGracefulCleanup();
@@ -42,18 +37,6 @@ export class Project {
         electron.app.on('before-quit', (e) => {
             this.unload();
         })
-        this.loadProjectSettings();
-    }
-
-    loadProjectSettings = async () => {
-        this.projectSettings = { ...ProjectSettingsModel };
-        const ser = await ForageService.get(SettingsForageKeys.PROJECT_SETTINGS);
-        if (ser) this.projectSettings = ser;
-    }
-
-    saveProjectSettings = async (lastOpened) => {
-        this.projectSettings.lastOpenedProject = lastOpened;
-        await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
     }
 
     isAnalysisReqd() {
@@ -118,8 +101,6 @@ export class Project {
         }
         if (dirs) {
             const dir = dirs[0];
-            this.saveProjectSettings(dir);
-
             let jsonPath = "";
             if (dir.endsWith(bundleExt)) {
                 jsonPath = dir + `/project.${projectExt}`
@@ -348,10 +329,6 @@ export class Project {
             reject(err)
         })
     });
-
-    getLastOpenedProject = () => {
-        return this.projectSettings.lastOpenedProject;
-    }
 }
 
 const ProjectService = new Project();

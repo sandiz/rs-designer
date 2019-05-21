@@ -95,13 +95,6 @@ async function createWindow() {
                         }
                     ]
                 },
-                {
-                    label: 'Open Last Opened Project',
-                    accelerator: "CmdOrCtrl+1",
-                    click: function () {
-                        mainWindow.webContents.send('open-last-project');
-                    }
-                },
                 { type: "separator" },
                 { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
             ]
@@ -178,13 +171,13 @@ app.on("ready", () => {
     if (isDev) {
         //add web-audio visual debugger
         const _webaudioExt = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/cmhomipkklckpomafalojobppmmidlgl/0.1.4_0');
-        //if (fs.existsSync(_webaudioExt))
-        //    BrowserWindow.addDevToolsExtension(_webaudioExt);
+        if (fs.existsSync(_webaudioExt))
+            BrowserWindow.addDevToolsExtension(_webaudioExt);
 
         const _reactExt = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
         //add react devtools
-        //if (fs.existsSync(_reactExt))
-        //    BrowserWindow.addDevToolsExtension(_reactExt);
+        if (fs.existsSync(_reactExt))
+            BrowserWindow.addDevToolsExtension(_reactExt);
     }
     sendOpenFileRequest();
     ready = true;
