@@ -6,7 +6,9 @@ import { toast } from 'react-toastify';
 
 import CustomToggle from './CustomToggle'
 import { ImportMedia, MediaPlayer } from '../../lib/libWaveSurfer'
-import { setStateAsync, toaster, disableKeydown } from '../../lib/utils'
+import {
+  setStateAsync, toaster, disableKeydown, showOpenDialog,
+} from '../../lib/utils'
 import '../../css/ControllerBar.css'
 import * as nothumb from '../../assets/nothumb.jpg'
 import { DispatcherService, KeyboardEvents, DispatchEvents } from '../../services/dispatcher';
@@ -220,7 +222,7 @@ class ControllerBar extends Component {
     this.mediaCmd("stop")
     let files = [];
     if (projectFiles.length === 0) {
-      files = electron.remote.dialog.showOpenDialog({
+      files = await showOpenDialog({
         properties: ["openFile"],
         filters: [
           { name: 'MP3', extensions: ['mp3'] },

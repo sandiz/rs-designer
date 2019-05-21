@@ -7,6 +7,11 @@ const electron = window.require("electron");
 const ipcRenderer = electron.ipcRenderer;
 const albumArt = require('./album-art');
 
+export const showOpenDialog = (options) => new Promise((resolve, reject) => {
+    electron.remote.dialog.showOpenDialog(options, (dirs) => {
+        resolve(dirs.filePaths);
+    });
+});
 
 export const setStateAsync = (obj, state) => {
     return new Promise((resolve) => {

@@ -89,7 +89,9 @@ export default class ConstantQPlugin {
                 desynchronized: true,
                 backgroundColor: 0x303030,
                 powerPreference: ppref,
+                depth: false,
             });
+            //console.log(this.renderer.gl.getContextAttributes());
             this.stage = null;
             this.defaultHeight = 512;
             this.defaultZoom = 0.5 / 1;
