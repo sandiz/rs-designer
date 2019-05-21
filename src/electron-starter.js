@@ -40,6 +40,7 @@ async function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, "./preload.js"),
             webSecurity: false,
+            nodeIntegration: true,
         },
     });
     // Let us register listeners on the window, so we can update the state

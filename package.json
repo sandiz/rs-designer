@@ -61,7 +61,7 @@
     "all-contributors-cli": "^5.4.0",
     "babel-preset-react-app": "^5.0.3",
     "ds-store": "^0.1.6",
-    "electron": "^4.0.4",
+    "electron": "^6.0.0-beta.3",
     "electron-builder": "^20.39.0",
     "electron-installer-dmg": "^2.0.0",
     "electron-packager": "^12.2.0",
