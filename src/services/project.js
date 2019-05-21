@@ -1,5 +1,5 @@
 import {
-    copyFile, writeFile, copyDir, readFile, assign,
+    copyFile, writeFile, copyDir, readFile, assign, showOpenDialog,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, KeyboardEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
@@ -92,7 +92,7 @@ export class Project {
                 delete filters[0];
             }
             DispatcherService.dispatch(KeyboardEvents.Stop);
-            dirs = electron.dialog.showOpenDialog({
+            dirs = await showOpenDialog({
                 title: "Open Project..",
                 buttonLabel: "Open",
                 properties: ['openFile'],
@@ -143,7 +143,7 @@ export class Project {
         if (this.loaded) {
             if (this.isTemporary) {
                 DispatcherService.dispatch(KeyboardEvents.Stop);
-                const dirs = electron.dialog.showOpenDialog({
+                const dirs = await showOpenDialog({
                     title: "Choose directory to save project to..",
                     buttonLabel: "Save",
                     properties: ['openDirectory'],

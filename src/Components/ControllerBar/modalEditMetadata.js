@@ -5,10 +5,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import PropTypes from 'prop-types';
 import * as nothumb from '../../assets/nothumb.jpg'
 import {
-    setStateAsync, disableKbdShortcuts, enableKbdShortcuts, readFile, fetchCover,
+    setStateAsync, disableKbdShortcuts, enableKbdShortcuts, readFile, fetchCover, showOpenDialog,
 } from '../../lib/utils';
-
-const electron = window.require("electron");
 
 class MetadataEditorModal extends React.Component {
     constructor(props) {
@@ -61,7 +59,7 @@ class MetadataEditorModal extends React.Component {
     }
 
     uploadImage = async (e) => {
-        const files = electron.remote.dialog.showOpenDialog({
+        const files = await showOpenDialog({
             properties: ["openFile"],
             filters: [
                 { name: 'JPG', extensions: ['jpg'] },
