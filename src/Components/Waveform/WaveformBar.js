@@ -27,7 +27,6 @@ class WaveformBar extends Component {
         }
         this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']
         this.containerRef = React.createRef();
-        this.waveformRef = React.createRef();
     }
 
     componentWillMount = async () => {
@@ -49,7 +48,6 @@ class WaveformBar extends Component {
 
     aboutoDraw = (type) => {
         if (type !== "waveform") return;
-        this.waveformRef.current.style.opacity = 0;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, true);
             this.containerRef.current.classList.toggle("show", true);
@@ -58,7 +56,6 @@ class WaveformBar extends Component {
 
     finishedDrawing = (type) => {
         if (type !== "waveform") return;
-        this.waveformRef.current.style.opacity = 1;
         if (this.state.expanded === false) {
             toggleNeverland(this.containerRef, false);
             this.containerRef.current.classList.toggle("show", false);
@@ -76,14 +73,12 @@ class WaveformBar extends Component {
             showTimeline: true, showMinimap: true, showChordsTimeline: true, showBeatsTimeline: true,
         });
         const mediaPlayer = MediaPlayer.instance;
-        //setTimeout(() => {
         if (mediaPlayer) {
             const min = mediaPlayer.wavesurfer.params.minPxPerSec;
 
             this.setState({ currentZoom: min });
             mediaPlayer.zoom(Number(min));
         }
-        //}, 250);
     }
 
     increaseZoom = async () => {
@@ -162,7 +157,11 @@ class WaveformBar extends Component {
                     className={expanded}
                 >
                     <div className="waveform-container" id="container">
-                        <div id="waveform" ref={this.waveformRef} />
+                        <div id="chordstimeline" style={{ height: 20 + 'px', display: this.state.showChordsTimeline ? "block" : "none" }} />
+                        <div id="beatstimeline" style={{ height: 20 + 'px', display: this.state.showBeatsTimeline ? "block" : "none" }} />
+                        <div id="waveform" />
+                        <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
+                        <div id="minimap" style={{ display: this.state.showMinimap ? "block" : "none" }} />
                     </div>
                 </div>
             </div>
