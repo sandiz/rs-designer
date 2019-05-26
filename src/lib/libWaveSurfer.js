@@ -1,6 +1,6 @@
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
-import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
+//  import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 //import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
@@ -34,12 +34,12 @@ class MediaPlayerBase {
             progressColor: 'black',
             cursorColor: '#fff',
             // This parameter makes the waveform look like SoundCloud's player
-            //barWidth: 3,
-            //barGap: 2,
-            //barRadius: true,
+            barWidth: 3,
+            barGap: 2,
+            barRadius: true,
             //height: 180,
             barHeight: 1,
-            scrollParent: true,
+            scrollParent: false,
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
@@ -49,6 +49,7 @@ class MediaPlayerBase {
                     primaryColor: "#fff",
                     fontFamily: 'Roboto Condensed',
                 }),
+                /*
                 MinimapPlugin.create({
                     container: "#minimap",
                     waveColor: '#000',
@@ -59,7 +60,7 @@ class MediaPlayerBase {
                     barGap: 0,
                     barRadius: false,
                     overviewBorderColor: "azure",
-                }),
+                }),*/
             ],
         };
         // initialise like this
@@ -107,7 +108,8 @@ class MediaPlayerBase {
     CQT = async () => {
         if (await SettingsService.isLayoutAvailable("chromagram")) {
             DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
-            await this.cqtAnalyse();
+            //await this.cqtAnalyse();
+            await this.cqtImageRender();
             DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
         }
     }
@@ -115,9 +117,18 @@ class MediaPlayerBase {
     WAVEFORM = async () => {
         if (await SettingsService.isLayoutAvailable("waveform")) {
             DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
-            await this.chordAnalyse();
-            await this.beatsAnalyse();
+            //await this.chordAnalyse();
+            //await this.beatsAnalyse();
             DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
+        }
+    }
+
+    cqtImageRender = async () => {
+        const img = document.querySelector("#spectrogram img");
+        const info = ProjectService.getProjectInfo();
+        img.src = "file:///" + info.cqt;
+        img.onload = () => {
+            img.style.display = "";
         }
     }
 
