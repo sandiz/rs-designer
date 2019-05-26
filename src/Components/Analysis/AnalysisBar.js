@@ -7,7 +7,9 @@ import "../../css/AnalysisBar.css"
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
-import { toggleNeverland } from '../../lib/utils';
+import { toggleNeverland, setStateAsync } from '../../lib/utils';
+import ProjectService from '../../services/project';
+import { SettingsService } from '../../services/settings';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -21,6 +23,7 @@ class AnalysisBar extends Component {
         }
         this.se_excludes = ['showMIR', 'analysing']
         this.containerRef = React.createRef();
+        this.specRef = React.createRef();
     }
 
     componentWillUnmount = () => {
@@ -103,7 +106,7 @@ class AnalysisBar extends Component {
             })
     }
 
-    analyseEnd = (method) => {
+    analyseEnd = async (method) => {
         const type = method === "generate" ? "cached" : "loaded"
         this.setState({ analysing: false });
         toast.update(this.toastId, {
@@ -120,6 +123,21 @@ class AnalysisBar extends Component {
                 </div>
             ),
         });
+        this.cqtImageRender();
+    }
+
+    cqtImageRender = async () => {
+        if (await SettingsService.isLayoutAvailable("chromagram")) {
+            const img = document.querySelector("#spectrogram img");
+            const info = ProjectService.getProjectInfo();
+            img.src = "file:///" + info.cqt;
+            // eslint-disable-next-line
+            img.onload = function () {
+                img.style.display = "";
+                img.style.width = this.width + 'px';
+                img.style.height = 512 + 'px';
+            }
+        }
     }
 
     reset = () => {
@@ -130,10 +148,11 @@ class AnalysisBar extends Component {
         this.setState({ showMIR: true });
     }
 
-    zoom = (type) => {
+    zoom = async (type) => {
         if (type === "stretch") {
-            if (this.state.currentVZoom === 1) this.setState({ currentVZoom: 2 });
-            else this.setState({ currentVZoom: 1 });
+            if (this.state.currentVZoom === 1) await setStateAsync(this, { currentVZoom: 2 });
+            else await setStateAsync(this, { currentVZoom: 1 });
+            this.specRef.current.style.height = (512 * this.state.currentVZoom) + 'px';
         }
     }
 
@@ -208,7 +227,7 @@ class AnalysisBar extends Component {
                 <div ref={this.containerRef} className={expanded} id="mir-vis-container">
                     <div className="mir-container">
                         <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
-                            <img alt="spectrogram" style={{ height: (512 * this.state.currentVZoom) + 'px', display: 'none' }} />
+                            <img ref={this.specRef} alt="spectrogram" style={{ display: 'none' }} />
                         </div>
                     </div>
                 </div>
