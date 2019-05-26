@@ -16,6 +16,7 @@ class AnalysisBar extends Component {
             expanded: true,
             showMIR: false,
             analysing: false,
+            currentVZoom: 1,
             currentZoom: 1,
         }
         this.se_excludes = ['showMIR', 'analysing']
@@ -130,20 +131,9 @@ class AnalysisBar extends Component {
     }
 
     zoom = (type) => {
-        const mediaPlayer = MediaPlayer.instance;
-        if (mediaPlayer) {
-            const active = mediaPlayer.wavesurfer.getActivePlugins();
-            if (active.constantq === true) {
-                const val = mediaPlayer.wavesurfer.constantq.zoom(type);
-                this.setState({ currentZoom: val + 1 });
-            }
-        }
-    }
-
-    loadSpec = () => {
-        const mediaPlayer = MediaPlayer.instance;
-        if (mediaPlayer) {
-            mediaPlayer.wavesurfer.initPlugin("spectrogram");
+        if (type === "stretch") {
+            if (this.state.currentVZoom === 1) this.setState({ currentVZoom: 2 });
+            else this.setState({ currentVZoom: 1 });
         }
     }
 
@@ -151,6 +141,7 @@ class AnalysisBar extends Component {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
         }), async () => {
+            /* (old cqt method)
             const mediaPlayer = MediaPlayer.instance;
             if (mediaPlayer) {
                 const acPlugins = mediaPlayer.wavesurfer.getActivePlugins();
@@ -164,6 +155,7 @@ class AnalysisBar extends Component {
                     }
                 }
             }
+            */
             await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_excludes);
         });
     }
@@ -215,7 +207,9 @@ class AnalysisBar extends Component {
                 </div>
                 <div ref={this.containerRef} className={expanded} id="mir-vis-container">
                     <div className="mir-container">
-                        <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }} />
+                        <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
+                            <img alt="spectrogram" style={{ height: (512 * this.state.currentVZoom) + 'px', display: 'none' }} />
+                        </div>
                     </div>
                 </div>
             </div>

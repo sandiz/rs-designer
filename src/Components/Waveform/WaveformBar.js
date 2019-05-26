@@ -22,8 +22,8 @@ class WaveformBar extends Component {
         }
         this.zoom = {
             max: 80,
-            min: 13,
-            default: 20,
+            min: 1,
+            default: 1,
         }
         this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']
         this.containerRef = React.createRef();
@@ -74,10 +74,10 @@ class WaveformBar extends Component {
         });
         const mediaPlayer = MediaPlayer.instance;
         if (mediaPlayer) {
-            const min = mediaPlayer.wavesurfer.params.minPxPerSec;
+            //const min = mediaPlayer.wavesurfer.params.minPxPerSec;
 
-            this.setState({ currentZoom: min });
-            mediaPlayer.zoom(Number(min));
+            //this.setState({ currentZoom: min });
+            //mediaPlayer.zoom(Number(min));
         }
     }
 
@@ -157,11 +157,16 @@ class WaveformBar extends Component {
                     className={expanded}
                 >
                     <div className="waveform-container" id="container">
-                        <div id="chordstimeline" style={{ height: 20 + 'px', display: this.state.showChordsTimeline ? "block" : "none" }} />
-                        <div id="beatstimeline" style={{ height: 20 + 'px', display: this.state.showBeatsTimeline ? "block" : "none" }} />
+                        {/*
+                            <div id="chordstimeline" style={{ height: 20 + 'px', display: this.state.showChordsTimeline ? "block" : "none" }} />
+
+                            <div id="beatstimeline" style={{ height: 20 + 'px', display: this.state.showBeatsTimeline ? "block" : "none" }} />
+                        */}
                         <div id="waveform" />
                         <div id="timeline" style={{ display: this.state.showTimeline ? "block" : "none" }} />
+                        {/*
                         <div id="minimap" style={{ display: this.state.showMinimap ? "block" : "none" }} />
+                        */}
                     </div>
                 </div>
             </div>
