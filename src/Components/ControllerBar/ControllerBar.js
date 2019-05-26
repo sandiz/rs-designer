@@ -106,6 +106,13 @@ class ControllerBar extends Component {
           break;
       }
     });
+    ipcRenderer.on('open-last-project', (e, d) => {
+      const last = ProjectService.getLastOpenedProject();
+      if (last != null) {
+        console.log("loading last project: " + last);
+        this.loadProject(e, last);
+      }
+    });
   }
 
   componentDidMount() {
@@ -219,7 +226,9 @@ class ControllerBar extends Component {
       e.target.blur();
       e.preventDefault();
     }
-    this.mediaCmd("stop")
+    this.mediaCmd("stop");
+
+    /* if no external files was provided, prompt ab open media dialog */
     let files = [];
     if (projectFiles.length === 0) {
       files = await showOpenDialog({
@@ -250,8 +259,11 @@ class ControllerBar extends Component {
     await setStateAsync(this, {
       showModal: true,
     })
+
+    /* start import */
     const importer = ImportMedia;
-    importer.start(files,
+    importer.start(
+      files,
       (state) => {
         const cis = this.state.importStepsCompleted;
         cis.push(state);
@@ -308,7 +320,8 @@ class ControllerBar extends Component {
           DispatcherService.on(KeyboardEvents.SeekStart, this.seekStart);
           DispatcherService.on(KeyboardEvents.SeekEnd, this.seekEnd);
         }
-      });
+      },
+    );
   }
 
   setMetadataToState = (media) => {
@@ -730,8 +743,8 @@ class ControllerBar extends Component {
                     <i className="fas fa-ellipsis-v" />
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item eventKey="dt-tuner">Guitar Tuner</Dropdown.Item>
                     <Dropdown.Item eventKey="dt-settings">Settings</Dropdown.Item>
+                    <Dropdown.Item eventKey="dt-help">Help</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item eventKey="dt-quit">Quit</Dropdown.Item>
                   </Dropdown.Menu>
