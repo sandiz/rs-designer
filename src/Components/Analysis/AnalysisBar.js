@@ -190,7 +190,7 @@ class AnalysisBar extends Component {
                     </span>
                     <span className="ta-right float-right" style={{ display: this.state.expanded ? "block" : "none" }}>
                         <span>
-                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} title="Rerender stage" />
+                            <i className="cur-pointer fas fa-sync-alt" onClick={this.refresh} title="Re-analyse" />
                         </span>
                         <span className="dot-separator"> • </span>
                         <span>

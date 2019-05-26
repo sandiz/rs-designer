@@ -96,6 +96,13 @@ async function createWindow() {
                         }
                     ]
                 },
+                {
+                    label: 'Open Last Opened Project',
+                    accelerator: "CmdOrCtrl+1",
+                    click: function () {
+                        mainWindow.webContents.send('open-last-project');
+                    }
+                },
                 { type: "separator" },
                 { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
             ]
