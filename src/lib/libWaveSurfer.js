@@ -98,10 +98,6 @@ class MediaPlayerBase {
             method = "load-from-disk"
             console.log("starting load from disk")
         }
-        // each module should pick the items up
-        //start loading analysis
-        await this.CQT();
-        await this.WAVEFORM();
         DispatcherService.dispatch(DispatchEvents.MediaAnalysisEnd, method);
     }
 
@@ -120,15 +116,6 @@ class MediaPlayerBase {
             //await this.chordAnalyse();
             //await this.beatsAnalyse();
             DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
-        }
-    }
-
-    cqtImageRender = async () => {
-        const img = document.querySelector("#spectrogram img");
-        const info = ProjectService.getProjectInfo();
-        img.src = "file:///" + info.cqt;
-        img.onload = () => {
-            img.style.display = "";
         }
     }
 
