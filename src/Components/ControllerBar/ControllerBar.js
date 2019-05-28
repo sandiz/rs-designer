@@ -199,7 +199,6 @@ class ControllerBar extends Component {
     });
   }
 
-
   loadProject = async (e, externalProject = null) => {
     const pInfo = await ProjectService.loadProject(externalProject);
     if (pInfo && pInfo.media) {

@@ -59,3 +59,10 @@
     width: 1rem !important;
     height: 1rem !important;
 }
+
+.progress-playhead {
+    display: flex;
+    color: #fff;
+    background-color: transparent;
+    transition: width 0.2s ease;
+}

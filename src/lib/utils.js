@@ -181,3 +181,7 @@ export const toggleNeverland = (container, toggle) => {
         container.current.style.left = "";
     }
 }
+
+export const lerp = (start, end, amt) => {
+    return (1 - amt) * start + amt * end
+}

@@ -116,7 +116,7 @@ export class Project {
                 filters,
             });
         }
-        if (dirs) {
+        if (dirs && dirs.length > 0) {
             const dir = dirs[0];
             this.saveProjectSettings(dir);
 

@@ -30,7 +30,12 @@ class AnalysisBar extends Component {
         this.se_excludes = ['showMIR', 'analysing']
         this.containerRef = React.createRef();
         this.specRef = React.createRef();
+        this.playHeadRef = React.createRef();
+        this.cqtDims = { w: 0, h: 0 };
+        this.currDims = { w: 0, h: 0 };
         this.raf = 0;
+        this.mediaPlayer = null;
+        this.defaultLeft = 44;
     }
 
     componentWillUnmount = () => {
@@ -73,6 +78,7 @@ class AnalysisBar extends Component {
     }
 
     analyseStart = (method) => {
+        this.mediaPlayer = null;
         if (this.raf) cancelAnimationFrame(this.raf);
         this.setState({ analysing: true });
         //this.toastId = toaster('', 'fas fa-hourglass-half', 'Analysing media in the background...', { autoClose: false });
@@ -129,16 +135,36 @@ class AnalysisBar extends Component {
                 </div>
             ),
         });
-        this.cqtImageRender();
-        this.playHeadRender();
+        this.mediaPlayer = MediaPlayer.instance.getBackend();
+        await this.cqtImageRender();
     }
 
     playHeadRender = async () => {
-        this.raf = requestAnimationFrame(this.playHeadRender);
+        if (this.mediaPlayer) {
+            const totalWidth = this.currDims.w;
+            const leftx = this.containerRef.current.offsetWidth / 2;
+            const rightx = (totalWidth) - leftx;
+            const pp = this.mediaPlayer.getPlayedPercents();
+            const currPos = totalWidth * pp;
+            if (currPos <= leftx) {
+                //move playhead
+                const css = `translate3d(${currPos}px, 0px, 0px)`;
+                this.playHeadRef.current.style.transform = css;
+            }
+            else if (currPos >= rightx) {
+                //move playhead
+                console.log("end");
+            }
+            else {
+                console.log("mid");
+            }
+            this.raf = requestAnimationFrame(this.playHeadRender);
+        }
     }
 
     cqtImageRender = async () => {
         if (await SettingsService.isLayoutAvailable("chromagram")) {
+            DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
             const img = document.querySelector("#spectrogram img");
             const info = ProjectService.getProjectInfo();
             img.src = "file:///" + info.cqt;
@@ -149,6 +175,12 @@ class AnalysisBar extends Component {
                 img.style.display = "";
                 img.style.width = this.containerRef.current.offsetWidth + 'px';
                 img.style.height = this.containerRef.current.offsetHeight + 'px';
+
+                this.currDims.w = parseFloat(this.specRef.current.style.width);
+                this.currDims.h = parseFloat(this.specRef.current.style.height);
+
+                this.playHeadRender();
+                DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
             }
         }
     }
@@ -191,6 +223,8 @@ class AnalysisBar extends Component {
             this.specRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
             this.specRef.current.style.height = this.containerRef.current.offsetHeight + 'px';
         }
+        this.currDims.w = parseFloat(this.specRef.current.style.width);
+        this.currDims.h = parseFloat(this.specRef.current.style.height);
     }
 
     toggle = () => {
@@ -233,7 +267,7 @@ class AnalysisBar extends Component {
                         <i className={faclass} />
                         {
                             !this.state.analysing
-                                ? <span style={{ marginLeft: 5 + 'px' }}>CHROMAGRAM</span>
+                                ? <span style={{ marginLeft: 5 + 'px' }}>ANALYSIS</span>
                                 : (
                                     <div style={{ display: 'inline' }}>
                                         <span style={{ marginLeft: 5 + 'px' }}>WAITING FOR ANALYSIS TO END...</span>
@@ -262,9 +296,30 @@ class AnalysisBar extends Component {
                     </span>
                 </div>
                 <div ref={this.containerRef} className={expanded} id="mir-vis-container">
-                    <div className="mir-container">
+                    <div className="mir-container d-flex flex-row">
+                        <div
+                            className="progress-playhead"
+                            id="playhead"
+                            ref={this.playHeadRef}
+                            style={{
+                                height: 514 + 'px',
+                                borderRight: '1px solid white',
+                                position: 'absolute',
+                                left: this.defaultLeft + 'px',
+                                zIndex: 5,
+                                width: 0 + 'px',
+                                willChange: 'transform',
+                                transform: 'translate3d(0px, 0px, 0px)',
+                            }} />
                         <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
-                            <img ref={this.specRef} alt="spectrogram" style={{ display: 'none' }} />
+                            <img
+                                ref={this.specRef}
+                                alt="spectrogram"
+                                style={{
+                                    display: 'none',
+                                    position: 'relative',
+                                    width: 0 + 'px',
+                                }} />
                         </div>
                     </div>
                 </div>
