@@ -60,7 +60,8 @@
         "max-len": "off",
         "react/sort-comp": "off",
         "import/no-extraneous-dependencies": "off",
-        "import/extensions": "off"
+        "import/extensions": "off",
+        "no-underscore-dangle": "off"
     },
     "parser": "babel-eslint",
     "extends": "airbnb",
