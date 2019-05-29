@@ -3,10 +3,11 @@ import Modal from 'react-bootstrap/Modal'
 import { Tabs, Tab, Form } from 'react-bootstrap'
 import PropTypes from 'prop-types';
 import {
-    disableKbdShortcuts, enableKbdShortcuts, enableBodyDrag, disableBodyDrag,
+    disableKbdShortcuts, enableKbdShortcuts, enableBodyDrag, disableBodyDrag, toaster,
 } from '../../lib/utils';
 import DraggableLayout from './draggableLayout'
 import { SettingsService, SettingsModel } from '../../services/settings';
+import ForageService from '../../services/forage';
 
 const electron = window.require("electron");
 
@@ -28,17 +29,13 @@ class SettingsModal extends React.Component {
 
     componentDidMount = async () => {
         // const ser = await ForageService.get(SettingsForageKeys.APP_SETTINGS);
-        const ser = await SettingsService.getAll();
-        if (!ser) return;
-        this.setState({
-            layouts: ser.layouts,
-            advanced: ser.advanced,
-        })
+        await this.loadSettings();
     }
 
     shouldComponentUpdate = async (nextProps, nextState) => {
         if (nextProps === this.props) return false;
         if (nextProps.show) {
+            await this.loadSettings();
             disableKbdShortcuts();
             disableBodyDrag();
         }
@@ -47,6 +44,21 @@ class SettingsModal extends React.Component {
             enableBodyDrag();
         }
         return true;
+    }
+
+    loadSettings = async () => {
+        const ser = await SettingsService.getAll();
+        if (!ser) {
+            this.setState({
+                layouts: SettingsModel.layouts,
+                advanced: SettingsModel.advanced,
+            })
+            return;
+        }
+        this.setState({
+            layouts: ser.layouts,
+            advanced: ser.advanced,
+        });
     }
 
     onSave = async (e) => {
@@ -105,6 +117,14 @@ class SettingsModal extends React.Component {
                 return;
             }
         }
+    }
+
+    resetToDefault = async () => {
+        await ForageService.clearAll();
+        toaster('success', '', 'Settings are now reset to default!', {
+            toastId: 'settings-toaster',
+        });
+        this.props.onClose();
     }
 
     render() {
@@ -263,6 +283,9 @@ class SettingsModal extends React.Component {
                         </button>
                         <button onClick={this.props.onClose} type="button" className="btn btn-secondary btn-lg" style={{ marginLeft: 15 + 'px' }}>
                             Cancel
+                        </button>
+                        <button onClick={this.resetToDefault} type="button" className="btn btn-secondary btn-lg" style={{ marginLeft: 15 + 'px' }}>
+                            Reset to defaults
                         </button>
                     </div>
                 </Modal.Body>
