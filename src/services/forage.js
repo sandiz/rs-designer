@@ -34,17 +34,22 @@ class LocalForage {
         })
     }
 
-    serializeState = async (key, state, fieldsToExclude = []) => {
+    serializeState = async (key, state, fieldsToInclude = []) => {
         const val = { ...state };
         const keys = Object.keys(val);
         for (let i = 0; i < keys.length; i += 1) {
             const lkey = keys[i];
-            if (fieldsToExclude.includes(lkey)) {
+            if (!fieldsToInclude.includes(lkey)) {
                 delete val[lkey];
             }
         }
         //console.log(val);
         this.set(key, val);
+    }
+
+    clearAll = async () => {
+        await this.settingsStore.clear();
+        DispatcherService.dispatch(DispatchEvents.SettingsUpdate, {});
     }
 }
 

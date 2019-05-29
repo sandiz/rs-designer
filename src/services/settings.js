@@ -15,7 +15,7 @@ export const SettingsModel = {
             checked: true,
         },
         {
-            text: 'Chromagram',
+            text: 'Music Analysis',
             id: 'chromagram',
             icon: "far fa-chart-bar",
             checked: true,
@@ -59,10 +59,21 @@ class SettingsBase {
 
     isLayoutAvailable = async (layoutid) => {
         const all = await this.getAll();
-        for (let i = 0; i < all.layouts.length; i += 1) {
-            const layout = all.layouts[i];
-            if (layout.id === layoutid) {
-                return layout.checked;
+        // if serialized
+        if (all) {
+            for (let i = 0; i < all.layouts.length; i += 1) {
+                const layout = all.layouts[i];
+                if (layout.id === layoutid) {
+                    return layout.checked;
+                }
+            }
+        }
+        else {
+            for (let i = 0; i < SettingsModel.layouts.length; i += 1) {
+                const layout = SettingsModel.layouts[i];
+                if (layout.id === layoutid) {
+                    return layout.checked;
+                }
             }
         }
         return false;
@@ -70,9 +81,14 @@ class SettingsBase {
 
     getSettingValue = async (category, field) => {
         const all = await this.getAll();
-        const fields = all[category];
-        if (field in fields) {
-            return fields[field];
+        if (all) {
+            const fields = (category in all) ? all[category] : null;
+            if (field in fields) {
+                return fields[field];
+            }
+        }
+        else {
+            return SettingsModel[category][field];
         }
         return null;
     }

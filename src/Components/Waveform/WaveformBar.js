@@ -13,10 +13,6 @@ class WaveformBar extends Component {
         super(props);
         this.state = {
             expanded: true,
-            showTimeline: false,
-            showMinimap: false,
-            showChordsTimeline: false,
-            showBeatsTimeline: false,
             currentZoom: 1,
             analysing: false,
         }
@@ -25,7 +21,7 @@ class WaveformBar extends Component {
             min: 1,
             default: 1,
         }
-        this.se_excludes = ['showTimeline', 'showMinimap', 'showChordsTimeline', 'showBeatsTimeline']
+        this.se_includes = ['expanded']
         this.containerRef = React.createRef();
     }
 
@@ -63,22 +59,9 @@ class WaveformBar extends Component {
     }
 
     reset = () => {
-        this.setState({
-            showTimeline: false, showMinimap: false, showChordsTimeline: false, showBeatsTimeline: false,
-        });
     }
 
     ready = () => {
-        this.setState({
-            showTimeline: true, showMinimap: true, showChordsTimeline: true, showBeatsTimeline: true,
-        });
-        const mediaPlayer = MediaPlayer.instance;
-        if (mediaPlayer) {
-            //const min = mediaPlayer.wavesurfer.params.minPxPerSec;
-
-            //this.setState({ currentZoom: min });
-            //mediaPlayer.zoom(Number(min));
-        }
     }
 
     increaseZoom = async () => {
@@ -117,7 +100,7 @@ class WaveformBar extends Component {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
         }), async () => {
-            await ForageService.serializeState(SettingsForageKeys.WAVEFORM_SETTINGS, this.state, this.se_excludes);
+            await ForageService.serializeState(SettingsForageKeys.WAVEFORM_SETTINGS, this.state, this.se_includes);
         });
     }
 

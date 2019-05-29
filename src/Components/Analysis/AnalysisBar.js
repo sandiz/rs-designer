@@ -27,7 +27,7 @@ class AnalysisBar extends Component {
             default: 6,
             increment: 1000, /* increment by 1000 pixels */
         }
-        this.se_excludes = ['showMIR', 'analysing']
+        this.se_includes = ['expanded'];
         this.containerRef = React.createRef();
         this.imgRef = React.createRef();
         this.playHeadRef = React.createRef();
@@ -276,30 +276,12 @@ class AnalysisBar extends Component {
         this.setState(prevState => ({
             expanded: !prevState.expanded,
         }), async () => {
-            /* (old cqt method)
-            const mediaPlayer = MediaPlayer.instance;
-            if (mediaPlayer) {
-                const acPlugins = mediaPlayer.wavesurfer.getActivePlugins();
-                if (acPlugins.constantq === true) {
-                    if (this.state.expanded) {
-                        // start update
-                        mediaPlayer.wavesurfer.constantq.resumeUpdate();
-                    }
-                    else {
-                        mediaPlayer.wavesurfer.constantq.pauseUpdate();
-                    }
-                }
-            }
-            */
-            await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_excludes);
+            await ForageService.serializeState(SettingsForageKeys.ANALYSIS_SETTINGS, this.state, this.se_includes);
         });
     }
 
     refresh = async () => {
-        const mp = MediaPlayer.instance;
-        if (mp) {
-            await mp.CQT();
-        }
+        this._onFinish();
     }
 
     render = () => {
@@ -357,6 +339,14 @@ class AnalysisBar extends Component {
                                 transform: 'translate3d(0px, 0px, 0px)',
                             }} />
                         <div ref={this.specRef} id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
+                            <div
+                                id="chordstimeline"
+                                style={{
+                                    height: 40 + 'px',
+                                    backgroundColor: 'red',
+                                    borderRadius: 3 + 'px',
+                                    borderBottom: '2px solid black',
+                                }} />
                             <img
                                 ref={this.imgRef}
                                 alt="spectrogram"
