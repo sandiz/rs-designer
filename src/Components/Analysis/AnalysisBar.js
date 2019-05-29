@@ -24,13 +24,14 @@ class AnalysisBar extends Component {
         this.zoom = {
             max: 40,
             min: 1,
-            default: 5,
+            default: 6,
             increment: 1000, /* increment by 1000 pixels */
         }
         this.se_excludes = ['showMIR', 'analysing']
         this.containerRef = React.createRef();
-        this.specRef = React.createRef();
+        this.imgRef = React.createRef();
         this.playHeadRef = React.createRef();
+        this.specRef = React.createRef();
         this.cqtDims = { w: 0, h: 0 };
         this.currDims = { w: 0, h: 0 };
         this.raf = 0;
@@ -135,28 +136,71 @@ class AnalysisBar extends Component {
                 </div>
             ),
         });
-        this.mediaPlayer = MediaPlayer.instance.getBackend();
+        this.mediaPlayer = MediaPlayer.instance;
+
+        this.mediaPlayer.wavesurfer.un('play', this._onPlay);
+        this.mediaPlayer.wavesurfer.on('play', this._onPlay);
+
+        this.mediaPlayer.wavesurfer.un('pause', this._onPause);
+        this.mediaPlayer.wavesurfer.on('pause', this._onPause);
+
+        this.mediaPlayer.wavesurfer.un('finish', this._onFinish);
+        this.mediaPlayer.wavesurfer.on('finish', this._onFinish);
+
+        this.mediaPlayer.wavesurfer.un('seek', this._onSeek);
+        this.mediaPlayer.wavesurfer.on('seek', this._onSeek);
         await this.cqtImageRender();
+    }
+
+    _onFinish = () => {
+        this.playHeadRef.current.style.transform = `translate3d(0px, 0px, 0px)`
+        this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+        this.specRef.current.style.overflow = "";
+    }
+
+    _onSeek = (progress) => {
+        if (progress <= 0 && !this.mediaPlayer.isPlaying()) {
+            //stop called
+            this._onFinish();
+        }
+    }
+
+    _onPlay = () => {
+        this.specRef.current.style.overflow = "hidden";
+    }
+
+    _onPause = () => {
+        // this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+        // this.specRef.current.style.overflow = "auto";
+        // this.specRef.current.style.position = "";
     }
 
     playHeadRender = async () => {
         if (this.mediaPlayer) {
-            const totalWidth = this.currDims.w;
-            const leftx = this.containerRef.current.offsetWidth / 2;
-            const rightx = (totalWidth) - leftx;
-            const pp = this.mediaPlayer.getPlayedPercents();
-            const currPos = totalWidth * pp;
-            if (currPos <= leftx) {
-                //move playhead
-                const css = `translate3d(${currPos}px, 0px, 0px)`;
-                this.playHeadRef.current.style.transform = css;
-            }
-            else if (currPos >= rightx) {
-                //move playhead
-                console.log("end");
-            }
-            else {
-                console.log("mid");
+            if (this.mediaPlayer.isPlaying()) {
+                const totalWidth = this.currDims.w;
+                const leftx = this.containerRef.current.offsetWidth / 2;
+                const rightx = (totalWidth) - leftx;
+                const pp = this.mediaPlayer.getBackend().getPlayedPercents();
+                const currPos = totalWidth * pp;
+                if (currPos <= leftx) {
+                    //move playhead
+                    this.playHeadRef.current.style.transform = `translate3d(${currPos}px, 0px, 0px)`;
+                    this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+                }
+                else if (currPos >= rightx) {
+                    //move playhead
+                    const rightpos = (currPos - rightx) + leftx;
+                    const rightfullx = totalWidth - this.containerRef.current.offsetWidth;
+                    this.playHeadRef.current.style.transform = `translate3d(${rightpos}px, 0px, 0px)`;
+                    this.imgRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
+                }
+                else {
+                    //console.log("mid");
+                    const midpos = -(currPos - leftx);
+                    this.playHeadRef.current.style.transform = `translate3d(${leftx}px, 0px, 0px)`
+                    this.imgRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
+                }
             }
             this.raf = requestAnimationFrame(this.playHeadRender);
         }
@@ -169,16 +213,17 @@ class AnalysisBar extends Component {
             const info = ProjectService.getProjectInfo();
             img.src = "file:///" + info.cqt;
             // eslint-disable-next-line
-            img.onload = () => {
+            img.onload = async () => {
                 this.cqtDims.w = img.width;
                 this.cqtDims.h = img.height;
                 img.style.display = "";
                 img.style.width = this.containerRef.current.offsetWidth + 'px';
                 img.style.height = this.containerRef.current.offsetHeight + 'px';
 
-                this.currDims.w = parseFloat(this.specRef.current.style.width);
-                this.currDims.h = parseFloat(this.specRef.current.style.height);
+                this.currDims.w = parseFloat(this.imgRef.current.style.width);
+                this.currDims.h = parseFloat(this.imgRef.current.style.height);
 
+                this.zoomfn("inc", this.zoom.default);
                 this.playHeadRender();
                 DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
             }
@@ -193,22 +238,22 @@ class AnalysisBar extends Component {
         this.setState({ showMIR: true });
     }
 
-    zoomfn = async (type) => {
+    zoomfn = async (type, next = 1) => {
         if (type === "stretch") {
             let zoom = this.state.currentVZoom;
             if (zoom === 1) zoom = 2;
             else zoom = 1;
             this.setState({ currentVZoom: zoom })
-            this.specRef.current.style.height = (this.containerRef.current.offsetHeight * zoom) + 'px';
+            this.imgRef.current.style.height = (this.containerRef.current.offsetHeight * zoom) + 'px';
         }
         else if (type === "inc") {
             const curr = this.state.currentZoom;
             if (curr < this.zoom.max) {
-                await setStateAsync(this, { currentZoom: curr + 1 });
+                await setStateAsync(this, { currentZoom: curr + next });
             }
             const diff = (this.state.currentZoom - curr);
-            const p = parseFloat(this.specRef.current.style.width);
-            this.specRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            const p = parseFloat(this.imgRef.current.style.width);
+            this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "dec") {
             const curr = this.state.currentZoom;
@@ -216,15 +261,15 @@ class AnalysisBar extends Component {
                 await setStateAsync(this, { currentZoom: curr - 1 });
             }
             const diff = (this.state.currentZoom - curr);
-            const p = parseFloat(this.specRef.current.style.width);
-            this.specRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            const p = parseFloat(this.imgRef.current.style.width);
+            this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "reset") {
-            this.specRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
-            this.specRef.current.style.height = this.containerRef.current.offsetHeight + 'px';
+            this.imgRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
+            this.imgRef.current.style.height = this.containerRef.current.offsetHeight + 'px';
         }
-        this.currDims.w = parseFloat(this.specRef.current.style.width);
-        this.currDims.h = parseFloat(this.specRef.current.style.height);
+        this.currDims.w = parseFloat(this.imgRef.current.style.width);
+        this.currDims.h = parseFloat(this.imgRef.current.style.height);
     }
 
     toggle = () => {
@@ -311,14 +356,16 @@ class AnalysisBar extends Component {
                                 willChange: 'transform',
                                 transform: 'translate3d(0px, 0px, 0px)',
                             }} />
-                        <div id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
+                        <div ref={this.specRef} id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
                             <img
-                                ref={this.specRef}
+                                ref={this.imgRef}
                                 alt="spectrogram"
                                 style={{
                                     display: 'none',
                                     position: 'relative',
                                     width: 0 + 'px',
+                                    willChange: 'transform',
+                                    transform: 'translate3d(0px, 0px, 0px)',
                                 }} />
                         </div>
                     </div>
