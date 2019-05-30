@@ -10,6 +10,7 @@ import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 import ProjectService from '../../services/project';
 import { SettingsService } from '../../services/settings';
 import { setStateAsync } from '../../lib/utils';
+import { getTransposedKey } from '../../lib/music-utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -28,15 +29,19 @@ class AnalysisBar extends Component {
             increment: 1000, /* increment by 1000 pixels */
         }
         this.se_includes = ['expanded'];
+
         this.containerRef = React.createRef();
         this.imgRef = React.createRef();
         this.playHeadRef = React.createRef();
         this.specRef = React.createRef();
-        this.cqtDims = { w: 0, h: 0 };
+        this.chordsRef = React.createRef();
+
+        this.cqtDims = { w: 0, h: 0, defaultHeight: 512 };
         this.currDims = { w: 0, h: 0 };
         this.raf = 0;
         this.mediaPlayer = null;
-        this.defaultLeft = 44;
+        this.chordsColor = { light: '#3b7eac', dark: '#436a88' };
+        this.chordsGridElements = [];
     }
 
     componentWillUnmount = () => {
@@ -149,6 +154,8 @@ class AnalysisBar extends Component {
 
         this.mediaPlayer.wavesurfer.un('seek', this._onSeek);
         this.mediaPlayer.wavesurfer.on('seek', this._onSeek);
+
+        DispatcherService.on(DispatchEvents.PitchChange, v => this.chordsRender(v));
         await this.cqtImageRender();
     }
 
@@ -173,6 +180,52 @@ class AnalysisBar extends Component {
         // this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         // this.specRef.current.style.overflow = "auto";
         // this.specRef.current.style.position = "";
+    }
+
+    chordsRender = async (transpose = 0) => {
+        let chords = [];
+        try {
+            chords = await ProjectService.readChords();
+        }
+        catch (ex) {
+            if (!Array.isArray(chords)) chords = []
+        }
+        if (chords.length > 0) {
+            const duration = Math.round(this.mediaPlayer.getDuration() * 100) / 100;
+            console.log("num chords: ", chords.length, "song duration", duration);
+
+            let gridColums = "";
+            chords.forEach((chordsData, i) => {
+                let [start, end, chord, type] = chordsData;
+                start = parseFloat(start);
+                end = parseFloat(end);
+
+                chord = getTransposedKey(chord, transpose);
+                if (type === 'maj') type = '';
+                if (!chord) chord = '';
+                if (!type) type = '';
+                const text = chord + type.toLowerCase();
+                const diff = Math.round((end - start) * 100) / 100;
+
+                let c = null;
+                if (i in this.chordsGridElements) c = this.chordsGridElements[i];
+                else c = document.createElement('div');
+
+                let j = i + 1;
+                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+                c.style.backgroundColor = (i % 2 ? '#3b7eac' : '#436a88');
+                c.className = "chords-grid-div";
+                c.textContent = text;
+                c.title = text;
+
+                if (!(i in this.chordsGridElements)) {
+                    this.chordsRef.current.appendChild(c);
+                    this.chordsGridElements[i] = c;
+                    gridColums += `${diff}fr `;
+                }
+            });
+            this.chordsRef.current.style['grid-template-columns'] = gridColums;
+        }
     }
 
     playHeadRender = async () => {
@@ -218,13 +271,16 @@ class AnalysisBar extends Component {
                 this.cqtDims.h = img.height;
                 img.style.display = "";
                 img.style.width = this.containerRef.current.offsetWidth + 'px';
-                img.style.height = this.containerRef.current.offsetHeight + 'px';
+                img.style.height = this.cqtDims.defaultHeight + 'px';
 
                 this.currDims.w = parseFloat(this.imgRef.current.style.width);
                 this.currDims.h = parseFloat(this.imgRef.current.style.height);
 
                 this.zoomfn("inc", this.zoom.default);
                 this.playHeadRender();
+
+                this.chordsRef.current.style.width = this.cqtDims.w + 'px';
+                this.chordsRender();
                 DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
             }
         }
@@ -232,6 +288,7 @@ class AnalysisBar extends Component {
 
     reset = () => {
         this.setState({ showMIR: false });
+        DispatcherService.off(DispatchEvents.PitchChange, this.chordsRender);
     }
 
     ready = () => {
@@ -244,7 +301,7 @@ class AnalysisBar extends Component {
             if (zoom === 1) zoom = 2;
             else zoom = 1;
             this.setState({ currentVZoom: zoom })
-            this.imgRef.current.style.height = (this.containerRef.current.offsetHeight * zoom) + 'px';
+            this.imgRef.current.style.height = (this.cqtDims.defaultHeight * zoom) + 'px';
         }
         else if (type === "inc") {
             const curr = this.state.currentZoom;
@@ -254,6 +311,7 @@ class AnalysisBar extends Component {
             const diff = (this.state.currentZoom - curr);
             const p = parseFloat(this.imgRef.current.style.width);
             this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            this.chordsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "dec") {
             const curr = this.state.currentZoom;
@@ -263,10 +321,14 @@ class AnalysisBar extends Component {
             const diff = (this.state.currentZoom - curr);
             const p = parseFloat(this.imgRef.current.style.width);
             this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            this.chordsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "reset") {
+            this.imgRef.current.style.height = this.cqtDims.defaultHeight + 'px';
             this.imgRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
-            this.imgRef.current.style.height = this.containerRef.current.offsetHeight + 'px';
+            this.chordsRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
+            await setStateAsync(this, { currentZoom: 1 });
+            this.zoomfn("inc", this.zoom.default);
         }
         this.currDims.w = parseFloat(this.imgRef.current.style.width);
         this.currDims.h = parseFloat(this.imgRef.current.style.height);
@@ -328,34 +390,17 @@ class AnalysisBar extends Component {
                             className="progress-playhead"
                             id="playhead"
                             ref={this.playHeadRef}
-                            style={{
-                                height: 514 + 'px',
-                                borderRight: '1px solid white',
-                                position: 'absolute',
-                                left: this.defaultLeft + 'px',
-                                zIndex: 5,
-                                width: 0 + 'px',
-                                willChange: 'transform',
-                                transform: 'translate3d(0px, 0px, 0px)',
-                            }} />
+                        />
                         <div ref={this.specRef} id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
                             <div
-                                id="chordstimeline"
-                                style={{
-                                    height: 40 + 'px',
-                                    backgroundColor: 'red',
-                                    borderRadius: 3 + 'px',
-                                    borderBottom: '2px solid black',
-                                }} />
+                                ref={this.chordsRef}
+                                className="chords-timeline"
+                            />
                             <img
                                 ref={this.imgRef}
                                 alt="spectrogram"
                                 style={{
                                     display: 'none',
-                                    position: 'relative',
-                                    width: 0 + 'px',
-                                    willChange: 'transform',
-                                    transform: 'translate3d(0px, 0px, 0px)',
                                 }} />
                         </div>
                     </div>
