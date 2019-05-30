@@ -1,5 +1,5 @@
 .mir-collapse-root {
-    height: 561px;
+    height: 542px;
     margin-top: 10px;
     border-radius: 4px;
     border: 1px solid lightgray;
@@ -29,6 +29,10 @@
 #spectrogram {
     margin: -1px;
     border: 1px solid lightgray;
+    will-change: transform;
+    transform: translate3d(0px, 0px, 0px);
+    width: 0px;
+    position: relative;
 }
 
 .analysisspinner {
@@ -65,4 +69,33 @@
     color: #fff;
     background-color: transparent;
     transition: width 0.2s ease;
+    height: 532px;
+    border-right: 1px solid white;
+    position: absolute;
+    left: 44px;
+    z-index: 5;
+    width: 0px;
+    will-change: transform;
+    transform: translate3d(0px, 0px, 0px);
+}
+
+.chords-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 26px;
+    border-radius: 3px;
+    border-bottom: 1px solid black;
+}
+
+.chords-grid-div {
+    border-right: 1px solid black;
+    text-align: center;
+    font-size: 15px;
+    line-height: 27.5px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-variant: initial;
 }
