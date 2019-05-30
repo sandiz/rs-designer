@@ -91,11 +91,17 @@
 
 .chords-grid-div {
     border-right: 1px solid black;
+    border-top: 1px solid black;
     text-align: center;
     font-size: 15px;
-    line-height: 27.5px;
+    line-height: 26px;
     white-space: nowrap; 
     overflow: hidden;
     text-overflow: ellipsis;
     font-variant: initial;
+}
+.chords-grid-div:hover {
+    background-color: azure !important;
+    color: black;
+    border-top: 1px solid black;
 }
