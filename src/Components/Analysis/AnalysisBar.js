@@ -155,7 +155,7 @@ class AnalysisBar extends Component {
         this.mediaPlayer.wavesurfer.un('seek', this._onSeek);
         this.mediaPlayer.wavesurfer.on('seek', this._onSeek);
 
-        DispatcherService.on(DispatchEvents.PitchChange, v => this.chordsRender(v));
+        DispatcherService.on(DispatchEvents.PitchChange, this.chordsRender);
         await this.cqtImageRender();
     }
 
@@ -192,7 +192,6 @@ class AnalysisBar extends Component {
         }
         if (chords.length > 0) {
             const duration = Math.round(this.mediaPlayer.getDuration() * 100) / 100;
-            console.log("num chords: ", chords.length, "song duration", duration);
 
             let gridColums = "";
             chords.forEach((chordsData, i) => {
@@ -216,12 +215,13 @@ class AnalysisBar extends Component {
                 c.style.backgroundColor = (i % 2 ? '#3b7eac' : '#436a88');
                 c.className = "chords-grid-div";
                 c.textContent = text;
-                c.title = text;
+                c.title = `${text}`;
 
                 if (!(i in this.chordsGridElements)) {
                     this.chordsRef.current.appendChild(c);
                     this.chordsGridElements[i] = c;
-                    gridColums += `${diff}fr `;
+                    const per = (diff / duration) * 100;
+                    gridColums += `${per}% `;
                 }
             });
             this.chordsRef.current.style['grid-template-columns'] = gridColums;

@@ -15,6 +15,7 @@ class WaveformBar extends Component {
             expanded: true,
             currentZoom: 1,
             analysing: false,
+            showTimeline: false,
         }
         this.zoom = {
             max: 80,
@@ -59,9 +60,11 @@ class WaveformBar extends Component {
     }
 
     reset = () => {
+        this.setState({ showTimeline: false });
     }
 
     ready = () => {
+        this.setState({ showTimeline: true });
     }
 
     increaseZoom = async () => {
