@@ -1,3 +1,4 @@
+const teoria = require('teoria');
 /* eslint-disable */
 
 const rotate = (array, times) => {
@@ -155,4 +156,18 @@ export const getUniqueChords = (chords_analysis_data) => {
 
 export const semitonesForTempoChange = (start_bpm, end_bpm) => {
     return Math.round((Math.log(end_bpm / start_bpm) / 0.05776227) * 100) / 100;     // calculate math function
+}
+
+export const getChordInfo = async (chord, type, origtype) => {
+    try {
+        const ct = `${chord.toUpperCase()}${type.toLowerCase()}`;
+        const c = require(`chords/packages/chord-chart/guitar/${ct}.json`);
+
+        const ct2 = `${chord.toUpperCase()}${origtype.toLowerCase()}`;
+        c.notes = teoria.chord(ct2).simple();
+        return c;
+    }
+    catch (ex) {
+        return null;
+    }
 }

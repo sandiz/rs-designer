@@ -32,9 +32,11 @@
     "request-promise": "^4.2.2",
     "soundtouchjs": "https://github.com/sandiz/SoundTouchJS.git",
     "stats-js": "^1.0.0",
+    "teoria": "^2.5.0",
     "threads": "^0.12.1",
     "tmp": "^0.1.0",
     "typeface-roboto-condensed": "^0.0.54",
+    "vexchords": "^1.2.0",
     "webpack-dev-server": "^3.1.1",
     "whatwg-fetch": "^3.0.0",
     "worklet-loader": "^1.0.0"
