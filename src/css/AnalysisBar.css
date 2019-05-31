@@ -31,7 +31,6 @@
     border: 1px solid lightgray;
     will-change: transform;
     transform: translate3d(0px, 0px, 0px);
-    width: 0px;
     position: relative;
 }
 
@@ -69,7 +68,7 @@
     color: #fff;
     background-color: transparent;
     transition: width 0.2s ease;
-    height: 532px;
+    height: 540px;
     border-right: 1px solid white;
     position: absolute;
     left: 44px;
@@ -99,9 +98,40 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-variant: initial;
+    cursor: pointer;
 }
 .chords-grid-div:hover {
     background-color: azure !important;
     color: black;
     border-top: 1px solid black;
+}
+
+.chord-tooltip {
+    background-color: white !important;
+    width: 200px;
+    height: 200px;
+    border: 1px solid black;
+    position: absolute;
+    top: 28px !important;
+    border-radius: .3rem;
+    z-index: 6;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 22px 70px 4px rgba(0,0,0,0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.chord-tooltip>.arrow {
+    left: 92px;
+}
+
+.chord-tooltip>.chord-name {
+    width: 100%;
+    height: 25px;
+    background-color: gray;
+    text-align: center;
+    padding: 2px;
+    font-variant: initial;
+}
+
+.chord-tooltip>svg {
+    top: -11px;
+    position: relative;
 }

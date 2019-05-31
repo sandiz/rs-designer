@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
+import { ChordBox } from 'vexchords';
 
 import "../../css/AnalysisBar.css"
 
@@ -9,8 +10,8 @@ import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 import ProjectService from '../../services/project';
 import { SettingsService } from '../../services/settings';
-import { setStateAsync } from '../../lib/utils';
-import { getTransposedKey } from '../../lib/music-utils';
+import { setStateAsync, toTitleCase } from '../../lib/utils';
+import { getTransposedKey, getChordInfo } from '../../lib/music-utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class AnalysisBar extends Component {
             analysing: false,
             currentVZoom: 1,
             currentZoom: 1,
+            showChordTip: false,
         }
         this.zoom = {
             max: 40,
@@ -35,6 +37,7 @@ class AnalysisBar extends Component {
         this.playHeadRef = React.createRef();
         this.specRef = React.createRef();
         this.chordsRef = React.createRef();
+        this.chordTipRef = React.createRef();
 
         this.cqtDims = { w: 0, h: 0, defaultHeight: 512 };
         this.currDims = { w: 0, h: 0 };
@@ -56,6 +59,31 @@ class AnalysisBar extends Component {
         if (savedState) {
             this.setState({ ...this.state, ...savedState });
         }
+        this.chordNameTip = document.querySelector(".chord-name");
+        this.chordBoxTip = new ChordBox('#selector', {
+            // Customizations (all optional, defaults shown)
+            width: 190, // canvas width
+            height: 200, // canvas height
+
+            numStrings: 6, // number of strings (e.g., 4 for bass)
+            numFrets: 5, // number of frets (e.g., 7 for stretch chords)
+            showTuning: true, // show tuning keys
+
+            defaultColor: '#666', // default color
+            bgColor: '#FFF', // background color
+            strokeColor: '#666', // stroke color (overrides defaultColor)
+            textColor: '#666', // text color (overrides defaultColor)
+            stringColor: '#666', // string color (overrides defaultColor)
+            fretColor: '#666', // fret color (overrides defaultColor)
+            labelColor: '#666', // label color (overrides defaultColor)
+
+            fretWidth: 1, // fret width
+            stringWidth: 1, // string width
+
+            fontFamily: 'Roboto Condensed',
+            fontSize: 15,
+            fontWeight: 100,
+        });
     }
 
     componentDidMount() {
@@ -162,6 +190,7 @@ class AnalysisBar extends Component {
     _onFinish = () => {
         this.playHeadRef.current.style.transform = `translate3d(0px, 0px, 0px)`
         this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+        this.chordsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         this.specRef.current.style.overflow = "";
     }
 
@@ -180,6 +209,61 @@ class AnalysisBar extends Component {
         // this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         // this.specRef.current.style.overflow = "auto";
         // this.specRef.current.style.position = "";
+    }
+
+    _onChordGridClick = async (e) => {
+        const v = this.state.showChordTip;
+        const t = e.target;
+        //eslint-disable-next-line
+        if (v && e.target === this._lastTarget) await setStateAsync(this, { showChordTip: false });
+        else await setStateAsync(this, { showChordTip: true });
+
+        if (this.state.showChordTip) {
+            let left = t.offsetLeft + (t.clientWidth / 2) - 100;
+            left = left < 0 ? 0 : left;
+            const f = parseFloat(this.imgRef.current.style.width);
+            left = left + 200 > f ? f - 200 : left;
+            this.chordTipRef.current.style.left = left + 'px';
+            this._lastTarget = t;
+
+            const chord = t.getAttribute("data-chord");
+            this.chordBoxTip.canvas.clear();
+            let nochordinfo = false;
+            if (chord) {
+                const dctype = t.getAttribute("data-chord-type");
+                let index = t.getAttribute("data-chord-index");
+
+                index = index ? parseInt(index, 10) : 0;
+                let type = dctype === '' ? 'maj' : dctype;
+                type = type === 'min' ? 'm' : type;
+                const cinfo = await getChordInfo(chord, type, dctype);
+                if (cinfo) {
+                    const chordfret = [];
+                    const chart = cinfo.chord_charts[index];
+                    const positions = chart.positions;
+                    for (let i = 0; i < positions.length; i += 1) {
+                        let p = positions[i];
+                        p = p !== 'x' ? parseInt(p, 10) : 'x';
+                        chordfret.push([positions.length - i, p])
+                    }
+                    this.chordBoxTip.draw({
+                        chord: chordfret,
+                        position: chart.fret, // start render at fret 5
+                    });
+                    const notes = cinfo.notes.map(x => toTitleCase(x)).join(' ');
+                    this.chordNameTip.textContent = `${chord}${type} - (${notes})`
+                }
+                else {
+                    nochordinfo = true;
+                }
+            }
+            else {
+                nochordinfo = true;
+            }
+            if (nochordinfo) {
+                console.log("no-chord-info");
+            }
+        }
     }
 
     chordsRender = async (transpose = 0) => {
@@ -216,6 +300,9 @@ class AnalysisBar extends Component {
                 c.className = "chords-grid-div";
                 c.textContent = text;
                 c.title = `${text}`;
+                c.onclick = this._onChordGridClick;
+                c.setAttribute('data-chord', chord);
+                c.setAttribute('data-chord-type', type);
 
                 if (!(i in this.chordsGridElements)) {
                     this.chordsRef.current.appendChild(c);
@@ -240,6 +327,7 @@ class AnalysisBar extends Component {
                     //move playhead
                     this.playHeadRef.current.style.transform = `translate3d(${currPos}px, 0px, 0px)`;
                     this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+                    this.chordsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
                 }
                 else if (currPos >= rightx) {
                     //move playhead
@@ -247,12 +335,14 @@ class AnalysisBar extends Component {
                     const rightfullx = totalWidth - this.containerRef.current.offsetWidth;
                     this.playHeadRef.current.style.transform = `translate3d(${rightpos}px, 0px, 0px)`;
                     this.imgRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
+                    this.chordsRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
                 }
                 else {
                     //console.log("mid");
                     const midpos = -(currPos - leftx);
                     this.playHeadRef.current.style.transform = `translate3d(${leftx}px, 0px, 0px)`
                     this.imgRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
+                    this.chordsRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
                 }
             }
             this.raf = requestAnimationFrame(this.playHeadRender);
@@ -262,6 +352,7 @@ class AnalysisBar extends Component {
     cqtImageRender = async () => {
         if (await SettingsService.isLayoutAvailable("chromagram")) {
             DispatcherService.dispatch(DispatchEvents.AboutToDraw, "cqt");
+            console.time("analysis-render");
             const img = document.querySelector("#spectrogram img");
             const info = ProjectService.getProjectInfo();
             img.src = "file:///" + info.cqt;
@@ -276,11 +367,13 @@ class AnalysisBar extends Component {
                 this.currDims.w = parseFloat(this.imgRef.current.style.width);
                 this.currDims.h = parseFloat(this.imgRef.current.style.height);
 
-                this.zoomfn("inc", this.zoom.default);
-                this.playHeadRender();
+                await this.playHeadRender();
 
-                this.chordsRef.current.style.width = this.cqtDims.w + 'px';
-                this.chordsRender();
+                this.chordsRef.current.style.width = this.currDims.w + 'px';
+                await this.chordsRender();
+                await this.zoomfn("inc", this.zoom.default);
+
+                console.timeEnd("analysis-render");
                 DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "cqt");
             }
         }
@@ -392,6 +485,14 @@ class AnalysisBar extends Component {
                             ref={this.playHeadRef}
                         />
                         <div ref={this.specRef} id="spectrogram" style={{ display: this.state.showMIR ? "block" : "none" }}>
+                            <div
+                                style={{ display: this.state.showChordTip ? 'block' : 'none' }}
+                                ref={this.chordTipRef}
+                                id="selector"
+                                className="popover bs-popover-bottom chord-tooltip">
+                                <div className="arrow" />
+                                <div className="chord-name popover-header h3"> Fmin </div>
+                            </div>
                             <div
                                 ref={this.chordsRef}
                                 className="chords-timeline"

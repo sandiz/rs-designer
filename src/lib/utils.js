@@ -185,3 +185,9 @@ export const toggleNeverland = (container, toggle) => {
 export const lerp = (start, end, amt) => {
     return (1 - amt) * start + amt * end
 }
+
+export const toTitleCase = (toTransform) => {
+    return toTransform.replace(/\b([a-z])/g, function (_, initial) {
+        return initial.toUpperCase();
+    });
+}
