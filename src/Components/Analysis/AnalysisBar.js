@@ -38,6 +38,7 @@ class AnalysisBar extends Component {
         this.specRef = React.createRef();
         this.chordsRef = React.createRef();
         this.chordTipRef = React.createRef();
+        this.beatsRef = React.createRef();
 
         this.cqtDims = { w: 0, h: 0, defaultHeight: 512 };
         this.currDims = { w: 0, h: 0 };
@@ -191,6 +192,7 @@ class AnalysisBar extends Component {
         this.playHeadRef.current.style.transform = `translate3d(0px, 0px, 0px)`
         this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         this.chordsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+        this.beatsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         this.specRef.current.style.overflow = "";
         this.setState({ showChordTip: false });
     }
@@ -298,7 +300,7 @@ class AnalysisBar extends Component {
                 if (!chord) chord = '';
                 if (!type) type = '';
                 const text = chord + type.toLowerCase();
-                const diff = Math.round((end - start) * 100) / 100;
+                const diff = end - start; // Math.round((end - start) * 100) / 100;
 
                 let c = null;
                 if (i in this.chordsGridElements) c = this.chordsGridElements[i];
@@ -325,6 +327,58 @@ class AnalysisBar extends Component {
         }
     }
 
+    beatsRender = async () => {
+        let beats = [];
+        try {
+            beats = await ProjectService.readBeats();
+        }
+        catch (ex) {
+            if (!Array.isArray(beats)) beats = []
+        }
+        if (beats.length > 0) {
+            const duration = Math.round(this.mediaPlayer.getDuration() * 100) / 100;
+
+            let gridColums = "";
+            let prev = 0;
+            let onecounter = 0;
+            beats.forEach((beatData, i) => {
+                let [start, bn] = beatData;
+                start = parseFloat(start);
+                bn = parseInt(bn, 10);
+
+                let diff = 0;
+                if (i === 0) { diff = start; }
+                else {
+                    diff = start - prev;
+                }
+                //diff = Math.round(diff * 100) / 100;
+
+                const c = document.createElement('div');
+                let j = i + 1;
+                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+
+                if (bn === 1) {
+                    c.className = "beats-start";
+                    onecounter += 1;
+                    const sp = document.createElement('span');
+                    c.appendChild(sp);
+                    sp.className = "beats-num-span";
+                    sp.textContent = onecounter;
+                }
+                else {
+                    c.className = "beats-other";
+                }
+                c.setAttribute('data-bn', bn);
+                const per = (diff / duration) * 100;
+                this.beatsRef.current.appendChild(c);
+                gridColums += `${per}% `;
+
+                prev = start;
+            });
+            this.beatsRef.current.style['grid-template-columns'] = gridColums;
+        }
+    }
+
     playHeadRender = async () => {
         if (this.mediaPlayer) {
             if (this.mediaPlayer.isPlaying()) {
@@ -338,6 +392,7 @@ class AnalysisBar extends Component {
                     this.playHeadRef.current.style.transform = `translate3d(${currPos}px, 0px, 0px)`;
                     this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
                     this.chordsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
+                    this.beatsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
                 }
                 else if (currPos >= rightx) {
                     //move playhead
@@ -346,6 +401,7 @@ class AnalysisBar extends Component {
                     this.playHeadRef.current.style.transform = `translate3d(${rightpos}px, 0px, 0px)`;
                     this.imgRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
                     this.chordsRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
+                    this.beatsRef.current.style.transform = `translate3d(${-(rightfullx)}px, 0px, 0px)`;
                 }
                 else {
                     //console.log("mid");
@@ -353,6 +409,7 @@ class AnalysisBar extends Component {
                     this.playHeadRef.current.style.transform = `translate3d(${leftx}px, 0px, 0px)`
                     this.imgRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
                     this.chordsRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
+                    this.beatsRef.current.style.transform = `translate3d(${midpos}px, 0px, 0px)`;
                 }
             }
             this.raf = requestAnimationFrame(this.playHeadRender);
@@ -380,7 +437,9 @@ class AnalysisBar extends Component {
                 await this.playHeadRender();
 
                 this.chordsRef.current.style.width = this.currDims.w + 'px';
+                this.beatsRef.current.style.width = this.currDims.w + 'px';
                 await this.chordsRender();
+                await this.beatsRender();
                 await this.zoomfn("inc", this.zoom.default);
 
                 console.timeEnd("analysis-render");
@@ -415,6 +474,7 @@ class AnalysisBar extends Component {
             const p = parseFloat(this.imgRef.current.style.width);
             this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
             this.chordsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            this.beatsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "dec") {
             const curr = this.state.currentZoom;
@@ -425,11 +485,13 @@ class AnalysisBar extends Component {
             const p = parseFloat(this.imgRef.current.style.width);
             this.imgRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
             this.chordsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
+            this.beatsRef.current.style.width = (p + (diff * this.zoom.increment)) + 'px';
         }
         else if (type === "reset") {
             this.imgRef.current.style.height = this.cqtDims.defaultHeight + 'px';
             this.imgRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
             this.chordsRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
+            this.beatsRef.current.style.width = this.containerRef.current.offsetWidth + 'px';
             await setStateAsync(this, { currentZoom: 1 });
             this.zoomfn("inc", this.zoom.default);
         }
@@ -513,6 +575,10 @@ class AnalysisBar extends Component {
                                 style={{
                                     display: 'none',
                                 }} />
+                            <div
+                                ref={this.beatsRef}
+                                className="beats-timeline"
+                            />
                         </div>
                     </div>
                 </div>
