@@ -28,6 +28,7 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - https://www.analyticsvidhya.com/blog/2018/01/10-audio-processing-projects-applications/ (whitepapers)
     - misc
         - soundtouch worklet
+    - chord tip bar info
 
 
 - NEXT

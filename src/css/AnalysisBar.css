@@ -1,5 +1,5 @@
 .mir-collapse-root {
-    height: 542px;
+    height: 568px;
     margin-top: 10px;
     border-radius: 4px;
     border: 1px solid lightgray;
@@ -68,7 +68,7 @@
     color: #fff;
     background-color: transparent;
     transition: width 0.2s ease;
-    height: 540px;
+    height: 565px;
     border-right: 1px solid white;
     position: absolute;
     left: 44px;
@@ -135,4 +135,33 @@
 .chord-tooltip>svg {
     top: -11px;
     position: relative;
+}
+
+.beats-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 26px;
+    border-radius: 0px;
+    border-top: 1px solid black;
+    background: azure;
+}
+
+.beats-start {
+    border-right: 1px solid black;
+    text-align: right;
+}
+
+.beats-other {
+    border-right: 1px solid lightgray;
+    height: 15px;
+}
+
+.beats-num-span {
+    text-align: right;
+    position: absolute;
+    color: black;
+    font-size: 11px;
+    margin-left: 3px;
 }
