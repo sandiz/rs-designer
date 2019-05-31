@@ -192,6 +192,7 @@ class AnalysisBar extends Component {
         this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         this.chordsRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         this.specRef.current.style.overflow = "";
+        this.setState({ showChordTip: false });
     }
 
     _onSeek = (progress) => {
@@ -203,12 +204,14 @@ class AnalysisBar extends Component {
 
     _onPlay = () => {
         this.specRef.current.style.overflow = "hidden";
+        this.setState({ showChordTip: false });
     }
 
     _onPause = () => {
         // this.imgRef.current.style.transform = `translate3d(0px, 0px, 0px)`;
         // this.specRef.current.style.overflow = "auto";
         // this.specRef.current.style.position = "";
+        this.setState({ showChordTip: false });
     }
 
     _onChordGridClick = async (e) => {
@@ -219,15 +222,22 @@ class AnalysisBar extends Component {
         else await setStateAsync(this, { showChordTip: true });
 
         if (this.state.showChordTip) {
-            let left = t.offsetLeft + (t.clientWidth / 2) - 100;
-            left = left < 0 ? 0 : left;
-            const f = parseFloat(this.imgRef.current.style.width);
-            left = left + 200 > f ? f - 200 : left;
-            this.chordTipRef.current.style.left = left + 'px';
+            if (this.specRef.current.style.overflow === "hidden") {
+                const left = e.clientX - 150;
+                this.chordTipRef.current.style.left = left + 'px';
+            } else {
+                let left = t.offsetLeft + (t.clientWidth / 2) - 100;
+                left = left < 0 ? 0 : left;
+                const f = parseFloat(this.imgRef.current.style.width);
+                left = left + 200 > f ? f - 200 : left;
+                this.chordTipRef.current.style.left = left + 'px';
+            }
             this._lastTarget = t;
 
             const chord = t.getAttribute("data-chord");
             this.chordBoxTip.canvas.clear();
+            this.chordNameTip.textContent = ``;
+
             let nochordinfo = false;
             if (chord) {
                 const dctype = t.getAttribute("data-chord-type");
