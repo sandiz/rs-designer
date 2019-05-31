@@ -205,7 +205,7 @@ class AnalysisBar extends Component {
     }
 
     _onPlay = () => {
-        this.specRef.current.style.overflow = "hidden";
+        this.specRef.current.style.overflowX = "hidden";
         this.setState({ showChordTip: false });
     }
 
@@ -347,10 +347,8 @@ class AnalysisBar extends Component {
                 bn = parseInt(bn, 10);
 
                 let diff = 0;
-                if (i === 0) { diff = start; }
-                else {
-                    diff = start - prev;
-                }
+                if (i === 0) diff = start;
+                else diff = start - prev;
                 //diff = Math.round(diff * 100) / 100;
 
                 const c = document.createElement('div');
