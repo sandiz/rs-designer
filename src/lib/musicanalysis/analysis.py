@@ -1,4 +1,3 @@
-from __future__ import print_function
 from __future__ import division
 import numpy as np
 import sys
@@ -118,7 +117,8 @@ def cqt_essentia(y, sr, wavpath):
 
     dB = librosa.amplitude_to_db(np.abs(C), ref=np.max)
     oldWidth = C.shape[1]
-    newWidth = int(sys.argv[3]) if len(sys.argv) >= 5 else C.shape[1]
+    #newWidth = int(sys.argv[3]) if len(sys.argv) >= 5 else C.shape[1]
+    newWidth = oldWidth
 
     mode = 'dump'
     # if mode == 'dump':
@@ -163,7 +163,8 @@ def cqt_librosa(y, sr):
 
     print("cqt analysis took " + str(time.time() - start))
     oldWidth = C.shape[1]
-    newWidth = int(sys.argv[3]) if len(sys.argv) >= 5 else C.shape[1]
+    newWidth = int(sys.argv[3]) if len(sys.argv) >= 5 and int(
+        sys.argv[3]) != -1 else C.shape[1]
 
     mode = 'dump'
     # if mode == 'dump':
@@ -172,7 +173,7 @@ def cqt_librosa(y, sr):
     newHeight = int(sys.argv[4]) if len(sys.argv) >= 5 else C.shape[0]
 
     print("oldWidth: {} newWidth: {}".format(oldWidth, newWidth))
-    export_to_png(dB, newWidth, newHeight, path)
+    export_to_png(dB, newWidth, newHeight, path, not (newWidth == oldWidth))
     print("finished librosa:cqt")
     # np.savez_compressed("cqt", dB=dB)
     '''

@@ -40,3 +40,4 @@ src/lib/musicanalysis/build/
 src/lib/musicanalysis/dist/
 rs-designer.code-workspace
 cqt.npy
+__pycache__/
