@@ -7,7 +7,6 @@ from madmom.features import DeepChromaChordRecognitionProcessor, DBNDownBeatTrac
 from madmom.features.key import CNNKeyRecognitionProcessor, key_prediction_to_label
 import argparse
 import time
-import threading
 import os
 import cairo
 from scipy.signal import resample
@@ -149,7 +148,6 @@ def cqt_librosa(y, sr):
         n_bins=n_bins,
         # sparsity=0.9
     )
-    print("cqt analysis took " + str(time.time() - start))
     start = time.time()
     H, P = librosa.decompose.hpss(C, margin=(3.0, 1.0))
     print("decompose analysis took " + str(time.time() - start))
@@ -255,13 +253,13 @@ def chords_detect_madmom(path):
 def thread_librosa(y, sr):
     print("starting librosa thread")
     onset_env = librosa.onset.onset_strength(y, sr=sr)
-    t1 = threading.Thread(target=cqt_librosa, args=(y, sr,))
-    t3 = threading.Thread(target=beats_librosa, args=(y, sr, onset_env))
+    #t1 = threading.Thread(target=cqt_librosa, args=(y, sr,))
+    #t3 = threading.Thread(target=beats_librosa, args=(y, sr, onset_env))
 
-    t1.start()
-    t3.start()
-    t1.join()
-    t3.join()
+    # t1.start()
+    # t3.start()
+    # t1.join()
+    # t3.join()
 
 
 if __name__ == '__main__':
@@ -278,23 +276,30 @@ if __name__ == '__main__':
 
     print("librosa decode took " + str(time.time() - start))
 
-    t1 = threading.Thread(target=thread_librosa, args=(y_hat, 44100))
-    t3 = threading.Thread(target=key_detect_essentia, args=(y_hat, ))
-    t4 = threading.Thread(target=chords_detect_madmom, args=(wavpath, ))
-    t5 = threading.Thread(target=downbeat_detact_madmom, args=(wavpath, ))
+    onset_env = librosa.onset.onset_strength(y_hat, sr=44100)
+    cqt_librosa(y_hat, 44100)
+    beats_librosa(y_hat, 44100, onset_env)
+
+    key_detect_essentia(y_hat)
+    chords_detect_madmom(wavpath)
+    downbeat_detact_madmom(wavpath)
+    #t1 = threading.Thread(target=thread_librosa, args=(y_hat, 44100))
+    #t3 = threading.Thread(target=key_detect_essentia, args=(y_hat, ))
+    #t4 = threading.Thread(target=chords_detect_madmom, args=(wavpath, ))
+    #t5 = threading.Thread(target=downbeat_detact_madmom, args=(wavpath, ))
 
     #cqt_librosa(y_hat, 441000)
     #cqt_essentia(y_hat, 44100, wavpath)
     # sys.exit(0)
 
-    t1.start()
-    t1.join()
-    t3.start()
-    t4.start()
-    t5.start()
+    # t1.start()
+    # t1.join()
+    # t3.start()
+    # t4.start()
+    # t5.start()
 
-    t3.join()
-    t4.join()
-    t5.join()
+    # t3.join()
+    # t4.join()
+    # t5.join()
     os.unlink(wavpath)
     print("\nTotal time: " + str(time.time() - start) + " s")
