@@ -10,8 +10,10 @@ import { MediaPlayer } from '../../lib/libWaveSurfer'
 import ForageService, { SettingsForageKeys } from '../../services/forage.js';
 import ProjectService from '../../services/project';
 import { SettingsService } from '../../services/settings';
-import { setStateAsync, toTitleCase } from '../../lib/utils';
-import { getTransposedKey, getChordInfo } from '../../lib/music-utils';
+import { setStateAsync, toTitleCase, getPositionFromTop } from '../../lib/utils';
+import {
+    getTransposedKey, getChordInfo, C1base2, C8base2, hz_to_note,
+} from '../../lib/music-utils';
 
 class AnalysisBar extends Component {
     constructor(props) {
@@ -39,7 +41,6 @@ class AnalysisBar extends Component {
         this.chordsRef = React.createRef();
         this.chordTipRef = React.createRef();
         this.beatsRef = React.createRef();
-        this.pianoRollRef = React.createRef();
 
         this.cqtDims = { w: 0, h: 0, defaultHeight: 512 };
         this.currDims = { w: 0, h: 0 };
@@ -187,6 +188,17 @@ class AnalysisBar extends Component {
 
         DispatcherService.on(DispatchEvents.PitchChange, this.chordsRender);
         await this.cqtImageRender();
+    }
+
+    _onSpecMouseMove = (e) => {
+        const distTop = getPositionFromTop(e.target).y;
+        const mouseY = this.cqtDims.defaultHeight - (e.clientY - distTop);
+
+        const per = (mouseY) / (this.cqtDims.defaultHeight) * 100;
+
+        const hz = (per * (C8base2 - C1base2)) / 100 + C1base2;
+        const hzb2 = (2 ** hz);
+        console.log(per, hz_to_note(hzb2));
     }
 
     _onFinish = () => {
@@ -433,7 +445,6 @@ class AnalysisBar extends Component {
                 this.currDims.w = parseFloat(this.imgRef.current.style.width);
                 this.currDims.h = parseFloat(this.imgRef.current.style.height);
 
-                this.pianoRollRef.current.style.height = this.currDims.h + 'px';
                 await this.playHeadRender();
 
                 this.chordsRef.current.style.width = this.currDims.w + 'px';
@@ -467,7 +478,6 @@ class AnalysisBar extends Component {
             else zoom = 1;
             this.setState({ currentVZoom: zoom })
             this.imgRef.current.style.height = (this.cqtDims.defaultHeight * zoom) + 'px';
-            this.pianoRollRef.current.style.height = (this.cqtDims.defaultHeight * zoom) + 'px';
         }
         else if (type === "inc") {
             const curr = this.state.currentZoom;
@@ -578,7 +588,9 @@ class AnalysisBar extends Component {
                                 alt="spectrogram"
                                 style={{
                                     display: 'none',
-                                }} />
+                                }}
+                                onMouseMove={this._onSpecMouseMove}
+                            />
                             <div
                                 ref={this.beatsRef}
                                 className="beats-timeline"
