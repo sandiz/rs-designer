@@ -173,8 +173,10 @@ export const getChordInfo = async (chord, type, origtype) => {
     }
 }
 
-export const C1_Hz = 32.70319566257483;
-export const C8_Hz = 4186.009044809578;
+export const C1Hz = 32;
+export const C8Hz = 4096;
+export const C1base2 = 5;
+export const C8base2 = 12;
 
 export const hz_to_note = (freq) => {
     return midi_to_note(hz_to_midi(freq));
