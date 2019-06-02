@@ -39,6 +39,7 @@ class AnalysisBar extends Component {
         this.chordsRef = React.createRef();
         this.chordTipRef = React.createRef();
         this.beatsRef = React.createRef();
+        this.pianoRollRef = React.createRef();
 
         this.cqtDims = { w: 0, h: 0, defaultHeight: 512 };
         this.currDims = { w: 0, h: 0 };
@@ -432,6 +433,7 @@ class AnalysisBar extends Component {
                 this.currDims.w = parseFloat(this.imgRef.current.style.width);
                 this.currDims.h = parseFloat(this.imgRef.current.style.height);
 
+                this.pianoRollRef.current.style.height = this.currDims.h + 'px';
                 await this.playHeadRender();
 
                 this.chordsRef.current.style.width = this.currDims.w + 'px';
@@ -448,6 +450,9 @@ class AnalysisBar extends Component {
 
     reset = () => {
         this.setState({ showMIR: false });
+        this._onFinish();
+        this.chordsGridElements = [];
+        this.mediaPlayer = null;
         DispatcherService.off(DispatchEvents.PitchChange, this.chordsRender);
     }
 
@@ -462,6 +467,7 @@ class AnalysisBar extends Component {
             else zoom = 1;
             this.setState({ currentVZoom: zoom })
             this.imgRef.current.style.height = (this.cqtDims.defaultHeight * zoom) + 'px';
+            this.pianoRollRef.current.style.height = (this.cqtDims.defaultHeight * zoom) + 'px';
         }
         else if (type === "inc") {
             const curr = this.state.currentZoom;
