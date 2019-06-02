@@ -18,6 +18,7 @@ const rotateMode = (obj, times) => {
 }
 
 export const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+export const pitchesFromC = rotate(pitches, 3); // starts with C
 const cof =
 {
     majors: [...pitches],
@@ -170,4 +171,58 @@ export const getChordInfo = async (chord, type, origtype) => {
     catch (ex) {
         return null;
     }
+}
+
+export const C1_Hz = 32.70319566257483;
+export const C8_Hz = 4186.009044809578;
+
+export const hz_to_note = (freq) => {
+    return midi_to_note(hz_to_midi(freq));
+}
+
+export const hz_to_midi = (freq) => {
+    return 12 * (Math.log2(freq) - Math.log2(440.0)) + 69;
+}
+
+export const midi_to_note = (midi) => {
+    const note_num = parseInt(Math.round(midi));
+    let note = pitchesFromC[note_num % 12];
+    note = `${note}${parseInt(note_num / 12) - 1}`;
+    return note;
+}
+
+export const note_to_hz = (note) => {
+    return midi_to_hz(note_to_midi(note));
+}
+
+export const midi_to_hz = (midi) => {
+    return 440.0 * (2.0 ** ((midi - 69) / 12.0));
+}
+
+export const note_to_midi = (note, round_midi = true) => {
+    const pitch_map = { 'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11 };
+    const acc_map = { '#': 1, '': 0, 'b': -1, '!': -1 };
+
+    const regex = /([A-Ga-g])([#b!]*)([+-]?\d+)?([+-]\d+)?$/gm;
+    const match = regex.exec(note);
+    const pitch = match[1];
+    const accidental = match[2]
+    let offset = 0;
+    for (let i = 0; i < accidental.length; i++) {
+        const c = (accidental.charAt(i));
+        offset += acc_map[c];
+    }
+    let octave = match[3]
+    let cents = match[4]
+
+    if (octave) octave = parseInt(octave)
+    else octave = 0;
+
+    if (cents) cents = parseInt(cents) * 1e-2;
+    else cents = 0;
+
+    let note_value = 12 * (octave + 1) + pitch_map[pitch] + offset + cents;
+
+    if (round_midi) note_value = parseInt(Math.round(note_value));
+    return note_value;
 }
