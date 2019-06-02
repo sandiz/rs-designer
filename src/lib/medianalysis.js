@@ -15,9 +15,9 @@ const getMABinary = () => {
         binaryPath = window.path.join(window.path.dirname(getAppPath()), '..', './Resources', './bin')
     }
     else {
-        binaryPath = './src/lib/musicanalysis/dist/';
+        binaryPath = './src/lib/musicanalysis';
     }
-    return window.path.resolve(window.path.join(binaryPath, './analysis-cy'));
+    return window.path.resolve(window.path.join(binaryPath, './analysis.py'));
 }
 
 class Spawner {
@@ -30,7 +30,7 @@ class Spawner {
         const info = ProjectService.getProjectInfo();
         const dir = ProjectService.getProjectDir();
         if (info && dir) {
-            this.handle = spawn(`"${this.analysisBinary}"`, [info.media, dir, width, height], {
+            this.handle = spawn(`python3 "${this.analysisBinary}"`, [info.media, dir, -1, 1024], {
                 detached: true,
                 windowsHide: true,
                 shell: true,

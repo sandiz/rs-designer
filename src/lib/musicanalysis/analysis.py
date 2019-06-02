@@ -49,11 +49,11 @@ def draw(dB, width, height, file):
                 i, height - (j*heightFactor), 1, heightFactor)
             ctx.fill()
 
-    print ("pixel draw took " + str(time.time() - start))
+    print("pixel draw took " + str(time.time() - start))
 
     start = time.time()
     surface.write_to_png(file + ".png")  # Output to PNG
-    print ("write png took " + str(time.time() - start))
+    print("write png took " + str(time.time() - start))
 
     #start = time.time()
     #data = surface.get_data()
@@ -73,7 +73,7 @@ def export_to_png(dB, width, height, file, shdresample=True):
     else:
         zoomdB = newdB
     zoomdB2 = np.uint8(zoomdB)
-    print ("resampling took " + str(time.time() - start))
+    print("resampling took " + str(time.time() - start))
     draw(zoomdB2, width, height, file)
 
 
@@ -125,7 +125,7 @@ def cqt_essentia(y, sr, wavpath):
     # np.save(path, dB)
     newHeight = int(sys.argv[4]) if len(sys.argv) >= 5 else C.shape[0]
 
-    print ("cqt essentia took " + str(time.time() - start))
+    print("cqt essentia took " + str(time.time() - start))
 
     print("oldWidth: {} newWidth: {}".format(oldWidth, newWidth))
 
@@ -152,10 +152,12 @@ def cqt_librosa(y, sr):
     H, P = librosa.decompose.hpss(C, margin=(3.0, 1.0))
     print("decompose analysis took " + str(time.time() - start))
     dB = librosa.amplitude_to_db(np.abs(H), ref=np.max)
-    # import matplotlib.pyplot as plt
-    # plt.figure(figsize=(12, 4))
-    # plt.subplot(2, 1, 1)
-    # librosa.display.specshow(dB, y_axis='cqt_note', bins_per_octave=12*3)
+    #import matplotlib.pyplot as plt
+    #plt.figure(figsize=(12, 4))
+    #plt.subplot(2, 1, 1)
+    #librosa.display.specshow(dB, y_axis='cqt_note', bins_per_octave=12*3)
+    #plt.subplot(2, 1, 2)
+    #librosa.display.specshow(dB, y_axis='cqt_hz', bins_per_octave=12*3)
     # plt.tight_layout()
     # plt.show()
 
