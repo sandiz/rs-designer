@@ -41,6 +41,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
         - https://github.com/jussi-kalliokoski/audiolib.js
         - https://tonejs.github.io/
         - pydub
+    - ML based stem isolation
+    - ML based vocal separation
+    - ML based melody detection
 
 
 - FUTURE
