@@ -1,22 +1,24 @@
 import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
 import FPSMeter from './components/fpsmeter'
-import './css/App.css'
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
 import ForageService, { SettingsForageKeys } from './services/forage';
 
-require('typeface-roboto-condensed')
+import 'normalize.css'
+import '@blueprintjs/icons/lib/css/blueprint-icons.css'
+import '@blueprintjs/core/lib/css/blueprint.css'
+import 'react-toastify/dist/ReactToastify.min.css';
+import './css/App.scss'
 
-const ipcRenderer = window.require("electron").ipcRenderer;
+require('typeface-magra')
+
+const { ipcRenderer } = window.require("electron");
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      control: { idx: "a", checked: true },
-      waveform: { idx: "b", checked: true },
-      chromagram: { idx: "c", checked: true },
+      appClass: "",
     };
     this.enableKbdShortcuts = true;
   }
@@ -83,7 +85,7 @@ class App extends Component {
   render = () => {
     return (
       <React.Fragment>
-        <div id="none" />
+        <div id="app-root" className={this.state.appClass} />
         <FPSMeter />
         <ToastContainer
           position="bottom-right"

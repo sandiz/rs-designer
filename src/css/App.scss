@@ -1,0 +1,59 @@
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@import "~@blueprintjs/core/lib/scss/variables";
+
+.dark-toast {
+    font-family: "Magra", "Roboto Condensed", sans-serif;
+}
+
+body {
+    font-family: "Magra", "Roboto Condensed", sans-serif;
+    user-select: none;
+    overflow: hidden;
+    height: 100%;
+    -webkit-app-region: drag;
+}
+
+button,
+canvas,
+input {
+    -webkit-app-region: no-drag;
+}
+
+#app-flex>#a {
+    order: 1;
+}
+
+#app-flex>#b {
+    order: 2;
+}
+
+#app-flex>#c {
+    order: 3;
+}
+
+#app-flex>#d {
+    order: 4;
+}
+
+#app-flex>#e {
+    order: 5;
+}
+
+#app-flex>#f {
+    order: 6;
+}
+
+#app-flex {
+    overflow: auto;
+    height: 91vh;
+    margin-top: 1.5vh;
+    padding-top: 1.5vh;
+    margin-top: 2px;
+    display: flex;
+    /* Optional, if you want the DIVs 100% width: */
+    flex-direction: column;
+}
+
+#app-root {
+    background-color: $pt-app-background-color;
+}
