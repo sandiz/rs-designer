@@ -6,6 +6,9 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
+    "@blueprintjs/core": "^3.19.1",
+    "@blueprintjs/icons": "^3.11.0",
+    "@blueprintjs/select": "^3.11.1",
     "about-window": "^1.13.1",
     "album-art": "^2.0.1",
     "chord-chart": "^1.1.0",
