@@ -1,7 +1,5 @@
 @import '~@fortawesome/fontawesome-free/css/all.css';
-/*@import "~react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";*/
 
-.App,
 .dark-toast {
     font-family: "Roboto Condensed", sans-serif;
 }
@@ -18,10 +16,6 @@ button,
 canvas,
 input {
     -webkit-app-region: no-drag;
-}
-
-.background {
-    color: white;
 }
 
 #app-flex {

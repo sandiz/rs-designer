@@ -1,10 +1,6 @@
 import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
-import ControllerBar from './components/ControllerBar/ControllerBar'
-import WaveformBar from './components/Waveform/WaveformBar'
-import ControlsBar from './components/Controls/ControlsBar'
-import AnalysisBar from './components/Analysis/AnalysisBar';
 import FPSMeter from './components/fpsmeter'
 import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
@@ -88,12 +84,7 @@ class App extends Component {
   render = () => {
     return (
       <React.Fragment>
-        <ControllerBar />
-        <div id="app-flex">
-          <ControlsBar id={this.state.control.idx} style={{ display: this.state.control.checked ? 'block' : 'none' }} />
-          <WaveformBar id={this.state.waveform.idx} style={{ display: this.state.waveform.checked ? 'block' : 'none' }} />
-          <AnalysisBar id={this.state.chromagram.idx} style={{ display: this.state.chromagram.checked ? 'block' : 'none' }} />
-        </div>
+        <div id="none" />
         <FPSMeter />
         <ToastContainer
           position="bottom-right"
