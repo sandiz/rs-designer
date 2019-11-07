@@ -268,28 +268,28 @@ class EqualizerControls extends Component {
                             <span>Enable Equalizer</span>
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch1" checked={this.state.enableEQ} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, 'eq')} />
-                                <label className="custom-control-label" htmlFor="customSwitch1" />
+                                <label className="custom-control-label" htmlFor="customSwitch1"> </label>
                             </div>
                         </div>
                         <div>
                             <span>Visualize Spectrum</span>
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch2" checked={this.state.enableSpectrum} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "spectrum")} />
-                                <label className="custom-control-label" htmlFor="customSwitch2" />
+                                <label className="custom-control-label" htmlFor="customSwitch2"> </label>
                             </div>
                         </div>
                         <div>
                             <span>Remove Vocals</span>
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch3" checked={this.state.enableKaraoke} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "karaoke")} />
-                                <label className="custom-control-label" htmlFor="customSwitch3" />
+                                <label className="custom-control-label" htmlFor="customSwitch3"> </label>
                             </div>
                         </div>
                         <div title="Pitch slider transpoes instead of affecting pitch">
                             <span>Transpose Mode</span>
                             <div className="custom-control custom-switch checkbox-right">
                                 <input type="checkbox" className="custom-control-input" id="customSwitch4" checked={this.state.enableTranspose} readOnly onMouseDown={e => e.preventDefault()} onClick={e => this.toggle(e, "transpose")} />
-                                <label className="custom-control-label" htmlFor="customSwitch4" />
+                                <label className="custom-control-label" htmlFor="customSwitch4"> </label>
                             </div>
                         </div>
                     </div>

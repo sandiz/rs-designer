@@ -1,12 +1,13 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import WaveSurfer from 'wavesurfer.js';
-import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min.js';
+import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 //  import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js';
 //import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min.js';
 import ConstantQPlugin from './wv-plugin/cqtgram'
 import ChordsTimelinePlugin from './wv-plugin/chordstimeline'
 import BeatsTimelinePlugin from './wv-plugin/beatstimeline'
 import { readTags, readFile } from './utils'
-import { MediaAnalysis } from './medianalysis'
+import MediaAnalysis from './medianalysis'
 import ProjectService from '../services/project';
 import { SettingsService } from '../services/settings';
 

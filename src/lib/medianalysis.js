@@ -1,8 +1,6 @@
 
 import ProjectService from '../services/project';
-
-const tspawn = require('threads').spawn;
-
+//const tspawn = require('threads').spawn;
 const spawn = window.require('cross-spawn');
 
 
@@ -68,7 +66,7 @@ class Spawner {
         }
     }
 }
-
+/* 
 export const NumpyLoaderThread = tspawn((input, done) => {
     const asciiDecode = (buf) => {
         return String.fromCharCode.apply(null, new Uint8Array(buf));
@@ -133,6 +131,7 @@ export const NumpyLoaderThread = tspawn((input, done) => {
         data,
     };
     done({ data: nparray });
-});
+}); */
 
-export const MediaAnalysis = new Spawner();
+const MediaAnalysis = new Spawner();
+export default MediaAnalysis;

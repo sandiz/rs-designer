@@ -112,6 +112,7 @@ class MetadataEditorModal extends React.Component {
         } = this.state;
         return (
             <Modal
+                //eslint-disable-next-line
                 {...rest}
                 size="lg"
                 aria-labelledby="contained-modal-title-vcenter"
@@ -195,7 +196,7 @@ class MetadataEditorModal extends React.Component {
                                     }
                                 </div>
                                 <div style={{ marginLeft: 15 + 'px' }}>
-                                    <a href="#" onClick={this.uploadImage}><i className="fas fa-upload" /></a>
+                                    <a href="#" onClick={this.uploadImage}><i className="fas fa-upload" /> </a>
                                 </div>
                             </div>
                         </div>

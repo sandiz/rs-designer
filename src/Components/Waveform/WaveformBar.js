@@ -6,7 +6,7 @@ import { setStateAsync, toggleNeverland } from '../../lib/utils';
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
-import ForageService, { SettingsForageKeys } from '../../services/forage.js';
+import ForageService, { SettingsForageKeys } from '../../services/forage';
 
 class WaveformBar extends Component {
     constructor(props) {
@@ -100,7 +100,7 @@ class WaveformBar extends Component {
     }
 
     toggle = () => {
-        this.setState(prevState => ({
+        this.setState((prevState) => ({
             expanded: !prevState.expanded,
         }), async () => {
             await ForageService.serializeState(SettingsForageKeys.WAVEFORM_SETTINGS, this.state, this.se_includes);
@@ -119,6 +119,7 @@ class WaveformBar extends Component {
         const expanded = "waveform-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
+            //eslint-disable-next-line
             <div className="waveform-header" id={this.props.id} {...this.props}>
                 <div className="waveform-text-div">
                     <span className="waveform-a" onClick={this.toggle}>

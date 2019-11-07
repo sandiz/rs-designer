@@ -134,6 +134,7 @@ class SettingsModal extends React.Component {
         } = this.props;
         return (
             <Modal
+                //eslint-disable-next-line
                 {...rest}
                 size="med"
                 aria-labelledby="contained-modal-title-vcenter"
@@ -154,7 +155,9 @@ class SettingsModal extends React.Component {
                                     <Tab eventKey="layout" title="Layout">
                                         <div className="gen-settings-tab">
                                             <div className="ta-center">
-                                                <span className="text-muted">Drag/drop to rearrange layout, check/uncheck to toggle modules</span>
+                                                <span className="text-muted">
+                                                    Drag/drop to rearrange layout, check/uncheck to toggle modules
+                                                </span>
                                             </div>
                                             <DraggableLayout items={this.state.layouts} onDragEnd={this.layoutDragEnd} onCheck={this.layoutCheck} />
                                         </div>

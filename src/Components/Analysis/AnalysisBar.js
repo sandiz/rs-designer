@@ -7,7 +7,7 @@ import "../../css/AnalysisBar.css"
 
 import { DispatcherService, DispatchEvents, KeyboardEvents } from '../../services/dispatcher'
 import { MediaPlayer } from '../../lib/libWaveSurfer'
-import ForageService, { SettingsForageKeys } from '../../services/forage.js';
+import ForageService, { SettingsForageKeys } from '../../services/forage';
 import ProjectService from '../../services/project';
 import { SettingsService } from '../../services/settings';
 import { setStateAsync, toTitleCase, getPositionFromTop } from '../../lib/utils';
@@ -48,13 +48,6 @@ class AnalysisBar extends Component {
         this.mediaPlayer = null;
         this.chordsColor = { light: '#3b7eac', dark: '#436a88' };
         this.chordsGridElements = [];
-    }
-
-    componentWillUnmount = () => {
-        DispatcherService.off(DispatchEvents.MediaReset, this.reset);
-        DispatcherService.off(DispatchEvents.MediaReady, this.ready);
-        DispatcherService.off(DispatchEvents.MediaAnalysisStart, this.analyseStart);
-        DispatcherService.off(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
     }
 
     componentWillMount = async () => {
@@ -98,6 +91,13 @@ class AnalysisBar extends Component {
         DispatcherService.on(KeyboardEvents.ToggleAnalysis, this.toggle);
         DispatcherService.on(DispatchEvents.AboutToDraw, this.aboutoDraw);
         DispatcherService.on(DispatchEvents.FinishedDrawing, this.finishedDrawing);
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReset, this.reset);
+        DispatcherService.off(DispatchEvents.MediaReady, this.ready);
+        DispatcherService.off(DispatchEvents.MediaAnalysisStart, this.analyseStart);
+        DispatcherService.off(DispatchEvents.MediaAnalysisEnd, this.analyseEnd);
     }
 
     aboutoDraw = (type) => {
@@ -149,10 +149,10 @@ class AnalysisBar extends Component {
                 </div>
             </div>
         ), {
-                autoClose: (800 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~100 seconds */
-                pauseOnFocusLoss: false,
-                pauseOnHover: false,
-            });
+            autoClose: (800 / window.os.cpus().length) * 1000, /* dumb heuristic, mbp i7-4770HQ CPU @ 2.20GHz * 8 takes ~100 seconds */
+            pauseOnFocusLoss: false,
+            pauseOnHover: false,
+        });
     }
 
     analyseEnd = async (method) => {
@@ -529,6 +529,7 @@ class AnalysisBar extends Component {
         const expanded = "mir-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
+            //eslint-disable-next-line
             <div className="mir-header" id={this.props.id} {...this.props}>
                 <div className="mir-text-div">
                     <span className="waveform-a" onClick={this.toggle}>

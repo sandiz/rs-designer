@@ -129,18 +129,18 @@ class ControllerBar extends Component {
     disableKeydown(".kabob_div", "Enter");
   }
 
+  componentWillUnmount() {
+    DispatcherService.off(DispatchEvents.ProjectUpdate, this.updateProjectState);
+    DispatcherService.off(DispatchEvents.PitchChange, this.onPitchChange);
+    DispatcherService.off(DispatchEvents.TempoChange, this.onTempoChange);
+  }
+
   analysisStart = () => {
     this.setState({ disableOpenSave: true })
   }
 
   analysisEnd = () => {
     this.setState({ disableOpenSave: false })
-  }
-
-  componentWillUnmount() {
-    DispatcherService.off(DispatchEvents.ProjectUpdate, this.updateProjectState);
-    DispatcherService.off(DispatchEvents.PitchChange, this.onPitchChange);
-    DispatcherService.off(DispatchEvents.TempoChange, this.onTempoChange);
   }
 
   onPitchChange = async (value) => {
@@ -730,7 +730,7 @@ class ControllerBar extends Component {
                       aria-valuemin="0"
                       aria-valuemax="100"
                       tabIndex="0"
-                    />
+                    > </div>
                   </div>
                 </div>
               </div>

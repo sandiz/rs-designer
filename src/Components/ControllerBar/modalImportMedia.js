@@ -10,6 +10,7 @@ function ImportMediaModal(props) {
     const wsComplete = props.completed.includes(ImportMediaStates.wavesurfing);
     return (
         <Modal
+            //eslint-disable-next-line
             {...props}
             size="med"
             aria-labelledby="contained-modal-title-vcenter"

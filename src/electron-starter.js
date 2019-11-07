@@ -42,12 +42,12 @@ async function createWindow() {
             webSecurity: false,
             nodeIntegration: true,
         },
+        autoHideMenuBar: true,
     });
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)
     // and restore the maximized or full screen state
     mainWindowState.manage(mainWindow);
-    mainWindow.setAutoHideMenuBar(true)
     mainWindow.setMinimumSize(1700, 1070);
     //mainWindow.maximize();
     if (isDev) {
@@ -61,15 +61,6 @@ async function createWindow() {
             slashes: true
         })
     );
-    mainWindow.webContents.session.webRequest.onHeadersReceived({}, (d, c) => {
-        if (d.responseHeaders['x-frame-options'] || d.responseHeaders['X-Frame-Options']) {
-            delete d.responseHeaders['x-frame-options'];
-            delete d.responseHeaders['X-Frame-Options'];
-        }
-        c({ cancel: false, responseHeaders: d.responseHeaders });
-    });
-
-
     // Create the Application's main menu
     var template = [
         {

@@ -15,19 +15,6 @@ class FrequencyGraph extends Component {
         this.audioMotion = null;
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.show !== prevProps.show) {
-            if (this.audioMotion) {
-                if (this.props.show) {
-                    this.audioMotion.start();
-                }
-                else {
-                    this.audioMotion.stop();
-                }
-            }
-        }
-    }
-
     componentDidMount() {
         DispatcherService.on(DispatchEvents.MediaReset, this.reset);
         DispatcherService.on(DispatchEvents.MediaReady, this.ready);
@@ -40,6 +27,19 @@ class FrequencyGraph extends Component {
         this.bufferLength = 0;
 
         this.ready();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.show !== prevProps.show) {
+            if (this.audioMotion) {
+                if (this.props.show) {
+                    this.audioMotion.start();
+                }
+                else {
+                    this.audioMotion.stop();
+                }
+            }
+        }
     }
 
     reset = () => {

@@ -5,7 +5,7 @@ import '../../css/slider.css'
 import CircleControls from './ControlsBar.circle'
 import EqualizerControls from './ControlsBar.equalizer'
 import { KeyboardEvents, DispatcherService } from '../../services/dispatcher';
-import ForageService, { SettingsForageKeys } from '../../services/forage.js';
+import ForageService, { SettingsForageKeys } from '../../services/forage';
 
 class ControlBar extends Component {
     constructor(props) {
@@ -38,6 +38,7 @@ class ControlBar extends Component {
         const expanded = "controls-collapse-root bg-light " + (this.state.expanded ? "collapse show" : "collapse");
         const faclass = this.state.expanded ? "fas fa-caret-down" : "fas fa-caret-right"
         return (
+            // eslint-disable-next-line
             <div className="controls-header" id={this.props.id} {...this.props}>
                 <div className="controls-text-div">
                     <span className="waveform-a" onClick={this.toggle}>
