@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 import FPSMeter from './components/fpsmeter'
-import './css/theme/darkly.bootstrap.min.css'
 import './css/App.css'
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
 import ForageService, { SettingsForageKeys } from './services/forage';
