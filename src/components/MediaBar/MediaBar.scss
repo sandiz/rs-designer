@@ -1,0 +1,39 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+.media-bar-sticky {
+    position: absolute !important;
+    bottom: 0;
+    width: 100%;
+    height: calc(10vh * var(--media-bar-zoom)) !important;
+    display: flex;
+    align-items: center;
+    border-top: 1px solid $pt-divider-black;
+    & .bp3-dark {
+        border-top: 1px solid $pt-dark-divider-black;
+    }
+}
+
+.media-bar-controls {
+    display: flex;
+}
+
+.media-bar-albumart {
+    height: calc(8vh * var(--media-bar-zoom)) !important;
+    width: calc(8vh * var(--media-bar-zoom)) !important;
+}
+
+.album-art-card {
+    padding: 0px !important;
+    padding-bottom: 0px !important;
+    border-radius: 10px !important;
+    height: 100%;
+    width: 100%;
+}
+
+.album-art-card img {
+    border-radius: 10px;
+}
+
+:root {
+    --media-bar-zoom: 1;
+}

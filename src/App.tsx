@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
 import { Classes } from "@blueprintjs/core"
 //import FPSMeter from './components/fpsmeter'
+import MediaBar from './components/MediaBar/MediaBar'
 
 import 'normalize.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
@@ -39,6 +40,8 @@ class App extends Component<{}, AppState> {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
       <React.Fragment>
+        <div id="content" />
+        <MediaBar />
         <ToastContainer
           position="bottom-right"
           autoClose={5000}
