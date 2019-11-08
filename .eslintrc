@@ -3,11 +3,15 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "jest": true
+        "jest": true,
+        "node": true,
     },
     "parserOptions": {
+        "ecmaVersion": 6,
         "ecmaFeatures": {
-            "jsx": true
+            "jsx": true,
+            "modules": true,
+            "experimentalObjectRestSpread": true
         },
         "sourceType": "module"
     },
@@ -72,10 +76,35 @@
         "camelcase": "off",
         "max-len": "off",
     },
-    "parser": "babel-eslint",
-    "extends": "airbnb",
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "airbnb",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+    ],
     "plugins": [
         "react",
+        "@typescript-eslint",
+        "prettier",
         "import"
-    ]
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            }
+        },
+        "react": {
+            "pragma": "React",
+            "version": "detect"
+        }
+    }
 }

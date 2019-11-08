@@ -5,7 +5,10 @@
     font-family: "Magra", "Roboto Condensed", sans-serif;
 }
 
-body {
+html,
+body,
+#app-root
+{
     font-family: "Magra", "Roboto Condensed", sans-serif;
     user-select: none;
     overflow: hidden;
@@ -54,6 +57,10 @@ input {
     flex-direction: column;
 }
 
-#app-root {
+.app-body {
     background-color: $pt-app-background-color;
+}
+
+.app-body.bp3-dark {
+    background-color: $pt-dark-app-background-color;
 }
