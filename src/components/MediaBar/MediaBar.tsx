@@ -8,12 +8,13 @@ import classNames from 'classnames';
 import {
     ExtClasses, MediaInfo, ProjectInfo, HotkeyInfo,
 } from '../../types';
-
-import './MediaBar.scss'
 import FadeOutSlider from '../Extended/FadeoutSlider';
 
+import './MediaBar.scss'
+import * as nothumb from '../../assets/nothumb.jpg'
+
 interface MediaBarState {
-    mediaInfo: MediaInfo;
+    mediaInfo?: MediaInfo;
 }
 
 interface MediaBarProps {
@@ -63,16 +64,26 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
                             <div className="media-bar-albumart-container">
                                 <AlbumArt
                                     className="media-bar-albumart"
-                                    url={this.state.mediaInfo.cover} />
+                                    url={this.state.mediaInfo ? this.state.mediaInfo.cover : ''} />
                             </div>
                             <div className="media-bar-titles">
-                                <Text>
-                                    <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
-                                    <span className={Classes.TEXT_MUTED}>from</span>
-                                    <span>&nbsp;{this.state.mediaInfo.album}</span>
-                                    <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
-                                    <span>&nbsp;{this.state.mediaInfo.artist}</span>
-                                </Text>
+                                {
+                                    this.state.mediaInfo
+                                        ? (
+                                            <Text>
+                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
+                                                <span className={Classes.TEXT_MUTED}>from</span>
+                                                <span>&nbsp;{this.state.mediaInfo.album}</span>
+                                                <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
+                                                <span>&nbsp;{this.state.mediaInfo.artist}</span>
+                                            </Text>
+                                        )
+                                        : (
+                                            <Text>
+                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>No Project Loaded</Text>
+                                            </Text>
+                                        )
+                                }
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
@@ -126,7 +137,7 @@ type AlbumArtProps = {
 export const AlbumArt: FunctionComponent<AlbumArtProps> = (props: AlbumArtProps) => (
     <aside className={props.className}>
         <Card interactive elevation={Elevation.TWO} className="album-art-card">
-            <img src={props.url} alt="album art" width="100%" height="100%" />
+            <img src={props.url === "" ? nothumb.default : props.url} alt="album art" width="100%" height="100%" />
         </Card>
     </aside>
 );

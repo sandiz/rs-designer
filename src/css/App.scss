@@ -88,3 +88,8 @@ input,
 .font-weight-unset {
     font-weight: unset;
 }
+
+.fadeout {
+    transition: 1.5s;
+    opacity: 0;
+}
