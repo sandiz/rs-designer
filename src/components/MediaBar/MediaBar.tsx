@@ -1,6 +1,6 @@
 import React, { Component, FunctionComponent } from 'react'
 import {
-    Navbar, Button, Elevation, Card, Classes, Text, Icon, Slider,
+    Navbar, Button, Elevation, Card, Classes, Text, Icon,
 } from '@blueprintjs/core';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
@@ -10,6 +10,7 @@ import {
 } from '../../types';
 
 import './MediaBar.scss'
+import FadeOutSlider from '../Extended/FadeoutSlider';
 
 interface MediaBarState {
     mediaInfo: MediaInfo;
@@ -94,7 +95,7 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
                             <div className="media-bar-progress-bar">
                                 <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>0:00</div>
                                 <div className="progressbar">
-                                    <Slider min={0} max={100} labelRenderer={false} value={50} />
+                                    <FadeOutSlider min={0} max={100} labelRenderer={false} value={50} />
                                 </div>
                                 <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>5:00</div>
                             </div>
@@ -103,7 +104,7 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
                         <div className="volume">
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
-                                <Slider className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
+                                <FadeOutSlider className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
                             </div>
                         </div>
                         <div className="more-button">
