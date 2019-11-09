@@ -10,10 +10,23 @@ export interface ProjectInfo {
 }
 
 /* extended bp3 classes */
-export class ExtClasses {
-    public static TEXT_LARGER = "bp3-text-larger";
+export const ExtClasses: { [key: string]: string } = {
+    TEXT_LARGER: "bp3-text-larger",
+    TEXT_LARGER_2: "bp3-text-larger-2",
+}
 
-    public static TEXT_LARGER_2 = "bp3-text-larger-2";
+/* Hotkeys */
+export interface Hotkey {
+    info: string;
+    hotkey: string;
+}
+export const HotkeyInfo: { [key: string]: Hotkey } = {
+    SHOW_ALL_HOTKEYS: { info: "Show this dialog", hotkey: "shift+?" },
+    PLAY_PAUSE: { info: "Play/Pause", hotkey: "space" },
+    FWD: { info: "Seek Forward", hotkey: "right" },
+    REWIND: { info: "Seek Barwards", hotkey: "left" },
+    VOL_UP: { info: "Volume Up", hotkey: "up" },
+    VOL_DOWN: { info: "Volume Down", hotkey: "down" },
 }
 
 export default {};

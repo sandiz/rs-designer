@@ -5,10 +5,11 @@ import {
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
 import classNames from 'classnames';
-import { ExtClasses, MediaInfo, ProjectInfo } from '../../types';
+import {
+    ExtClasses, MediaInfo, ProjectInfo, HotkeyInfo,
+} from '../../types';
 
 import './MediaBar.scss'
-import { HotkeyInfo } from '../../dialogs';
 
 interface MediaBarState {
     mediaInfo: MediaInfo;

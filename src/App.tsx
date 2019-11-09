@@ -15,7 +15,8 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import './css/App.scss'
 import 'typeface-magra'
 import 'typeface-inconsolata'
-import { getHotkeyDialogContent, HotkeyInfo } from './dialogs';
+import { getHotkeyDialogContent } from './dialogs';
+import { HotkeyInfo } from './types'
 
 const { nativeTheme } = window.require("electron").remote;
 
