@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
-import { Classes } from "@blueprintjs/core"
+import { Classes, FocusStyleManager } from "@blueprintjs/core"
+
 //import FPSMeter from './components/fpsmeter'
 import MediaBar from './components/MediaBar/MediaBar'
 
@@ -10,6 +11,7 @@ import '@blueprintjs/core/lib/css/blueprint.css'
 import 'react-toastify/dist/ReactToastify.min.css';
 import './css/App.scss'
 import 'typeface-magra'
+import 'typeface-inconsolata'
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -26,6 +28,7 @@ class App extends Component<{}, AppState> {
 
   componentDidMount = (): void => {
     nativeTheme.on('updated', this.changeAppColor);
+    FocusStyleManager.onlyShowFocusOnTabs();
   }
 
   componentWillUnmount = (): void => {

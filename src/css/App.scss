@@ -2,14 +2,13 @@
 @import "~@blueprintjs/core/lib/scss/variables";
 
 .dark-toast {
-    font-family: "Magra", "Roboto Condensed", sans-serif;
+    font-family: Magra, sans-serif;
 }
 
 html,
 body,
-#app-root
-{
-    font-family: "Magra", "Roboto Condensed", sans-serif;
+#app-root {
+    font-family: Magra, sans-serif;
     user-select: none;
     overflow: hidden;
     height: 100%;
@@ -18,7 +17,8 @@ body,
 
 button,
 canvas,
-input {
+input,
+.media-bar-sticky {
     -webkit-app-region: no-drag;
 }
 
@@ -59,8 +59,28 @@ input {
 
 .app-body {
     background-color: $pt-app-background-color;
+
+    &.bp3-dark {
+        background-color: $pt-dark-app-background-color;
+    }
 }
 
-.app-body.bp3-dark {
-    background-color: $pt-dark-app-background-color;
+
+.bp3-text-larger {
+    $pt-font-size-larger: $pt-grid-size * 2.2;
+    font-size: $pt-font-size-larger;
+}
+
+.bp3-text-larger-2 {
+    $pt-font-size-larger: $pt-grid-size * 3.2;
+    font-size: $pt-font-size-larger;
+}
+
+.number {
+    font-family: Inconsolata, monospace;
+
+}
+
+.tall-divider {
+    height: 4.5vh;
 }

@@ -1,13 +1,14 @@
 import React, { Component, FunctionComponent } from 'react'
 import {
-    Navbar, Alignment, Button, Elevation, Card, Classes,
+    Navbar, Button, Elevation, Card, Classes, Text, Icon, Slider,
 } from '@blueprintjs/core';
+import { IconNames } from "@blueprintjs/icons";
 import classNames from 'classnames';
 import { MediaInfo, ProjectInfo } from '../../types';
 import './MediaBar.scss'
 
 interface MediaBarState {
-    mediaInfo?: MediaInfo;
+    mediaInfo: MediaInfo;
 }
 
 interface MediaBarProps {
@@ -17,22 +18,75 @@ interface MediaBarProps {
 class MediaBar extends Component<MediaBarProps, MediaBarState> {
     constructor(props: MediaBarProps) {
         super(props);
-        this.state = { mediaInfo: undefined };
+        this.state = {
+            mediaInfo: {
+                song: "A More Perfect Union",
+                album: "The Monitor",
+                artist: "Titus Andronicus",
+                cover: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
+            },
+        };
         console.log(this.state.mediaInfo);
     }
 
     render = (): React.ReactNode => {
         return (
             <Card className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
-                <Navbar.Group align={Alignment.LEFT}>
-                    <Button icon="properties" large className={Classes.ELEVATION_2} />
-                    <Navbar.Divider />
-                    <div className="media-bar-controls">
-                        <AlbumArt
-                            className="media-bar-albumart"
-                            url="https://upload.wikimedia.org/wikipedia/en/thumb/2/22/The_Killers_-_Battle_Born.png/220px-The_Killers_-_Battle_Born.png" />
+                <div className="media-bar-container">
+                    <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                    <Navbar.Divider className="tall-divider" />
+                    <div className="media-bar-song-info">
+                        <div className="media-bar-albumart-container">
+                            <AlbumArt
+                                className="media-bar-albumart"
+                                url={this.state.mediaInfo.cover} />
+                        </div>
+                        <div className="media-bar-titles">
+                            <Text>
+                                <Text ellipsize className="bp3-text-larger">{this.state.mediaInfo.song}</Text>
+                                <span className="bp3-text-muted">from</span>
+                                <span>&nbsp;{this.state.mediaInfo.album}</span>
+                                <span className="bp3-text-muted">&nbsp;by</span>
+                                <span>&nbsp;{this.state.mediaInfo.artist}</span>
+                            </Text>
+                        </div>
                     </div>
-                </Navbar.Group>
+                    <Navbar.Divider className="tall-divider" />
+                    <div className="media-bar-controls">
+                        <div>
+                            <Button icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        </div>
+                        <div>
+                            <Button icon={<Icon icon={IconNames.PLAY} iconSize={35} />} className={classNames(Classes.ELEVATION_2, "media-bar-button")} />
+                        </div>
+                        <div>
+                            <Button icon={<Icon icon={IconNames.FAST_FORWARD} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        </div>
+                    </div>
+                    <Navbar.Divider className="tall-divider" />
+                    <div className="media-bar-progress">
+                        <div className="media-bar-timer">
+                            <span className={classNames("number", "bp3-text-larger-2")}>00:00:00.000</span>
+                        </div>
+                        <div className="media-bar-progress-bar">
+                            <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>0:00</div>
+                            <div className="progressbar">
+                                <Slider min={0} max={100} labelRenderer={false} value={50} />
+                            </div>
+                            <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>5:00</div>
+                        </div>
+                    </div>
+                    <Navbar.Divider className="tall-divider" />
+                    <div className="volume">
+                        <Icon icon={IconNames.VOLUME_UP} />
+                        <div>
+                            <Slider className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
+                        </div>
+                    </div>
+                    <div className="more-button">
+                        <Button icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                    </div>
+                </div>
             </Card>
         )
     }

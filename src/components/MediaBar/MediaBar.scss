@@ -1,5 +1,6 @@
 @import "~@blueprintjs/core/lib/scss/variables";
 
+
 .media-bar-sticky {
     position: absolute !important;
     bottom: 0;
@@ -8,13 +9,22 @@
     display: flex;
     align-items: center;
     border-top: 1px solid $pt-divider-black;
-    & .bp3-dark {
-        border-top: 1px solid $pt-dark-divider-black;
-    }
+}
+
+.bp3-dark .media-bar-sticky {
+    border-top: 1px solid $pt-dark-divider-white;
+}
+
+.media-bar-song-info {
+    display: flex;
+    width: 20%;
 }
 
 .media-bar-controls {
     display: flex;
+    width: 12%;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .media-bar-albumart {
@@ -33,6 +43,101 @@
 .album-art-card img {
     border-radius: 10px;
 }
+
+.media-bar-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.media-bar-titles {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 75%;
+    padding-left: 1.5vh;
+}
+
+.media-bar-albumart-container {
+    width: 25%;
+}
+
+.media-bar-button {
+    min-width: 60px !important;
+    min-height: 60px !important;
+}
+
+.media-bar-progress-bar {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.media-bar-progress {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+}
+
+.media-bar-timer {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.progress-start,
+.progress-end {
+    width: 8%;
+}
+
+.progress-start {
+    text-align: right;
+    padding-right: 1vh;
+}
+
+.progress-end {
+    text-align: left;
+    padding-left: 1vh;
+}
+
+.progressbar {
+    width: 85%;
+}
+
+.volume {
+    display: flex;
+    width: 12%;
+    justify-content: space-evenly;
+}
+
+.more-button {
+    width: 4%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.volume-slider {
+    >.bp3-slider-track {
+        >:nth-child(2) {
+            background-color: $pt-dark-divider-black;
+        }
+    }
+}
+
+.bp3-dark .volume-slider {
+    >.bp3-slider-track {
+        >:nth-child(2) {
+            background-color: $pt-dark-divider-white;
+        }
+    }
+}
+
+
+
 
 :root {
     --media-bar-zoom: 1;
