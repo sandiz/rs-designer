@@ -12,17 +12,24 @@ export default class FadeOutSlider extends Component<ISliderProps, {}> {
 
     componentDidMount = (): void => {
         if (this.sliderRef.current != null) {
-            this.sliderRef.current.addEventListener('mouseover', () => { this.handleMouse('mouseover'); });
-            this.sliderRef.current.addEventListener('mouseout', () => { this.handleMouse('mouseout') });
+            this.sliderRef.current.addEventListener('mouseover', this.handleMouse);
+            this.sliderRef.current.addEventListener('mouseout', this.handleMouse);
         }
-        this.handleMouse("mouseout");
+        this.handleMouse(new Event("mouseout"));
     }
 
-    handleMouse = (type: string): void => {
+    componentWillUnmount = (): void => {
+        if (this.sliderRef.current != null) {
+            this.sliderRef.current.removeEventListener('mouseover', this.handleMouse);
+            this.sliderRef.current.removeEventListener('mouseout', this.handleMouse);
+        }
+    }
+
+    handleMouse = (event: Event): void => {
         if (this.sliderRef.current != null) {
             const elem = this.sliderRef.current.querySelector("." + Classes.SLIDER_HANDLE);
             if (elem) {
-                elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: type === "mouseout" });
+                elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: event.type === "mouseout" });
             }
         }
     }
