@@ -23,6 +23,7 @@
     "preserveConstEnums": true,
     "noImplicitReturns": true,
     "pretty": true,
+    "experimentalDecorators": true,
   },
   "include": [
     "src/**/*"

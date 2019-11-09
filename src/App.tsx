@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { ToastContainer } from 'react-toastify';
-import { Classes, FocusStyleManager } from "@blueprintjs/core"
+import {
+  Classes, FocusStyleManager, Dialog,
+} from "@blueprintjs/core"
+import { GlobalHotKeys } from 'react-hotkeys';
 
 //import FPSMeter from './components/fpsmeter'
 import MediaBar from './components/MediaBar/MediaBar'
@@ -12,18 +15,26 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import './css/App.scss'
 import 'typeface-magra'
 import 'typeface-inconsolata'
+import { getHotkeyDialogContent, HotkeyInfo } from './dialogs';
 
 const { nativeTheme } = window.require("electron").remote;
 
 interface AppState {
   darkMode: boolean;
+  dialogContent: React.ReactElement | null;
+  dialogClass: string;
 }
 
 class App extends Component<{}, AppState> {
+  public keyMap = { SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey };
+
+  public handlers = {
+    SHOW_ALL_HOTKEYS: () => this.setState({ dialogContent: getHotkeyDialogContent(), dialogClass: Classes.HOTKEY_DIALOG }),
+  }
+
   constructor(props: {}) {
     super(props);
-    this.state = { darkMode: nativeTheme.shouldUseDarkColors };
-    console.log("dark theme", nativeTheme.shouldUseDarkColors);
+    this.state = { darkMode: nativeTheme.shouldUseDarkColors, dialogContent: null, dialogClass: '' };
   }
 
   componentDidMount = (): void => {
@@ -42,22 +53,32 @@ class App extends Component<{}, AppState> {
   render = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
-      <React.Fragment>
-        <div id="content" />
-        <MediaBar />
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          draggable
-          pauseOnHover
-          className="toast-container"
-          toastClassName="dark-toast"
-        />
-      </React.Fragment>
+      <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+        <React.Fragment>
+          <div id="content" />
+          <MediaBar />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            draggable
+            pauseOnHover
+            className="toast-container"
+            toastClassName="dark-toast"
+          />
+          <Dialog
+            isOpen={this.state.dialogContent !== null}
+            onClose={(): void => this.setState({ dialogContent: null })}
+            className={this.state.dialogClass}
+          >
+            {this.state.dialogContent}
+          </Dialog>
+
+        </React.Fragment>
+      </GlobalHotKeys>
     );
   }
 }
