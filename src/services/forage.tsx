@@ -2,7 +2,7 @@ import * as localForage from "localforage";
 
 import { DispatcherService, DispatchEvents } from './dispatcher';
 
-export const SettingsForageKeys = {
+export const SettingsForageKeys: { [key: string]: string } = {
     APP_SETTINGS: "app-settings",
     CONTROL_SETTINGS: "control-settings",
     WAVEFORM_SETTINGS: "waveform-settings",
@@ -10,23 +10,25 @@ export const SettingsForageKeys = {
     PROJECT_SETTINGS: "project-settings",
 }
 
-export const Store = {
+export const Store: { [key: string]: string } = {
     GENERAL: "rs-designer",
 }
 
-class LocalForage {
+class Forage {
+    public settingsStore: LocalForage;
+
     constructor() {
         this.settingsStore = localForage.createInstance({
             name: Store.GENERAL,
         });
     }
 
-    get = async (key) => {
+    get = async (key: string) => {
         const val = await this.settingsStore.getItem(key);
         return val;
     }
 
-    set = async (key, value) => {
+    set = async (key: string, value: object): Promise<void> => {
         await this.settingsStore.setItem(key, value);
         DispatcherService.dispatch(DispatchEvents.SettingsUpdate, {
             key,
@@ -34,25 +36,12 @@ class LocalForage {
         })
     }
 
-    serializeState = async (key, state, fieldsToInclude = []) => {
-        const val = { ...state };
-        const keys = Object.keys(val);
-        for (let i = 0; i < keys.length; i += 1) {
-            const lkey = keys[i];
-            if (!fieldsToInclude.includes(lkey)) {
-                delete val[lkey];
-            }
-        }
-        //console.log(val);
-        this.set(key, val);
-    }
-
-    clearAll = async () => {
+    clearAll = async (): Promise<void> => {
         await this.settingsStore.clear();
         DispatcherService.dispatch(DispatchEvents.SettingsUpdate, {});
     }
 }
 
-const ForageService = new LocalForage();
+const ForageService = new Forage();
 
 export default ForageService;

@@ -1,6 +1,7 @@
 import React, { Component, FunctionComponent } from 'react'
 import {
     Navbar, Button, Elevation, Card, Classes, Text, Icon,
+    MenuItem, Popover, Position, Menu,
 } from '@blueprintjs/core';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
@@ -12,6 +13,7 @@ import FadeOutSlider from '../Extended/FadeoutSlider';
 
 import './MediaBar.scss'
 import * as nothumb from '../../assets/nothumb.jpg'
+import { ProjectService } from '../../singletons';
 
 interface MediaBarState {
     mediaInfo?: MediaInfo;
@@ -38,33 +40,59 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
     constructor(props: MediaBarProps) {
         super(props);
         this.state = {
+            /*
             mediaInfo: {
                 song: "A More Perfect Union",
                 album: "The Monitor",
                 artist: "Titus Andronicus",
-                cover: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
+                image: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
             },
+            */
         };
+        console.log(ProjectService);
     }
 
-    play = () => { console.log("play") }
+    play = (): void => { console.log("play") }
 
-    fwd = () => { console.log("fwd") }
+    fwd = (): void => { console.log("fwd") }
 
-    rewind = () => { console.log("rewind") }
+    rewind = (): void => { console.log("rewind") }
 
-    render = () => {
+    settingsMenu = (): React.ReactElement => {
+        return (
+            <Menu>
+                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} />
+                <MenuItem text="Close Project" disabled icon={IconNames.FOLDER_CLOSE} />
+                <MenuItem text="Import Media" icon={IconNames.IMPORT}>
+                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
+                    <MenuItem text="from URL" icon={IconNames.CLOUD} />
+                </MenuItem>
+                <MenuItem text="Recent Files" icon={IconNames.HISTORY}>
+                    {
+
+                    }
+                </MenuItem>
+                <Menu.Divider />
+                <MenuItem text="Settings" icon={IconNames.SETTINGS} />
+                <MenuItem text="Quit" icon={IconNames.POWER} />
+            </Menu>
+        );
+    }
+
+    render = (): React.ReactElement => {
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <Card className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
-                        <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        <Popover content={this.settingsMenu()} position={Position.TOP}>
+                            <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        </Popover>
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-song-info">
                             <div className="media-bar-albumart-container">
                                 <AlbumArt
                                     className="media-bar-albumart"
-                                    url={this.state.mediaInfo ? this.state.mediaInfo.cover : ''} />
+                                    url={this.state.mediaInfo ? this.state.mediaInfo.image : ''} />
                             </div>
                             <div className="media-bar-titles">
                                 {

@@ -2,11 +2,64 @@ export interface MediaInfo {
     song: string;
     artist: string;
     album: string;
-    cover: string;
+    image: string; /*base64 encoded */
+    year: string;
 }
 
+/* Project DataType */
 export interface ProjectInfo {
-    file: string;
+    media: string;
+    original: string;
+    cqt: string;
+    tempo: string;
+    beats: string;
+    key: string;
+    chords: string;
+    metadata: string;
+}
+export class ProjectSettingsModel {
+    public lastOpenedProject: ProjectInfo | null;
+    public recents: ProjectInfo[];
+
+    //eslint-disable-next-line
+    constructor(projectData: any) {
+        this.lastOpenedProject = null;
+        this.recents = [];
+        if (projectData && typeof projectData === 'object') {
+            this.lastOpenedProject = projectData.lastOpenedProject;
+            this.recents = projectData.recents;
+        }
+    }
+}
+
+/* Music Theory */
+export interface ChordTime {
+    start: string;
+    end: string;
+    key: string;
+    type: string;
+}
+export interface BeatTime {
+    start: string;
+    beatNum: string;
+}
+export interface ScaleInfo {
+    steps: string[];
+    chordType: string[];
+}
+export interface CircleOfFifths {
+    majors: string[];
+    minors: string[];
+}
+export interface ChordChart {
+    positions: string[];
+    fingers: string[];
+    fret: number;
+}
+export interface ChordInfo {
+    chord_name: string;
+    chord_charts: ChordChart[];
+    notes: string;
 }
 
 /* extended bp3 classes */

@@ -1,21 +1,28 @@
+interface DispatchCallback {
+    (data: unknown): void;
+}
 class DispatcherEvent {
-    constructor(eventName) {
+    public eventName: string;
+
+    public callbacks: DispatchCallback[];
+
+    constructor(eventName: string) {
         this.eventName = eventName;
         this.callbacks = [];
     }
 
-    registerCallback(callback) {
+    registerCallback(callback: DispatchCallback) {
         this.callbacks.push(callback);
     }
 
-    unregisterCallback(callback) {
+    unregisterCallback(callback: DispatchCallback) {
         const index = this.callbacks.indexOf(callback);
         if (index > -1) {
             this.callbacks.splice(index, 1);
         }
     }
 
-    fire(data) {
+    fire(data: unknown) {
         const callbacks = this.callbacks.slice(0);
         callbacks.forEach((callback) => {
             callback(data);
@@ -25,18 +32,20 @@ class DispatcherEvent {
 
 
 class DispatcherBase {
+    public events: { [key: string]: DispatcherEvent }
+
     constructor() {
         this.events = {};
     }
 
-    dispatch(eventName, data) {
+    dispatch(eventName: string, data: unknown = {}) {
         const event = this.events[eventName];
         if (event) {
             event.fire(data);
         }
     }
 
-    on(eventName, callback) {
+    on(eventName: string, callback: DispatchCallback) {
         let event = this.events[eventName];
         if (!event) {
             event = new DispatcherEvent(eventName);
@@ -45,7 +54,7 @@ class DispatcherBase {
         event.registerCallback(callback);
     }
 
-    off(eventName, callback) {
+    off(eventName: string, callback: DispatchCallback) {
         const event = this.events[eventName];
         if (event && event.callbacks.indexOf(callback) > -1) {
             event.unregisterCallback(callback);
@@ -55,7 +64,7 @@ class DispatcherBase {
         }
     }
 }
-export const DispatchEvents = {
+export const DispatchEvents: { [key: string]: string } = {
     MediaReady: "media-ready",
     MediaReset: "media-reset",
     MediaAnalysisStart: "media-analysis-start",
@@ -67,30 +76,8 @@ export const DispatchEvents = {
     PitchChange: "pitch-change",
     TempoChange: "tempo-change",
     TransposeMode: "transpose-mode",
-    DisableShortcuts: "disable-kbd-shortcuts",
-    EnableShortcuts: "enable-kbd-shortcuts",
     AboutToDraw: "about-to-draw",
     FinishedDrawing: "finished-drawing",
 }
-
-export const KeyboardEvents = {
-    PlayPause: "shortcut-play-pause",
-    Stop: "shortcut-stop",
-    Rewind: "shortcut-rewind",
-    FastForward: "shortcut-fast-forward",
-    SeekStart: "shortcut-seek-start",
-    SeekEnd: "shortcut-seek-end",
-    IncreaseTempo: "shortcut-increase-tempo",
-    DecreaseTempo: "shortcut-decrease-tempo",
-    IncreasePitch: "shortcut-increase-pitch",
-    DecreasePitch: "shortcut-decrease-pitch",
-    ImportMedia: "shortcut-import-media",
-    SaveProject: "shortcut-save-project",
-    OpenProject: "shortcut-open-project",
-    ToggleControls: "shortcut-toggle-controls-bar",
-    ToggleWaveform: "shortcut-toggle-waveform-bar",
-    ToggleAnalysis: "shortcut-toggle-analysis-bar",
-}
-
 
 export const DispatcherService = new DispatcherBase();

@@ -73,7 +73,7 @@
 
         if (sizes.indexOf(opts.size) !== -1 && json[method] && json[method].image) {
           // Return specific image size
-          json[method].image.forEach((e, i) => {
+          json[method].image.forEach((e) => {
             if (e.size === opts.size && e['#text']) {
               output = e['#text']
             }

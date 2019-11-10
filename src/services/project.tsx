@@ -1,59 +1,74 @@
+import { app } from 'electron';
+import readline from "readline";
+import { createReadStream } from 'fs';
+import { platform } from 'os';
+import { parse, join, extname } from 'path';
+import { dirSync, DirResult, setGracefulCleanup } from 'tmp';
+
 import {
-    copyFile, writeFile, copyDir, readFile, assign, showOpenDialog,
+    copyFile, writeFile, copyDir, readFile, showOpenDialog,
 } from '../lib/utils'
-import { DispatcherService, DispatchEvents, KeyboardEvents } from './dispatcher';
+import { DispatcherService, DispatchEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
-
-const electron = window.require('electron').remote;
-const readline = window.require("readline");
-const tmp = window.require('tmp');
-
-const defaultProjectInfo = {
-    media: '',
-    original: '',
-    cqt: '',
-    tempo: '',
-    beats: '',
-    key: '',
-    chords: '',
-    metadata: null,
-}
+import {
+    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime,
+} from '../types'
 
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
+const isWin = platform() === "win32";
 
-export const ProjectSettingsModel = {
-    lastOpenedProject: null,
-    recents: [],
-}
 export class Project {
+    public projectDirectory: string;
+
+    public projectFileName: string;
+
+    public isTemporary: boolean;
+
+    public isLoaded: boolean;
+
+    public isDirty: boolean;
+
+    public projectInfo: ProjectInfo | null;
+
+    public tmpHandle: DirResult | null;
+
+    public projectSettings: ProjectSettingsModel | null;
+
     constructor() {
-        tmp.setGracefulCleanup();
+        setGracefulCleanup();
         this.projectDirectory = "";
         this.isTemporary = true;
-        this.loaded = false;
+        this.isLoaded = false;
         this.tmpHandle = null;
         this.isDirty = false;
-        this.projectFileName = ``;
+        this.projectFileName = '';
+        this.projectInfo = null;
+        this.projectSettings = null;
 
-        this.projectInfo = {}
-        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
-        electron.app.on('before-quit', (e) => {
+        app.on('before-quit', () => {
             this.unload();
         });
         this.loadProjectSettings();
     }
 
     loadProjectSettings = async () => {
-        this.projectSettings = { ...ProjectSettingsModel };
         const ser = await ForageService.get(SettingsForageKeys.PROJECT_SETTINGS);
-        if (ser) this.projectSettings = ser;
+        if (ser) this.projectSettings = new ProjectSettingsModel(ser);
     }
 
-    saveProjectSettings = async (lastOpened) => {
-        this.projectSettings.lastOpenedProject = lastOpened;
-        await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
+    saveProjectSettings = async (lastOpened: ProjectInfo) => {
+        if (this.projectSettings) {
+            this.projectSettings.lastOpenedProject = lastOpened;
+
+            let dup = false;
+            this.projectSettings.recents.forEach(i => {
+                if (i.media === lastOpened.media) dup = true;
+            });
+            if (!dup) this.projectSettings.recents.push(lastOpened);
+            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
+        }
     }
 
     isAnalysisReqd() {
@@ -77,12 +92,12 @@ export class Project {
         return false;
     }
 
-    isLoaded() {
-        return this.loaded;
+    isProjectLoaded() {
+        return this.isLoaded;
     }
 
     unload() {
-        this.loaded = false;
+        this.isLoaded = false;
         this.isTemporary = true;
         this.projectDirectory = "";
         this.isDirty = false;
@@ -90,11 +105,11 @@ export class Project {
             this.tmpHandle.removeCallback();
             this.tmpHandle = null;
         }
-        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
-        this.projectFileName = ``;
+        this.projectInfo = null;
+        this.projectFileName = '';
     }
 
-    loadProject = async (externalProject = null) => {
+    loadProject = async (externalProject: string | null) => {
         let dirs = [];
 
         if (externalProject) {
@@ -105,10 +120,11 @@ export class Project {
                 { name: "RSDesigner Bundle", extensions: [bundleExt] },
                 { name: "RSDesigner Project", extensions: [projectExt] },
             ];
-            if (window.isWin === true) {
+            // bundle is only applicable on mac
+            if (isWin === true) {
                 delete filters[0];
             }
-            DispatcherService.dispatch(KeyboardEvents.Stop);
+
             dirs = await showOpenDialog({
                 title: "Open Project..",
                 buttonLabel: "Open",
@@ -138,7 +154,7 @@ export class Project {
                     '',
                     true, /* readonly */
                 );
-                electron.app.addRecentDocument(dir);
+                app.addRecentDocument(dir);
                 this.projectInfo = json;
                 return this.projectInfo;
             }
@@ -159,17 +175,16 @@ export class Project {
     }
 
     saveProject = async () => {
-        if (this.loaded) {
+        if (this.isLoaded) {
             if (this.isTemporary) {
-                DispatcherService.dispatch(KeyboardEvents.Stop);
                 const dirs = await showOpenDialog({
                     title: "Choose directory to save project to..",
                     buttonLabel: "Save",
                     properties: ['openDirectory'],
                 });
-                if (dirs) {
+                if (dirs && this.projectInfo) {
                     const lastPInfo = this.projectInfo;
-                    const basen = window.path.parse(lastPInfo.original).name;
+                    const basen = parse(lastPInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
                     await copyDir(this.projectDirectory, dir, {
@@ -196,7 +211,8 @@ export class Project {
         return false;
     }
 
-    assignMetadata = (media, mm) => {
+    /*
+    assignMetadata = (media: object, mm: MediaInfo) => {
         assign(media, ["tags", "common", "title"], mm.song);
         assign(media, ["tags", "common", "artist"], mm.artist);
         assign(media, ["tags", "common", "album"], mm.album);
@@ -206,41 +222,46 @@ export class Project {
         }
     }
 
-    saveMetadata = async (media) => {
+    saveMetadata = async (media: any): Promise<MediaInfo> => {
         let buf = null;
         if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
             buf = media.tags.common.picture[0].data;
         }
-        const metadata = {
+        const metadata: MediaInfo = {
             song: media.tags.common.title ? media.tags.common.title : "",
             artist: media.tags.common.artist ? media.tags.common.artist : "",
             album: media.tags.common.album ? media.tags.common.album : "",
             year: media.tags.common.year ? media.tags.common.year : "",
             image: buf ? buf.toString('base64') : '',
         };
-        this.projectInfo.metadata = window.path.join(this.projectDirectory, 'metadata.json');
-        await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
+        if (this.projectInfo) {
+            this.projectInfo.metadata = (window as any).path.join(this.projectDirectory, 'metadata.json');
+            await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
+        }
         return metadata;
     }
+    */
 
     updateExternalFiles = async () => {
-        this.projectInfo.cqt = window.path.join(this.projectDirectory, 'cqt.raw.png');
-        this.projectInfo.tempo = window.path.join(this.projectDirectory, 'tempo');
-        this.projectInfo.beats = window.path.join(this.projectDirectory, 'beats');
-        this.projectInfo.key = window.path.join(this.projectDirectory, 'key');
-        this.projectInfo.chords = window.path.join(this.projectDirectory, 'chords');
-        this.projectInfo.metadata = window.path.join(this.projectDirectory, 'metadata.json');
-        await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
-        DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
+        if (this.projectInfo) {
+            this.projectInfo.cqt = join(this.projectDirectory, 'cqt.raw.png');
+            this.projectInfo.tempo = join(this.projectDirectory, 'tempo');
+            this.projectInfo.beats = join(this.projectDirectory, 'beats');
+            this.projectInfo.key = join(this.projectDirectory, 'key');
+            this.projectInfo.chords = join(this.projectDirectory, 'chords');
+            this.projectInfo.metadata = join(this.projectDirectory, 'metadata.json');
+            await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
+        }
     }
 
-    updateProjectInfo = async (dir, istemp, isloaded, file, readOnly = false, dispatch = true) => {
-        const ext = window.path.extname(file);
+    updateProjectInfo = async (dir: string, istemp: boolean, isloaded: boolean, file: string, readOnly = false, dispatch = true) => {
+        const ext = extname(file);
         this.projectDirectory = dir;
         this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
         this.isTemporary = istemp;
-        this.loaded = isloaded;
-        this.projectInfo = Object.assign(this.projectInfo, defaultProjectInfo);
+        this.isLoaded = isloaded;
+        this.projectInfo = Object.assign(this.projectInfo, {});
         this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
         this.projectInfo.original = file;
         if (!readOnly) {
@@ -251,10 +272,10 @@ export class Project {
         }
     }
 
-    createTemporaryProject = async (file) => {
+    createTemporaryProject = async (file: string): Promise<string> => {
         this.unload();
         /* create temp dir */
-        this.tmpHandle = tmp.dirSync({
+        this.tmpHandle = dirSync({
             unsafeCleanup: true,
             postfix: ".rsdbundle",
         });
@@ -266,52 +287,63 @@ export class Project {
             false,
             false,
         );
+        if (this.projectInfo) {
+            const src = file
+            const dest = this.projectInfo.media;
+            /* copy mp3 here */
+            await copyFile(src, dest);
 
-        const src = file
-        const dest = this.projectInfo.media;
-        /* copy mp3 here */
-        await copyFile(src, dest);
-
-        return dest;
+            return dest;
+        }
+        return "";
     }
 
     readMetadata = async () => {
-        if (this.projectInfo.metadata == null) return null;
+        if (this.projectInfo == null || this.projectInfo.metadata == null) return null;
         const mm = this.projectInfo.metadata;
         const data = await readFile(mm)
         return JSON.parse(data);
     }
 
-    readTempo = async () => {
-        const tempoFile = this.projectInfo.tempo;
-        const data = await readFile(tempoFile)
-        const tempo = parseFloat(data);
-        return tempo;
-    }
-
-    readSongKey = async () => {
-        const keyFile = this.projectInfo.key;
-        const data = await readFile(keyFile)
-        const s = JSON.parse(data)
-        let note = s[0];
-        if (note.endsWith('b')) {
-            //convert to sharp
-            note = note.replace('b', '');
-            let idx = pitches.indexOf(note);
-            if (idx !== -1) {
-                if (idx === 0) idx = pitches.length - 1;
-                const enharmonic = pitches[idx - 1];
-                s[0] = enharmonic;
-            }
+    readTempo = async (): Promise<number> => {
+        if (this.projectInfo) {
+            const tempoFile = this.projectInfo.tempo;
+            const data = await readFile(tempoFile)
+            const tempo = parseFloat(data);
+            return tempo;
         }
-        return s;
+        return 0;
     }
 
+    readSongKey = async (): Promise<string> => {
+        if (this.projectInfo) {
+            const keyFile = this.projectInfo.key;
+            const data = await readFile(keyFile)
+            const s = JSON.parse(data)
+            let note = s[0];
+            if (note.endsWith('b')) {
+                //convert to sharp
+                note = note.replace('b', '');
+                let idx = pitches.indexOf(note);
+                if (idx !== -1) {
+                    if (idx === 0) idx = pitches.length - 1;
+                    const enharmonic = pitches[idx - 1];
+                    s[0] = enharmonic;
+                }
+            }
+            return s;
+        }
+        return "";
+    }
+
+    //eslint-disable-next-line
     readChords = async () => new Promise((resolve, reject) => {
+        if (this.projectInfo == null) return reject();
         const lineReader = readline.createInterface({
-            input: window.electronFS.createReadStream(this.projectInfo.chords),
+            input: createReadStream(this.projectInfo.chords),
         });
-        const chords = []
+
+        const chords: ChordTime[] = []
         lineReader.on('line', (line) => {
             const split = line.split(",")
             const start = split[0]
@@ -320,26 +352,30 @@ export class Project {
             const splitch = chord.split(":")
             const key = splitch[0]
             const type = splitch[1]
-            chords.push([start, end, key, type])
+            chords.push({
+                start, end, key, type,
+            })
         });
         lineReader.on('close', () => {
             resolve(chords);
         })
         lineReader.on('error', (err) => {
             reject(err)
-        })
+        });
     });
 
-    readBeats = async () => new Promise((resolve, reject) => {
+    //eslint-disable-next-line
+    readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
+        if (this.projectInfo == null) return reject();
         const lineReader = readline.createInterface({
-            input: window.electronFS.createReadStream(this.projectInfo.beats),
+            input: createReadStream(this.projectInfo.beats),
         });
-        const beats = []
+        const beats: BeatTime[] = []
         lineReader.on('line', (line) => {
             const split = line.replace(/\s+/g, ' ').trim().split(" ")
             const start = split[0]
-            const bn = split[1]
-            beats.push([start, bn])
+            const beatNum = split[1]
+            beats.push({ start, beatNum })
         });
         lineReader.on('close', () => {
             resolve(beats);
@@ -349,7 +385,8 @@ export class Project {
         })
     });
 
-    getLastOpenedProject = () => {
+    getLastOpenedProject = (): ProjectInfo | null => {
+        if (this.projectSettings == null) return null;
         return this.projectSettings.lastOpenedProject;
     }
 }
