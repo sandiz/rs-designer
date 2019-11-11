@@ -69,6 +69,7 @@ class DispatcherBase {
 export class DispatchEvents {
     public static MediaReady = "media-ready";
     public static MediaReset = "media-reset";
+    public static MediaLoading = "media-loading";
     public static MediaAnalysisStart = "media-analysis-start";
     public static MediaAnalysisEnd = "media-analysis-stop";
     public static MASpectrogramStart = "media-analysis-cqt-start";

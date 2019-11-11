@@ -62,6 +62,7 @@ class MediaPlayer {
                 }),
             ],
         };
+        DispatcherService.dispatch(DispatchEvents.MediaLoading);
         //eslint-disable-next-line
         this.wavesurfer = WaveSurfer.create(params as any);
         this.wavesurfer.loadBlob(blob);
