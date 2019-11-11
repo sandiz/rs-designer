@@ -23,6 +23,10 @@ const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
 const isWin = platform() === "win32";
 
+export const ProjectUpdateType: { [key: string]: string } = {
+    ExternalFilesUpdate: "external-files-update",
+    ProjectInfoCreated: "project-info-created",
+}
 export class Project {
     public projectDirectory: string;
     public projectFileName: string;
@@ -50,6 +54,12 @@ export class Project {
         this.loadProjectSettings();
     }
 
+    clearRecents = async () => {
+        if (this.projectSettings) {
+            this.projectSettings.recents = [];
+            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
+        }
+    }
     getRecents = async (): Promise<ProjectInfo[]> => {
         await this.loadProjectSettings();
         if (this.projectSettings) {
@@ -64,15 +74,25 @@ export class Project {
         else this.projectSettings = new ProjectSettingsModel(null);
     }
 
-    saveProjectSettings = async (lastOpened: ProjectInfo) => {
-        if (this.projectSettings) {
-            this.projectSettings.lastOpenedProject = lastOpened;
+    saveProjectSettings = async () => {
+        if (this.projectSettings && this.projectInfo) {
+            this.projectSettings.lastOpenedProject = this.projectInfo;
 
-            let dup = false;
-            this.projectSettings.recents.forEach(i => {
-                if (i.media === lastOpened.media) dup = true;
+            let dupIdx = 0;
+            let dupItem: ProjectInfo | null = null;
+            this.projectSettings.recents.forEach((i, idx) => {
+                if (this.projectInfo && i.media === this.projectInfo.media) {
+                    dupIdx = idx;
+                    dupItem = i;
+                }
             });
-            if (!dup) this.projectSettings.recents.push(lastOpened);
+            if (dupItem) {
+                this.projectSettings.recents.splice(dupIdx, 1);
+                this.projectSettings.recents.unshift(dupItem);
+            }
+            else {
+                this.projectSettings.recents.push(this.projectInfo);
+            }
             await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
         }
     }
@@ -113,12 +133,13 @@ export class Project {
         }
         this.projectInfo = null;
         this.projectFileName = '';
+        MediaPlayerService.empty();
+        MediaPlayerService.unload();
     }
 
-    openProject = async () => {
-        // TODO: check if another project already loaded
+    openProject = async (externalProject: string | null) => {
         DispatcherService.dispatch(DispatchEvents.MediaReset);
-        const pInfo = await this.loadProject(null);
+        const pInfo = await this.loadProject(externalProject);
         if (pInfo && pInfo.media) {
             try {
                 const data: Buffer = await readFile(pInfo.media);
@@ -181,7 +202,7 @@ export class Project {
                 );
                 app.addRecentDocument(dir);
                 this.projectInfo = json;
-                if (this.projectInfo) await this.saveProjectSettings(this.projectInfo);
+                if (this.projectInfo) await this.saveProjectSettings();
                 await this.updateExternalFiles();
 
                 return this.projectInfo;
@@ -226,7 +247,7 @@ export class Project {
                         true,
                         lastPInfo.original,
                     )
-                    if (this.projectInfo) await this.saveProjectSettings(this.projectInfo);
+                    if (this.projectInfo) await this.saveProjectSettings();
                     await this.updateExternalFiles();
                     return true;
                 }
@@ -281,7 +302,7 @@ export class Project {
             this.projectInfo.chords = join(this.projectDirectory, 'chords');
             this.projectInfo.metadata = join(this.projectDirectory, 'metadata.json');
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
-            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, "external-files-update");
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, ProjectUpdateType.ExternalFilesUpdate);
         }
     }
 
@@ -298,7 +319,7 @@ export class Project {
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         }
         if (dispatch) {
-            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, ProjectUpdateType.ProjectInfoCreated);
         }
     }
 

@@ -14,14 +14,18 @@ import FadeOutSlider from '../Extended/FadeoutSlider';
 
 import './MediaBar.scss'
 import * as nothumb from '../../assets/nothumb.jpg'
-import ProjectService from '../../services/project';
+import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { readFile } from '../../lib/utils';
 
+const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
+const { platform } = window.require('os');
+const isWin = platform() === "win32";
+const isMac = platform() === "darwin";
 interface MediaBarState {
-    mediaInfo?: MediaInfo;
-    settingsMenu?: React.ReactElement;
+    mediaInfo: MediaInfo | null;
+    settingsMenu: React.ReactElement | null;
 }
 
 class MediaBar extends Component<{}, MediaBarState> {
@@ -41,16 +45,15 @@ class MediaBar extends Component<{}, MediaBarState> {
 
     constructor(props: {}) {
         super(props);
-        this.state = {
-            /*
-            mediaInfo: {
-                song: "A More Perfect Union",
-                album: "The Monitor",
-                artist: "Titus Andronicus",
-                image: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
-            },
-            */
-        };
+        this.state = { mediaInfo: null, settingsMenu: null };
+        /*
+        mediaInfo: {
+            song: "A More Perfect Union",
+            album: "The Monitor",
+            artist: "Titus Andronicus",
+            image: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
+        },
+        */
         DispatcherService.on(DispatchEvents.ProjectUpdate, this.projectUpdated);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
@@ -72,24 +75,69 @@ class MediaBar extends Component<{}, MediaBarState> {
 
     rewind = (): void => { console.log("rewind") }
 
-    openProject = async () => {
-        await ProjectService.openProject();
-        console.log("project-opened");
+    openProject = async (event: React.MouseEvent, external: string | null) => {
+        console.log(event);
+        if (ProjectService.isProjectLoaded()) {
+            await this.closeProject();
+        }
+        await ProjectService.openProject(external);
+
+        /* TOOD: reset playback state */
+
 
         /* update recents */
         await this.settingsMenu();
     }
 
-    projectUpdated = async () => {
-        console.log("project-updated");
+    clearRecents = async () => {
+        await ProjectService.clearRecents();
+        await this.settingsMenu();
+    }
+
+    saveProject = async () => {
+        await ProjectService.saveProject();
+        await ProjectService.saveProjectSettings();
+        await this.settingsMenu();
+    }
+
+    closeProject = async () => {
+        ProjectService.unload();
+        this.setState({ mediaInfo: null });
+        await this.settingsMenu();
+    }
+
+    projectUpdated = async (data: unknown) => {
+        /* update media bar state with metadata, when external-files-update is complete*/
+        if (typeof data === 'string' && data === ProjectUpdateType.ExternalFilesUpdate) {
+            const mm = await ProjectService.readMetadata();
+            if (mm) {
+                const mediaInfo: MediaInfo = {
+                    song: mm.song.length === 0 ? "-" : mm.song,
+                    artist: mm.artist.length === 0 ? "-" : mm.artist,
+                    album: mm.album.length === 0 ? "-" : mm.album,
+                    image: 'data:image/jpeg;base64,' + mm.image,
+                    year: mm.year,
+                }
+                this.setState({ mediaInfo });
+            }
+        }
+        await this.settingsMenu();
     }
 
     mediaReset = () => {
         console.log("media-reset");
+        this.setState({ mediaInfo: null });
     }
 
     mediaReady = () => {
         console.log("media-ready");
+    }
+
+    QUIT = () => {
+        if (ProjectService.isProjectLoaded()) {
+            this.saveProject();
+        }
+        app.quit();
     }
 
     settingsMenu = async () => {
@@ -101,25 +149,55 @@ class MediaBar extends Component<{}, MediaBarState> {
             const data = await readFile(item.metadata);
             const json: MediaInfo = JSON.parse(data.toString());
             const text = `${json.artist} - ${json.song} [${dirName}]`;
-            return <MenuItem key={item.media} text={text} icon={IconNames.DOCUMENT} title={pathInfo.dir} />
+            let projectName = "";
+            if (isWin) {
+                console.error("TODO: add windows support");
+            }
+            else if (isMac) {
+                projectName = pathInfo.dir;
+            }
+            return (
+                <MenuItem
+                    key={item.media}
+                    text={text}
+                    icon={IconNames.DOCUMENT}
+                    title={pathInfo.dir}
+                    xdata-file={projectName}
+                    onClick={(e: React.MouseEvent) => this.openProject(e, projectName)}
+                />
+            );
         });
         const recentMenu = await Promise.all(map);
         const menu = (
-            <Menu>
-                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={this.openProject} />
-                <MenuItem text="Close Project" disabled icon={IconNames.FOLDER_CLOSE} />
+            <Menu large>
+                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={(e: React.MouseEvent) => this.openProject(e, null)} />
+                <MenuItem text="Save Project" icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
+                <MenuItem text="Close Project" disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
+                <Menu.Divider />
+                <MenuItem text="Recent Projects" icon={IconNames.HISTORY}>
+                    {
+                        recents.length > 0
+                            ? recentMenu
+                            : null
+                    }
+                    {
+                        recents.length > 0
+                            ? (
+                                <React.Fragment>
+                                    <Menu.Divider />
+                                    <MenuItem text="Clear Recents" icon={IconNames.TRASH} onClick={this.clearRecents} />
+                                </React.Fragment>
+                            )
+                            : null
+                    }
+                </MenuItem>
                 <MenuItem text="Import Media" icon={IconNames.IMPORT}>
                     <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
                     <MenuItem text="from URL" icon={IconNames.CLOUD} />
                 </MenuItem>
-                <MenuItem text="Recent Projects" icon={IconNames.HISTORY}>
-                    {
-                        recentMenu
-                    }
-                </MenuItem>
                 <Menu.Divider />
                 <MenuItem text="Settings" icon={IconNames.SETTINGS} />
-                <MenuItem text="Quit" icon={IconNames.POWER} />
+                <MenuItem text="Quit" icon={IconNames.POWER} onClick={this.QUIT} />
             </Menu>
         );
         this.setState({ settingsMenu: menu });
@@ -130,7 +208,7 @@ class MediaBar extends Component<{}, MediaBarState> {
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <Card className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
-                        <Popover content={this.state.settingsMenu} position={Position.TOP}>
+                        <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
                             <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
                         <Navbar.Divider className="tall-divider" />

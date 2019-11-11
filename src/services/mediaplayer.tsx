@@ -10,8 +10,6 @@ class MediaPlayer {
     }
 
     loadMedia = (blob: Blob) => new Promise((resolve, reject) => {
-        this.empty();
-        this.unload();
         const params: WaveSurferParams = {
             container: '#waveform',
             waveColor: '#04ABED',
