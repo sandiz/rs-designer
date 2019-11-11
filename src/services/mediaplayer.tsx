@@ -2,6 +2,7 @@
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import { Colors } from "@blueprintjs/core";
+import { DispatcherService, DispatchEvents } from './dispatcher';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -66,6 +67,7 @@ class MediaPlayer {
         this.wavesurfer.loadBlob(blob);
 
         this.wavesurfer.on("ready", () => {
+            DispatcherService.dispatch(DispatchEvents.MediaReady);
             resolve();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -98,6 +100,7 @@ class MediaPlayer {
             this.wavesurfer.destroy();
         }
         this.wavesurfer = null;
+        DispatcherService.dispatch(DispatchEvents.MediaReset);
     }
 
     empty = (): void => {

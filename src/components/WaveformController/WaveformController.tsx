@@ -14,7 +14,17 @@ class WaveformController extends Component<{}, WaveformState> {
     }
 
     componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+    }
+
+    mediaReset = () => {
+        this.setState({ show: false });
     }
 
     mediaReady = () => {

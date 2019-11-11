@@ -138,14 +138,12 @@ export class Project {
     }
 
     openProject = async (externalProject: string | null) => {
-        DispatcherService.dispatch(DispatchEvents.MediaReset);
         const pInfo = await this.loadProject(externalProject);
         if (pInfo && pInfo.media) {
             try {
                 const data: Buffer = await readFile(pInfo.media);
                 const blob = new window.Blob([new Uint8Array(data)]);
                 await MediaPlayerService.loadMedia(blob);
-                DispatcherService.dispatch(DispatchEvents.MediaReady, null);
             }
             catch (e) {
                 console.error("open-project failed", e);
