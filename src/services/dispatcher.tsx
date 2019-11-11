@@ -46,6 +46,7 @@ class DispatcherBase {
     }
 
     on(eventName: string, callback: DispatchCallback) {
+        // console.trace("subscribed to ", eventName);
         let event = this.events[eventName];
         if (!event) {
             event = new DispatcherEvent(eventName);
@@ -55,6 +56,7 @@ class DispatcherBase {
     }
 
     off(eventName: string, callback: DispatchCallback) {
+        // console.log("unsubscribed to ", eventName);
         const event = this.events[eventName];
         if (event && event.callbacks.indexOf(callback) > -1) {
             event.unregisterCallback(callback);
@@ -64,20 +66,20 @@ class DispatcherBase {
         }
     }
 }
-export const DispatchEvents: { [key: string]: string } = {
-    MediaReady: "media-ready",
-    MediaReset: "media-reset",
-    MediaAnalysisStart: "media-analysis-start",
-    MediaAnalysisEnd: "media-analysis-stop",
-    MASpectrogramStart: "media-analysis-cqt-start",
-    MASpectrogramEnd: "media-analysis-cqt-end",
-    SettingsUpdate: "settings-update",
-    ProjectUpdate: "project-update",
-    PitchChange: "pitch-change",
-    TempoChange: "tempo-change",
-    TransposeMode: "transpose-mode",
-    AboutToDraw: "about-to-draw",
-    FinishedDrawing: "finished-drawing",
+export class DispatchEvents {
+    public static MediaReady = "media-ready";
+    public static MediaReset = "media-reset";
+    public static MediaAnalysisStart = "media-analysis-start";
+    public static MediaAnalysisEnd = "media-analysis-stop";
+    public static MASpectrogramStart = "media-analysis-cqt-start";
+    public static MASpectrogramEnd = "media-analysis-cqt-end";
+    public static SettingsUpdate = "settings-update";
+    public static ProjectUpdate = "project-update";
+    public static PitchChange = "pitch-change";
+    public static TempoChange = "tempo-change";
+    public static TransposeMode = "transpose-mode";
+    public static AboutToDraw = "about-to-draw";
+    public static FinishedDrawing = "finished-drawing";
 }
 
 export const DispatcherService = new DispatcherBase();

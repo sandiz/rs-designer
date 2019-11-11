@@ -6,23 +6,25 @@ import {
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
 import classNames from 'classnames';
+import * as PATH from 'path'
 import {
-    ExtClasses, MediaInfo, ProjectInfo, HotkeyInfo,
+    ExtClasses, MediaInfo, HotkeyInfo,
 } from '../../types';
 import FadeOutSlider from '../Extended/FadeoutSlider';
 
 import './MediaBar.scss'
 import * as nothumb from '../../assets/nothumb.jpg'
-import { ProjectService } from '../../singletons';
+import ProjectService from '../../services/project';
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
+import { readFile } from '../../lib/utils';
 
+const path: typeof PATH = window.require('path');
 interface MediaBarState {
     mediaInfo?: MediaInfo;
+    settingsMenu?: React.ReactElement;
 }
 
-interface MediaBarProps {
-    project?: ProjectInfo;
-}
-class MediaBar extends Component<MediaBarProps, MediaBarState> {
+class MediaBar extends Component<{}, MediaBarState> {
     public keyMap = {
         PLAY_PAUSE: HotkeyInfo.PLAY_PAUSE.hotkey,
         FWD: HotkeyInfo.FWD.hotkey,
@@ -37,7 +39,7 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
         REWIND: () => this.rewind(),
     };
 
-    constructor(props: MediaBarProps) {
+    constructor(props: {}) {
         super(props);
         this.state = {
             /*
@@ -49,7 +51,19 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
             },
             */
         };
-        console.log(ProjectService);
+        DispatcherService.on(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+    }
+
+    componentDidMount = async () => {
+        await this.settingsMenu();
+    }
+
+    componentWillUnmount() {
+        DispatcherService.off(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
     }
 
     play = (): void => { console.log("play") }
@@ -58,18 +72,49 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
 
     rewind = (): void => { console.log("rewind") }
 
-    settingsMenu = (): React.ReactElement => {
-        return (
+    openProject = async () => {
+        await ProjectService.openProject();
+        console.log("project-opened");
+
+        /* update recents */
+        await this.settingsMenu();
+    }
+
+    projectUpdated = async () => {
+        console.log("project-updated");
+    }
+
+    mediaReset = () => {
+        console.log("media-reset");
+    }
+
+    mediaReady = () => {
+        console.log("media-ready");
+    }
+
+    settingsMenu = async () => {
+        const recents = await ProjectService.getRecents();
+        const map = recents.map(async (item) => {
+            const mmFile = item.metadata;
+            const pathInfo = path.parse(mmFile);
+            const dirName = path.basename(pathInfo.dir);
+            const data = await readFile(item.metadata);
+            const json: MediaInfo = JSON.parse(data.toString());
+            const text = `${json.artist} - ${json.song} [${dirName}]`;
+            return <MenuItem key={item.media} text={text} icon={IconNames.DOCUMENT} title={pathInfo.dir} />
+        });
+        const recentMenu = await Promise.all(map);
+        const menu = (
             <Menu>
-                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} />
+                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={this.openProject} />
                 <MenuItem text="Close Project" disabled icon={IconNames.FOLDER_CLOSE} />
                 <MenuItem text="Import Media" icon={IconNames.IMPORT}>
                     <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
                     <MenuItem text="from URL" icon={IconNames.CLOUD} />
                 </MenuItem>
-                <MenuItem text="Recent Files" icon={IconNames.HISTORY}>
+                <MenuItem text="Recent Projects" icon={IconNames.HISTORY}>
                     {
-
+                        recentMenu
                     }
                 </MenuItem>
                 <Menu.Divider />
@@ -77,14 +122,15 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
                 <MenuItem text="Quit" icon={IconNames.POWER} />
             </Menu>
         );
+        this.setState({ settingsMenu: menu });
     }
 
-    render = (): React.ReactElement => {
+    render = () => {
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <Card className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
-                        <Popover content={this.settingsMenu()} position={Position.TOP}>
+                        <Popover content={this.state.settingsMenu} position={Position.TOP}>
                             <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
                         <Navbar.Divider className="tall-divider" />
@@ -152,7 +198,7 @@ class MediaBar extends Component<MediaBarProps, MediaBarState> {
                     </div>
                 </Card>
             </GlobalHotKeys>
-        )
+        );
     }
 }
 

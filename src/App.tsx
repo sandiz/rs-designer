@@ -38,7 +38,7 @@ class App extends Component<{}, AppState> {
     this.state = { darkMode: nativeTheme.shouldUseDarkColors, dialogContent: null, dialogClass: '' };
   }
 
-  componentDidMount = (): void => {
+  componentDidMount = async () => {
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();
   }

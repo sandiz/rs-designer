@@ -76,7 +76,8 @@
         "camelcase": "off",
         "max-len": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
-        "lines-between-class-members": "off"
+        "lines-between-class-members": "off",
+        "import/no-extraneous-dependencies": "off"
     },
     "parser": "@typescript-eslint/parser",
     "extends": [

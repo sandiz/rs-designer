@@ -1,19 +1,23 @@
-import { app } from 'electron';
-import readline from "readline";
-import { createReadStream } from 'fs';
-import { platform } from 'os';
-import { parse, join, extname } from 'path';
-import { dirSync, DirResult, setGracefulCleanup } from 'tmp';
-
+import { DirResult } from 'tmp';
 import {
-    copyFile, writeFile, copyDir, readFile, showOpenDialog,
+    copyFile, writeFile, copyDir, readFile,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime,
+    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
 } from '../types'
+import MediaPlayerService from './mediaplayer';
+
+const { app, dialog } = window.require('electron').remote;
+
+const readline = window.require("readline");
+const { createReadStream } = window.require("os");
+const { parse, join, extname } = window.require('path');
+const { platform } = window.require('os');
+const tmp = window.require('tmp');
+const { setGracefulCleanup, dirSync } = tmp;
 
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
@@ -21,19 +25,12 @@ const isWin = platform() === "win32";
 
 export class Project {
     public projectDirectory: string;
-
     public projectFileName: string;
-
     public isTemporary: boolean;
-
     public isLoaded: boolean;
-
     public isDirty: boolean;
-
     public projectInfo: ProjectInfo | null;
-
     public tmpHandle: DirResult | null;
-
     public projectSettings: ProjectSettingsModel | null;
 
     constructor() {
@@ -53,9 +50,18 @@ export class Project {
         this.loadProjectSettings();
     }
 
+    getRecents = async (): Promise<ProjectInfo[]> => {
+        await this.loadProjectSettings();
+        if (this.projectSettings) {
+            return this.projectSettings.recents;
+        }
+        return [];
+    }
+
     loadProjectSettings = async () => {
         const ser = await ForageService.get(SettingsForageKeys.PROJECT_SETTINGS);
         if (ser) this.projectSettings = new ProjectSettingsModel(ser);
+        else this.projectSettings = new ProjectSettingsModel(null);
     }
 
     saveProjectSettings = async (lastOpened: ProjectInfo) => {
@@ -109,7 +115,26 @@ export class Project {
         this.projectFileName = '';
     }
 
-    loadProject = async (externalProject: string | null) => {
+    openProject = async () => {
+        // TODO: check if another project already loaded
+        DispatcherService.dispatch(DispatchEvents.MediaReset);
+        const pInfo = await this.loadProject(null);
+        if (pInfo && pInfo.media) {
+            try {
+                const data: Buffer = await readFile(pInfo.media);
+                const blob = new window.Blob([new Uint8Array(data)]);
+                const res = await MediaPlayerService.loadMedia(blob);
+                if (res) {
+                    DispatcherService.dispatch(DispatchEvents.MediaReady);
+                }
+            }
+            catch (e) {
+                console.error("open-project failed", e);
+            }
+        }
+    }
+
+    loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
         let dirs = [];
 
         if (externalProject) {
@@ -125,16 +150,16 @@ export class Project {
                 delete filters[0];
             }
 
-            dirs = await showOpenDialog({
+            const out = await dialog.showOpenDialog({
                 title: "Open Project..",
                 buttonLabel: "Open",
                 properties: ['openFile'],
                 filters,
             });
+            dirs = out.filePaths;
         }
         if (dirs && dirs.length > 0) {
             const dir = dirs[0];
-            this.saveProjectSettings(dir);
 
             let jsonPath = "";
             if (dir.endsWith(bundleExt)) {
@@ -145,7 +170,7 @@ export class Project {
             }
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
-                const json = JSON.parse(data);
+                const json = JSON.parse(data.toString());
                 this.unload();
                 await this.updateProjectInfo(
                     dir,
@@ -156,6 +181,9 @@ export class Project {
                 );
                 app.addRecentDocument(dir);
                 this.projectInfo = json;
+                if (this.projectInfo) await this.saveProjectSettings(this.projectInfo);
+                await this.updateExternalFiles();
+
                 return this.projectInfo;
             }
         }
@@ -177,11 +205,12 @@ export class Project {
     saveProject = async () => {
         if (this.isLoaded) {
             if (this.isTemporary) {
-                const dirs = await showOpenDialog({
+                const out = await dialog.showOpenDialog({
                     title: "Choose directory to save project to..",
                     buttonLabel: "Save",
                     properties: ['openDirectory'],
                 });
+                const dirs = out.filePaths;
                 if (dirs && this.projectInfo) {
                     const lastPInfo = this.projectInfo;
                     const basen = parse(lastPInfo.original).name;
@@ -197,6 +226,7 @@ export class Project {
                         true,
                         lastPInfo.original,
                     )
+                    if (this.projectInfo) await this.saveProjectSettings(this.projectInfo);
                     await this.updateExternalFiles();
                     return true;
                 }
@@ -261,7 +291,7 @@ export class Project {
         this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
         this.isTemporary = istemp;
         this.isLoaded = isloaded;
-        this.projectInfo = Object.assign(this.projectInfo, {});
+        this.projectInfo = new ProjectInfo();
         this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
         this.projectInfo.original = file;
         if (!readOnly) {
@@ -279,37 +309,39 @@ export class Project {
             unsafeCleanup: true,
             postfix: ".rsdbundle",
         });
-        this.updateProjectInfo(
-            this.tmpHandle.name,
-            true,
-            true,
-            file,
-            false,
-            false,
-        );
-        if (this.projectInfo) {
-            const src = file
-            const dest = this.projectInfo.media;
-            /* copy mp3 here */
-            await copyFile(src, dest);
+        if (this.tmpHandle) {
+            this.updateProjectInfo(
+                this.tmpHandle.name,
+                true,
+                true,
+                file,
+                false,
+                false,
+            );
+            if (this.projectInfo) {
+                const src = file
+                const dest = this.projectInfo.media;
+                /* copy mp3 here */
+                await copyFile(src, dest);
 
-            return dest;
+                return dest;
+            }
         }
         return "";
     }
 
-    readMetadata = async () => {
+    readMetadata = async (): Promise<MediaInfo | null> => {
         if (this.projectInfo == null || this.projectInfo.metadata == null) return null;
         const mm = this.projectInfo.metadata;
         const data = await readFile(mm)
-        return JSON.parse(data);
+        return JSON.parse(data.toString());
     }
 
     readTempo = async (): Promise<number> => {
         if (this.projectInfo) {
             const tempoFile = this.projectInfo.tempo;
             const data = await readFile(tempoFile)
-            const tempo = parseFloat(data);
+            const tempo = parseFloat(data.toString());
             return tempo;
         }
         return 0;
@@ -319,7 +351,7 @@ export class Project {
         if (this.projectInfo) {
             const keyFile = this.projectInfo.key;
             const data = await readFile(keyFile)
-            const s = JSON.parse(data)
+            const s = JSON.parse(data.toString())
             let note = s[0];
             if (note.endsWith('b')) {
                 //convert to sharp
@@ -344,7 +376,7 @@ export class Project {
         });
 
         const chords: ChordTime[] = []
-        lineReader.on('line', (line) => {
+        lineReader.on('line', (line: string) => {
             const split = line.split(",")
             const start = split[0]
             const end = split[1]
@@ -359,7 +391,7 @@ export class Project {
         lineReader.on('close', () => {
             resolve(chords);
         })
-        lineReader.on('error', (err) => {
+        lineReader.on('error', (err: string) => {
             reject(err)
         });
     });
@@ -371,7 +403,7 @@ export class Project {
             input: createReadStream(this.projectInfo.beats),
         });
         const beats: BeatTime[] = []
-        lineReader.on('line', (line) => {
+        lineReader.on('line', (line: string) => {
             const split = line.replace(/\s+/g, ' ').trim().split(" ")
             const start = split[0]
             const beatNum = split[1]
@@ -380,7 +412,7 @@ export class Project {
         lineReader.on('close', () => {
             resolve(beats);
         })
-        lineReader.on('error', (err) => {
+        lineReader.on('error', (err: string) => {
             reject(err)
         })
     });

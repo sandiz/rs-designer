@@ -10,15 +10,17 @@ module.exports = override(
         },
     }),
     useEslintRc(path.resolve(__dirname, '.eslintrc')),
-    addWebpackModuleRule({
-        test: /worklet\.js$/,
-        use: [
-            {
-                loader: require.resolve('worklet-loader'),
-                options: {
-                    name: 'static/js/[hash].worklet.js'
+    addWebpackModuleRule(
+        {
+            test: /worklet\.js$/,
+            use: [
+                {
+                    loader: require.resolve('worklet-loader'),
+                    options: {
+                        name: 'static/js/[hash].worklet.js'
+                    }
                 }
-            }
-        ]
-    })
+            ],
+        },
+    )
 );

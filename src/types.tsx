@@ -1,3 +1,11 @@
+
+/*
+declare global {
+    interface Window {
+    }
+}
+*/
+
 export interface MediaInfo {
     song: string;
     artist: string;
@@ -7,15 +15,26 @@ export interface MediaInfo {
 }
 
 /* Project DataType */
-export interface ProjectInfo {
-    media: string;
-    original: string;
-    cqt: string;
-    tempo: string;
-    beats: string;
-    key: string;
-    chords: string;
-    metadata: string;
+export class ProjectInfo {
+    public media: string;
+    public original: string;
+    public cqt: string;
+    public tempo: string;
+    public beats: string;
+    public key: string;
+    public chords: string;
+    public metadata: string;
+
+    constructor() {
+        this.media = "";
+        this.original = "";
+        this.cqt = "";
+        this.tempo = "";
+        this.beats = "";
+        this.key = "";
+        this.chords = "";
+        this.metadata = "";
+    }
 }
 export class ProjectSettingsModel {
     public lastOpenedProject: ProjectInfo | null;
@@ -63,9 +82,9 @@ export interface ChordInfo {
 }
 
 /* extended bp3 classes */
-export const ExtClasses: { [key: string]: string } = {
-    TEXT_LARGER: "bp3-text-larger",
-    TEXT_LARGER_2: "bp3-text-larger-2",
+export class ExtClasses {
+    public static TEXT_LARGER = "bp3-text-larger";
+    public static TEXT_LARGER_2 = "bp3-text-larger-2";
 }
 
 /* Hotkeys */
