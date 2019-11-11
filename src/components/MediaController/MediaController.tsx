@@ -12,7 +12,7 @@ import {
 } from '../../types';
 import FadeOutSlider from '../Extended/FadeoutSlider';
 
-import './MediaBar.scss'
+import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
@@ -28,7 +28,7 @@ interface MediaBarState {
     settingsMenu: React.ReactElement | null;
 }
 
-class MediaBar extends Component<{}, MediaBarState> {
+class MediaController extends Component<{}, MediaBarState> {
     public keyMap = {
         PLAY_PAUSE: HotkeyInfo.PLAY_PAUSE.hotkey,
         FWD: HotkeyInfo.FWD.hotkey,
@@ -46,14 +46,6 @@ class MediaBar extends Component<{}, MediaBarState> {
     constructor(props: {}) {
         super(props);
         this.state = { mediaInfo: null, settingsMenu: null };
-        /*
-        mediaInfo: {
-            song: "A More Perfect Union",
-            album: "The Monitor",
-            artist: "Titus Andronicus",
-            image: "https://upload.wikimedia.org/wikipedia/en/6/68/Titus_andronicus_The_Monitor_album_cover.jpg",
-        },
-        */
         DispatcherService.on(DispatchEvents.ProjectUpdate, this.projectUpdated);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
@@ -76,7 +68,6 @@ class MediaBar extends Component<{}, MediaBarState> {
     rewind = (): void => { console.log("rewind") }
 
     openProject = async (event: React.MouseEvent, external: string | null) => {
-        console.log(event);
         if (ProjectService.isProjectLoaded()) {
             await this.closeProject();
         }
@@ -232,7 +223,7 @@ class MediaBar extends Component<{}, MediaBarState> {
                                         )
                                         : (
                                             <Text>
-                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>No Project Loaded</Text>
+                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>No Project Opened</Text>
                                             </Text>
                                         )
                                 }
@@ -294,4 +285,4 @@ export const AlbumArt: FunctionComponent<AlbumArtProps> = (props: AlbumArtProps)
     </aside>
 );
 
-export default MediaBar;
+export default MediaController;

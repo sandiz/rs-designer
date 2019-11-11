@@ -6,7 +6,7 @@ import {
 import { GlobalHotKeys } from 'react-hotkeys';
 
 //import FPSMeter from './components/fpsmeter'
-import MediaBar from './components/MediaBar/MediaBar'
+import MediaController from './components/MediaController/MediaController'
 
 import 'normalize.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
@@ -17,6 +17,7 @@ import 'typeface-magra'
 import 'typeface-inconsolata'
 import { getHotkeyDialogContent } from './dialogs';
 import { HotkeyInfo } from './types'
+import WaveformController from './components/WaveformController/WaveformController';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -56,8 +57,10 @@ class App extends Component<{}, AppState> {
     return (
       <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
         <React.Fragment>
-          <div id="content" />
-          <MediaBar />
+          <div id="content">
+            <WaveformController />
+          </div>
+          <MediaController />
           <ToastContainer
             position="bottom-right"
             autoClose={5000}

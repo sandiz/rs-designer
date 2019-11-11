@@ -144,10 +144,8 @@ export class Project {
             try {
                 const data: Buffer = await readFile(pInfo.media);
                 const blob = new window.Blob([new Uint8Array(data)]);
-                const res = await MediaPlayerService.loadMedia(blob);
-                if (res) {
-                    DispatcherService.dispatch(DispatchEvents.MediaReady);
-                }
+                await MediaPlayerService.loadMedia(blob);
+                DispatcherService.dispatch(DispatchEvents.MediaReady, null);
             }
             catch (e) {
                 console.error("open-project failed", e);
