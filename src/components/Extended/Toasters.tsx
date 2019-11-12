@@ -7,7 +7,7 @@ import {
     ProgressBar,
     Icon,
 } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { IconNames, IconName } from "@blueprintjs/icons";
 import React from 'react'
 import './Toasters.scss';
 
@@ -17,18 +17,18 @@ const toaster: IToaster = Toaster.create({
     position: Position.TOP,
 });
 
-export const successToaster = (msg: string): string => {
+export const successToaster = (msg: string, intent: Intent = Intent.SUCCESS, icon: IconName = IconNames.TICK): string => {
     const toast: IToastProps = {
         className: "success-toaster",
-        icon: IconNames.TICK,
-        intent: Intent.SUCCESS,
+        icon,
+        intent,
         message: msg,
         timeout: 5000,
     };
     return toaster.show(toast);
 }
 
-export const indeterminateToaster = (msg: string, amount: number, total: number, key?: string | undefined): string => {
+export const progressToaster = (msg: string, amount: number, total: number, key?: string | undefined, intent: Intent = Intent.SUCCESS): string => {
     const toast: IToastProps = {
         className: "indeterminate-toaster",
         message: (
@@ -40,7 +40,7 @@ export const indeterminateToaster = (msg: string, amount: number, total: number,
                     </div>
                 </div>
                 <ProgressBar
-                    intent={amount < total ? Intent.PRIMARY : Intent.SUCCESS}
+                    intent={amount < total ? Intent.PRIMARY : intent}
                     value={amount / total}
 
                 />

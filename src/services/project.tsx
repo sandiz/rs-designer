@@ -1,4 +1,7 @@
 import { DirResult } from 'tmp';
+import * as FS from 'fs';
+import { Intent } from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
 import {
     copyFile, writeFile, copyDir, readFile,
 } from '../lib/utils'
@@ -9,16 +12,16 @@ import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
-import { successToaster, indeterminateToaster } from '../components/Extended/Toasters';
+import { successToaster, progressToaster } from '../components/Extended/Toasters';
 
 const { app, dialog } = window.require('electron').remote;
 
 const readline = window.require("readline");
-const { createReadStream } = window.require("os");
+const { createReadStream, platform } = window.require("os");
 const { parse, join, extname } = window.require('path');
-const { platform } = window.require('os');
 const tmp = window.require('tmp');
 const { setGracefulCleanup, dirSync } = tmp;
+const fs: typeof FS = window.require("fs");
 
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
@@ -143,31 +146,47 @@ export class Project {
     }
 
     closeProject = () => {
-        this.unload();
-        DispatcherService.dispatch(DispatchEvents.ProjectClosed);
+        if (this.isProjectLoaded()) {
+            this.unload();
+            DispatcherService.dispatch(DispatchEvents.ProjectClosed);
+            successToaster("Project Closed", Intent.PRIMARY, IconNames.TICK);
+        }
+    }
+
+    openLastProject = async () => {
+        await this.loadProjectSettings();
+        const lp = this.getLastOpenedProject();
+        if (lp && lp.projectPath) {
+            const stat = await fs.promises.stat(lp.projectPath);
+            if (stat) {
+                await this.openProject(lp.projectPath);
+            }
+        }
     }
 
     openProject = async (externalProject: string | null) => {
-        if (this.isProjectLoaded()) {
-            this.closeProject();
-        }
         const total = 3;
-        const key = indeterminateToaster("Opening Project", 0.5, total);
-        const pInfo = await this.loadProject(externalProject);
-        if (pInfo && pInfo.media) {
-            try {
-                indeterminateToaster("Reading Media", 1, total, key);
+        const key = progressToaster("Opening Project", 0.5, total);
+        try {
+            if (this.isProjectLoaded()) {
+                this.closeProject();
+            }
+            const pInfo = await this.loadProject(externalProject);
+            if (pInfo && pInfo.media) {
+                progressToaster("Reading Media", 1, total, key);
                 const data: Buffer = await readFile(pInfo.media);
-                indeterminateToaster("Generating Waveform", 2, total, key);
+                progressToaster("Generating Waveform", 2, total, key);
                 const blob = new window.Blob([new Uint8Array(data)]);
                 await MediaPlayerService.loadMedia(blob);
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
-                indeterminateToaster("Project Opened", 3, total, key);
-            }
-            catch (e) {
-                console.error("open-project failed", e);
+                progressToaster("Project Opened", 3, total, key);
+                return;
             }
         }
+        catch (e) {
+            console.error("open-project failed", e);
+        }
+        progressToaster("Project Failed to Open", 1, 1, key, Intent.DANGER);
     }
 
     loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
@@ -195,7 +214,7 @@ export class Project {
             dirs = out.filePaths;
         }
         if (dirs && dirs.length > 0) {
-            const dir = dirs[0];
+            let dir = dirs[0];
 
             let jsonPath = "";
             if (dir.endsWith(bundleExt)) {
@@ -203,10 +222,24 @@ export class Project {
             }
             else if (dir.endsWith(`.${projectExt}`)) {
                 jsonPath = dir;
+                const p = parse(dir);
+                if (p) {
+                    dir = p.dir;
+                }
             }
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
-                const json = JSON.parse(data.toString());
+                const json: ProjectInfo = JSON.parse(data.toString());
+                /* migrate project file to current version */
+                if (json.version !== ProjectInfo.currentVersion) {
+                    switch (json.version) {
+                        default:
+                        case 1:
+                            json.projectPath = jsonPath;
+                            break;
+                    }
+                    json.version = ProjectInfo.currentVersion;
+                }
                 this.unload();
                 await this.updateProjectInfo(
                     dir,

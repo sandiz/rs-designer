@@ -10,7 +10,7 @@ import * as PATH from 'path'
 import {
     ExtClasses, MediaInfo, HotkeyInfo,
 } from '../../types';
-import FadeOutSlider from '../Extended/FadeoutSlider';
+import SliderExtended, { ExtendedCard } from '../Extended/FadeoutSlider';
 
 import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
@@ -38,6 +38,7 @@ class MediaController extends Component<{}, MediaBarState> {
         OPEN_PROJECT: HotkeyInfo.OPEN_PROJECT.hotkey,
         SAVE_PROJECT: HotkeyInfo.SAVE_PROJECT.hotkey,
         OPEN_LAST_PROJECT: HotkeyInfo.OPEN_LAST_PROJECT.hotkey,
+        CLOSE_PROJECT: HotkeyInfo.CLOSE_PROJECT.hotkey,
     };
 
     public handlers = {
@@ -46,7 +47,8 @@ class MediaController extends Component<{}, MediaBarState> {
         REWIND: () => this.rewind(),
         OPEN_PROJECT: () => this.openProject(null),
         SAVE_PROJECT: () => this.saveProject(),
-        OPEN_LAST: () => console.log("open-last"),
+        OPEN_LAST_PROJECT: () => this.openLastProject(),
+        CLOSE_PROJECT: () => this.closeProject(),
     };
 
     constructor(props: {}) {
@@ -80,6 +82,10 @@ class MediaController extends Component<{}, MediaBarState> {
     clearRecents = async () => {
         await ProjectService.clearRecents();
         await this.settingsMenu();
+    }
+
+    openLastProject = async () => {
+        await ProjectService.openLastProject();
     }
 
     openProject = async (external: string | null) => {
@@ -205,7 +211,7 @@ class MediaController extends Component<{}, MediaBarState> {
     render = () => {
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-                <Card className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
+                <ExtendedCard className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
                             <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
@@ -257,7 +263,7 @@ class MediaController extends Component<{}, MediaBarState> {
                             <div className="media-bar-progress-bar">
                                 <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>0:00</div>
                                 <div className="progressbar">
-                                    <FadeOutSlider min={0} max={100} labelRenderer={false} value={50} />
+                                    <SliderExtended min={0} max={100} labelRenderer={false} value={50} />
                                 </div>
                                 <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>5:00</div>
                             </div>
@@ -266,14 +272,14 @@ class MediaController extends Component<{}, MediaBarState> {
                         <div className="volume">
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
-                                <FadeOutSlider className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
+                                <SliderExtended className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
                             </div>
                         </div>
                         <div className="more-button">
                             <Button icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </div>
                     </div>
-                </Card>
+                </ExtendedCard>
             </GlobalHotKeys>
         );
     }

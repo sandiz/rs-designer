@@ -1,8 +1,10 @@
 import React, { Component, RefObject } from 'react';
-import { Slider, ISliderProps, Classes } from '@blueprintjs/core';
+import {
+    Slider, ISliderProps, Classes, ICardProps, Card,
+} from '@blueprintjs/core';
 import classNames from 'classnames';
 
-export default class FadeOutSlider extends Component<ISliderProps, {}> {
+export default class SliderExtended extends Component<ISliderProps, {}> {
     private sliderRef: RefObject<HTMLDivElement>;
 
     constructor(props: {}) {
@@ -46,4 +48,14 @@ export default class FadeOutSlider extends Component<ISliderProps, {}> {
             </div>
         );
     }
+}
+
+export const ExtendedCard = (props: ICardProps) => {
+    return (
+        <Card
+            //eslint-disable-next-line
+            {...props}
+            className={classNames("card-extended", props.className)}
+        />
+    )
 }

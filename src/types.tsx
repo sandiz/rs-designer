@@ -24,7 +24,10 @@ export class ProjectInfo {
     public key: string;
     public chords: string;
     public metadata: string;
+    public version: number;
+    public projectPath: string;
 
+    static currentVersion = 1;
     constructor() {
         this.media = "";
         this.original = "";
@@ -34,6 +37,8 @@ export class ProjectInfo {
         this.key = "";
         this.chords = "";
         this.metadata = "";
+        this.version = ProjectInfo.currentVersion;
+        this.projectPath = "";
     }
 }
 export class ProjectSettingsModel {
@@ -102,6 +107,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     OPEN_PROJECT: { info: "Open Project", hotkey: ["command+o", "ctrl+o"] },
     SAVE_PROJECT: { info: "Save Project", hotkey: ["command+s", "ctrl+s"] },
     OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"] },
+    CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"] },
 }
 
 export default {};

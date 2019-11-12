@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-    Card, Classes, Button, Intent, Popover, Position,
+    Classes, Button, Intent, Popover, Position,
     MenuItem, Menu,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
@@ -9,6 +9,7 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import NonIdealExtended from '../Extended/NonIdealExtended';
 import './WaveformController.scss';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
+import { ExtendedCard } from '../Extended/FadeoutSlider';
 
 interface WaveformState {
     show: boolean;
@@ -73,7 +74,7 @@ class WaveformController extends Component<{}, WaveformState> {
             </div>
         );
         return (
-            <Card className="waveform-root" elevation={3}>
+            <ExtendedCard className={classNames("waveform-root")} elevation={3}>
                 <NonIdealExtended
                     className={classNames(Classes.TEXT_DISABLED)}
                     icon={icon}
@@ -83,7 +84,7 @@ class WaveformController extends Component<{}, WaveformState> {
                     <div id="waveform" />
                     <div id="timeline" />
                 </div>
-            </Card>
+            </ExtendedCard>
         );
     }
 }
