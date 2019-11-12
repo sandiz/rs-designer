@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { Card, Classes } from '@blueprintjs/core';
+import {
+    Card, Classes, Button, Intent, Popover, Position,
+    MenuItem, Menu,
+} from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import NonIdealExtended from '../Extended/NonIdealExtended';
 import './WaveformController.scss';
+import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 
 interface WaveformState {
     show: boolean;
@@ -34,13 +38,47 @@ class WaveformController extends Component<{}, WaveformState> {
         this.setState({ show: true });
     }
 
+    getImportMenu = () => {
+        return (
+            <React.Fragment>
+                <Menu large>
+                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
+                    <MenuItem text="from URL" icon={IconNames.CLOUD} />
+                </Menu>
+            </React.Fragment>
+        );
+    }
+
+    openProject = () => {
+        DispatcherService.dispatch(DispatchEvents.ProjectOpen);
+    }
+
     render = () => {
+        const title = (
+            <div style={{ fontWeight: 100 }}>
+                Meend: Transcribe and Analyse Music.
+            </div>
+        )
+        const icon = (
+            <div>
+                <img src={AppLogo.default} alt="app logo" className="appLogo-waveform" />
+            </div>
+        )
+        const description = (
+            <div className="description-buttons">
+                <Button large intent={Intent.PRIMARY} icon={IconNames.FOLDER_OPEN} onClick={this.openProject}>Open Project</Button>
+                <Popover content={this.getImportMenu()} position={Position.BOTTOM}>
+                    <Button large icon={IconNames.IMPORT}>Import Media</Button>
+                </Popover>
+            </div>
+        );
         return (
             <Card className="waveform-root" elevation={3}>
                 <NonIdealExtended
                     className={classNames(Classes.TEXT_DISABLED)}
-                    icon={IconNames.MUSIC}
-                    description="open a project or import any media to load it's waveform." />
+                    icon={icon}
+                    title={title}
+                    description={description} />
                 <div style={{ visibility: this.state.show ? "visible" : "hidden" }}>
                     <div id="waveform" />
                     <div id="timeline" />

@@ -2,7 +2,7 @@ import { DirResult } from 'tmp';
 import {
     copyFile, writeFile, copyDir, readFile,
 } from '../lib/utils'
-import { DispatcherService, DispatchEvents } from './dispatcher';
+import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
@@ -47,6 +47,10 @@ export class Project {
         this.projectFileName = '';
         this.projectInfo = null;
         this.projectSettings = null;
+
+        DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
+        DispatcherService.on(DispatchEvents.ProjectSave, this.saveProject);
+        DispatcherService.on(DispatchEvents.ProjectClose, this.closeProject);
 
         app.on('before-quit', () => {
             this.unload();
@@ -137,13 +141,22 @@ export class Project {
         MediaPlayerService.unload();
     }
 
+    closeProject = () => {
+        this.unload();
+        DispatcherService.dispatch(DispatchEvents.ProjectClosed);
+    }
+
     openProject = async (externalProject: string | null) => {
+        if (this.isProjectLoaded()) {
+            this.closeProject();
+        }
         const pInfo = await this.loadProject(externalProject);
         if (pInfo && pInfo.media) {
             try {
                 const data: Buffer = await readFile(pInfo.media);
                 const blob = new window.Blob([new Uint8Array(data)]);
                 await MediaPlayerService.loadMedia(blob);
+                DispatcherService.dispatch(DispatchEvents.ProjectOpened);
             }
             catch (e) {
                 console.error("open-project failed", e);
@@ -254,6 +267,7 @@ export class Project {
                 DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
                 return true;
             }
+            this.saveProjectSettings();
         }
         return false;
     }

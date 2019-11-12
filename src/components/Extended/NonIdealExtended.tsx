@@ -39,7 +39,7 @@ class NonIdealExtended extends Component<INonIdealStateProps, NIEState> {
 
     render = () => {
         if (this.state.currentNIEState === NIESTATES.UNLOADED) {
-            return <NonIdealState className={this.props.className} icon={this.props.icon} description={this.props.description} />
+            return <NonIdealState title={this.props.title} className={this.props.className} icon={this.props.icon} description={this.props.description} />
         }
         else if (this.state.currentNIEState === NIESTATES.LOADING) {
             return (

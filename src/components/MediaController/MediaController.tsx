@@ -47,6 +47,8 @@ class MediaController extends Component<{}, MediaBarState> {
         super(props);
         this.state = { mediaInfo: null, settingsMenu: null };
         DispatcherService.on(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
     }
@@ -57,6 +59,8 @@ class MediaController extends Component<{}, MediaBarState> {
 
     componentWillUnmount() {
         DispatcherService.off(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed)
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
     }
@@ -67,32 +71,31 @@ class MediaController extends Component<{}, MediaBarState> {
 
     rewind = (): void => { console.log("rewind") }
 
-    openProject = async (event: React.MouseEvent, external: string | null) => {
-        if (ProjectService.isProjectLoaded()) {
-            await this.closeProject();
-        }
-        await ProjectService.openProject(external);
-
-        /* TOOD: reset playback state */
-
-
-        /* update recents */
-        await this.settingsMenu();
-    }
-
     clearRecents = async () => {
         await ProjectService.clearRecents();
         await this.settingsMenu();
     }
 
-    saveProject = async () => {
-        await ProjectService.saveProject();
-        await ProjectService.saveProjectSettings();
+    openProject = async (event: React.MouseEvent, external: string | null) => {
+        DispatcherService.dispatch(DispatchEvents.ProjectOpen, external);
+    }
+
+    projectOpened = async () => {
+        /* TOOD: reset playback state */
+
+        /* update recents */
         await this.settingsMenu();
     }
 
+    saveProject = async () => {
+        DispatcherService.dispatch(DispatchEvents.ProjectSave);
+    }
+
     closeProject = async () => {
-        ProjectService.unload();
+        DispatcherService.dispatch(DispatchEvents.ProjectClose);
+    }
+
+    projectClosed = async () => {
         this.setState({ mediaInfo: null });
         await this.settingsMenu();
     }
@@ -153,7 +156,6 @@ class MediaController extends Component<{}, MediaBarState> {
                     text={text}
                     icon={IconNames.DOCUMENT}
                     title={pathInfo.dir}
-                    xdata-file={projectName}
                     onClick={(e: React.MouseEvent) => this.openProject(e, projectName)}
                 />
             );
@@ -223,7 +225,7 @@ class MediaController extends Component<{}, MediaBarState> {
                                         )
                                         : (
                                             <Text>
-                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>No Project Opened</Text>
+                                                <Text ellipsize>No Project Opened</Text>
                                             </Text>
                                         )
                                 }

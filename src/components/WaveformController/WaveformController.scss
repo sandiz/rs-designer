@@ -7,3 +7,18 @@
     border-top: 1px solid gray;
     /* margin-top: 0px; */
 }
+
+.description-buttons {
+    display: flex;
+    width: 20%;
+    justify-content: space-evenly;
+}
+
+.waveform-root>div:first-child>div:first-child {
+    height: 50%;
+}
+
+.appLogo-waveform {
+    width: 10vh;
+    height: 10vh;
+}

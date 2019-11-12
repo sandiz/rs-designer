@@ -1,5 +1,5 @@
 interface DispatchCallback {
-    (data: unknown): void;
+    (data: DispatchData): void;
 }
 class DispatcherEvent {
     public eventName: string;
@@ -22,7 +22,7 @@ class DispatcherEvent {
         }
     }
 
-    fire(data: unknown) {
+    fire(data: DispatchData) {
         const callbacks = this.callbacks.slice(0);
         callbacks.forEach((callback) => {
             callback(data);
@@ -30,7 +30,7 @@ class DispatcherEvent {
     }
 }
 
-
+export type DispatchData = string | object | null;
 class DispatcherBase {
     public events: { [key: string]: DispatcherEvent }
 
@@ -38,7 +38,7 @@ class DispatcherBase {
         this.events = {};
     }
 
-    dispatch(eventName: string, data: unknown = {}) {
+    dispatch(eventName: string, data: DispatchData = null) {
         const event = this.events[eventName];
         if (event) {
             event.fire(data);
@@ -70,12 +70,20 @@ export class DispatchEvents {
     public static MediaReady = "media-ready";
     public static MediaReset = "media-reset";
     public static MediaLoading = "media-loading";
+
     public static MediaAnalysisStart = "media-analysis-start";
     public static MediaAnalysisEnd = "media-analysis-stop";
     public static MASpectrogramStart = "media-analysis-cqt-start";
     public static MASpectrogramEnd = "media-analysis-cqt-end";
     public static SettingsUpdate = "settings-update";
+
     public static ProjectUpdate = "project-update";
+    public static ProjectSave = "project-save";
+    public static ProjectOpen = "project-open";
+    public static ProjectOpened = "project-opened";
+    public static ProjectClose = "project-close";
+    public static ProjectClosed = "project-closed";
+
     public static PitchChange = "pitch-change";
     public static TempoChange = "tempo-change";
     public static TransposeMode = "transpose-mode";
