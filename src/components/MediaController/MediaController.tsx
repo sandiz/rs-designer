@@ -1,31 +1,38 @@
-import React, { Component, FunctionComponent } from 'react'
+import React, { Component, FunctionComponent, RefObject } from 'react'
 import {
-    Navbar, Button, Elevation, Card, Classes, Text, Icon,
+    Navbar, Elevation, Card, Classes, Text, Icon,
     MenuItem, Popover, Position, Menu,
 } from '@blueprintjs/core';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
 import classNames from 'classnames';
+
 import * as PATH from 'path'
 import {
-    ExtClasses, MediaInfo, HotkeyInfo,
+    ExtClasses, MediaInfo, HotkeyInfo, MEDIA_STATE, VOLUME,
 } from '../../types';
-import SliderExtended, { ExtendedCard } from '../Extended/FadeoutSlider';
+import SliderExtended, { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 
 import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import { readFile } from '../../lib/utils';
+import { readFile, sec2time } from '../../lib/utils';
+import MediaPlayerService from '../../services/mediaplayer';
 
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
 const { platform } = window.require('os');
 const isWin = platform() === "win32";
 const isMac = platform() === "darwin";
+
+
 interface MediaBarState {
     mediaInfo: MediaInfo | null;
     settingsMenu: React.ReactElement | null;
+    mediaState: MEDIA_STATE;
+    volume: number;
+    duration: number;
 }
 
 class MediaController extends Component<{}, MediaBarState> {
@@ -51,10 +58,17 @@ class MediaController extends Component<{}, MediaBarState> {
         CLOSE_PROJECT: () => this.closeProject(),
     };
 
+    private ProgressTimerRef: RefObject<HTMLSpanElement> = React.createRef();
     constructor(props: {}) {
         super(props);
-        this.state = { mediaInfo: null, settingsMenu: null };
-        DispatcherService.on(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        this.state = {
+            mediaInfo: null,
+            settingsMenu: null,
+            volume: MediaPlayerService.getVolume(),
+            duration: 0,
+            mediaState: MEDIA_STATE.STOPPED,
+        };
+        DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
@@ -66,18 +80,31 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     componentWillUnmount() {
-        DispatcherService.off(DispatchEvents.ProjectUpdate, this.projectUpdated);
+        DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed)
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
     }
 
-    play = (): void => { console.log("play") }
+    stop = (): void => {
+        this.setState({ mediaState: MEDIA_STATE.STOPPED });
+        MediaPlayerService.stop();
+    }
 
-    fwd = (): void => { console.log("fwd") }
+    play = async (): Promise<void> => {
+        await MediaPlayerService.playPause();
+        if (MediaPlayerService.isPlaying()) {
+            this.setState({ mediaState: MEDIA_STATE.PLAYING });
+        }
+        else {
+            this.setState({ mediaState: MEDIA_STATE.PAUSED });
+        }
+    }
 
-    rewind = (): void => { console.log("rewind") }
+    fwd = (): void => MediaPlayerService.rewind()
+
+    rewind = (): void => MediaPlayerService.ffwd()
 
     clearRecents = async () => {
         await ProjectService.clearRecents();
@@ -85,17 +112,16 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     openLastProject = async () => {
+        this.stop();
         await ProjectService.openLastProject();
     }
 
     openProject = async (external: string | null) => {
+        this.stop();
         DispatcherService.dispatch(DispatchEvents.ProjectOpen, external);
     }
 
     projectOpened = async () => {
-        /* TOOD: reset playback state */
-
-        /* update recents */
         await this.settingsMenu();
     }
 
@@ -104,6 +130,7 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     closeProject = async () => {
+        this.stop();
         DispatcherService.dispatch(DispatchEvents.ProjectClose);
     }
 
@@ -132,11 +159,19 @@ class MediaController extends Component<{}, MediaBarState> {
 
     mediaReset = () => {
         console.log("media-reset");
-        this.setState({ mediaInfo: null });
+        this.setState({
+            mediaInfo: null, mediaState: MEDIA_STATE.STOPPED, duration: 0, volume: MediaPlayerService.getVolume(),
+        });
     }
 
     mediaReady = () => {
         console.log("media-ready");
+        this.setState({
+            mediaState: MEDIA_STATE.STOPPED, duration: MediaPlayerService.getDuration(), volume: MediaPlayerService.getVolume(),
+        });
+        if (this.ProgressTimerRef.current) {
+            this.ProgressTimerRef.current.innerText = sec2time(0, true);
+        }
     }
 
     QUIT = () => {
@@ -211,10 +246,10 @@ class MediaController extends Component<{}, MediaBarState> {
     render = () => {
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-                <ExtendedCard className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
+                <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
-                            <Button icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                            <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-song-info">
@@ -246,40 +281,60 @@ class MediaController extends Component<{}, MediaBarState> {
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-controls">
                             <div>
-                                <Button icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                                <ButtonExtended icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.rewind} />
                             </div>
                             <div>
-                                <Button icon={<Icon icon={IconNames.PLAY} iconSize={35} />} className={classNames(Classes.ELEVATION_2, "media-bar-button")} />
+                                <ButtonExtended
+                                    type="button"
+                                    active={this.state.mediaState === MEDIA_STATE.PLAYING}
+                                    icon={(
+                                        <Icon
+                                            icon={this.state.mediaState === MEDIA_STATE.PLAYING ? IconNames.PAUSE : IconNames.PLAY}
+                                            iconSize={35} />
+                                    )}
+                                    className={classNames(Classes.ELEVATION_2, "media-bar-button")}
+                                    onClick={this.play}
+                                />
                             </div>
                             <div>
-                                <Button icon={<Icon icon={IconNames.FAST_FORWARD} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                                <ButtonExtended icon={<Icon icon={IconNames.FAST_FORWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.fwd} />
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-progress">
                             <div className="media-bar-timer">
-                                <span className={classNames("number", ExtClasses.TEXT_LARGER_2)}>00:00:00.000</span>
+                                <span
+                                    ref={this.ProgressTimerRef}
+                                    className={classNames("number", ExtClasses.TEXT_LARGER_2)}>
+                                    00:00.000
+                                </span>
                             </div>
                             <div className="media-bar-progress-bar">
-                                <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>0:00</div>
+                                <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>00:00</div>
                                 <div className="progressbar">
-                                    <SliderExtended min={0} max={100} labelRenderer={false} value={50} />
+                                    <SliderExtended
+                                        timerSource={MediaPlayerService.getCurrentTime}
+                                        interval={500}
+                                        min={0}
+                                        max={this.state.duration === 0 ? 100 : this.state.duration}
+                                        labelRenderer={false}
+                                    />
                                 </div>
-                                <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>5:00</div>
+                                <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>{sec2time(this.state.duration)}</div>
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
                         <div className="volume">
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
-                                <SliderExtended className="volume-slider" min={0} max={100} labelRenderer={false} value={50} />
+                                <SliderExtended className="volume-slider" min={VOLUME.MIN} max={VOLUME.MAX} labelRenderer={false} value={this.state.volume} />
                             </div>
                         </div>
                         <div className="more-button">
-                            <Button icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                            <ButtonExtended icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </div>
                     </div>
-                </ExtendedCard>
+                </CardExtended>
             </GlobalHotKeys>
         );
     }

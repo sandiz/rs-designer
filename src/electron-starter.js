@@ -1,17 +1,13 @@
 const electron = require("electron");
-var { app, BrowserWindow, Menu, ipcMain } = electron;
+var { app, BrowserWindow, Menu } = electron;
 const path = require("path");
-const os = require('os')
 const url = require("url");
-const fs = require("fs");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
-const electronLocalshortcut = require('electron-localshortcut');
 const openAboutWindow = require('about-window').default;
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
-const shortcuts = require('./app-config/shortcuts.json');
 let mainWindow;
-let kbdShortcutsEnabled = true;
 let incomingPath = "";
 let ready = false;
 async function createWindow() {
@@ -53,9 +49,6 @@ async function createWindow() {
     mainWindowState.manage(mainWindow);
     mainWindow.setMinimumSize(1700, 1070);
     //mainWindow.maximize();
-    if (isDev) {
-        mainWindow.webContents.openDevTools({ mode: 'detach' });
-    }
     mainWindow.loadURL(
         process.env.ELECTRON_START_URL ||
         url.format({
@@ -154,10 +147,10 @@ async function createWindow() {
 app.on("ready", () => {
     createWindow();
     if (isDev) {
-        BrowserWindow.removeDevToolsExtension("Web Audio Inspector");
-        BrowserWindow.removeDevToolsExtension("React Developer Tools");
-        // const exts = BrowserWindow.getDevToolsExtensions();
-        // fs.writeFileSync("/tmp/exts", JSON.stringify(exts));
+        installExtension(REACT_DEVELOPER_TOOLS)
+            .then((name) => console.log(`Added Extension:  ${name}`))
+            .catch((err) => console.log('An error occurred: ', err));
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     sendOpenFileRequest();
     ready = true;
@@ -192,45 +185,3 @@ app.on("activate", () => {
         createWindow();
     }
 });
-
-const readKeyboardShortcuts = (template, index) => {
-    try {
-        const json = shortcuts;
-        const globalS = json["global"];
-        const localS = json["local"];
-        const t = template[index];
-        for (let i = 0; i < globalS.length; i += 1) {
-            const item = globalS[i];
-            t.submenu.push(item);
-            if (item["type"]) {
-
-            }
-            else {
-                item.click = (e, f) => handleKeyboard(item["event"]);
-            }
-        }
-
-        for (let i = 0; i < localS.length; i += 1) {
-            const item = localS[i];
-
-            electronLocalshortcut.register(
-                mainWindow, item.accelerator, () => {
-                    handleKeyboard(item.event);
-                }
-            );
-
-        }
-    }
-    catch (ex) {
-        console.log(ex);
-    }
-    return template;
-}
-
-const handleKeyboard = (type) => {
-    if (kbdShortcutsEnabled)
-        mainWindow.webContents.send('keyboard-shortcut', type);
-}
-
-ipcMain.on('disable-kbd-shortcuts', () => kbdShortcutsEnabled = false);
-ipcMain.on('enable-kbd-shortcuts', () => kbdShortcutsEnabled = true);

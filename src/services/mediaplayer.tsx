@@ -3,6 +3,7 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import { Colors } from "@blueprintjs/core";
 import { DispatcherService, DispatchEvents } from './dispatcher';
+import { VOLUME } from '../types';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -97,6 +98,7 @@ class MediaPlayer {
 
     unload = (): void => {
         if (this.wavesurfer) {
+            this.wavesurfer.stop();
             this.wavesurfer.unAll();
             this.wavesurfer.destroy();
         }
@@ -108,6 +110,83 @@ class MediaPlayer {
         if (this.wavesurfer) {
             this.wavesurfer.empty();
         }
+    }
+
+    stop = (): void => {
+        if (this.wavesurfer) {
+            this.wavesurfer.stop();
+        }
+    }
+
+    playPause = async () => {
+        if (this.wavesurfer) {
+            await this.wavesurfer.playPause();
+        }
+    }
+
+    pause = async () => {
+        if (this.wavesurfer) {
+            await this.wavesurfer.pause();
+        }
+    }
+
+    play = async () => {
+        if (this.wavesurfer) {
+            await this.wavesurfer.play();
+        }
+    }
+
+    seekTo = (num: number): void => {
+        if (this.wavesurfer) {
+            this.wavesurfer.seekTo(num);
+        }
+    }
+
+    rewind = (num = 5): void => {
+        if (this.wavesurfer) {
+            this.wavesurfer.skipBackward(num);
+        }
+    }
+
+    ffwd = (num = 5): void => {
+        if (this.wavesurfer) {
+            this.wavesurfer.skipForward(num);
+        }
+    }
+
+    isPlaying = (): boolean => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.isPlaying();
+        }
+        return false;
+    }
+
+    getDuration = (): number => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.getDuration();
+        }
+        return 0;
+    }
+
+    getCurrentTime = (): number => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.getCurrentTime();
+        }
+        return 0;
+    }
+
+    getVolume = () => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.getVolume();
+        }
+        return VOLUME.DEFAULT;
+    }
+
+    setVolume = (num: number) => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.setVolume(num);
+        }
+        return 0;
     }
 }
 

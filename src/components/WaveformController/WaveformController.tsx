@@ -9,7 +9,7 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import NonIdealExtended from '../Extended/NonIdealExtended';
 import './WaveformController.scss';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
-import { ExtendedCard } from '../Extended/FadeoutSlider';
+import { CardExtended } from '../Extended/FadeoutSlider';
 
 interface WaveformState {
     show: boolean;
@@ -74,7 +74,7 @@ class WaveformController extends Component<{}, WaveformState> {
             </div>
         );
         return (
-            <ExtendedCard className={classNames("waveform-root")} elevation={3}>
+            <CardExtended className={classNames("waveform-root")} elevation={3}>
                 <NonIdealExtended
                     className={classNames(Classes.TEXT_DISABLED)}
                     icon={icon}
@@ -84,7 +84,7 @@ class WaveformController extends Component<{}, WaveformState> {
                     <div id="waveform" />
                     <div id="timeline" />
                 </div>
-            </ExtendedCard>
+            </CardExtended>
         );
     }
 }

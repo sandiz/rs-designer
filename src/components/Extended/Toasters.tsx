@@ -23,7 +23,7 @@ export const successToaster = (msg: string, intent: Intent = Intent.SUCCESS, ico
         icon,
         intent,
         message: msg,
-        timeout: 5000,
+        timeout: 2000,
     };
     return toaster.show(toast);
 }

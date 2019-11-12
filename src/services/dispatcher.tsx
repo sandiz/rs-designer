@@ -67,28 +67,18 @@ class DispatcherBase {
     }
 }
 export class DispatchEvents {
-    public static MediaReady = "media-ready";
-    public static MediaReset = "media-reset";
-    public static MediaLoading = "media-loading";
+    public static MediaReady = "media-ready";           /* fired when media is loaded and ready to play (source: mediaplayer) */
+    public static MediaReset = "media-reset";           /* fired when media is unloaded (source: mediaplayer) */
+    public static MediaLoading = "media-loading";       /* fired when media is about to be loaded (source: mediaplayer) */
 
-    public static MediaAnalysisStart = "media-analysis-start";
-    public static MediaAnalysisEnd = "media-analysis-stop";
-    public static MASpectrogramStart = "media-analysis-cqt-start";
-    public static MASpectrogramEnd = "media-analysis-cqt-end";
-    public static SettingsUpdate = "settings-update";
+    public static SettingsUpdate = "settings-update";   /* TODO */
 
-    public static ProjectUpdate = "project-update";
-    public static ProjectSave = "project-save";
-    public static ProjectOpen = "project-open";
-    public static ProjectOpened = "project-opened";
-    public static ProjectClose = "project-close";
-    public static ProjectClosed = "project-closed";
-
-    public static PitchChange = "pitch-change";
-    public static TempoChange = "tempo-change";
-    public static TransposeMode = "transpose-mode";
-    public static AboutToDraw = "about-to-draw";
-    public static FinishedDrawing = "finished-drawing";
+    public static ProjectSave = "project-save";         /* event to trigger a project save (source: any, handler: project) */
+    public static ProjectOpen = "project-open";         /* event to trigger a project open (source: any, handler: project) */
+    public static ProjectClose = "project-close";       /* event to trigger a project close (source: any, handler: project) */
+    public static ProjectUpdated = "project-updated";   /* fired when a project file or settings was updated (source: project) */
+    public static ProjectOpened = "project-opened";     /* fired when a project was opened (source: project) */
+    public static ProjectClosed = "project-closed";     /* fired when a project was closed (source: project) */
 }
 
 export const DispatcherService = new DispatcherBase();

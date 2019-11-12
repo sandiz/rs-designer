@@ -68,6 +68,7 @@ export class Project {
             await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
         }
     }
+
     getRecents = async (): Promise<ProjectInfo[]> => {
         await this.loadProjectSettings();
         if (this.projectSettings) {
@@ -302,7 +303,7 @@ export class Project {
             else {
                 //serialize
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
-                DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
+                DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             }
             this.saveProjectSettings();
             successToaster("Project Saved")
@@ -351,7 +352,7 @@ export class Project {
             this.projectInfo.chords = join(this.projectDirectory, 'chords');
             this.projectInfo.metadata = join(this.projectDirectory, 'metadata.json');
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
-            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, ProjectUpdateType.ExternalFilesUpdate);
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
         }
     }
 
@@ -368,7 +369,7 @@ export class Project {
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         }
         if (dispatch) {
-            DispatcherService.dispatch(DispatchEvents.ProjectUpdate, ProjectUpdateType.ProjectInfoCreated);
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ProjectInfoCreated);
         }
     }
 
