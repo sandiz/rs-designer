@@ -9,6 +9,7 @@ import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
+import { successToaster, indeterminateToaster } from '../components/Extended/Toasters';
 
 const { app, dialog } = window.require('electron').remote;
 
@@ -150,13 +151,18 @@ export class Project {
         if (this.isProjectLoaded()) {
             this.closeProject();
         }
+        const total = 3;
+        const key = indeterminateToaster("Opening Project", 0.5, total);
         const pInfo = await this.loadProject(externalProject);
         if (pInfo && pInfo.media) {
             try {
+                indeterminateToaster("Reading Media", 1, total, key);
                 const data: Buffer = await readFile(pInfo.media);
+                indeterminateToaster("Generating Waveform", 2, total, key);
                 const blob = new window.Blob([new Uint8Array(data)]);
                 await MediaPlayerService.loadMedia(blob);
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
+                indeterminateToaster("Project Opened", 3, total, key);
             }
             catch (e) {
                 console.error("open-project failed", e);
@@ -258,16 +264,16 @@ export class Project {
                     )
                     if (this.projectInfo) await this.saveProjectSettings();
                     await this.updateExternalFiles();
-                    return true;
                 }
             }
             else {
                 //serialize
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
                 DispatcherService.dispatch(DispatchEvents.ProjectUpdate, null);
-                return true;
             }
             this.saveProjectSettings();
+            successToaster("Project Saved")
+            return true;
         }
         return false;
     }

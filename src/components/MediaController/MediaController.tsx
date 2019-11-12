@@ -35,12 +35,18 @@ class MediaController extends Component<{}, MediaBarState> {
         REWIND: HotkeyInfo.REWIND.hotkey,
         VOL_UP: HotkeyInfo.VOL_UP.hotkey,
         VOL_DOWN: HotkeyInfo.VOL_DOWN.hotkey,
+        OPEN_PROJECT: HotkeyInfo.OPEN_PROJECT.hotkey,
+        SAVE_PROJECT: HotkeyInfo.SAVE_PROJECT.hotkey,
+        OPEN_LAST_PROJECT: HotkeyInfo.OPEN_LAST_PROJECT.hotkey,
     };
 
     public handlers = {
         PLAY_PAUSE: () => this.play(),
         FWD: () => this.fwd(),
         REWIND: () => this.rewind(),
+        OPEN_PROJECT: () => this.openProject(null),
+        SAVE_PROJECT: () => this.saveProject(),
+        OPEN_LAST: () => console.log("open-last"),
     };
 
     constructor(props: {}) {
@@ -76,7 +82,7 @@ class MediaController extends Component<{}, MediaBarState> {
         await this.settingsMenu();
     }
 
-    openProject = async (event: React.MouseEvent, external: string | null) => {
+    openProject = async (external: string | null) => {
         DispatcherService.dispatch(DispatchEvents.ProjectOpen, external);
     }
 
@@ -156,14 +162,14 @@ class MediaController extends Component<{}, MediaBarState> {
                     text={text}
                     icon={IconNames.DOCUMENT}
                     title={pathInfo.dir}
-                    onClick={(e: React.MouseEvent) => this.openProject(e, projectName)}
+                    onClick={() => this.openProject(projectName)}
                 />
             );
         });
         const recentMenu = await Promise.all(map);
         const menu = (
             <Menu large>
-                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={(e: React.MouseEvent) => this.openProject(e, null)} />
+                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={() => this.openProject(null)} />
                 <MenuItem text="Save Project" icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
                 <MenuItem text="Close Project" disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
                 <Menu.Divider />

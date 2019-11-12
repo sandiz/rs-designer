@@ -128,18 +128,6 @@ async function createWindow() {
                     type: 'separator'
                 },
                 {
-                    role: 'resetzoom'
-                },
-                {
-                    role: 'zoomin'
-                },
-                {
-                    role: 'zoomout'
-                },
-                {
-                    type: 'separator'
-                },
-                {
                     role: 'togglefullscreen'
                 },
                 {
@@ -150,13 +138,8 @@ async function createWindow() {
                 }
             ]
         },
-        {
-            label: 'Controls',
-            submenu: [
-            ]
-        }
     ];
-    template = readKeyboardShortcuts(template, 3);
+    //template = readKeyboardShortcuts(template, 3);
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
     mainWindow.on("closed", () => {

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { ToastContainer } from 'react-toastify';
 import {
   Classes, FocusStyleManager, Dialog,
 } from "@blueprintjs/core"
@@ -11,7 +10,6 @@ import MediaController from './components/MediaController/MediaController'
 import 'normalize.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
-import 'react-toastify/dist/ReactToastify.min.css';
 import './css/App.scss'
 import 'typeface-magra'
 import 'typeface-inconsolata'
@@ -61,18 +59,6 @@ class App extends Component<{}, AppState> {
             <WaveformController />
           </div>
           <MediaController />
-          <ToastContainer
-            position="bottom-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            draggable
-            pauseOnHover
-            className="toast-container"
-            toastClassName="dark-toast"
-          />
           <Dialog
             isOpen={this.state.dialogContent !== null}
             onClose={(): void => this.setState({ dialogContent: null })}
@@ -80,7 +66,6 @@ class App extends Component<{}, AppState> {
           >
             {this.state.dialogContent}
           </Dialog>
-
         </React.Fragment>
       </GlobalHotKeys>
     );

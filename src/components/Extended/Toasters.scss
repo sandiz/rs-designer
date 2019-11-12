@@ -1,0 +1,20 @@
+.msg-container {
+    display: flex;
+    margin-bottom: 7px;
+    width: 100%;
+    justify-content: center;
+}
+
+.msg-icon {
+    margin-right: 0.5vh;
+}
+
+.msg-message {}
+
+.indeterminate-toaster>span:first-child {
+    padding-right: 0px !important;
+}
+
+.indeterminate-toaster>div:nth-child(2) {
+    margin: auto !important;
+}

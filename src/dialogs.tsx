@@ -4,6 +4,10 @@ import { Text, Classes, KeyCombo } from '@blueprintjs/core';
 import classNames from 'classnames';
 import { ExtClasses, HotkeyInfo } from './types';
 
+const { platform } = window.require('os');
+const isWin = platform() === "win32";
+const isMac = platform() === "darwin";
+
 export const getHotkeyDialogContent = (): React.ReactElement => {
     const keyMap = getApplicationKeyMap();
     return (
@@ -26,8 +30,20 @@ export const getHotkeyDialogContent = (): React.ReactElement => {
                                             let s = null;
                                             if (typeof sequence === 'string') s = sequence;
                                             else s = sequence.join();
-
-                                            return <KeyCombo key={s} combo={s} />
+                                            if (s.includes("ctrl")) {
+                                                if (isWin) {
+                                                    return <KeyCombo key={s} combo={s} />
+                                                }
+                                            }
+                                            else if (s.includes("command")) {
+                                                if (isMac) {
+                                                    return <KeyCombo key={s} combo={s} />
+                                                }
+                                            }
+                                            else {
+                                                return <KeyCombo key={s} combo={s} />
+                                            }
+                                            return null;
                                         })
                                     }
                                 </span>
