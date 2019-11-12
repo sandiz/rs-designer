@@ -96,6 +96,7 @@ export class ExtClasses {
 export interface Hotkey {
     info: string;
     hotkey: string | string[];
+    group?: string;
 }
 export const HotkeyInfo: { [key: string]: Hotkey } = {
     SHOW_ALL_HOTKEYS: { info: "Show this dialog", hotkey: "shift+?" },
@@ -104,10 +105,10 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     REWIND: { info: "Seek Barwards", hotkey: "left" },
     VOL_UP: { info: "Volume Up", hotkey: "up" },
     VOL_DOWN: { info: "Volume Down", hotkey: "down" },
-    OPEN_PROJECT: { info: "Open Project", hotkey: ["command+o", "ctrl+o"] },
-    SAVE_PROJECT: { info: "Save Project", hotkey: ["command+s", "ctrl+s"] },
-    OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"] },
-    CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"] },
+    OPEN_PROJECT: { info: "Open Project", hotkey: ["command+o", "ctrl+o"], group: "project" },
+    SAVE_PROJECT: { info: "Save Project", hotkey: ["command+s", "ctrl+s"], group: "project" },
+    OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project" },
+    CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project" },
 }
 
 export default {};
