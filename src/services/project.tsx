@@ -36,6 +36,7 @@ export class Project {
     public projectFileName: string;
     public isTemporary: boolean;
     public isLoaded: boolean;
+    public isLoading: boolean;
     public isDirty: boolean;
     public projectInfo: ProjectInfo | null;
     public tmpHandle: DirResult | null;
@@ -51,6 +52,7 @@ export class Project {
         this.projectFileName = '';
         this.projectInfo = null;
         this.projectSettings = null;
+        this.isLoading = false;
 
         DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
         DispatcherService.on(DispatchEvents.ProjectSave, this.saveProject);
@@ -166,6 +168,11 @@ export class Project {
     }
 
     openProject = async (externalProject: string | null) => {
+        if (this.isLoading) {
+            successToaster("Open Project failed:  another project is already being loaded", Intent.DANGER, IconNames.ERROR);
+            return;
+        }
+        this.isLoading = true;
         const total = 3;
         const key = progressToaster("Opening Project", 0.5, total);
         try {
@@ -185,6 +192,7 @@ export class Project {
 
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
                 progressToaster("Project Opened", 3, total, key);
+                this.isLoading = false;
                 return;
             }
         }
@@ -192,6 +200,7 @@ export class Project {
             console.error("open-project failed", e);
         }
         progressToaster("Project Failed to Open", 1, 1, key, Intent.DANGER);
+        this.isLoading = false;
     }
 
     loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
