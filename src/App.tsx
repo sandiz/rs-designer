@@ -19,7 +19,7 @@ import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
 import ProjectService from './services/project';
 
-const { nativeTheme } = window.require("electron").remote;
+const { nativeTheme, shell } = window.require("electron").remote;
 
 type ProjectDetails = { metadata: ProjectMetadata | null; loaded: boolean };
 interface AppState {
@@ -89,7 +89,7 @@ class App extends Component<{}, AppState> {
             this.state.project.loaded
               ? (
                 <div className="info-panel">
-                  <Card elevation={0} id="" className={classNames("info-item", "info-item-large", "number")}>
+                  <Card interactive onClick={() => shell.showItemInFolder(this.state.project.metadata ? this.state.project.metadata.path : "")} elevation={0} id="" className={classNames("info-item", "info-item-large", "number")}>
                     Project: <span>{this.state.project.metadata ? this.state.project.metadata.name : "-"}</span>
                   </Card>
                   <Card elevation={0} id="" className={classNames("info-item", "number")}>
