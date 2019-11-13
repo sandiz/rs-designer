@@ -31,7 +31,6 @@ interface MediaBarState {
     mediaInfo: MediaInfo | null;
     settingsMenu: React.ReactElement | null;
     mediaState: MEDIA_STATE;
-    volume: number;
     duration: number;
 }
 
@@ -64,7 +63,6 @@ class MediaController extends Component<{}, MediaBarState> {
         this.state = {
             mediaInfo: null,
             settingsMenu: null,
-            volume: MediaPlayerService.getVolume(),
             duration: 0,
             mediaState: MEDIA_STATE.STOPPED,
         };
@@ -162,7 +160,7 @@ class MediaController extends Component<{}, MediaBarState> {
     mediaReady = () => {
         console.log("media-ready");
         this.setState({
-            mediaState: MEDIA_STATE.STOPPED, duration: MediaPlayerService.getDuration(), volume: MediaPlayerService.getVolume(),
+            mediaState: MEDIA_STATE.STOPPED, duration: MediaPlayerService.getDuration(),
         });
         if (this.ProgressTimerRef.current) {
             this.ProgressTimerRef.current.innerText = sec2time(0, true);
@@ -174,7 +172,7 @@ class MediaController extends Component<{}, MediaBarState> {
     mediaReset = () => {
         console.log("media-reset");
         this.setState({
-            mediaInfo: null, mediaState: MEDIA_STATE.STOPPED, duration: 0, volume: MediaPlayerService.getVolume(),
+            mediaInfo: null, mediaState: MEDIA_STATE.STOPPED, duration: 0,
         });
         if (this.timer) cancelAnimationFrame(this.timer);
     }
@@ -327,6 +325,7 @@ class MediaController extends Component<{}, MediaBarState> {
                                 <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>00:00</div>
                                 <div className="progressbar">
                                     <SliderExtended
+                                        stepSize={1}
                                         timerSource={MediaPlayerService.getCurrentTime}
                                         min={0}
                                         max={this.state.duration === 0 ? 100 : this.state.duration}
@@ -343,11 +342,15 @@ class MediaController extends Component<{}, MediaBarState> {
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
                                 <SliderExtended
+                                    stepSize={1 / 100}
+                                    timerSource={MediaPlayerService.getVolume}
                                     className="volume-slider"
                                     min={VOLUME.MIN}
                                     max={VOLUME.MAX}
                                     labelRenderer={false}
-                                    value={this.state.volume} />
+                                    dragStart={(v: number) => MediaPlayerService.setVolume(v)}
+                                    dragEnd={(v: number) => MediaPlayerService.setVolume(v)}
+                                />
                             </div>
                         </div>
                         <div className="more-button">

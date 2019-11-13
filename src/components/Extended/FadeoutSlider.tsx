@@ -6,12 +6,12 @@ import classNames from 'classnames';
 import NativeListener from 'react-native-listener';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { UUID } from '../../lib/utils';
-import MediaPlayerService from '../../services/mediaplayer';
 
 interface SliderExtendedProps extends ISliderProps {
     timerSource: () => number;
     dragStart: (v: number) => void;
     dragEnd: (v: number) => void;
+    stepSize: number;
 }
 interface SliderExtendedState {
     value: number | undefined;
@@ -74,8 +74,8 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     sliderUpdate = () => {
-        if (MediaPlayerService.wavesurfer && !this.dragging) {
-            const value = MediaPlayerService.wavesurfer.getCurrentTime();
+        if (this.props.timerSource && !this.dragging) {
+            const value = this.props.timerSource();
             this.setState({ value });
         }
         this.timer = requestAnimationFrame(this.sliderUpdate);
@@ -97,7 +97,12 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         if (this.sliderRef.current != null) {
             const elem: HTMLElement | null = this.sliderRef.current.querySelector("." + Classes.SLIDER_HANDLE);
             if (elem) {
-                elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: event.type === "mouseout" && false });
+                if (this.dragging) {
+                    elem.className = classNames(Classes.SLIDER_HANDLE);
+                }
+                else {
+                    elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: event.type === "mouseout" });
+                }
             }
         }
     }
@@ -106,6 +111,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         return (
             <div ref={this.sliderRef}>
                 <Slider
+                    stepSize={this.props.stepSize}
                     min={this.state.min}
                     max={this.state.max}
                     value={this.state.value}

@@ -88,10 +88,10 @@ class MediaPlayer {
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return;
 
-            this.wavesurfer.params.backgroundColor = nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR;
+            this.wavesurfer.setBackgroundColor(nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR);
             this.wavesurfer.params.waveColor = nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx);
-            this.wavesurfer.drawBuffer();
             this.wavesurfer.setCursorColor(nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK);
+            this.wavesurfer.drawBuffer();
         }
     }
 
