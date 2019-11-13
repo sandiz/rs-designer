@@ -145,7 +145,16 @@
     }
 }
 
+.menuitem {
+    display: flex;
+    //width: 20vh;
+    justify-content: space-between;
+}
 
+.menuitem-hotkey {
+    justify-content: flex-end;
+    width: 38%;
+}
 
 
 :root {

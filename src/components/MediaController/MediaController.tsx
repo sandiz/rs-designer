@@ -192,6 +192,17 @@ class MediaController extends Component<{}, MediaBarState> {
         app.quit();
     }
 
+    getMenuItemText = (text: string) => {
+        return (
+            <div className="menuitem">
+                <span>{text}</span>
+                {
+                    //   <span className="menuitem-hotkey">{getHotkey(hotkey)}</span>
+                }
+            </div>
+        );
+    }
+
     settingsMenu = async () => {
         const recents = await ProjectService.getRecents();
         const map = recents.map(async (item) => {
@@ -221,9 +232,13 @@ class MediaController extends Component<{}, MediaBarState> {
         const recentMenu = await Promise.all(map);
         const menu = (
             <Menu large>
-                <MenuItem text="Open Project" icon={IconNames.FOLDER_OPEN} onClick={() => this.openProject(null)} />
-                <MenuItem text="Save Project" icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
-                <MenuItem text="Close Project" disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
+                <MenuItem
+                    text={this.getMenuItemText("Open Project")}
+                    icon={IconNames.FOLDER_OPEN}
+                    onClick={() => this.openProject(null)}
+                />
+                <MenuItem text={this.getMenuItemText("Save Project")} icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
+                <MenuItem text={this.getMenuItemText("Close Project")} disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
                 <Menu.Divider />
                 <MenuItem text="Recent Projects" icon={IconNames.HISTORY}>
                     {

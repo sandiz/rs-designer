@@ -1,3 +1,9 @@
+import React from 'react';
+import { KeyCombo } from "@blueprintjs/core";
+
+const { platform } = window.require('os');
+const isWin = platform() === "win32";
+const isMac = platform() === "darwin";
 
 /*declare global {
     interface Window {
@@ -110,6 +116,32 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project" },
     CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project" },
 }
+
+export const getHotkey = (h: Hotkey) => {
+    if (Array.isArray(h.hotkey)) {
+        for (let i = 0; i < h.hotkey.length; i += 1) {
+            const s = h.hotkey[i];
+            if (s.includes("ctrl")) {
+                if (isWin) {
+                    return <KeyCombo key={s} combo={s} />
+                }
+            }
+            else if (s.includes("command")) {
+                if (isMac) {
+                    return <KeyCombo key={s} combo={s} />
+                }
+            }
+            else {
+                return <KeyCombo key={s} combo={s} />
+            }
+        }
+        return null;
+    }
+    else {
+        return <KeyCombo key={h.hotkey} combo={h.hotkey} />
+    }
+}
+
 export enum MEDIA_STATE { STOPPED, PLAYING, PAUSED }
 export enum VOLUME { MAX = 1, MIN = 0, DEFAULT = 0.5 }
 export default {};
