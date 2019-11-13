@@ -303,11 +303,12 @@ class MediaController extends Component<{}, MediaBarState> {
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-progress">
                             <div className="media-bar-timer">
-                                <span
-                                    ref={this.ProgressTimerRef}
-                                    className={classNames("number", ExtClasses.TEXT_LARGER_2)}>
+                                <div
+                                    id="progress-time"
+                                    //ref={this.ProgressTimerRef}
+                                    className={classNames("number", ExtClasses.TEXT_LARGER_2, "progress-time")}>
                                     00:00.000
-                                </span>
+                                </div>
                             </div>
                             <div className="media-bar-progress-bar">
                                 <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>00:00</div>

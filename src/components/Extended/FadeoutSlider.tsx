@@ -33,7 +33,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
 
     static getDerivedStateFromProps(nextProps: SliderExtendedProps, prevState: SliderExtendedState) {
         if (nextProps !== prevState) {
-            return { min: nextProps.min, max: nextProps.max, value: nextProps.value };
+            return { min: nextProps.min, max: nextProps.max };
         }
         else return null;
     }
