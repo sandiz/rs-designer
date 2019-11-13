@@ -24,6 +24,7 @@
     "noImplicitReturns": true,
     "pretty": true,
     "experimentalDecorators": true,
+    "sourceMap": true,
   },
   "include": [
     "src/**/*"
