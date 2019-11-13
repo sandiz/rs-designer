@@ -177,8 +177,9 @@ export class Project {
                 progressToaster("Reading Media", 1, total, key);
                 const data: Buffer = await readFile(pInfo.media);
                 progressToaster("Generating Waveform", 2, total, key);
-                const blob = new window.Blob([new Uint8Array(data)]);
+                let blob = new window.Blob([new Uint8Array(data)]);
                 await MediaPlayerService.loadMedia(blob);
+                blob = new Blob();
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
                 progressToaster("Project Opened", 3, total, key);
                 return;
