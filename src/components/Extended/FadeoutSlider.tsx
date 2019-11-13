@@ -64,17 +64,17 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         }
     }
 
+    mediaReset = () => {
+        if (this.timer) cancelAnimationFrame(this.timer);
+        this.setState({ value: 0 });
+    }
+
     sliderUpdate = () => {
-        this.timer = requestAnimationFrame(this.sliderUpdate);
         if (MediaPlayerService.wavesurfer) {
             const value = MediaPlayerService.wavesurfer.getCurrentTime();
             this.setState({ value });
         }
-    }
-
-    mediaReset = () => {
-        if (this.timer) cancelAnimationFrame(this.timer);
-        this.setState({ value: 0 });
+        this.timer = requestAnimationFrame(this.sliderUpdate);
     }
 
     handleMouse = (event: Event): void => {

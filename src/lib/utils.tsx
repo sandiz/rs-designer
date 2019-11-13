@@ -129,3 +129,26 @@ export const sec2time = (timeInSeconds: number, withMS = false) => {
 export const UUID = (): string => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
+
+export const fpsize = () => {
+    // shim layer with setTimeout fallback
+    var fpsElement = document.getElementById("fps");
+
+    var then = Date.now() / 1000;  // get time in seconds
+    var render = function () {
+        var now = Date.now() / 1000;  // get time in seconds
+
+        // compute time since last frame
+        var elapsedTime = now - then;
+        then = now;
+
+        // compute fps
+        var fps = 1 / elapsedTime;
+        if (fpsElement) {
+            fpsElement.childNodes[0].nodeValue = fps.toFixed(2) + " fps";
+        }
+
+        requestAnimationFrame(render);
+    };
+    render();
+}

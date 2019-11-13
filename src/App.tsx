@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import {
-  Classes, FocusStyleManager, Dialog,
+  Classes, FocusStyleManager, Dialog, Card,
 } from "@blueprintjs/core"
 import { GlobalHotKeys } from 'react-hotkeys';
-
-//import FPSMeter from './components/fpsmeter'
+import classNames from 'classnames';
 import MediaController from './components/MediaController/MediaController'
 
 import 'normalize.css'
@@ -16,6 +15,7 @@ import 'typeface-inconsolata'
 import { getHotkeyDialogContent } from './dialogs';
 import { HotkeyInfo } from './types'
 import WaveformController from './components/WaveformController/WaveformController';
+import { fpsize } from './lib/utils';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -40,6 +40,7 @@ class App extends Component<{}, AppState> {
   componentDidMount = async () => {
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();
+    fpsize();
   }
 
   componentWillUnmount = (): void => {
@@ -55,6 +56,7 @@ class App extends Component<{}, AppState> {
     return (
       <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
         <React.Fragment>
+          <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
           <div id="content">
             <WaveformController />
           </div>

@@ -57,8 +57,8 @@ class MediaController extends Component<{}, MediaBarState> {
         OPEN_LAST_PROJECT: () => this.openLastProject(),
         CLOSE_PROJECT: () => this.closeProject(),
     };
-
-    private ProgressTimerRef: RefObject<HTMLSpanElement> = React.createRef();
+    private timer: number | null = null;
+    private ProgressTimerRef: RefObject<HTMLDivElement> = React.createRef();
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -157,13 +157,6 @@ class MediaController extends Component<{}, MediaBarState> {
         await this.settingsMenu();
     }
 
-    mediaReset = () => {
-        console.log("media-reset");
-        this.setState({
-            mediaInfo: null, mediaState: MEDIA_STATE.STOPPED, duration: 0, volume: MediaPlayerService.getVolume(),
-        });
-    }
-
     mediaReady = () => {
         console.log("media-ready");
         this.setState({
@@ -172,6 +165,24 @@ class MediaController extends Component<{}, MediaBarState> {
         if (this.ProgressTimerRef.current) {
             this.ProgressTimerRef.current.innerText = sec2time(0, true);
         }
+        if (this.timer) cancelAnimationFrame(this.timer);
+        this.progressUpdate();
+    }
+
+    mediaReset = () => {
+        console.log("media-reset");
+        this.setState({
+            mediaInfo: null, mediaState: MEDIA_STATE.STOPPED, duration: 0, volume: MediaPlayerService.getVolume(),
+        });
+        if (this.timer) cancelAnimationFrame(this.timer);
+    }
+
+    progressUpdate = () => {
+        if (MediaPlayerService.wavesurfer && this.ProgressTimerRef.current) {
+            const value = MediaPlayerService.wavesurfer.getCurrentTime();
+            this.ProgressTimerRef.current.childNodes[0].nodeValue = sec2time(value, true);
+        }
+        this.timer = requestAnimationFrame(this.progressUpdate);
     }
 
     QUIT = () => {
@@ -305,7 +316,7 @@ class MediaController extends Component<{}, MediaBarState> {
                             <div className="media-bar-timer">
                                 <div
                                     id="progress-time"
-                                    //ref={this.ProgressTimerRef}
+                                    ref={this.ProgressTimerRef}
                                     className={classNames("number", ExtClasses.TEXT_LARGER_2, "progress-time")}>
                                     00:00.000
                                 </div>

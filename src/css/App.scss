@@ -104,3 +104,16 @@ input,
 .card-extended {
     border-radius: 8px;
 }
+
+.fps-meter {
+    position: absolute;
+    right: 4vh;
+    top: 2vh;
+    z-index: 9999;
+    width: 100px;
+    text-align: center;
+    height: 25px;
+    overflow: hidden;
+    padding: 0;
+    padding-top: 0.5vh;
+}
