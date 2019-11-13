@@ -1,6 +1,7 @@
 
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
+import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
 import { DispatcherService, DispatchEvents } from './dispatcher';
 import { VOLUME, ExtClasses } from '../types';
@@ -44,6 +45,7 @@ class MediaPlayer {
             cursorColor: nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK,
             // This parameter makes the waveform look like SoundCloud's player
             barWidth: 3,
+            barRadius: 3,
             barGap: 2,
             height: 180,
             barHeight: 0.85,
@@ -59,6 +61,23 @@ class MediaPlayer {
                     secondaryFontColor: nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
                     fontFamily: 'Inconsolata',
                     fontSize: 12,
+                    notchPercentHeight: 40,
+                }),
+                CursorPlugin.create({
+                    showTime: true,
+                    followCursorY: false,
+                    opacity: 1,
+                    width: '1px',
+                    color: nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK,
+                    customShowTimeStyle: {
+                        'background-color': '#000',
+                        color: '#fff',
+                        padding: '10px',
+                        'font-size': '14px',
+                        'font-family': 'Inconsolata',
+                        visibility: 'visible',
+                    },
+                    extraOffset: 20, /* waveform-root has padding of 20px */
                 }),
             ],
         };
@@ -84,6 +103,15 @@ class MediaPlayer {
                 this.wavesurfer.timeline.params.primaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
                 this.wavesurfer.timeline.params.secondaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
                 this.wavesurfer.timeline.render();
+            }
+            if (keys.includes("cursor")) {
+                const cursor = this.wavesurfer.cursor;
+                const br = `${cursor.params.width} solid ${nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK}`;
+                console.log(br);
+                cursor.style(cursor.cursor, {
+                    "border-right": br,
+                });
+                console.log(cursor.cursor.style);
             }
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return;
