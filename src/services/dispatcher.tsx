@@ -79,6 +79,8 @@ export class DispatchEvents {
     public static ProjectUpdated = "project-updated";   /* fired when a project file or settings was updated (source: project) */
     public static ProjectOpened = "project-opened";     /* fired when a project was opened (source: project) */
     public static ProjectClosed = "project-closed";     /* fired when a project was closed (source: project) */
+
+    public static ImportMedia = "import-media";         /* event to trigger a media import (source: any, handler: project) */
 }
 
 export const DispatcherService = new DispatcherBase();

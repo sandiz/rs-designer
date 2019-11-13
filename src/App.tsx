@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-  Classes, FocusStyleManager, Dialog, Card,
+  Classes, FocusStyleManager, Dialog, Card, Text,
 } from "@blueprintjs/core"
 import { GlobalHotKeys } from 'react-hotkeys';
 import classNames from 'classnames';
@@ -18,6 +18,7 @@ import WaveformController from './components/WaveformController/WaveformControll
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
 import ProjectService from './services/project';
+import MediaPlayerService from './services/mediaplayer';
 
 const { nativeTheme, shell } = window.require("electron").remote;
 
@@ -27,6 +28,11 @@ interface AppState {
   dialogContent: React.ReactElement | null;
   dialogClass: string;
   project: ProjectDetails;
+}
+
+const AppDestructor = () => {
+  MediaPlayerService.destructor();
+  ProjectService.destructor();
 }
 
 class App extends Component<{}, AppState> {
@@ -58,6 +64,7 @@ class App extends Component<{}, AppState> {
     DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
     nativeTheme.off('updated', this.changeAppColor);
+    AppDestructor();
   }
 
   changeAppColor = (): void => {
@@ -90,7 +97,9 @@ class App extends Component<{}, AppState> {
               ? (
                 <div className="info-panel">
                   <Card interactive onClick={() => shell.showItemInFolder(this.state.project.metadata ? this.state.project.metadata.path : "")} elevation={0} id="" className={classNames("info-item", "info-item-large", "number")}>
-                    Project: <span>{this.state.project.metadata ? this.state.project.metadata.name : "-"}</span>
+                    <Text ellipsize>
+                      Project: <span>{this.state.project.metadata ? this.state.project.metadata.name : "-"}</span>
+                    </Text>
                   </Card>
                   <Card elevation={0} id="" className={classNames("info-item", "number")}>
                     Key: <span>{this.state.project.metadata ? this.state.project.metadata.key : "-"}</span>

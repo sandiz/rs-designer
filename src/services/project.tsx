@@ -3,7 +3,7 @@ import * as FS from 'fs';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import {
-    copyFile, writeFile, copyDir, readFile,
+    copyFile, writeFile, copyDir, readFile, readTags,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
@@ -12,7 +12,7 @@ import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
-import { successToaster, progressToaster } from '../components/Extended/Toasters';
+import { successToaster, progressToaster, dismissToaster } from '../components/Extended/Toasters';
 
 const { app, dialog } = window.require('electron').remote;
 
@@ -57,13 +57,16 @@ export class Project {
         this.isLoading = false;
 
         DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
+        DispatcherService.on(DispatchEvents.ImportMedia, (data: DispatchData) => this.importMedia(data as string | null));
         DispatcherService.on(DispatchEvents.ProjectSave, this.saveProject);
         DispatcherService.on(DispatchEvents.ProjectClose, this.closeProject);
 
-        app.on('before-quit', () => {
-            this.unload();
-        });
+        app.on('before-quit', this.unload);
         this.loadProjectSettings();
+    }
+
+    destructor() {
+        app.off('before-quit', this.unload)
     }
 
     clearRecents = async () => {
@@ -184,8 +187,10 @@ export class Project {
             const pInfo = await this.loadProject(externalProject);
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);
+
                 const data: Buffer = await readFile(pInfo.media);
                 progressToaster("Generating Waveform", 2, total, key);
+
                 let blob = new window.Blob([new Uint8Array(data)]);
                 const url = URL.createObjectURL(blob);
                 await MediaPlayerService.loadMedia(blob);
@@ -243,9 +248,11 @@ export class Project {
                     dir = p.dir;
                 }
             }
+
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
                 const json: ProjectInfo = JSON.parse(data.toString());
+
                 /* migrate project file to current version */
                 if (json.version !== ProjectInfo.currentVersion) {
                     switch (json.version) {
@@ -256,6 +263,7 @@ export class Project {
                     }
                     json.version = ProjectInfo.currentVersion;
                 }
+
                 this.unload();
                 await this.updateProjectInfo(
                     dir,
@@ -264,9 +272,13 @@ export class Project {
                     '',
                     true, /* readonly */
                 );
-                app.addRecentDocument(dir);
+
                 this.projectInfo = json;
-                if (this.projectInfo) await this.saveProjectSettings();
+
+                if (!this.isTemporary) {
+                    app.addRecentDocument(dir);
+                    if (this.projectInfo) await this.saveProjectSettings();
+                }
                 await this.updateExternalFiles();
 
                 return this.projectInfo;
@@ -296,7 +308,7 @@ export class Project {
                     properties: ['openDirectory'],
                 });
                 const dirs = out.filePaths;
-                if (dirs && this.projectInfo) {
+                if (dirs && dirs.length > 0 && this.projectInfo) {
                     const lastPInfo = this.projectInfo;
                     const basen = parse(lastPInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
@@ -519,6 +531,49 @@ export class Project {
             }
         }
         return null;
+    }
+
+    importMedia = async (externalMedia: string | null) => {
+        if (this.isLoading) {
+            successToaster("Import Media failed:  another project is being loaded", Intent.DANGER, IconNames.ERROR);
+            return;
+        }
+        this.isLoading = true;
+        if (this.isProjectLoaded()) {
+            this.closeProject();
+        }
+        const key = progressToaster("Importing Media", 1, 2);
+
+        /* prompt for file or use externalMedia */
+        let tmpProject = null;
+        if (externalMedia) {
+            tmpProject = await this.createTemporaryProject(externalMedia);
+        }
+        else {
+            const files = await dialog.showOpenDialog({
+                properties: ["openFile"],
+                filters: [
+                    { name: 'MP3', extensions: ['mp3'] },
+                    { name: 'OGG', extensions: ['ogg'] },
+                    { name: 'WAV', extensions: ['wav'] },
+                ],
+            });
+            if (files.filePaths.length > 0) {
+                const file = files.filePaths[0];
+                tmpProject = await this.createTemporaryProject(file);
+            }
+        }
+        dismissToaster(key);
+        if (tmpProject && this.projectInfo) {
+            const tags = await readTags(this.projectInfo.original);
+            console.log(this.projectInfo, tags);
+            console.log(this.projectSettings);
+
+            /* assign metadata */
+            /* open Project with tmp project */
+        }
+
+        this.isLoading = false;
     }
 }
 

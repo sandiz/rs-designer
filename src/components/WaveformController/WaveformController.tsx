@@ -39,11 +39,15 @@ class WaveformController extends Component<{}, WaveformState> {
         this.setState({ show: true });
     }
 
+    importMedia = (external: string | null) => {
+        DispatcherService.dispatch(DispatchEvents.ImportMedia, external);
+    }
+
     getImportMenu = () => {
         return (
             <React.Fragment>
                 <Menu large>
-                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
+                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
                     <MenuItem text="from URL" icon={IconNames.CLOUD} />
                 </Menu>
             </React.Fragment>

@@ -10,6 +10,7 @@ const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-d
 let mainWindow;
 let incomingPath = "";
 let ready = false;
+
 async function createWindow() {
     // Load the previous state with fallback to defaults
     let mainWindowState = windowStateKeeper({
@@ -144,7 +145,16 @@ async function createWindow() {
 
 }
 
-app.on("ready", () => {
+const sendOpenFileRequest = () => {
+    if (incomingPath.length > 0) {
+        setTimeout(() => {
+            mainWindow.webContents.send('open-file', incomingPath);
+            incomingPath = "";
+        }, 500);
+    }
+}
+
+const onReady = () => {
     createWindow();
     if (isDev) {
         installExtension(REACT_DEVELOPER_TOOLS)
@@ -154,34 +164,42 @@ app.on("ready", () => {
     }
     sendOpenFileRequest();
     ready = true;
-});
+}
 
-app.on("window-all-closed", () => {
-    //if (process.platform !== "darwin") {
+const onWindowAllClosed = () => {
     app.quit();
-    //}
-});
-app.on('will-finish-launching', () => {
-    app.on('open-file', (e, path) => {
-        e.preventDefault();
-        incomingPath = path;
-        if (ready) {
-            sendOpenFileRequest();
-        }
-    });
-});
+}
 
-sendOpenFileRequest = () => {
-    if (incomingPath.length > 0) {
-        setTimeout(() => {
-            mainWindow.webContents.send('open-file', incomingPath);
-            incomingPath = "";
-        }, 500);
+const onWillFinishLaunching = () => {
+    app.on('open-file', onOpenfile);
+}
+
+const onOpenfile = (e, path) => {
+    e.preventDefault();
+    incomingPath = path;
+    if (ready) {
+        sendOpenFileRequest();
     }
 }
 
-app.on("activate", () => {
+const onActivate = () => {
     if (mainWindow === null) {
         createWindow();
     }
-});
+}
+
+const onBeforeQuit = () => {
+    app.off("activate", onActivate);
+    app.off("before-quit", onBeforeQuit);
+    app.off('open-file', onOpenfile);
+    app.off('will-finish-launching', onWillFinishLaunching);
+    app.off("window-all-closed", onWindowAllClosed);
+    app.off("ready", onReady);
+}
+
+app.on("activate", onActivate);
+app.on("before-quit", onBeforeQuit);
+app.on('will-finish-launching', onWillFinishLaunching);
+app.on("window-all-closed", onWindowAllClosed);
+app.on("ready", onReady);
+

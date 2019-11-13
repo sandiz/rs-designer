@@ -28,7 +28,7 @@ export const successToaster = (msg: string, intent: Intent = Intent.SUCCESS, ico
     return toaster.show(toast);
 }
 
-export const progressToaster = (msg: string, amount: number, total: number, key?: string | undefined, intent: Intent = Intent.SUCCESS): string => {
+export const progressToaster = (msg: string, amount: number, total: number, key?: string | undefined, progressBarIntent: Intent = Intent.SUCCESS): string => {
     const toast: IToastProps = {
         className: "indeterminate-toaster",
         message: (
@@ -40,14 +40,17 @@ export const progressToaster = (msg: string, amount: number, total: number, key?
                     </div>
                 </div>
                 <ProgressBar
-                    intent={amount < total ? Intent.PRIMARY : intent}
+                    intent={amount < total ? Intent.PRIMARY : progressBarIntent}
                     value={amount / total}
-
                 />
             </React.Fragment>
         ),
         timeout: amount < total ? 0 : 2000,
     };
     return toaster.show(toast, key);
+}
+
+export const dismissToaster = (key: string): void => {
+    toaster.dismiss(key);
 }
 export default {};

@@ -111,6 +111,11 @@ class MediaController extends Component<{}, MediaBarState> {
         await this.settingsMenu();
     }
 
+    importMedia = async (external: string | null) => {
+        this.stop();
+        DispatcherService.dispatch(DispatchEvents.ImportMedia, external);
+    }
+
     openLastProject = async () => {
         this.stop();
         await ProjectService.openLastProject();
@@ -258,7 +263,7 @@ class MediaController extends Component<{}, MediaBarState> {
                     }
                 </MenuItem>
                 <MenuItem text="Import Media" icon={IconNames.IMPORT}>
-                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} />
+                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
                     <MenuItem text="from URL" icon={IconNames.CLOUD} />
                 </MenuItem>
                 <Menu.Divider />

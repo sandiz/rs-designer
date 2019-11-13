@@ -33,6 +33,10 @@ class MediaPlayer {
         nativeTheme.on("updated", this.updateTheme);
     }
 
+    destructor() {
+        nativeTheme.off("updated", this.updateTheme);
+    }
+
     loadMedia = (blob: Blob) => new Promise((resolve, reject) => {
         const ctx = document.createElement('canvas').getContext('2d');
         if (!ctx) return;
