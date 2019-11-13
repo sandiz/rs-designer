@@ -178,8 +178,11 @@ export class Project {
                 const data: Buffer = await readFile(pInfo.media);
                 progressToaster("Generating Waveform", 2, total, key);
                 let blob = new window.Blob([new Uint8Array(data)]);
+                const url = URL.createObjectURL(blob);
                 await MediaPlayerService.loadMedia(blob);
+                URL.revokeObjectURL(url);
                 blob = new Blob();
+
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
                 progressToaster("Project Opened", 3, total, key);
                 return;
