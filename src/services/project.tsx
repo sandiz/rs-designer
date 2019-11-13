@@ -9,7 +9,7 @@ import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
+    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
 import { successToaster, progressToaster } from '../components/Extended/Toasters';
@@ -18,7 +18,9 @@ const { app, dialog } = window.require('electron').remote;
 
 const readline = window.require("readline");
 const { createReadStream, platform } = window.require("os");
-const { parse, join, extname } = window.require('path');
+const {
+    parse, join, extname, basename,
+} = window.require('path');
 const tmp = window.require('tmp');
 const { setGracefulCleanup, dirSync } = tmp;
 const fs: typeof FS = window.require("fs");
@@ -431,11 +433,11 @@ export class Project {
         return 0;
     }
 
-    readSongKey = async (): Promise<string> => {
+    readSongKey = async (): Promise<string[]> => {
         if (this.projectInfo) {
             const keyFile = this.projectInfo.key;
             const data = await readFile(keyFile)
-            const s = JSON.parse(data.toString())
+            const s: string[] = JSON.parse(data.toString())
             let note = s[0];
             if (note.endsWith('b')) {
                 //convert to sharp
@@ -449,7 +451,7 @@ export class Project {
             }
             return s;
         }
-        return "";
+        return [];
     }
 
     //eslint-disable-next-line
@@ -504,6 +506,19 @@ export class Project {
     getLastOpenedProject = (): ProjectInfo | null => {
         if (this.projectSettings == null) return null;
         return this.projectSettings.lastOpenedProject;
+    }
+
+    getProjectMetadata = async (): Promise<ProjectMetadata | null> => {
+        if (this.projectInfo) {
+            const key = await this.readSongKey();
+            return {
+                name: basename(this.projectDirectory),
+                path: this.projectDirectory,
+                key: `${key[0]} ${key[1]}`,
+                tempo: Math.round(await this.readTempo()),
+            }
+        }
+        return null;
     }
 }
 

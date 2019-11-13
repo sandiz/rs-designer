@@ -60,6 +60,13 @@ export class ProjectSettingsModel {
     }
 }
 
+export interface ProjectMetadata {
+    name: string;
+    path: string;
+    key: string;
+    tempo: number;
+}
+
 /* Music Theory */
 export interface ChordTime {
     start: string;

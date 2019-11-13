@@ -96,7 +96,7 @@ input,
 
 #content {
     display: flex;
-    margin-top: 5vh;
+    margin-top: 6.5vh;
     margin-left: 3vh;
     margin-right: 3vh;
 }
@@ -108,7 +108,7 @@ input,
 .fps-meter {
     position: absolute;
     right: 3.5vh;
-    top: 2vh;
+    top: 3vh;
     z-index: 9999;
     width: 10vh;
     text-align: center;
@@ -121,7 +121,7 @@ input,
 .memory-meter {
     position: absolute;
     right: 14.5vh;
-    top: 2vh;
+    top: 3vh;
     z-index: 9999;
     width: 10vh;
     text-align: center;
@@ -130,3 +130,22 @@ input,
     padding: 0;
     padding-top: 0.5vh;
 }
+
+.info-panel {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    left: 3vh;
+    top: 3vh;
+}
+
+.info-item {
+    text-align: center;
+    height: 2.5vh;
+    padding-top: 0.5vh;
+    margin-right: 1vh;
+}
+
+.info-item-large {}
