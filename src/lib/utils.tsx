@@ -133,6 +133,7 @@ export const UUID = (): string => {
 export const fpsize = () => {
     // shim layer with setTimeout fallback
     var fpsElement = document.getElementById("fps");
+    var memElement = document.getElementById("memory");
 
     var then = Date.now() / 1000;  // get time in seconds
     var render = function () {
@@ -144,8 +145,12 @@ export const fpsize = () => {
 
         // compute fps
         var fps = 1 / elapsedTime;
-        if (fpsElement) {
+        const perf = (window.performance as any);
+        if (fpsElement && memElement) {
+            const used = Math.round((perf.memory.usedJSHeapSize / (1024 * 1024)))
+            const total = Math.round((perf.memory.totalJSHeapSize / (1024 * 1024)))
             fpsElement.childNodes[0].nodeValue = fps.toFixed(2) + " fps";
+            memElement.childNodes[0].nodeValue = `${used} / ${total} mb`
         }
 
         requestAnimationFrame(render);

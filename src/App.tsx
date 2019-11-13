@@ -56,7 +56,10 @@ class App extends Component<{}, AppState> {
     return (
       <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
         <React.Fragment>
-          <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
+          <div>
+            <Card elevation={0} id="memory" className={classNames("memory-meter", "number")}>0 / 0 mb</Card>
+            <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
+          </div>
           <div id="content">
             <WaveformController />
           </div>

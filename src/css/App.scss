@@ -107,12 +107,25 @@ input,
 
 .fps-meter {
     position: absolute;
-    right: 4vh;
+    right: 3.5vh;
     top: 2vh;
     z-index: 9999;
-    width: 100px;
+    width: 10vh;
     text-align: center;
-    height: 25px;
+    height: 2.5vh;
+    overflow: hidden;
+    padding: 0;
+    padding-top: 0.5vh;
+}
+
+.memory-meter {
+    position: absolute;
+    right: 14.5vh;
+    top: 2vh;
+    z-index: 9999;
+    width: 10vh;
+    text-align: center;
+    height: 2.5vh;
     overflow: hidden;
     padding: 0;
     padding-top: 0.5vh;

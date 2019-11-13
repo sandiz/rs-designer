@@ -1,10 +1,8 @@
 
-/*
-declare global {
+/*declare global {
     interface Window {
     }
-}
-*/
+}*/
 
 export interface MediaInfo {
     song: string;
