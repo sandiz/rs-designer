@@ -87,6 +87,15 @@
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
+    height: 4vh;
+}
+
+.progress-time {
+    width: 330px;
+    text-align: center;
+    height: 40px;
+    overflow: hidden;
+    position: absolute;
 }
 
 .progress-start,

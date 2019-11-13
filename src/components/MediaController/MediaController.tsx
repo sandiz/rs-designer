@@ -315,7 +315,6 @@ class MediaController extends Component<{}, MediaBarState> {
                                 <div className="progressbar">
                                     <SliderExtended
                                         timerSource={MediaPlayerService.getCurrentTime}
-                                        interval={500}
                                         min={0}
                                         max={this.state.duration === 0 ? 100 : this.state.duration}
                                         labelRenderer={false}

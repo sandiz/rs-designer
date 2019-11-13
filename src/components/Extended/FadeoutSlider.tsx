@@ -6,10 +6,10 @@ import classNames from 'classnames';
 import NativeListener from 'react-native-listener';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { UUID } from '../../lib/utils';
+import MediaPlayerService from '../../services/mediaplayer';
 
 interface SliderExtendedProps extends ISliderProps {
     timerSource: () => number;
-    interval: number;
 }
 interface SliderExtendedState {
     value: number | undefined;
@@ -58,19 +58,22 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     mediaReady = () => {
-        if (this.timer) clearInterval(this.timer);
+        if (this.timer) cancelAnimationFrame(this.timer);
         if (typeof (this.props.timerSource) === 'function') {
-            this.timer = window.setInterval(this.sliderUpdate, this.props.interval);
+            this.sliderUpdate();
         }
     }
 
     sliderUpdate = () => {
-        const value = this.props.timerSource();
-        this.setState({ value });
+        this.timer = requestAnimationFrame(this.sliderUpdate);
+        if (MediaPlayerService.wavesurfer) {
+            const value = MediaPlayerService.wavesurfer.getCurrentTime();
+            this.setState({ value });
+        }
     }
 
     mediaReset = () => {
-        if (this.timer) clearInterval(this.timer);
+        if (this.timer) cancelAnimationFrame(this.timer);
         this.setState({ value: 0 });
     }
 

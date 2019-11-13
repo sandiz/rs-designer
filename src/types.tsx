@@ -90,6 +90,8 @@ export interface ChordInfo {
 export class ExtClasses {
     public static TEXT_LARGER = "bp3-text-larger";
     public static TEXT_LARGER_2 = "bp3-text-larger-2";
+    public static DARK_BACKGROUND_COLOR = "#30404E";
+    public static BACKGROUND_COLOR = "#FFFFFF";
 }
 
 /* Hotkeys */

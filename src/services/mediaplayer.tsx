@@ -3,7 +3,7 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import { Colors } from "@blueprintjs/core";
 import { DispatcherService, DispatchEvents } from './dispatcher';
-import { VOLUME } from '../types';
+import { VOLUME, ExtClasses } from '../types';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -37,11 +37,10 @@ class MediaPlayer {
         if (!ctx) return;
 
         const params = {
+            backgroundColor: nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR,
             container: '#waveform',
-            waveColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx), //'#04ABED',
-            //progressColor: 'hsla(200, 100%, 30%, 0.5)',
-            //waveColor: 'grey',
-            progressColor: Colors.BLACK,
+            waveColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx),
+            progressColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx), //Colors.BLACK,
             cursorColor: nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK,
             // This parameter makes the waveform look like SoundCloud's player
             barWidth: 3,
@@ -49,7 +48,7 @@ class MediaPlayer {
             height: 180,
             barHeight: 0.85,
             scrollParent: false,
-            responsive: true,
+            responsive: false,
             closeAudioContext: true,
             forceDecode: true,
             plugins: [
@@ -85,14 +84,14 @@ class MediaPlayer {
                 this.wavesurfer.timeline.params.primaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
                 this.wavesurfer.timeline.params.secondaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
                 this.wavesurfer.timeline.render();
-
-                const ctx = document.createElement('canvas').getContext('2d');
-                if (!ctx) return;
-
-                this.wavesurfer.params.waveColor = nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx);
-                this.wavesurfer.drawBuffer();
-                this.wavesurfer.setCursorColor(nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK);
             }
+            const ctx = document.createElement('canvas').getContext('2d');
+            if (!ctx) return;
+
+            this.wavesurfer.params.backgroundColor = nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR;
+            this.wavesurfer.params.waveColor = nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx);
+            this.wavesurfer.drawBuffer();
+            this.wavesurfer.setCursorColor(nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK);
         }
     }
 

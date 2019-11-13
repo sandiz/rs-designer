@@ -1,6 +1,8 @@
 .waveform-root {
     height: 23vh;
     width: 100%;
+    position: absolute;
+    width: 96%;
 }
 
 #timeline {
@@ -21,11 +23,4 @@
 .appLogo-waveform {
     width: 10vh;
     height: 10vh;
-}
-
-.progress-time {
-    width: 330px;
-    text-align: center;
-    height: 40px;
-    overflow: hidden;
 }
