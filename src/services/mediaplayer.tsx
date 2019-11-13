@@ -48,7 +48,7 @@ class MediaPlayer {
             height: 180,
             barHeight: 0.85,
             scrollParent: false,
-            responsive: false,
+            responsive: true,
             closeAudioContext: true,
             forceDecode: true,
             plugins: [

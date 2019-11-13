@@ -10,6 +10,8 @@ import MediaPlayerService from '../../services/mediaplayer';
 
 interface SliderExtendedProps extends ISliderProps {
     timerSource: () => number;
+    dragStart: (v: number) => void;
+    dragEnd: (v: number) => void;
 }
 interface SliderExtendedState {
     value: number | undefined;
@@ -18,16 +20,16 @@ interface SliderExtendedState {
 }
 export default class SliderExtended extends Component<SliderExtendedProps, SliderExtendedState> {
     //eslint-disable-next-line
-    static defaultProps = { timerSource: null, interval: 1000 }
+    static defaultProps = { timerSource: null, dragStart: null, dragEnd: null }
     public sliderRef: RefObject<HTMLDivElement>;
     private timer: number | null;
-    private id = "";
+    private id = UUID();
+    private dragging = false;
 
     constructor(props: SliderExtendedProps) {
         super(props);
         this.sliderRef = React.createRef();
         this.timer = null;
-        this.id = UUID();
         this.state = { value: props.value, min: props.min, max: props.max };
     }
 
@@ -58,6 +60,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     mediaReady = () => {
+        this.dragging = false;
         if (this.timer) cancelAnimationFrame(this.timer);
         if (typeof (this.props.timerSource) === 'function') {
             this.sliderUpdate();
@@ -65,23 +68,36 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     mediaReset = () => {
+        this.dragging = false;
         if (this.timer) cancelAnimationFrame(this.timer);
         this.setState({ value: 0 });
     }
 
     sliderUpdate = () => {
-        if (MediaPlayerService.wavesurfer) {
+        if (MediaPlayerService.wavesurfer && !this.dragging) {
             const value = MediaPlayerService.wavesurfer.getCurrentTime();
             this.setState({ value });
         }
         this.timer = requestAnimationFrame(this.sliderUpdate);
     }
 
+    handleDragStart = (v: number) => {
+        this.dragging = true;
+        this.setState({ value: v });
+        if (this.props.dragStart) this.props.dragStart(v);
+    }
+
+    handleDragEnd = (v: number) => {
+        this.dragging = false;
+        this.setState({ value: v })
+        if (this.props.dragEnd) this.props.dragEnd(v);
+    }
+
     handleMouse = (event: Event): void => {
         if (this.sliderRef.current != null) {
-            const elem = this.sliderRef.current.querySelector("." + Classes.SLIDER_HANDLE);
+            const elem: HTMLElement | null = this.sliderRef.current.querySelector("." + Classes.SLIDER_HANDLE);
             if (elem) {
-                elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: event.type === "mouseout" });
+                elem.className = classNames(Classes.SLIDER_HANDLE, { fadeout: event.type === "mouseout" && false });
             }
         }
     }
@@ -93,8 +109,12 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                     min={this.state.min}
                     max={this.state.max}
                     value={this.state.value}
+                    initialValue={this.state.value}
                     labelRenderer={this.props.labelRenderer}
-                    className={classNames(this.props.className)} />
+                    className={classNames(this.props.className)}
+                    onRelease={this.handleDragEnd}
+                    onChange={this.handleDragStart}
+                />
             </div>
         );
     }

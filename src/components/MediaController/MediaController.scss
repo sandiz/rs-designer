@@ -131,7 +131,7 @@
 
 .volume-slider {
     >.bp3-slider-track {
-        >:nth-child(2) {
+        >:nth-child(1) {
             background-color: $pt-dark-divider-black;
         }
     }

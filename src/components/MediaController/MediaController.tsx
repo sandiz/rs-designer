@@ -88,8 +88,10 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     stop = (): void => {
-        this.setState({ mediaState: MEDIA_STATE.STOPPED });
+        MediaPlayerService.seekTo(0);
         MediaPlayerService.stop();
+        this.progressUpdate();
+        this.setState({ mediaState: MEDIA_STATE.STOPPED });
     }
 
     play = async (): Promise<void> => {
@@ -125,10 +127,6 @@ class MediaController extends Component<{}, MediaBarState> {
         await this.settingsMenu();
     }
 
-    saveProject = async () => {
-        DispatcherService.dispatch(DispatchEvents.ProjectSave);
-    }
-
     closeProject = async () => {
         this.stop();
         DispatcherService.dispatch(DispatchEvents.ProjectClose);
@@ -137,6 +135,10 @@ class MediaController extends Component<{}, MediaBarState> {
     projectClosed = async () => {
         this.setState({ mediaInfo: null });
         await this.settingsMenu();
+    }
+
+    saveProject = async () => {
+        DispatcherService.dispatch(DispatchEvents.ProjectSave);
     }
 
     projectUpdated = async (data: unknown) => {
@@ -329,6 +331,8 @@ class MediaController extends Component<{}, MediaBarState> {
                                         min={0}
                                         max={this.state.duration === 0 ? 100 : this.state.duration}
                                         labelRenderer={false}
+                                        dragStart={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
+                                        dragEnd={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
                                     />
                                 </div>
                                 <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>{sec2time(this.state.duration)}</div>
@@ -338,7 +342,12 @@ class MediaController extends Component<{}, MediaBarState> {
                         <div className="volume">
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
-                                <SliderExtended className="volume-slider" min={VOLUME.MIN} max={VOLUME.MAX} labelRenderer={false} value={this.state.volume} />
+                                <SliderExtended
+                                    className="volume-slider"
+                                    min={VOLUME.MIN}
+                                    max={VOLUME.MAX}
+                                    labelRenderer={false}
+                                    value={this.state.volume} />
                             </div>
                         </div>
                         <div className="more-button">
