@@ -37,7 +37,8 @@
     "typeface-inconsolata": "^0.0.72",
     "typeface-magra": "^0.0.71",
     "vexchords": "^1.2.0",
-    "whatwg-fetch": "^3.0.0"
+    "whatwg-fetch": "^3.0.0",
+    "youtube-dl": "^2.1.0"
   },
   "scripts": {
     "start": "nf start -p 3000",

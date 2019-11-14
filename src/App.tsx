@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {
   Classes, FocusStyleManager, Dialog, Card, Text,
 } from "@blueprintjs/core"
+import { IconNames } from '@blueprintjs/icons';
 import { GlobalHotKeys } from 'react-hotkeys';
 import classNames from 'classnames';
 import MediaController from './components/MediaController/MediaController'
@@ -12,8 +13,10 @@ import '@blueprintjs/core/lib/css/blueprint.css'
 import './css/App.scss'
 import 'typeface-magra'
 import 'typeface-inconsolata'
-import { getHotkeyDialogContent } from './dialogs';
-import { HotkeyInfo, ProjectMetadata } from './types'
+
+// eslint-disable-next-line
+import { getHotkeyDialog } from './dialogs';
+import { HotkeyInfo, ProjectMetadata, DialogContent } from './types'
 import WaveformController from './components/WaveformController/WaveformController';
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents } from './services/dispatcher';
@@ -25,8 +28,7 @@ const { nativeTheme, shell } = window.require("electron").remote;
 type ProjectDetails = { metadata: ProjectMetadata | null; loaded: boolean };
 interface AppState {
   darkMode: boolean;
-  dialogContent: React.ReactElement | null;
-  dialogClass: string;
+  dialogContent: DialogContent | null;
   project: ProjectDetails;
 }
 
@@ -39,7 +41,7 @@ class App extends Component<{}, AppState> {
   public keyMap = { SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey };
 
   public handlers = {
-    SHOW_ALL_HOTKEYS: () => this.setState({ dialogContent: getHotkeyDialogContent(), dialogClass: Classes.HOTKEY_DIALOG }),
+    SHOW_ALL_HOTKEYS: () => this.setState({ dialogContent: getHotkeyDialog() }),
   }
 
   constructor(props: {}) {
@@ -47,7 +49,6 @@ class App extends Component<{}, AppState> {
     this.state = {
       darkMode: nativeTheme.shouldUseDarkColors,
       dialogContent: null,
-      dialogClass: '',
       project: { loaded: false, metadata: null },
     };
   }
@@ -128,9 +129,17 @@ class App extends Component<{}, AppState> {
           <Dialog
             isOpen={this.state.dialogContent !== null}
             onClose={(): void => this.setState({ dialogContent: null })}
-            className={this.state.dialogClass}
+            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+            isCloseButtonShown
+            lazy
+            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
           >
-            {this.state.dialogContent}
+            {
+              this.state.dialogContent
+                ? this.state.dialogContent.content
+                : null
+            }
           </Dialog>
         </React.Fragment>
       </GlobalHotKeys>

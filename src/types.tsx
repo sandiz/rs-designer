@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyCombo } from "@blueprintjs/core";
+import { KeyCombo, IconName } from "@blueprintjs/core";
 
 const { platform } = window.require('os');
 const isWin = platform() === "win32";
@@ -152,4 +152,11 @@ export const getHotkey = (h: Hotkey) => {
 
 export enum MEDIA_STATE { STOPPED, PLAYING, PAUSED }
 export enum VOLUME { MAX = 1, MIN = 0, DEFAULT = 0.5 }
+
+export interface DialogContent {
+    content: React.ReactElement;
+    icon: IconName;
+    text: React.ReactElement | string;
+    class: string;
+}
 export default {};

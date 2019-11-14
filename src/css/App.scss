@@ -86,7 +86,7 @@ input,
 }
 
 .font-weight-unset {
-    font-weight: unset;
+    font-weight: 100 !important;
 }
 
 .fadeout {
@@ -149,3 +149,13 @@ input,
 }
 
 .info-item-large {}
+
+.dialog-header {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    text-align: center;
+}
+
+.dialog-body {
+    padding-top: 2vh;
+}
