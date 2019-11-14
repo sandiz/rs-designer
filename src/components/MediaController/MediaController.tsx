@@ -56,6 +56,7 @@ class MediaController extends Component<{}, MediaBarState> {
         OPEN_LAST_PROJECT: () => this.openLastProject(),
         CLOSE_PROJECT: () => this.closeProject(),
     };
+
     private timer: number | null = null;
     private ProgressTimerRef: RefObject<HTMLDivElement> = React.createRef();
     constructor(props: {}) {
@@ -71,6 +72,9 @@ class MediaController extends Component<{}, MediaBarState> {
         DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.on(DispatchEvents.MediaFinishedPlaying, this.stop);
+        DispatcherService.on(DispatchEvents.MediaStartedPlaying, this._set_media_playing);
+        DispatcherService.on(DispatchEvents.MediaWasPaused, this._set_media_paused);
     }
 
     componentDidMount = () => {
@@ -83,6 +87,9 @@ class MediaController extends Component<{}, MediaBarState> {
         DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed)
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.off(DispatchEvents.MediaFinishedPlaying, this.stop);
+        DispatcherService.off(DispatchEvents.MediaStartedPlaying, this._set_media_playing);
+        DispatcherService.off(DispatchEvents.MediaWasPaused, this._set_media_paused);
     }
 
     stop = (): void => {
@@ -92,14 +99,13 @@ class MediaController extends Component<{}, MediaBarState> {
         this.setState({ mediaState: MEDIA_STATE.STOPPED });
     }
 
+    _set_media_playing = () => this.setState({ mediaState: MEDIA_STATE.PLAYING });
+    _set_media_paused = () => this.setState({ mediaState: MEDIA_STATE.PAUSED });
+
     play = async (): Promise<void> => {
         await MediaPlayerService.playPause();
-        if (MediaPlayerService.isPlaying()) {
-            this.setState({ mediaState: MEDIA_STATE.PLAYING });
-        }
-        else {
-            this.setState({ mediaState: MEDIA_STATE.PAUSED });
-        }
+        if (MediaPlayerService.isPlaying()) this._set_media_playing()
+        else this._set_media_paused();
     }
 
     fwd = (): void => MediaPlayerService.rewind()
@@ -111,36 +117,36 @@ class MediaController extends Component<{}, MediaBarState> {
         await this.settingsMenu();
     }
 
-    importMedia = async (external: string | null) => {
+    importMedia = (external: string | null) => {
         this.stop();
         DispatcherService.dispatch(DispatchEvents.ImportMedia, external);
     }
 
-    openLastProject = async () => {
+    openLastProject = () => {
         this.stop();
-        await ProjectService.openLastProject();
+        ProjectService.openLastProject();
     }
 
-    openProject = async (external: string | null) => {
+    openProject = (external: string | null) => {
         this.stop();
         DispatcherService.dispatch(DispatchEvents.ProjectOpen, external);
     }
 
-    projectOpened = async () => {
-        await this.settingsMenu();
+    projectOpened = () => {
+        this.settingsMenu();
     }
 
-    closeProject = async () => {
+    closeProject = () => {
         this.stop();
         DispatcherService.dispatch(DispatchEvents.ProjectClose);
     }
 
-    projectClosed = async () => {
+    projectClosed = () => {
         this.setState({ mediaInfo: null });
-        await this.settingsMenu();
+        this.settingsMenu();
     }
 
-    saveProject = async () => {
+    saveProject = () => {
         DispatcherService.dispatch(DispatchEvents.ProjectSave);
     }
 
@@ -159,7 +165,7 @@ class MediaController extends Component<{}, MediaBarState> {
                 this.setState({ mediaInfo });
             }
         }
-        await this.settingsMenu();
+        this.settingsMenu();
     }
 
     mediaReady = () => {

@@ -70,6 +70,9 @@ export class DispatchEvents {
     public static MediaReady = "media-ready";           /* fired when media is loaded and ready to play (source: mediaplayer) */
     public static MediaReset = "media-reset";           /* fired when media is unloaded (source: mediaplayer) */
     public static MediaLoading = "media-loading";       /* fired when media is about to be loaded (source: mediaplayer) */
+    public static MediaFinishedPlaying = "media-finished-playing";  /* fired when media finishes playing */
+    public static MediaStartedPlaying = "media-started-playing";    /* fired when media starts playing */
+    public static MediaWasPaused = "media-was-paused";              /* fired when media is paused */
 
     public static SettingsUpdate = "settings-update";   /* TODO */
 

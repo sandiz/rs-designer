@@ -98,6 +98,15 @@ class MediaPlayer {
             console.error("wavesurfer load-error", msg);
             reject(new Error(msg));
         });
+        this.wavesurfer.on('finish', () => {
+            DispatcherService.dispatch(DispatchEvents.MediaFinishedPlaying, null);
+        });
+        this.wavesurfer.on('play', () => {
+            DispatcherService.dispatch(DispatchEvents.MediaStartedPlaying, null);
+        });
+        this.wavesurfer.on('pause', () => {
+            DispatcherService.dispatch(DispatchEvents.MediaWasPaused, null);
+        });
     });
 
     updateTheme = () => {
