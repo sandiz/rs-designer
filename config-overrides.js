@@ -1,4 +1,4 @@
-const { override, useEslintRc, addWebpackModuleRule, useBabelRc } = require('customize-cra');
+const { override, useEslintRc, addWebpackModuleRule } = require('customize-cra');
 const path = require('path');
 
 module.exports = override(
@@ -10,7 +10,6 @@ module.exports = override(
         },
     }),
     useEslintRc(path.resolve(__dirname, '.eslintrc')),
-    useBabelRc(path.resolve(__dirname, '.babelrc')),
     addWebpackModuleRule(
         {
             test: /worklet\.js$/,

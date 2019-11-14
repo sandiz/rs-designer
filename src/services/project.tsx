@@ -1,7 +1,12 @@
-import { DirResult } from 'tmp';
+import * as TMP from 'tmp';
 import * as FS from 'fs';
+import * as PATH from 'path';
+import * as READLINE from 'readline';
+import * as OS from 'os';
+
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
+import { IAudioMetadata } from 'music-metadata';
 import {
     copyFile, writeFile, copyDir, readFile, readTags,
 } from '../lib/utils'
@@ -16,18 +21,15 @@ import { successToaster, progressToaster, dismissToaster } from '../components/E
 
 const { app, dialog } = window.require('electron').remote;
 
-const readline = window.require("readline");
-const { createReadStream, platform } = window.require("os");
-const {
-    parse, join, extname, basename,
-} = window.require('path');
-const tmp = window.require('tmp');
-const { setGracefulCleanup, dirSync } = tmp;
+const readline: typeof READLINE = window.require("readline");
+const os: typeof OS = window.require("os");
+const path: typeof PATH = window.require('path');
+const tmp: typeof TMP = window.require('tmp');
 const fs: typeof FS = window.require("fs");
 
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
-const isWin = platform() === "win32";
+const isWin = os.platform() === "win32";
 
 export const ProjectUpdateType: { [key: string]: string } = {
     ExternalFilesUpdate: "external-files-update",
@@ -41,11 +43,11 @@ export class Project {
     public isLoading: boolean;
     public isDirty: boolean;
     public projectInfo: ProjectInfo | null;
-    public tmpHandle: DirResult | null;
+    public tmpHandle: TMP.DirResult | null;
     public projectSettings: ProjectSettingsModel | null;
 
     constructor() {
-        setGracefulCleanup();
+        tmp.setGracefulCleanup();
         this.projectDirectory = "";
         this.isTemporary = true;
         this.isLoaded = false;
@@ -172,7 +174,7 @@ export class Project {
         }
     }
 
-    openProject = async (externalProject: string | null) => {
+    openProject = async (externalProject: string | null, importingMedia = false) => {
         if (this.isLoading) {
             successToaster("Open Project failed:  another project is already being loaded", Intent.DANGER, IconNames.ERROR);
             return;
@@ -181,10 +183,11 @@ export class Project {
         const total = 3;
         const key = progressToaster("Opening Project", 0.5, total);
         try {
-            if (this.isProjectLoaded()) {
+            if (this.isProjectLoaded() && !importingMedia) {
                 this.closeProject();
             }
             const pInfo = await this.loadProject(externalProject);
+            console.log(pInfo);
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);
 
@@ -243,12 +246,12 @@ export class Project {
             }
             else if (dir.endsWith(`.${projectExt}`)) {
                 jsonPath = dir;
-                const p = parse(dir);
+                const p = path.parse(dir);
                 if (p) {
                     dir = p.dir;
                 }
             }
-
+            console.log(jsonPath);
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
                 const json: ProjectInfo = JSON.parse(data.toString());
@@ -310,7 +313,7 @@ export class Project {
                 const dirs = out.filePaths;
                 if (dirs && dirs.length > 0 && this.projectInfo) {
                     const lastPInfo = this.projectInfo;
-                    const basen = parse(lastPInfo.original).name;
+                    const basen = path.parse(lastPInfo.original).name;
                     const dir = dirs[0] + `/${basen}.${bundleExt}`;
                     /* copy dir */
                     await copyDir(this.projectDirectory, dir, {
@@ -339,52 +342,21 @@ export class Project {
         return false;
     }
 
-    /*
-    assignMetadata = (media: object, mm: MediaInfo) => {
-        assign(media, ["tags", "common", "title"], mm.song);
-        assign(media, ["tags", "common", "artist"], mm.artist);
-        assign(media, ["tags", "common", "album"], mm.album);
-        assign(media, ["tags", "common", "year"], mm.year);
-        if (mm.image !== "") {
-            assign(media, ["tags", "common", "picture"], [{ data: Buffer.from(mm.image, 'base64') }]);
-        }
-    }
-
-    saveMetadata = async (media: any): Promise<MediaInfo> => {
-        let buf = null;
-        if (Array.isArray(media.tags.common.picture) && media.tags.common.picture.length > 0) {
-            buf = media.tags.common.picture[0].data;
-        }
-        const metadata: MediaInfo = {
-            song: media.tags.common.title ? media.tags.common.title : "",
-            artist: media.tags.common.artist ? media.tags.common.artist : "",
-            album: media.tags.common.album ? media.tags.common.album : "",
-            year: media.tags.common.year ? media.tags.common.year : "",
-            image: buf ? buf.toString('base64') : '',
-        };
-        if (this.projectInfo) {
-            this.projectInfo.metadata = (window as any).path.join(this.projectDirectory, 'metadata.json');
-            await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
-        }
-        return metadata;
-    }
-    */
-
     updateExternalFiles = async () => {
         if (this.projectInfo) {
-            this.projectInfo.cqt = join(this.projectDirectory, 'cqt.raw.png');
-            this.projectInfo.tempo = join(this.projectDirectory, 'tempo');
-            this.projectInfo.beats = join(this.projectDirectory, 'beats');
-            this.projectInfo.key = join(this.projectDirectory, 'key');
-            this.projectInfo.chords = join(this.projectDirectory, 'chords');
-            this.projectInfo.metadata = join(this.projectDirectory, 'metadata.json');
+            this.projectInfo.cqt = path.join(this.projectDirectory, 'cqt.raw.png');
+            this.projectInfo.tempo = path.join(this.projectDirectory, 'tempo');
+            this.projectInfo.beats = path.join(this.projectDirectory, 'beats');
+            this.projectInfo.key = path.join(this.projectDirectory, 'key');
+            this.projectInfo.chords = path.join(this.projectDirectory, 'chords');
+            this.projectInfo.metadata = path.join(this.projectDirectory, 'metadata.json');
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
             DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
         }
     }
 
     updateProjectInfo = async (dir: string, istemp: boolean, isloaded: boolean, file: string, readOnly = false, dispatch = true) => {
-        const ext = extname(file);
+        const ext = path.extname(file);
         this.projectDirectory = dir;
         this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
         this.isTemporary = istemp;
@@ -392,6 +364,7 @@ export class Project {
         this.projectInfo = new ProjectInfo();
         this.projectInfo.media = `${this.projectDirectory}/media${ext}`;
         this.projectInfo.original = file;
+        this.projectInfo.projectPath = this.projectFileName;
         if (!readOnly) {
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
         }
@@ -403,7 +376,7 @@ export class Project {
     createTemporaryProject = async (file: string): Promise<string> => {
         this.unload();
         /* create temp dir */
-        this.tmpHandle = dirSync({
+        this.tmpHandle = tmp.dirSync({
             unsafeCleanup: true,
             postfix: ".rsdbundle",
         });
@@ -422,7 +395,7 @@ export class Project {
                 /* copy mp3 here */
                 await copyFile(src, dest);
 
-                return dest;
+                return this.tmpHandle.name;
             }
         }
         return "";
@@ -470,7 +443,7 @@ export class Project {
     readChords = async () => new Promise((resolve, reject) => {
         if (this.projectInfo == null) return reject();
         const lineReader = readline.createInterface({
-            input: createReadStream(this.projectInfo.chords),
+            input: fs.createReadStream(this.projectInfo.chords),
         });
 
         const chords: ChordTime[] = []
@@ -498,7 +471,7 @@ export class Project {
     readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         if (this.projectInfo == null) return reject();
         const lineReader = readline.createInterface({
-            input: createReadStream(this.projectInfo.beats),
+            input: fs.createReadStream(this.projectInfo.beats),
         });
         const beats: BeatTime[] = []
         lineReader.on('line', (line: string) => {
@@ -524,13 +497,32 @@ export class Project {
         if (this.projectInfo) {
             const key = await this.readSongKey();
             return {
-                name: basename(this.projectDirectory),
+                name: path.basename(this.projectDirectory),
                 path: this.projectDirectory,
                 key: `${key[0]} ${key[1]}`,
                 tempo: Math.round(await this.readTempo()),
             }
         }
         return null;
+    }
+
+    saveMetadata = async (media: IAudioMetadata): Promise<MediaInfo> => {
+        let buf = null;
+        if (Array.isArray(media.common.picture) && media.common.picture.length > 0) {
+            buf = media.common.picture[0].data;
+        }
+        const metadata: MediaInfo = {
+            song: media.common.title ? media.common.title : "",
+            artist: media.common.artist ? media.common.artist : "",
+            album: media.common.album ? media.common.album : "",
+            year: media.common.year ? media.common.year.toString() : "",
+            image: buf ? buf.toString('base64') : '',
+        };
+        if (this.projectInfo) {
+            this.projectInfo.metadata = path.join(this.projectDirectory, 'metadata.json');
+            await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
+        }
+        return metadata;
     }
 
     importMedia = async (externalMedia: string | null) => {
@@ -545,7 +537,7 @@ export class Project {
         const key = progressToaster("Importing Media", 1, 2);
 
         /* prompt for file or use externalMedia */
-        let tmpProject = null;
+        let tmpProject: string | null = null;
         if (externalMedia) {
             tmpProject = await this.createTemporaryProject(externalMedia);
         }
@@ -566,14 +558,14 @@ export class Project {
         dismissToaster(key);
         if (tmpProject && this.projectInfo) {
             const tags = await readTags(this.projectInfo.original);
-            console.log(this.projectInfo, tags);
-            console.log(this.projectSettings);
+            console.log(this.projectInfo, tmpProject);
 
             /* assign metadata */
+            await this.saveMetadata(tags);
             /* open Project with tmp project */
+            this.isLoading = false;
+            await this.openProject(this.projectInfo.projectPath, true);
         }
-
-        this.isLoading = false;
     }
 }
 
