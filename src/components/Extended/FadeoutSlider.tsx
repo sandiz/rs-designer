@@ -108,7 +108,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     render = () => {
-        return (
+        const c = (
             <div ref={this.sliderRef}>
                 <Slider
                     stepSize={this.props.stepSize}
@@ -116,13 +116,14 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                     max={this.state.max}
                     value={this.state.value}
                     initialValue={this.state.value}
-                    labelRenderer={this.props.labelRenderer}
+                    labelRenderer={false}
                     className={classNames(this.props.className)}
                     onRelease={this.handleDragEnd}
                     onChange={this.handleDragStart}
                 />
             </div>
         );
+        return c;
     }
 }
 

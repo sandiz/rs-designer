@@ -52,7 +52,7 @@ class App extends Component<{}, AppState> {
     };
   }
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
     nativeTheme.on('updated', this.changeAppColor);

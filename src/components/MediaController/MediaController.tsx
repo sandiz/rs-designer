@@ -67,6 +67,7 @@ class MediaController extends Component<{}, MediaBarState> {
             duration: 0,
             mediaState: MEDIA_STATE.STOPPED,
         };
+        this.settingsMenu();
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
@@ -78,7 +79,6 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     componentDidMount = () => {
-        this.settingsMenu();
     }
 
     componentWillUnmount() {
@@ -287,13 +287,15 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     render = () => {
-        return (
+        const c = (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
+
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
                             <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
+
                         <Navbar.Divider className="tall-divider" />
                         <div className="media-bar-song-info">
                             <div className="media-bar-albumart-container">
@@ -306,7 +308,7 @@ class MediaController extends Component<{}, MediaBarState> {
                                     this.state.mediaInfo
                                         ? (
                                             <Text>
-                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
+                                                <Text className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
                                                 <span className={Classes.TEXT_MUTED}>from</span>
                                                 <span>&nbsp;{this.state.mediaInfo.album}</span>
                                                 <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
@@ -314,14 +316,13 @@ class MediaController extends Component<{}, MediaBarState> {
                                             </Text>
                                         )
                                         : (
-                                            <Text>
-                                                <Text ellipsize>No Project Opened</Text>
-                                            </Text>
+                                            <Text>No Project Opened</Text>
                                         )
                                 }
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
+
                         <div className="media-bar-controls">
                             <div>
                                 <ButtonExtended icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.rewind} />
@@ -344,6 +345,7 @@ class MediaController extends Component<{}, MediaBarState> {
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
+
                         <div className="media-bar-progress">
                             <div className="media-bar-timer">
                                 <div
@@ -370,6 +372,7 @@ class MediaController extends Component<{}, MediaBarState> {
                             </div>
                         </div>
                         <Navbar.Divider className="tall-divider" />
+
                         <div className="volume">
                             <Icon icon={IconNames.VOLUME_UP} />
                             <div>
@@ -392,6 +395,7 @@ class MediaController extends Component<{}, MediaBarState> {
                 </CardExtended>
             </GlobalHotKeys>
         );
+        return c;
     }
 }
 
