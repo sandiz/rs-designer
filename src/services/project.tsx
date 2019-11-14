@@ -333,6 +333,9 @@ export class Project {
                     )
                     await this.updateExternalFiles();
                 }
+                else {
+                    return false;
+                }
             }
             else {
                 //serialize

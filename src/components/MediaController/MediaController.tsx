@@ -45,6 +45,7 @@ class MediaController extends Component<{}, MediaBarState> {
         SAVE_PROJECT: HotkeyInfo.SAVE_PROJECT.hotkey,
         OPEN_LAST_PROJECT: HotkeyInfo.OPEN_LAST_PROJECT.hotkey,
         CLOSE_PROJECT: HotkeyInfo.CLOSE_PROJECT.hotkey,
+        IMPORT_MEDIA: HotkeyInfo.IMPORT_MEDIA.hotkey,
     };
 
     public handlers = {
@@ -55,6 +56,7 @@ class MediaController extends Component<{}, MediaBarState> {
         SAVE_PROJECT: () => this.saveProject(),
         OPEN_LAST_PROJECT: () => this.openLastProject(),
         CLOSE_PROJECT: () => this.closeProject(),
+        IMPORT_MEDIA: () => this.importMedia(null),
     };
 
     private timer: number | null = null;

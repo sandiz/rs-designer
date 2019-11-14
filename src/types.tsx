@@ -122,6 +122,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     SAVE_PROJECT: { info: "Save Project", hotkey: ["command+s", "ctrl+s"], group: "project" },
     OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project" },
     CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project" },
+    IMPORT_MEDIA: { info: "Import Media", hotkey: ["command+m", "ctrl+m"], group: "project" },
 }
 
 export const getHotkey = (h: Hotkey) => {
