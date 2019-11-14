@@ -49,7 +49,7 @@ export class Project {
     constructor() {
         tmp.setGracefulCleanup();
         this.projectDirectory = "";
-        this.isTemporary = true;
+        this.isTemporary = false;
         this.isLoaded = false;
         this.tmpHandle = null;
         this.isDirty = false;
@@ -93,6 +93,8 @@ export class Project {
     }
 
     saveProjectSettings = async () => {
+        // dont save temp projects to recents/last opened 
+        if (this.isTemporary) return;
         if (this.projectSettings && this.projectInfo) {
             this.projectSettings.lastOpenedProject = this.projectInfo;
 
@@ -142,7 +144,7 @@ export class Project {
 
     unload() {
         this.isLoaded = false;
-        this.isTemporary = true;
+        this.isTemporary = false;
         this.projectDirectory = "";
         this.isDirty = false;
         if (this.tmpHandle) {
@@ -160,6 +162,7 @@ export class Project {
             this.unload();
             DispatcherService.dispatch(DispatchEvents.ProjectClosed);
             successToaster("Project Closed", Intent.PRIMARY, IconNames.TICK);
+            this.projectInfo = null;
         }
     }
 
@@ -171,6 +174,9 @@ export class Project {
             if (stat) {
                 await this.openProject(lp.projectPath);
             }
+        }
+        else {
+            successToaster("No recently opened project found", Intent.DANGER);
         }
     }
 
@@ -187,7 +193,6 @@ export class Project {
                 this.closeProject();
             }
             const pInfo = await this.loadProject(externalProject);
-            console.log(pInfo);
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);
 
@@ -207,7 +212,7 @@ export class Project {
             }
         }
         catch (e) {
-            console.error("open-project failed", e);
+            console.warn("open-project failed", e);
         }
         progressToaster("Project Failed to Open", 1, 1, key, Intent.DANGER);
         this.isLoading = false;
@@ -215,7 +220,6 @@ export class Project {
 
     loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
         let dirs = [];
-
         if (externalProject) {
             dirs.push(externalProject);
         }
@@ -251,7 +255,6 @@ export class Project {
                     dir = p.dir;
                 }
             }
-            console.log(jsonPath);
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
                 const json: ProjectInfo = JSON.parse(data.toString());
@@ -267,20 +270,19 @@ export class Project {
                     json.version = ProjectInfo.currentVersion;
                 }
 
-                this.unload();
+                /* set directory and other globals, projectInfo is ignored */
                 await this.updateProjectInfo(
                     dir,
-                    false,
+                    this.isTemporary,
                     true,
                     '',
                     true, /* readonly */
                 );
-
+                /* set project info */
                 this.projectInfo = json;
-
                 if (!this.isTemporary) {
                     app.addRecentDocument(dir);
-                    if (this.projectInfo) await this.saveProjectSettings();
+                    await this.saveProjectSettings();
                 }
                 await this.updateExternalFiles();
 
@@ -326,7 +328,6 @@ export class Project {
                         true,
                         lastPInfo.original,
                     )
-                    if (this.projectInfo) await this.saveProjectSettings();
                     await this.updateExternalFiles();
                 }
             }
@@ -404,88 +405,113 @@ export class Project {
     readMetadata = async (): Promise<MediaInfo | null> => {
         if (this.projectInfo == null || this.projectInfo.metadata == null) return null;
         const mm = this.projectInfo.metadata;
-        const data = await readFile(mm)
-        return JSON.parse(data.toString());
+        try {
+            const data = await readFile(mm)
+            return JSON.parse(data.toString());
+        }
+        catch (e) {
+            return null;
+        }
     }
 
     readTempo = async (): Promise<number> => {
-        if (this.projectInfo) {
-            const tempoFile = this.projectInfo.tempo;
-            const data = await readFile(tempoFile)
-            const tempo = parseFloat(data.toString());
-            return tempo;
+        try {
+            if (this.projectInfo) {
+                const tempoFile = this.projectInfo.tempo;
+                const data = await readFile(tempoFile)
+                const tempo = parseFloat(data.toString());
+                return tempo;
+            }
+        } catch (e) {
+            console.warn("readTempo error", e);
         }
         return 0;
     }
 
     readSongKey = async (): Promise<string[]> => {
-        if (this.projectInfo) {
-            const keyFile = this.projectInfo.key;
-            const data = await readFile(keyFile)
-            const s: string[] = JSON.parse(data.toString())
-            let note = s[0];
-            if (note.endsWith('b')) {
-                //convert to sharp
-                note = note.replace('b', '');
-                let idx = pitches.indexOf(note);
-                if (idx !== -1) {
-                    if (idx === 0) idx = pitches.length - 1;
-                    const enharmonic = pitches[idx - 1];
-                    s[0] = enharmonic;
+        try {
+            if (this.projectInfo) {
+                const keyFile = this.projectInfo.key;
+                const data = await readFile(keyFile)
+                const s: string[] = JSON.parse(data.toString())
+                let note = s[0];
+                if (note.endsWith('b')) {
+                    //convert to sharp
+                    note = note.replace('b', '');
+                    let idx = pitches.indexOf(note);
+                    if (idx !== -1) {
+                        if (idx === 0) idx = pitches.length - 1;
+                        const enharmonic = pitches[idx - 1];
+                        s[0] = enharmonic;
+                    }
                 }
+                return s;
             }
-            return s;
+        }
+        catch (e) {
+            console.warn("readSongKey error: ", e);
         }
         return [];
     }
 
-    //eslint-disable-next-line
-    readChords = async () => new Promise((resolve, reject) => {
-        if (this.projectInfo == null) return reject();
-        const lineReader = readline.createInterface({
-            input: fs.createReadStream(this.projectInfo.chords),
-        });
+    readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
+        try {
+            if (this.projectInfo == null) return reject();
+            const lineReader = readline.createInterface({
+                input: fs.createReadStream(this.projectInfo.chords),
+            });
 
-        const chords: ChordTime[] = []
-        lineReader.on('line', (line: string) => {
-            const split = line.split(",")
-            const start = split[0]
-            const end = split[1]
-            const chord = split[2]
-            const splitch = chord.split(":")
-            const key = splitch[0]
-            const type = splitch[1]
-            chords.push({
-                start, end, key, type,
+            const chords: ChordTime[] = []
+            lineReader.on('line', (line: string) => {
+                const split = line.split(",")
+                const start = split[0]
+                const end = split[1]
+                const chord = split[2]
+                const splitch = chord.split(":")
+                const key = splitch[0]
+                const type = splitch[1]
+                chords.push({
+                    start, end, key, type,
+                })
+            });
+            lineReader.on('close', () => {
+                resolve(chords);
             })
-        });
-        lineReader.on('close', () => {
-            resolve(chords);
-        })
-        lineReader.on('error', (err: string) => {
-            reject(err)
-        });
+            lineReader.on('error', () => {
+                resolve([])
+            });
+        }
+        catch (e) {
+            resolve([]);
+        }
+        return null;
     });
 
-    //eslint-disable-next-line
     readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
-        if (this.projectInfo == null) return reject();
-        const lineReader = readline.createInterface({
-            input: fs.createReadStream(this.projectInfo.beats),
-        });
-        const beats: BeatTime[] = []
-        lineReader.on('line', (line: string) => {
-            const split = line.replace(/\s+/g, ' ').trim().split(" ")
-            const start = split[0]
-            const beatNum = split[1]
-            beats.push({ start, beatNum })
-        });
-        lineReader.on('close', () => {
-            resolve(beats);
-        })
-        lineReader.on('error', (err: string) => {
-            reject(err)
-        })
+        try {
+            if (this.projectInfo == null) return reject();
+            const lineReader = readline.createInterface({
+                input: fs.createReadStream(this.projectInfo.beats),
+            });
+
+            const beats: BeatTime[] = []
+            lineReader.on('line', (line: string) => {
+                const split = line.replace(/\s+/g, ' ').trim().split(" ")
+                const start = split[0]
+                const beatNum = split[1]
+                beats.push({ start, beatNum })
+            });
+            lineReader.on('close', () => {
+                resolve(beats);
+            })
+            lineReader.on('error', () => {
+                resolve([])
+            });
+        }
+        catch (e) {
+            resolve([]);
+        }
+        return null;
     });
 
     getLastOpenedProject = (): ProjectInfo | null => {
@@ -499,7 +525,7 @@ export class Project {
             return {
                 name: path.basename(this.projectDirectory),
                 path: this.projectDirectory,
-                key: `${key[0]} ${key[1]}`,
+                key: key.length > 0 ? `${key[0]} ${key[1]}` : "-",
                 tempo: Math.round(await this.readTempo()),
             }
         }
@@ -558,7 +584,6 @@ export class Project {
         dismissToaster(key);
         if (tmpProject && this.projectInfo) {
             const tags = await readTags(this.projectInfo.original);
-            console.log(this.projectInfo, tmpProject);
 
             /* assign metadata */
             await this.saveMetadata(tags);

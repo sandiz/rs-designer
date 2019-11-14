@@ -105,7 +105,12 @@ class App extends Component<{}, AppState> {
                     Key: <span>{this.state.project.metadata ? this.state.project.metadata.key : "-"}</span>
                   </Card>
                   <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                    Tempo: <span>{this.state.project.metadata ? this.state.project.metadata.tempo : "-"} bpm</span>
+                    Tempo: <span>
+                      {
+                        this.state.project && this.state.project.metadata
+                          ? (this.state.project.metadata.tempo === 0 ? "-" : `${this.state.project.metadata} bpm`)
+                          : "-"
+                      }</span>
                   </Card>
                 </div>
               )

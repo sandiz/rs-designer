@@ -73,8 +73,8 @@ class MediaController extends Component<{}, MediaBarState> {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
     }
 
-    componentDidMount = async () => {
-        await this.settingsMenu();
+    componentDidMount = () => {
+        this.settingsMenu();
     }
 
     componentWillUnmount() {
@@ -214,9 +214,15 @@ class MediaController extends Component<{}, MediaBarState> {
             const mmFile = item.metadata;
             const pathInfo = path.parse(mmFile);
             const dirName = path.basename(pathInfo.dir);
-            const data = await readFile(item.metadata);
-            const json: MediaInfo = JSON.parse(data.toString());
-            const text = `${json.artist} - ${json.song} [${dirName}]`;
+            let text = "";
+            try {
+                const data = await readFile(item.metadata);
+                const json: MediaInfo = JSON.parse(data.toString());
+                text = `${json.artist} - ${json.song} [${dirName}]`;
+            }
+            catch (e) {
+                text = `[${dirName}]`;
+            }
             let projectName = "";
             if (isWin) {
                 console.error("TODO: add windows support");
@@ -245,9 +251,9 @@ class MediaController extends Component<{}, MediaBarState> {
                 <MenuItem text={this.getMenuItemText("Save Project")} icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
                 <MenuItem text={this.getMenuItemText("Close Project")} disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
                 <Menu.Divider />
-                <MenuItem text="Recent Projects" icon={IconNames.HISTORY}>
+                <MenuItem text="Recent Projects" icon={IconNames.HISTORY} disabled={recentMenu.length === 0}>
                     {
-                        recents.length > 0
+                        recentMenu.length > 0
                             ? recentMenu
                             : null
                     }
