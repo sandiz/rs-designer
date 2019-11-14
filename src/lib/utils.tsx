@@ -59,6 +59,13 @@ export const copyDir = (src: string, dest: string, options: FSE.CopyOptions) => 
     });
 })
 
+export const removeDir = (src: string) => new Promise((resolve, reject) => {
+    fsextra.remove(src, err => {
+        if (err) reject(err);
+        resolve();
+    })
+})
+
 export const assign = (obj: { [key: string]: any }, keyPath: string[], value: any) => {
     let lastKeyIndex = keyPath.length - 1;
     for (var i = 0; i < lastKeyIndex; ++i) {

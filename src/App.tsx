@@ -54,6 +54,7 @@ class App extends Component<{}, AppState> {
 
   componentDidMount = () => {
     DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
+    DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();

@@ -8,7 +8,7 @@ import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { IAudioMetadata } from 'music-metadata';
 import {
-    copyFile, writeFile, copyDir, readFile, readTags,
+    copyFile, writeFile, copyDir, readFile, readTags, removeDir,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
@@ -214,7 +214,7 @@ export class Project {
         catch (e) {
             console.warn("open-project failed", e);
         }
-        progressToaster("Project Failed to Open", 1, 1, key, Intent.DANGER);
+        dismissToaster(key);
         this.isLoading = false;
     }
 
@@ -321,7 +321,10 @@ export class Project {
                     await copyDir(this.projectDirectory, dir, {
                         overwrite: true,
                     });
+                    console.log("removing temp directory: ", this.projectDirectory);
                     /* delete old temp dir */
+                    await removeDir(this.projectDirectory);
+
                     await this.updateProjectInfo(
                         dir,
                         false,
