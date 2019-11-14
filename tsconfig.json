@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "lib": [
       "dom",
       "dom.iterable",
@@ -24,9 +24,14 @@
     "noImplicitReturns": true,
     "pretty": true,
     "experimentalDecorators": true,
-    "sourceMap": true,
+    "outDir": "build",
+    "inlineSourceMap": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*.tsx",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
