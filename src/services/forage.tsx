@@ -2,16 +2,16 @@ import * as localForage from "localforage";
 
 import { DispatcherService, DispatchEvents } from './dispatcher';
 
-export const SettingsForageKeys: { [key: string]: string } = {
-    APP_SETTINGS: "app-settings",
-    CONTROL_SETTINGS: "control-settings",
-    WAVEFORM_SETTINGS: "waveform-settings",
-    ANALYSIS_SETTINGS: "analysis-settings",
-    PROJECT_SETTINGS: "project-settings",
+export enum SettingsForageKeys {
+    APP_SETTINGS = "app-settings",
+    CONTROL_SETTINGS = "control-settings",
+    WAVEFORM_SETTINGS = "waveform-settings",
+    ANALYSIS_SETTINGS = "analysis-settings",
+    PROJECT_SETTINGS = "project-settings",
 }
 
-export const Store: { [key: string]: string } = {
-    GENERAL: "rs-designer",
+export enum Store {
+    GENERAL = "rs-designer",
 }
 
 class Forage {

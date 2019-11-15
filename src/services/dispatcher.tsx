@@ -66,26 +66,26 @@ class DispatcherBase {
         }
     }
 }
-export class DispatchEvents {
-    public static MediaReady = "media-ready";           /* fired when media is loaded and ready to play (source: mediaplayer) */
-    public static MediaReset = "media-reset";           /* fired when media is unloaded (source: mediaplayer) */
-    public static MediaLoading = "media-loading";       /* fired when media is about to be loaded (source: mediaplayer) */
-    public static MediaFinishedPlaying = "media-finished-playing";  /* fired when media finishes playing */
-    public static MediaStartedPlaying = "media-started-playing";    /* fired when media starts playing */
-    public static MediaWasPaused = "media-was-paused";              /* fired when media is paused */
+export enum DispatchEvents {
+    MediaReady = "media-ready",           /* fired when media is loaded and ready to play (source: mediaplayer) */
+    MediaReset = "media-reset",           /* fired when media is unloaded (source: mediaplayer) */
+    MediaLoading = "media-loading",       /* fired when media is about to be loaded (source: mediaplayer) */
+    MediaFinishedPlaying = "media-finished-playing",  /* fired when media finishes playing */
+    MediaStartedPlaying = "media-started-playing",    /* fired when media starts playing */
+    MediaWasPaused = "media-was-paused",              /* fired when media is paused */
 
-    public static SettingsUpdate = "settings-update";   /* TODO */
+    SettingsUpdate = "settings-update",   /* TODO */
 
-    public static ProjectSave = "project-save";         /* event to trigger a project save (source: any, handler: project) */
-    public static ProjectOpen = "project-open";         /* event to trigger a project open (source: any, handler: project) */
-    public static ProjectClose = "project-close";       /* event to trigger a project close (source: any, handler: project) */
-    public static ProjectUpdated = "project-updated";   /* fired when a project file or settings was updated (source: project) */
-    public static ProjectOpened = "project-opened";     /* fired when a project was opened (source: project) */
-    public static ProjectClosed = "project-closed";     /* fired when a project was closed (source: project) */
+    ProjectSave = "project-save",        /* event to trigger a project save (source: any, handler: project) */
+    ProjectOpen = "project-open",         /* event to trigger a project open (source: any, handler: project) */
+    ProjectClose = "project-close",       /* event to trigger a project close (source: any, handler: project) */
+    ProjectUpdated = "project-updated",   /* fired when a project file or settings was updated (source: project) */
+    ProjectOpened = "project-opened",     /* fired when a project was opened (source: project) */
+    ProjectClosed = "project-closed",     /* fired when a project was closed (source: project) */
 
-    public static ImportMedia = "import-media";         /* event to trigger a media import (source: any, handler: project) */
-    public static OpenDialog = "open-dialog";           /* event to trigger a dialog open args: DialogContent */
-    public static CloseDialog = "close-dialog";         /* event to close an already open dialog */
+    ImportMedia = "import-media",         /* event to trigger a media import (source: any, handler: project) */
+    OpenDialog = "open-dialog",           /* event to trigger a dialog open args: DialogContent */
+    CloseDialog = "close-dialog",         /* event to close an already open dialog */
 }
 
 export const DispatcherService = new DispatcherBase();
