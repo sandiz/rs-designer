@@ -79,6 +79,8 @@ export interface ProjectMetadata {
     tempo: number;
 }
 
+export type ProjectDetails = { metadata: ProjectMetadata | null; loaded: boolean };
+
 /* Music Theory */
 export interface ChordTime {
     start: string;
