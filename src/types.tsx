@@ -177,4 +177,8 @@ export interface DialogContent {
     canOutsideClickClose: boolean;
     canEscapeKeyClose: boolean;
 }
+
+/* dialog onchange handler typedef */
+export type OnChangeHandler = React.FormEventHandler<HTMLElement> & React.ChangeEvent<HTMLInputElement>;
+
 export default {};

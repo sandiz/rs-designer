@@ -17,9 +17,9 @@ import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import { readFile, sec2time } from '../../lib/utils';
+import { readFile, sec2time, base64ImageData } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
-import { getImportUrlDialog } from '../../dialogs';
+import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
 
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
@@ -128,7 +128,13 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     importURL = () => {
-        DispatcherService.dispatch(DispatchEvents.OpenDialog, getImportUrlDialog());
+        DispatcherService.dispatch(DispatchEvents.OpenDialog,
+            getImportUrlDialog());
+    }
+
+    metadataEdit = () => {
+        DispatcherService.dispatch(DispatchEvents.OpenDialog,
+            getMetadataEditorDialog());
     }
 
     openLastProject = () => {
@@ -161,14 +167,16 @@ class MediaController extends Component<{}, MediaBarState> {
 
     projectUpdated = async (data: unknown) => {
         /* update media bar state with metadata, when external-files-update is complete*/
-        if (typeof data === 'string' && data === ProjectUpdateType.ExternalFilesUpdate) {
+        if (typeof data === 'string'
+            && (data === ProjectUpdateType.ExternalFilesUpdate
+                || data === ProjectUpdateType.MediaInfoUpdated)) {
             const mm = await ProjectService.readMetadata();
             if (mm) {
                 const mediaInfo: MediaInfo = {
                     song: mm.song.length === 0 ? "-" : mm.song,
                     artist: mm.artist.length === 0 ? "-" : mm.artist,
                     album: mm.album.length === 0 ? "-" : mm.album,
-                    image: 'data:image/jpeg;base64,' + mm.image,
+                    image: mm.image,
                     year: mm.year,
                 }
                 this.setState({ mediaInfo });
@@ -302,18 +310,18 @@ class MediaController extends Component<{}, MediaBarState> {
         const c = (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
-
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
                             <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
-
                         <Navbar.Divider className="tall-divider" />
+
                         <div className="media-bar-song-info">
                             <div className="media-bar-albumart-container">
                                 <AlbumArt
+                                    onClick={this.metadataEdit}
                                     className="media-bar-albumart"
-                                    url={this.state.mediaInfo ? this.state.mediaInfo.image : ''} />
+                                    url={this.state.mediaInfo ? base64ImageData(this.state.mediaInfo.image) : ''} />
                             </div>
                             <div className="media-bar-titles">
                                 {
@@ -416,15 +424,17 @@ class MediaController extends Component<{}, MediaBarState> {
 type AlbumArtProps = {
     url?: string;
     className?: string;
+    onClick?(): void;
+    interactive?: boolean;
 }
 
 // we can use children even though we haven't defined them in our CardProps
 export const AlbumArt: FunctionComponent<AlbumArtProps> = (props: AlbumArtProps) => (
-    <aside className={props.className}>
-        <Card interactive elevation={Elevation.TWO} className="album-art-card">
+    <div className={props.className}>
+        <Card interactive={typeof (props.interactive) !== 'undefined' ? props.interactive : true} elevation={Elevation.TWO} className="album-art-card" onClick={props.onClick}>
             <img src={props.url === "" ? nothumb.default : props.url} alt="album art" width="100%" height="100%" />
         </Card>
-    </aside>
+    </div>
 );
 
 export default MediaController;

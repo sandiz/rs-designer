@@ -72,3 +72,19 @@
 .import-url-dialog {
     width: 40vw !important;
 }
+
+.metadata-editor-dialog {
+    width: 30vw !important;
+}
+
+.metadata-input {
+    margin-bottom: 1vh;
+}
+
+.metadata-album-art-container {
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}

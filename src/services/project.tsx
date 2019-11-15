@@ -31,9 +31,10 @@ const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
 const isWin = os.platform() === "win32";
 
-export const ProjectUpdateType: { [key: string]: string } = {
-    ExternalFilesUpdate: "external-files-update",
-    ProjectInfoCreated: "project-info-created",
+export enum ProjectUpdateType {
+    ExternalFilesUpdate = "external-files-update",
+    ProjectInfoCreated = "project-info-created",
+    MediaInfoUpdated = "media-info-updated",
 }
 export class Project {
     public projectDirectory: string;
@@ -538,7 +539,7 @@ export class Project {
         return null;
     }
 
-    saveMetadata = async (media: IAudioMetadata): Promise<MediaInfo> => {
+    private saveMetadata = async (media: IAudioMetadata): Promise<MediaInfo> => {
         let buf = null;
         if (Array.isArray(media.common.picture) && media.common.picture.length > 0) {
             buf = media.common.picture[0].data;
@@ -555,6 +556,13 @@ export class Project {
             await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
         }
         return metadata;
+    }
+
+    updateMetadata = async (metadata: MediaInfo): Promise<void> => {
+        if (this.projectInfo) {
+            await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.MediaInfoUpdated);
+        }
     }
 
     importMedia = async (externalMedia: string | null) => {

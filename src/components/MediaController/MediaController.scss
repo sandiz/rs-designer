@@ -32,6 +32,12 @@
     width: calc(8vh * var(--media-bar-zoom)) !important;
 }
 
+.metadata-albumart {
+    height: calc(12vh * var(--media-bar-zoom)) !important;
+    width: calc(12vh * var(--media-bar-zoom)) !important;
+    margin-left: 2vw;
+}
+
 .album-art-card {
     padding: 0px !important;
     padding-bottom: 0px !important;
