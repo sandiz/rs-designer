@@ -15,7 +15,7 @@ import 'typeface-inconsolata'
 
 import { getHotkeyDialog } from './dialogs';
 import { HotkeyInfo, ProjectDetails, DialogContent } from './types'
-import WaveformController from './components/WaveformController/WaveformController';
+import Waveform from './components/Waveform/Waveform';
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 import ProjectService from './services/project';
@@ -110,7 +110,7 @@ class App extends Component<{}, AppState> {
         <React.Fragment>
           <InfoPanel project={this.state.project} />
           <div id="content">
-            <WaveformController />
+            <Waveform />
           </div>
           <MediaController />
           <Dialog

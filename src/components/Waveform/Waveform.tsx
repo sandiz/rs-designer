@@ -7,7 +7,7 @@ import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import NonIdealExtended from '../Extended/NonIdealExtended';
-import './WaveformController.scss';
+import './Waveform.scss';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import { CardExtended } from '../Extended/FadeoutSlider';
 import { getImportUrlDialog } from '../../dialogs';
@@ -16,7 +16,7 @@ interface WaveformState {
     show: boolean;
 }
 
-class WaveformController extends Component<{}, WaveformState> {
+class Waveform extends Component<{}, WaveformState> {
     constructor(props: {}) {
         super(props);
         this.state = { show: false };
@@ -99,4 +99,4 @@ class WaveformController extends Component<{}, WaveformState> {
     }
 }
 
-export default WaveformController;
+export default Waveform;
