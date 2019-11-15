@@ -19,7 +19,7 @@ import { getHotkeyDialog } from './dialogs';
 import { HotkeyInfo, ProjectMetadata, DialogContent } from './types'
 import WaveformController from './components/WaveformController/WaveformController';
 import { fpsize } from './lib/utils';
-import { DispatcherService, DispatchEvents } from './services/dispatcher';
+import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 import ProjectService from './services/project';
 import MediaPlayerService from './services/mediaplayer';
 
@@ -38,7 +38,9 @@ const AppDestructor = () => {
 }
 
 class App extends Component<{}, AppState> {
-  public keyMap = { SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey };
+  public keyMap = {
+    SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey,
+  };
 
   public handlers = {
     SHOW_ALL_HOTKEYS: () => this.setState({ dialogContent: getHotkeyDialog() }),
@@ -57,6 +59,8 @@ class App extends Component<{}, AppState> {
     DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
+    DispatcherService.on(DispatchEvents.OpenDialog, this.openDialog);
+    DispatcherService.on(DispatchEvents.CloseDialog, this.closeDialog);
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();
     fpsize();
@@ -87,6 +91,18 @@ class App extends Component<{}, AppState> {
       metadata: null,
     }
     this.setState({ project });
+  }
+
+  openDialog = (data: DispatchData) => {
+    const d = data as DialogContent;
+    this.setState({ dialogContent: d });
+  }
+
+  closeDialog = () => {
+    if (this.state.dialogContent) {
+      this.state.dialogContent.onClose();
+      this.setState({ dialogContent: null });
+    }
   }
 
   render = (): React.ReactNode => {
@@ -128,12 +144,14 @@ class App extends Component<{}, AppState> {
           <MediaController />
           <Dialog
             isOpen={this.state.dialogContent !== null}
-            onClose={(): void => this.setState({ dialogContent: null })}
+            onClose={this.closeDialog}
             className={this.state.dialogContent ? this.state.dialogContent.class : ""}
             isCloseButtonShown
             lazy
             title={this.state.dialogContent ? this.state.dialogContent.text : ""}
             icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
           >
             {
               this.state.dialogContent

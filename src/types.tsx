@@ -1,6 +1,18 @@
 import React from 'react';
 import { KeyCombo, IconName } from "@blueprintjs/core";
 
+import * as YTDL from 'youtube-dl';
+import * as PATH from 'path';
+import * as FS from 'fs';
+import * as OS from 'os';
+import * as SPAWN from 'cross-spawn';
+
+export const path: typeof PATH = window.require("path");
+export const youtube: typeof YTDL = window.require("youtube-dl");
+export const fs: typeof FS = window.require("fs");
+export const os: typeof OS = window.require("os");
+export const spawn: typeof SPAWN = window.require('cross-spawn');
+
 const { platform } = window.require('os');
 const isWin = platform() === "win32";
 const isMac = platform() === "darwin";
@@ -123,6 +135,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project" },
     CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project" },
     IMPORT_MEDIA: { info: "Import Media", hotkey: ["command+m", "ctrl+m"], group: "project" },
+    IMPORT_URL: { info: "Import URL", hotkey: ["command+u", "ctrl+u"], group: "project" },
 }
 
 export const getHotkey = (h: Hotkey) => {
@@ -158,5 +171,8 @@ export interface DialogContent {
     icon: IconName;
     text: React.ReactElement | string;
     class: string;
+    onClose(): void;
+    canOutsideClickClose: boolean;
+    canEscapeKeyClose: boolean;
 }
 export default {};

@@ -1671,6 +1671,13 @@
   resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.9.tgz#d868b6febb02666330410fe7f58f3c4b8258be7b"
   integrity sha512-MNl+rT5UmZeilaPxAVs6YaPC2m6aA8rofviZbhbxpPpl61uKodfdQVsBtgJGTqGizEf02oW3tsVe7FYB8kK14A==
 
+"@types/cross-spawn@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@types/cross-spawn/-/cross-spawn-6.0.1.tgz#60fa0c87046347c17d9735e5289e72b804ca9b63"
+  integrity sha512-MtN1pDYdI6D6QFDzy39Q+6c9rl2o/xN7aWGe6oZuzqq5N6+YuwFsWiEAv3dNzvzN9YzU+itpN8lBzFpphQKLAw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/debug@^4.1.4", "@types/debug@^4.1.5":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
@@ -1810,6 +1817,13 @@
   integrity sha512-K8/LfZq2duW33XW/tFwEAfnZlqIfVsoyRB3kfXdPXYhl0nfM8mmh7GS0jg7WrX2Dgq/0Ha/pR1PaR+BvmWwjiQ==
   dependencies:
     "@types/yargs-parser" "*"
+
+"@types/youtube-dl@^1.12.2":
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@types/youtube-dl/-/youtube-dl-1.12.2.tgz#5a7809afcfca4c3893ea205931ef3c74ad44df78"
+  integrity sha512-icACfzJHRJUlRTjhWwiIOZACjwc+XP5iKJ0XRjsdsG96vzSWL49dXLiOmPcEQrp9eznU4c9FZtkHTMGcJc3odw==
+  dependencies:
+    "@types/node" "*"
 
 "@typescript-eslint/eslint-plugin@^2.2.0", "@typescript-eslint/eslint-plugin@^2.6.1":
   version "2.6.1"

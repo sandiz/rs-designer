@@ -1,0 +1,74 @@
+.import-url-supported-sites {
+    text-align: right;
+}
+
+.import-url-search-bar {
+    display: flex;
+    width: 100%;
+}
+
+.import-url-search-bar>form {
+    width: 100%;
+}
+
+.import-url-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    margin-bottom: -5px;
+}
+
+.import-url-icon {
+    height: 20vh;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.import-url-message {
+    text-align: left;
+    margin-top: 1vh;
+    text-align: left;
+    font-size: 15px !important;
+    word-break: break-all;
+}
+
+.import-url-message>span {
+    top: calc(26%) !important;
+}
+
+.import-url-buttons {
+    text-align: center;
+}
+
+.import-url-checkbox {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.import-url-download-button {
+    margin-top: 1vh;
+    margin-bottom: -1vh;
+}
+
+.percent {
+    width: 30%;
+    text-align: right;
+}
+
+.message {
+    width: 70%;
+}
+
+.log {
+    margin: 0px;
+    overflow-y: auto;
+    max-height: 10vh;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.import-url-dialog {
+    width: 40vw !important;
+}

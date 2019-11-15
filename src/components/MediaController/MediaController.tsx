@@ -19,6 +19,7 @@ import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { readFile, sec2time } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
+import { getImportUrlDialog } from '../../dialogs';
 
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
@@ -46,6 +47,7 @@ class MediaController extends Component<{}, MediaBarState> {
         OPEN_LAST_PROJECT: HotkeyInfo.OPEN_LAST_PROJECT.hotkey,
         CLOSE_PROJECT: HotkeyInfo.CLOSE_PROJECT.hotkey,
         IMPORT_MEDIA: HotkeyInfo.IMPORT_MEDIA.hotkey,
+        IMPORT_URL: HotkeyInfo.IMPORT_URL.hotkey,
     };
 
     public handlers = {
@@ -57,6 +59,7 @@ class MediaController extends Component<{}, MediaBarState> {
         OPEN_LAST_PROJECT: () => this.openLastProject(),
         CLOSE_PROJECT: () => this.closeProject(),
         IMPORT_MEDIA: () => this.importMedia(null),
+        IMPORT_URL: () => this.importURL(),
     };
 
     private timer: number | null = null;
@@ -122,6 +125,10 @@ class MediaController extends Component<{}, MediaBarState> {
     importMedia = (external: string | null) => {
         this.stop();
         DispatcherService.dispatch(DispatchEvents.ImportMedia, external);
+    }
+
+    importURL = () => {
+        DispatcherService.dispatch(DispatchEvents.OpenDialog, getImportUrlDialog());
     }
 
     openLastProject = () => {
@@ -278,7 +285,10 @@ class MediaController extends Component<{}, MediaBarState> {
                 </MenuItem>
                 <MenuItem text="Import Media" icon={IconNames.IMPORT}>
                     <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
-                    <MenuItem text="from URL" icon={IconNames.CLOUD} />
+                    <MenuItem
+                        text="from URL"
+                        icon={IconNames.CLOUD}
+                        onClick={this.importURL} />
                 </MenuItem>
                 <Menu.Divider />
                 <MenuItem text="Settings" icon={IconNames.SETTINGS} />
@@ -310,11 +320,13 @@ class MediaController extends Component<{}, MediaBarState> {
                                     this.state.mediaInfo
                                         ? (
                                             <Text>
-                                                <Text className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
-                                                <span className={Classes.TEXT_MUTED}>from</span>
-                                                <span>&nbsp;{this.state.mediaInfo.album}</span>
-                                                <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
-                                                <span>&nbsp;{this.state.mediaInfo.artist}</span>
+                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
+                                                <Text>
+                                                    <span className={Classes.TEXT_MUTED}>from</span>
+                                                    <span>&nbsp;{this.state.mediaInfo.album}</span>
+                                                    <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
+                                                    <span>&nbsp;{this.state.mediaInfo.artist}</span>
+                                                </Text>
                                             </Text>
                                         )
                                         : (

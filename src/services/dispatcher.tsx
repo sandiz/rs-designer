@@ -84,6 +84,8 @@ export class DispatchEvents {
     public static ProjectClosed = "project-closed";     /* fired when a project was closed (source: project) */
 
     public static ImportMedia = "import-media";         /* event to trigger a media import (source: any, handler: project) */
+    public static OpenDialog = "open-dialog";           /* event to trigger a dialog open args: DialogContent */
+    public static CloseDialog = "close-dialog";         /* event to close an already open dialog */
 }
 
 export const DispatcherService = new DispatcherBase();

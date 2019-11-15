@@ -10,6 +10,7 @@ import NonIdealExtended from '../Extended/NonIdealExtended';
 import './WaveformController.scss';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import { CardExtended } from '../Extended/FadeoutSlider';
+import { getImportUrlDialog } from '../../dialogs';
 
 interface WaveformState {
     show: boolean;
@@ -48,7 +49,12 @@ class WaveformController extends Component<{}, WaveformState> {
             <React.Fragment>
                 <Menu large>
                     <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
-                    <MenuItem text="from URL" icon={IconNames.CLOUD} />
+                    <MenuItem
+                        text="from URL"
+                        icon={IconNames.CLOUD}
+                        onClick={() => {
+                            DispatcherService.dispatch(DispatchEvents.OpenDialog, getImportUrlDialog());
+                        }} />
                 </Menu>
             </React.Fragment>
         );
