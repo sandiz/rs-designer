@@ -246,7 +246,7 @@ export class ImportURLDialog extends React.Component<ImportURLDialogProps, Impor
                     metadata: info,
                     searching: false,
                     message: {
-                        text: "Valid URL",
+                        text: info.title,
                         intent: Intent.SUCCESS,
                     },
                 });
