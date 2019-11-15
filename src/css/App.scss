@@ -105,36 +105,52 @@ input,
 }
 
 .fps-meter {
-    position: absolute;
-    right: 3.5vh;
-    top: 3vh;
+    //position: absolute;
+    //right: 3.5vh;
+    //top: 3vh;
     z-index: 9999;
-    width: 10vh;
+    //width: 10vh;
     text-align: center;
     height: 2.5vh;
     overflow: hidden;
-    padding: 0;
+    //padding: 0;
     padding-top: 0.5vh;
+    width: 10vh
 }
 
 .memory-meter {
-    position: absolute;
-    right: 14.5vh;
-    top: 3vh;
+    //position: absolute;
+    //right: 14.5vh;
+    //top: 3vh;
     z-index: 9999;
-    width: 10vh;
+    //width: 10vh;
     text-align: center;
     height: 2.5vh;
     overflow: hidden;
-    padding: 0;
+    //padding: 0;
     padding-top: 0.5vh;
+    width: 11vh;
+}
+
+.latency-meter {
+    //position: absolute;
+    //right: 14.5vh;
+    //top: 3vh;
+    z-index: 9999;
+    //width: 10vh;
+    text-align: center;
+    height: 2.5vh;
+    overflow: hidden;
+    //padding: 0;
+    padding-top: 0.5vh;
+    width: 7vh;
 }
 
 .info-panel {
     display: flex;
     justify-content: left;
     align-items: center;
-    width: 100%;
+    width: 96%;
     position: absolute;
     left: 3vh;
     top: 3vh;
@@ -175,4 +191,8 @@ pre {
     white-space: -o-pre-wrap;
     /* Opera 7 */
     word-wrap: break-word;
+}
+
+.tooltip {
+    width: 30vh;
 }

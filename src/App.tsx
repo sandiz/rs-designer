@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-  Classes, FocusStyleManager, Dialog, Card, Text,
+  Classes, FocusStyleManager, Dialog, Card, Text, Tooltip,
 } from "@blueprintjs/core"
 import { IconNames } from '@blueprintjs/icons';
 import { GlobalHotKeys } from 'react-hotkeys';
@@ -110,33 +110,74 @@ class App extends Component<{}, AppState> {
     return (
       <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
         <React.Fragment>
-          {
-            this.state.project.loaded
-              ? (
-                <div className="info-panel">
-                  <Card interactive onClick={() => shell.showItemInFolder(this.state.project.metadata ? this.state.project.metadata.path : "")} elevation={0} id="" className={classNames("info-item", "info-item-large", "number")}>
-                    <Text ellipsize>
-                      Project: <span>{this.state.project.metadata ? this.state.project.metadata.name : "-"}</span>
-                    </Text>
-                  </Card>
-                  <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                    Key: <span>{this.state.project.metadata ? this.state.project.metadata.key : "-"}</span>
-                  </Card>
-                  <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                    Tempo: <span>
-                      {
-                        this.state.project && this.state.project.metadata
-                          ? (this.state.project.metadata.tempo === 0 ? "-" : `${this.state.project.metadata} bpm`)
-                          : "-"
-                      }</span>
-                  </Card>
-                </div>
-              )
-              : null
-          }
-          <div>
-            <Card elevation={0} id="memory" className={classNames("memory-meter", "number")}>0 / 0 mb</Card>
-            <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
+          <div className="info-panel">
+            {
+              this.state.project.loaded
+                ? (
+                  <div style={{ width: 50 + '%', display: 'flex' }}>
+                    <Card
+                      interactive
+                      onClick={() => shell.showItemInFolder(this.state.project.metadata ? this.state.project.metadata.path : "")}
+                      elevation={0}
+                      className={classNames("info-item", "info-item-large", "number")}>
+                      <Text ellipsize>
+                        Project: <span>{this.state.project.metadata ? this.state.project.metadata.name : "-"}</span>
+                      </Text>
+                    </Card>
+                    <Card elevation={0} id="" className={classNames("info-item", "number")}>
+                      Key: <span>{this.state.project.metadata ? this.state.project.metadata.key : "-"}</span>
+                    </Card>
+                    <Card elevation={0} id="" className={classNames("info-item", "number")}>
+                      Tempo: <span>
+                        {
+                          this.state.project && this.state.project.metadata
+                            ? (this.state.project.metadata.tempo === 0 ? "-" : `${this.state.project.metadata.tempo} bpm`)
+                            : "-"
+                        }</span>
+                    </Card>
+                  </div>
+                )
+                : null
+            }
+            <div style={{ width: (this.state.project.loaded ? 50 : 100) + '%', display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip
+                hoverOpenDelay={1000}
+                lazy
+                inheritDarkTheme
+                popoverClassName="tooltip"
+                content={(
+                  <span>
+                    The number of milliseconds of processing latency
+                    incurred by the app passing an audio buffer from
+                    the audio graph — into the audio subsystem ready for playing.
+                 </span>
+                )}>
+                <Card elevation={0} id="latency" className={classNames("latency-meter", "number", "info-item")}>- ms</Card>
+              </Tooltip>
+              <Tooltip
+                hoverOpenDelay={1000}
+                lazy
+                inheritDarkTheme
+                popoverClassName="tooltip"
+                content={(
+                  <span>
+                    Total amount of memory used / total allocated by JS objects.
+                 </span>
+                )}>
+                <Card elevation={0} id="memory" className={classNames("memory-meter", "number", "info-item")}>0 / 0 mb</Card>
+              </Tooltip>
+              <Tooltip
+                hoverOpenDelay={1000}
+                lazy
+                inheritDarkTheme
+                content={(
+                  <span>
+                    Frames per second.
+                 </span>
+                )}>
+                <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
+              </Tooltip>
+            </div>
           </div>
           <div id="content">
             <WaveformController />

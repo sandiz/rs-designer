@@ -8,6 +8,7 @@ import * as MM from 'music-metadata'
 const mm: typeof MM = window.require("music-metadata");
 
 import * as FSE from 'fs-extra';
+import MediaPlayerService from '../services/mediaplayer';
 const fsextra: typeof FSE = window.require("fs-extra");
 
 const albumArt = require('./album-art');
@@ -141,6 +142,7 @@ export const fpsize = () => {
     // shim layer with setTimeout fallback
     var fpsElement = document.getElementById("fps");
     var memElement = document.getElementById("memory");
+    var latencyElement = document.getElementById("latency");
 
     var then = Date.now() / 1000;  // get time in seconds
     var render = function () {
@@ -158,6 +160,16 @@ export const fpsize = () => {
             const total = Math.round((perf.memory.totalJSHeapSize / (1024 * 1024)))
             fpsElement.childNodes[0].nodeValue = fps.toFixed(2) + " fps";
             memElement.childNodes[0].nodeValue = `${used} / ${total} mb`
+        }
+        if (latencyElement) {
+            if (MediaPlayerService.audioContext) {
+                const { baseLatency } = MediaPlayerService.audioContext;
+                let bl = baseLatency ? Math.round((baseLatency * 1000)) : "-";
+                latencyElement.childNodes[0].nodeValue = `${bl} ms`
+            }
+            else {
+                latencyElement.childNodes[0].nodeValue = `-  ms`
+            }
         }
 
         requestAnimationFrame(render);

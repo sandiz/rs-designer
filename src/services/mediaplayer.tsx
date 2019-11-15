@@ -27,9 +27,11 @@ const getGradient = (type: string, ctx: CanvasRenderingContext2D) => {
 }
 class MediaPlayer {
     public wavesurfer: WaveSurfer | null;
+    public audioContext: AudioContext | null;
 
     constructor() {
         this.wavesurfer = null;
+        this.audioContext = null;
         nativeTheme.on("updated", this.updateTheme);
     }
 
@@ -41,7 +43,12 @@ class MediaPlayer {
         const ctx = document.createElement('canvas').getContext('2d');
         if (!ctx) return;
 
+        this.audioContext = new AudioContext({
+            latencyHint: 'interactive',
+            sampleRate: 44100,
+        });
         const params = {
+            audioContext: this.audioContext,
             backgroundColor: nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR,
             container: '#waveform',
             waveColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx),
@@ -142,6 +149,7 @@ class MediaPlayer {
             this.wavesurfer.unAll();
             this.wavesurfer.destroy();
         }
+        this.audioContext = null;
         this.wavesurfer = null;
         DispatcherService.dispatch(DispatchEvents.MediaReset);
     }
