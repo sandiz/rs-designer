@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { KeyCombo, IconName } from "@blueprintjs/core";
 
 import * as YTDL from 'youtube-dl';
@@ -6,6 +6,7 @@ import * as PATH from 'path';
 import * as FS from 'fs';
 import * as OS from 'os';
 import * as SPAWN from 'cross-spawn';
+import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 
 export const path: typeof PATH = window.require("path");
 export const youtube: typeof YTDL = window.require("youtube-dl");
@@ -164,6 +165,37 @@ export const getHotkey = (h: Hotkey) => {
         return <KeyCombo key={h.hotkey} combo={h.hotkey} />
     }
 }
+
+export interface HotKeyState {
+    isHKEnabled: boolean;
+}
+
+export class HotKeyComponent<P, Q extends HotKeyState> extends Component<P, Q> {
+    //eslint-disable-next-line
+    constructor(props: P) {
+        super(props);
+        this.state = this.getInitialState();
+    }
+
+    getInitialState() {
+        return { isHKEnabled: false } as Q;
+    }
+
+    private _handleKbd(kbdEnable: DispatchData) {
+        this.setState({ isHKEnabled: kbdEnable as boolean });
+    }
+
+    _componentDidMount() {
+        DispatcherService.on(DispatchEvents.KbdShortcuts, this._handleKbd.bind(this));
+    }
+
+    _componentWillUnmount() {
+        DispatcherService.off(DispatchEvents.KbdShortcuts, this._handleKbd.bind(this));
+    }
+
+    kbdProxy(cb: () => void) { if (this.state.isHKEnabled) cb(); }
+}
+
 
 export enum MEDIA_STATE { STOPPED, PLAYING, PAUSED }
 export enum VOLUME { MAX = 1, MIN = 0, DEFAULT = 0.5 }

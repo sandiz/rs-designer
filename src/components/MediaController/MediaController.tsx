@@ -1,4 +1,4 @@
-import React, { Component, FunctionComponent, RefObject } from 'react'
+import React, { FunctionComponent, RefObject } from 'react'
 import {
     Navbar, Elevation, Card, Classes, Text, Icon,
     MenuItem, Popover, Position, Menu,
@@ -9,7 +9,8 @@ import classNames from 'classnames';
 
 import * as PATH from 'path'
 import {
-    ExtClasses, MediaInfo, HotkeyInfo, MEDIA_STATE, VOLUME,
+    ExtClasses, MediaInfo, HotkeyInfo,
+    MEDIA_STATE, VOLUME, HotKeyState, HotKeyComponent,
 } from '../../types';
 import SliderExtended, { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 
@@ -28,14 +29,14 @@ const isWin = platform() === "win32";
 const isMac = platform() === "darwin";
 
 
-interface MediaBarState {
+interface MediaBarState extends HotKeyState {
     mediaInfo: MediaInfo | null;
     settingsMenu: React.ReactElement | null;
     mediaState: MEDIA_STATE;
     duration: number;
 }
 
-class MediaController extends Component<{}, MediaBarState> {
+class MediaController extends HotKeyComponent<{}, MediaBarState> {
     public keyMap = {
         PLAY_PAUSE: HotkeyInfo.PLAY_PAUSE.hotkey,
         FWD: HotkeyInfo.FWD.hotkey,
@@ -54,24 +55,26 @@ class MediaController extends Component<{}, MediaBarState> {
         PLAY_PAUSE: () => this.play(),
         FWD: () => this.fwd(),
         REWIND: () => this.rewind(),
-        OPEN_PROJECT: () => this.openProject(null),
-        SAVE_PROJECT: () => this.saveProject(),
-        OPEN_LAST_PROJECT: () => this.openLastProject(),
-        CLOSE_PROJECT: () => this.closeProject(),
-        IMPORT_MEDIA: () => this.importMedia(null),
-        IMPORT_URL: () => this.importURL(),
+        OPEN_PROJECT: () => this.kbdProxy(() => this.openProject(null)),
+        SAVE_PROJECT: () => this.kbdProxy(() => this.saveProject()),
+        OPEN_LAST_PROJECT: () => this.kbdProxy(() => this.openLastProject()),
+        CLOSE_PROJECT: () => this.kbdProxy(() => this.closeProject()),
+        IMPORT_MEDIA: () => this.kbdProxy(() => this.importMedia(null)),
+        IMPORT_URL: () => this.kbdProxy(() => this.importURL()),
     };
 
     private timer: number | null = null;
     private ProgressTimerRef: RefObject<HTMLDivElement> = React.createRef();
     constructor(props: {}) {
         super(props);
-        this.state = {
+        const b = {
             mediaInfo: null,
             settingsMenu: null,
             duration: 0,
             mediaState: MEDIA_STATE.STOPPED,
+            isHKEnabled: true,
         };
+        this.state = { ...super.getInitialState(), ...b };
         this.settingsMenu();
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
@@ -84,9 +87,11 @@ class MediaController extends Component<{}, MediaBarState> {
     }
 
     componentDidMount = () => {
+        super._componentDidMount();
     }
 
     componentWillUnmount() {
+        super._componentWillUnmount();
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed)
@@ -308,7 +313,8 @@ class MediaController extends Component<{}, MediaBarState> {
 
     render = () => {
         const c = (
-            <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+            <React.Fragment>
+                <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
@@ -415,7 +421,7 @@ class MediaController extends Component<{}, MediaBarState> {
                         </div>
                     </div>
                 </CardExtended>
-            </GlobalHotKeys>
+            </React.Fragment>
         );
         return c;
     }

@@ -30,7 +30,7 @@ class DispatcherEvent {
     }
 }
 
-export type DispatchData = string | object | null;
+export type DispatchData = string | object | boolean | null;
 class DispatcherBase {
     public events: { [key: string]: DispatcherEvent }
     private static instance: DispatcherBase;
@@ -93,6 +93,8 @@ export enum DispatchEvents {
     ImportMedia = "import-media",         /* event to trigger a media import (source: any, handler: project) */
     OpenDialog = "open-dialog",           /* event to trigger a dialog open args: DialogContent */
     CloseDialog = "close-dialog",         /* event to close an already open dialog */
+
+    KbdShortcuts = "kbd-shortcuts",       /* event to turn hotkeys on/off */
 }
 
 export const DispatcherService = DispatcherBase.getInstance();

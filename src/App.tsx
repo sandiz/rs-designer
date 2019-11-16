@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import {
   Classes, FocusStyleManager, Dialog,
 } from "@blueprintjs/core"
@@ -14,17 +14,19 @@ import 'typeface-magra'
 import 'typeface-inconsolata'
 
 import { getHotkeyDialog } from './dialogs';
-import { HotkeyInfo, ProjectDetails, DialogContent } from './types'
-import Waveform from './components/Waveform/Waveform';
+import {
+  HotkeyInfo, ProjectDetails, DialogContent, HotKeyComponent, HotKeyState,
+} from './types'
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 import ProjectService from './services/project';
 import MediaPlayerService from './services/mediaplayer';
 import InfoPanel from './components/InfoPanel/InfoPanel';
+import Waveform from './components/Waveform/Waveform';
 
 const { nativeTheme } = window.require("electron").remote;
 
-interface AppState {
+interface AppState extends HotKeyState {
   darkMode: boolean;
   dialogContent: DialogContent | null;
   project: ProjectDetails;
@@ -35,25 +37,27 @@ const AppDestructor = () => {
   ProjectService.destructor();
 }
 
-class App extends Component<{}, AppState> {
+class App extends HotKeyComponent<{}, AppState> {
   public keyMap = {
     SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey,
   };
 
   public handlers = {
-    SHOW_ALL_HOTKEYS: () => this.setState({ dialogContent: getHotkeyDialog() }),
+    SHOW_ALL_HOTKEYS: () => this.kbdProxy(() => this.openDialog(getHotkeyDialog())),
   }
 
   constructor(props: {}) {
     super(props);
-    this.state = {
+    const b = {
       darkMode: nativeTheme.shouldUseDarkColors,
       dialogContent: null,
       project: { loaded: false, metadata: null },
     };
+    this.state = { ...super.getInitialState(), ...b };
   }
 
   componentDidMount = () => {
+    super._componentDidMount();
     DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectOpened);
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
@@ -65,6 +69,7 @@ class App extends Component<{}, AppState> {
   }
 
   componentWillUnmount = (): void => {
+    super._componentWillUnmount();
     DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
     nativeTheme.off('updated', this.changeAppColor);
@@ -94,6 +99,8 @@ class App extends Component<{}, AppState> {
   openDialog = (data: DispatchData) => {
     const d = data as DialogContent;
     this.setState({ dialogContent: d });
+    /* disable hotkeys */
+    DispatcherService.dispatch(DispatchEvents.KbdShortcuts, false);
   }
 
   closeDialog = () => {
@@ -101,37 +108,38 @@ class App extends Component<{}, AppState> {
       this.state.dialogContent.onClose();
       this.setState({ dialogContent: null });
     }
+    /* enable hotkeys */
+    DispatcherService.dispatch(DispatchEvents.KbdShortcuts, true);
   }
 
   render = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
-      <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-        <React.Fragment>
-          <InfoPanel project={this.state.project} />
-          <div id="content">
-            <Waveform />
-          </div>
-          <MediaController />
-          <Dialog
-            isOpen={this.state.dialogContent !== null}
-            onClose={this.closeDialog}
-            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
-            isCloseButtonShown
-            lazy
-            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
-            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
-            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
-            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
-          >
-            {
-              this.state.dialogContent
-                ? this.state.dialogContent.content
-                : null
-            }
-          </Dialog>
-        </React.Fragment>
-      </GlobalHotKeys>
+      <React.Fragment>
+        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
+        <InfoPanel project={this.state.project} />
+        <div id="content">
+          <Waveform />
+        </div>
+        <MediaController />
+        <Dialog
+          isOpen={this.state.dialogContent !== null}
+          onClose={this.closeDialog}
+          className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+          isCloseButtonShown
+          lazy
+          title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+          icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+          canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+          canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+        >
+          {
+            this.state.dialogContent
+              ? this.state.dialogContent.content
+              : null
+          }
+        </Dialog>
+      </React.Fragment>
     );
   }
 }
