@@ -47,7 +47,17 @@ export class Project {
     public tmpHandle: TMP.DirResult | null;
     public projectSettings: ProjectSettingsModel | null;
 
-    constructor() {
+    private static instance: Project;
+
+    static getInstance() {
+        if (!Project.instance) {
+            Project.instance = new Project();
+        }
+        return Project.instance;
+    }
+
+
+    private constructor() {
         tmp.setGracefulCleanup();
         this.projectDirectory = "";
         this.isTemporary = false;
@@ -68,18 +78,18 @@ export class Project {
         this.loadProjectSettings();
     }
 
-    destructor() {
+    public destructor() {
         app.off('before-quit', this.unload)
     }
 
-    clearRecents = async () => {
+    public clearRecents = async () => {
         if (this.projectSettings) {
             this.projectSettings.recents = [];
             await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
         }
     }
 
-    getRecents = async (): Promise<ProjectInfo[]> => {
+    public getRecents = async (): Promise<ProjectInfo[]> => {
         await this.loadProjectSettings();
         if (this.projectSettings) {
             return this.projectSettings.recents;
@@ -87,13 +97,13 @@ export class Project {
         return [];
     }
 
-    loadProjectSettings = async () => {
+    private loadProjectSettings = async () => {
         const ser = await ForageService.get(SettingsForageKeys.PROJECT_SETTINGS);
         if (ser) this.projectSettings = new ProjectSettingsModel(ser);
         else this.projectSettings = new ProjectSettingsModel(null);
     }
 
-    saveProjectSettings = async () => {
+    private saveProjectSettings = async () => {
         // dont save temp projects to recents/last opened 
         if (this.isTemporary) return;
         if (this.projectSettings && this.projectInfo) {
@@ -118,7 +128,7 @@ export class Project {
         }
     }
 
-    isAnalysisReqd() {
+    private isAnalysisReqd() {
         if (this.projectInfo) {
             const {
                 cqt, tempo, beats, key, chords,
@@ -139,11 +149,11 @@ export class Project {
         return false;
     }
 
-    isProjectLoaded() {
+    public isProjectLoaded() {
         return this.isLoaded;
     }
 
-    unload() {
+    private unload() {
         this.isLoaded = false;
         this.isTemporary = false;
         this.projectDirectory = "";
@@ -158,7 +168,11 @@ export class Project {
         MediaPlayerService.unload();
     }
 
-    closeProject = () => {
+    private closeProject = () => {
+        if (this.isLoading) {
+            successToaster("Close Project failed:  please wait for the project to finish loading", Intent.DANGER, IconNames.ERROR);
+            return;
+        }
         if (this.isProjectLoaded()) {
             this.unload();
             DispatcherService.dispatch(DispatchEvents.ProjectClosed);
@@ -167,7 +181,7 @@ export class Project {
         }
     }
 
-    openLastProject = async () => {
+    public openLastProject = async () => {
         await this.loadProjectSettings();
         const lp = this.getLastOpenedProject();
         if (lp && lp.projectPath) {
@@ -181,7 +195,7 @@ export class Project {
         }
     }
 
-    openProject = async (externalProject: string | null, importingMedia = false) => {
+    private openProject = async (externalProject: string | null, importingMedia = false) => {
         if (this.isLoading) {
             successToaster("Open Project failed:  another project is already being loaded", Intent.DANGER, IconNames.ERROR);
             return;
@@ -219,7 +233,7 @@ export class Project {
         this.isLoading = false;
     }
 
-    loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
+    private loadProject = async (externalProject: string | null): Promise<ProjectInfo | null> => {
         let dirs = [];
         if (externalProject) {
             dirs.push(externalProject);
@@ -293,19 +307,19 @@ export class Project {
         return null;
     }
 
-    getProjectInfo = () => {
+    public getProjectInfo = () => {
         return this.projectInfo;
     }
 
-    getProjectFilename = () => {
+    public getProjectFilename = () => {
         return this.projectFileName;
     }
 
-    getProjectDir = () => {
+    public getProjectDir = () => {
         return this.projectDirectory;
     }
 
-    saveProject = async () => {
+    private saveProject = async () => {
         if (this.isLoaded) {
             if (this.isTemporary) {
                 const out = await dialog.showOpenDialog({
@@ -350,7 +364,7 @@ export class Project {
         return false;
     }
 
-    updateExternalFiles = async () => {
+    private updateExternalFiles = async () => {
         if (this.projectInfo) {
             this.projectInfo.cqt = path.join(this.projectDirectory, 'cqt.raw.png');
             this.projectInfo.tempo = path.join(this.projectDirectory, 'tempo');
@@ -363,7 +377,7 @@ export class Project {
         }
     }
 
-    updateProjectInfo = async (dir: string, istemp: boolean, isloaded: boolean, file: string, readOnly = false, dispatch = true) => {
+    private updateProjectInfo = async (dir: string, istemp: boolean, isloaded: boolean, file: string, readOnly = false, dispatch = true) => {
         const ext = path.extname(file);
         this.projectDirectory = dir;
         this.projectFileName = `${this.projectDirectory}/project.${projectExt}`;
@@ -381,7 +395,7 @@ export class Project {
         }
     }
 
-    createTemporaryProject = async (file: string): Promise<string> => {
+    private createTemporaryProject = async (file: string): Promise<string> => {
         this.unload();
         /* create temp dir */
         this.tmpHandle = tmp.dirSync({
@@ -409,7 +423,7 @@ export class Project {
         return "";
     }
 
-    readMetadata = async (): Promise<MediaInfo | null> => {
+    public readMetadata = async (): Promise<MediaInfo | null> => {
         if (this.projectInfo == null || this.projectInfo.metadata == null) return null;
         const mm = this.projectInfo.metadata;
         try {
@@ -421,7 +435,7 @@ export class Project {
         }
     }
 
-    readTempo = async (): Promise<number> => {
+    private readTempo = async (): Promise<number> => {
         try {
             if (this.projectInfo) {
                 const tempoFile = this.projectInfo.tempo;
@@ -435,7 +449,7 @@ export class Project {
         return 0;
     }
 
-    readSongKey = async (): Promise<string[]> => {
+    private readSongKey = async (): Promise<string[]> => {
         try {
             if (this.projectInfo) {
                 const keyFile = this.projectInfo.key;
@@ -461,7 +475,7 @@ export class Project {
         return [];
     }
 
-    readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
+    private readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
             const lineReader = readline.createInterface({
@@ -494,7 +508,7 @@ export class Project {
         return null;
     });
 
-    readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
+    private readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
             const lineReader = readline.createInterface({
@@ -521,12 +535,12 @@ export class Project {
         return null;
     });
 
-    getLastOpenedProject = (): ProjectInfo | null => {
+    public getLastOpenedProject = (): ProjectInfo | null => {
         if (this.projectSettings == null) return null;
         return this.projectSettings.lastOpenedProject;
     }
 
-    getProjectMetadata = async (): Promise<ProjectMetadata | null> => {
+    public getProjectMetadata = async (): Promise<ProjectMetadata | null> => {
         if (this.projectInfo) {
             const key = await this.readSongKey();
             return {
@@ -558,14 +572,14 @@ export class Project {
         return metadata;
     }
 
-    updateMetadata = async (metadata: MediaInfo): Promise<void> => {
+    public updateMetadata = async (metadata: MediaInfo): Promise<void> => {
         if (this.projectInfo) {
             await writeFile(this.projectInfo.metadata, JSON.stringify(metadata));
             DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.MediaInfoUpdated);
         }
     }
 
-    importMedia = async (externalMedia: string | null) => {
+    private importMedia = async (externalMedia: string | null) => {
         if (this.isLoading) {
             successToaster("Import Media failed:  another project is being loaded", Intent.DANGER, IconNames.ERROR);
             return;
@@ -608,5 +622,5 @@ export class Project {
     }
 }
 
-const ProjectService = new Project();
+const ProjectService = Project.getInstance();
 export default ProjectService;

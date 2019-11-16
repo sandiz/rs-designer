@@ -33,19 +33,26 @@ class DispatcherEvent {
 export type DispatchData = string | object | null;
 class DispatcherBase {
     public events: { [key: string]: DispatcherEvent }
+    private static instance: DispatcherBase;
 
-    constructor() {
+    static getInstance() {
+        if (!DispatcherBase.instance) {
+            DispatcherBase.instance = new DispatcherBase();
+        }
+        return DispatcherBase.instance;
+    }
+    private constructor() {
         this.events = {};
     }
 
-    dispatch(eventName: string, data: DispatchData = null) {
+    public dispatch(eventName: string, data: DispatchData = null) {
         const event = this.events[eventName];
         if (event) {
             event.fire(data);
         }
     }
 
-    on(eventName: string, callback: DispatchCallback) {
+    public on(eventName: string, callback: DispatchCallback) {
         // console.trace("subscribed to ", eventName);
         let event = this.events[eventName];
         if (!event) {
@@ -55,7 +62,7 @@ class DispatcherBase {
         event.registerCallback(callback);
     }
 
-    off(eventName: string, callback: DispatchCallback) {
+    public off(eventName: string, callback: DispatchCallback) {
         // console.log("unsubscribed to ", eventName);
         const event = this.events[eventName];
         if (event && event.callbacks.indexOf(callback) > -1) {
@@ -88,4 +95,4 @@ export enum DispatchEvents {
     CloseDialog = "close-dialog",         /* event to close an already open dialog */
 }
 
-export const DispatcherService = new DispatcherBase();
+export const DispatcherService = DispatcherBase.getInstance();

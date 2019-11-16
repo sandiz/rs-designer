@@ -29,17 +29,26 @@ class MediaPlayer {
     public wavesurfer: WaveSurfer | null;
     public audioContext: AudioContext | null;
 
-    constructor() {
+    private static instance: MediaPlayer;
+
+    static getInstance() {
+        if (!MediaPlayer.instance) {
+            MediaPlayer.instance = new MediaPlayer();
+        }
+        return MediaPlayer.instance;
+    }
+
+    private constructor() {
         this.wavesurfer = null;
         this.audioContext = null;
         nativeTheme.on("updated", this.updateTheme);
     }
 
-    destructor() {
+    public destructor() {
         nativeTheme.off("updated", this.updateTheme);
     }
 
-    loadMedia = (blob: Blob) => new Promise((resolve, reject) => {
+    public loadMedia = (blob: Blob) => new Promise((resolve, reject) => {
         const ctx = document.createElement('canvas').getContext('2d');
         if (!ctx) return;
 
@@ -116,7 +125,7 @@ class MediaPlayer {
         });
     });
 
-    updateTheme = () => {
+    private updateTheme = () => {
         if (this.wavesurfer) {
             const keys = Object.keys(this.wavesurfer.getActivePlugins());
             if (keys.includes("timeline")) {
@@ -143,7 +152,7 @@ class MediaPlayer {
         }
     }
 
-    unload = (): void => {
+    public unload = (): void => {
         if (this.wavesurfer) {
             this.wavesurfer.stop();
             this.wavesurfer.unAll();
@@ -154,83 +163,83 @@ class MediaPlayer {
         DispatcherService.dispatch(DispatchEvents.MediaReset);
     }
 
-    empty = (): void => {
+    public empty = (): void => {
         if (this.wavesurfer) {
             this.wavesurfer.empty();
         }
     }
 
-    stop = (): void => {
+    public stop = (): void => {
         if (this.wavesurfer) {
             this.wavesurfer.stop();
         }
     }
 
-    playPause = async () => {
+    public playPause = async () => {
         if (this.wavesurfer) {
             await this.wavesurfer.playPause();
         }
     }
 
-    pause = async () => {
+    public pause = async () => {
         if (this.wavesurfer) {
             await this.wavesurfer.pause();
         }
     }
 
-    play = async () => {
+    public play = async () => {
         if (this.wavesurfer) {
             await this.wavesurfer.play();
         }
     }
 
-    seekTo = (num: number): void => {
+    public seekTo = (num: number): void => {
         if (this.wavesurfer) {
             this.wavesurfer.seekTo(num);
         }
     }
 
-    rewind = (num = 5): void => {
+    public rewind = (num = 5): void => {
         if (this.wavesurfer) {
             this.wavesurfer.skipBackward(num);
         }
     }
 
-    ffwd = (num = 5): void => {
+    public ffwd = (num = 5): void => {
         if (this.wavesurfer) {
             this.wavesurfer.skipForward(num);
         }
     }
 
-    isPlaying = (): boolean => {
+    public isPlaying = (): boolean => {
         if (this.wavesurfer) {
             return this.wavesurfer.isPlaying();
         }
         return false;
     }
 
-    getDuration = (): number => {
+    public getDuration = (): number => {
         if (this.wavesurfer) {
             return this.wavesurfer.getDuration();
         }
         return 0;
     }
 
-    getCurrentTime = (): number => {
+    public getCurrentTime = (): number => {
         if (this.wavesurfer) {
             return this.wavesurfer.getCurrentTime();
         }
         return 0;
     }
 
-    getVolume = () => {
+    public getVolume = () => {
         if (this.wavesurfer) {
             return this.wavesurfer.getVolume();
         }
         return VOLUME.DEFAULT;
     }
 
-    setVolume = (num: number) => {
+    public setVolume = (num: number) => {
         if (this.wavesurfer) {
             return this.wavesurfer.setVolume(num);
         }
@@ -238,5 +247,5 @@ class MediaPlayer {
     }
 }
 
-const MediaPlayerService = new MediaPlayer();
+const MediaPlayerService = MediaPlayer.getInstance();
 export default MediaPlayerService;
