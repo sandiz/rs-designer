@@ -17,7 +17,9 @@ import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
-import { successToaster, progressToaster, dismissToaster } from '../components/Extended/Toasters';
+import {
+    successToaster, progressToaster, errorToaster, dismissToaster,
+} from '../components/Extended/Toasters';
 
 const { app, dialog } = window.require('electron').remote;
 
@@ -170,7 +172,7 @@ export class Project {
 
     private closeProject = () => {
         if (this.isLoading) {
-            successToaster("Close Project failed:  please wait for the project to finish loading", Intent.DANGER, IconNames.ERROR);
+            errorToaster("Close Project failed:  please wait for the project to finish loading");
             return;
         }
         if (this.isProjectLoaded()) {
@@ -191,13 +193,13 @@ export class Project {
             }
         }
         else {
-            successToaster("No recently opened project found", Intent.DANGER);
+            errorToaster("No recently opened project found");
         }
     }
 
     private openProject = async (externalProject: string | null, importingMedia = false) => {
         if (this.isLoading) {
-            successToaster("Open Project failed:  another project is already being loaded", Intent.DANGER, IconNames.ERROR);
+            errorToaster("Open Project failed:  another project is already being loaded");
             return;
         }
         const total = 3;
@@ -581,13 +583,13 @@ export class Project {
 
     private importMedia = async (externalMedia: string | null) => {
         if (this.isLoading) {
-            successToaster("Import Media failed:  another project is being loaded", Intent.DANGER, IconNames.ERROR);
+            errorToaster("Import Media failed:  another project is being loaded");
             return;
         }
-        this.isLoading = true;
         if (this.isProjectLoaded()) {
             this.closeProject();
         }
+        this.isLoading = true;
         const key = progressToaster("Importing Media", 1, 2);
 
         /* prompt for file or use externalMedia */

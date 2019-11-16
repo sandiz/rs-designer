@@ -17,6 +17,7 @@ const toaster: IToaster = Toaster.create({
     position: Position.TOP,
 });
 
+
 export const successToaster = (msg: string, intent: Intent = Intent.SUCCESS, icon: IconName = IconNames.TICK): string => {
     const toast: IToastProps = {
         className: "success-toaster",
@@ -26,6 +27,10 @@ export const successToaster = (msg: string, intent: Intent = Intent.SUCCESS, ico
         timeout: 2000,
     };
     return toaster.show(toast);
+}
+
+export const errorToaster = (msg: string, intent: Intent = Intent.DANGER, icon: IconName = IconNames.ERROR): string => {
+    return successToaster(msg, intent, icon);
 }
 
 export const progressToaster = (msg: string, amount: number, total: number, key?: string | undefined, progressBarIntent: Intent = Intent.SUCCESS): string => {
