@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Classes, InputGroup, Intent, Button,
+    Classes, InputGroup, Intent, Button, Spinner,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
@@ -8,19 +8,20 @@ import classNames from 'classnames';
 import { MediaInfo, OnChangeHandler } from '../../types';
 import ProjectService from '../../services/project';
 import { AlbumArt } from '../MediaController/MediaController';
-import { base64ImageData } from '../../lib/utils';
+import { base64ImageData, fetchCover } from '../../lib/utils';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import { successToaster } from '../Extended/Toasters';
+import { successToaster, errorToaster } from '../Extended/Toasters';
 
 interface MEState {
     mediaInfo: MediaInfo | null;
     projectLoaded: boolean;
+    imageDownloadInProgress: boolean;
 }
 
 class MetadataEditorDialog extends React.Component<{}, MEState> {
     constructor(props: {}) {
         super(props);
-        this.state = { mediaInfo: null, projectLoaded: false };
+        this.state = { mediaInfo: null, projectLoaded: false, imageDownloadInProgress: false };
     }
 
     componentDidMount = () => {
@@ -61,8 +62,30 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
         }
     }
 
-    onSearchImage = () => {
-
+    onSearchImage = async () => {
+        this.setState({ imageDownloadInProgress: true });
+        let url = "";
+        const { mediaInfo } = this.state;
+        if (mediaInfo) {
+            if (mediaInfo.album.length > 0) {
+                url = await fetchCover(mediaInfo.artist, mediaInfo.album);
+            }
+            else {
+                url = await fetchCover(mediaInfo.artist, mediaInfo.song, false);
+            }
+            if (url.toString().toLowerCase().includes("error:")) {
+                errorToaster(url.toString());
+            }
+            else {
+                const data = await fetch(url);
+                const body = await data.arrayBuffer();
+                mediaInfo.image = Buffer.from(body).toString("base64");
+                this.setState({
+                    mediaInfo,
+                });
+            }
+        }
+        this.setState({ imageDownloadInProgress: false })
     }
 
     onLocalImage = () => {
@@ -129,11 +152,17 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
                                 interactive={false}
                                 className="metadata-albumart"
                                 url={this.state.mediaInfo ? base64ImageData(this.state.mediaInfo.image) : ''} />
-                            <div style={{ marginTop: 1 + 'vh', marginLeft: 2 + 'vw' }}>
-                                <Button
-                                    onClick={this.onSearchImage}
-                                    minimal
-                                    icon={IconNames.SEARCH} />
+                            <div style={{ marginTop: 1 + 'vh', marginLeft: 2 + 'vw', display: 'flex' }}>
+                                {
+                                    this.state.imageDownloadInProgress
+                                        ? <Spinner size={Spinner.SIZE_SMALL} />
+                                        : (
+                                            <Button
+                                                onClick={this.onSearchImage}
+                                                minimal
+                                                icon={IconNames.SEARCH} />
+                                        )
+                                }
                                 <Button
                                     onClick={this.onLocalImage}
                                     minimal

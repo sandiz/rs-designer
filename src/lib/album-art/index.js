@@ -52,7 +52,7 @@
       .then((json) => {
         if (typeof (json.error) !== 'undefined') {
           // Error
-          return Promise.reject(new Error(`JSON - ${json.error} ${json.message}`))
+          return Promise.reject(new Error(`[lastfm] ${json.message}`))
         }
 
         let output

@@ -89,13 +89,8 @@ export const fetchCover = async (artist: string, albumortrack: string, usealbum 
     if (usealbum) options.album = albumortrack
     else options.track = albumortrack
     url = await albumArt(a1, options);
-
     if (url.toString().toLowerCase().includes("error:")) {
-        //eslint-disable-next-line
         url = await albumArt(a1, { size: 'large' });
-    }
-    if (!url.toString().includes("http")) {
-        url = "";
     }
     return url;
 }
