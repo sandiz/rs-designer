@@ -13,7 +13,7 @@ import './css/App.scss'
 import 'typeface-magra'
 import 'typeface-inconsolata'
 
-import { getHotkeyDialog } from './dialogs';
+import { getHotkeyDialog, getMetadataEditorDialog, getImportUrlDialog } from './dialogs';
 import {
   HotkeyInfo, ProjectDetails, DialogContent, HotKeyComponent, HotKeyState,
 } from './types'
@@ -40,10 +40,14 @@ const AppDestructor = () => {
 class App extends HotKeyComponent<{}, AppState> {
   public keyMap = {
     SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey,
+    EDIT_METADATA: HotkeyInfo.EDIT_METADATA.hotkey,
+    IMPORT_URL: HotkeyInfo.IMPORT_URL.hotkey,
   };
 
   public handlers = {
     SHOW_ALL_HOTKEYS: () => this.kbdProxy(() => this.openDialog(getHotkeyDialog())),
+    EDIT_METADATA: () => this.kbdProxy(() => this.openDialog(getMetadataEditorDialog())),
+    IMPORT_URL: () => this.kbdProxy(() => this.openDialog(getImportUrlDialog())),
   }
 
   constructor(props: {}) {
@@ -116,29 +120,30 @@ class App extends HotKeyComponent<{}, AppState> {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
       <React.Fragment>
-        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
-        <InfoPanel project={this.state.project} />
-        <div id="content">
-          <Waveform />
-        </div>
-        <MediaController />
-        <Dialog
-          isOpen={this.state.dialogContent !== null}
-          onClose={this.closeDialog}
-          className={this.state.dialogContent ? this.state.dialogContent.class : ""}
-          isCloseButtonShown
-          lazy
-          title={this.state.dialogContent ? this.state.dialogContent.text : ""}
-          icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
-          canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
-          canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
-        >
-          {
-            this.state.dialogContent
-              ? this.state.dialogContent.content
-              : null
-          }
-        </Dialog>
+        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+          <InfoPanel project={this.state.project} />
+          <div id="content">
+            <Waveform />
+          </div>
+          <MediaController />
+          <Dialog
+            isOpen={this.state.dialogContent !== null}
+            onClose={this.closeDialog}
+            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+            isCloseButtonShown
+            lazy
+            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+          >
+            {
+              this.state.dialogContent
+                ? this.state.dialogContent.content
+                : null
+            }
+          </Dialog>
+        </GlobalHotKeys>
       </React.Fragment>
     );
   }

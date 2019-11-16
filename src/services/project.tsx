@@ -446,7 +446,7 @@ export class Project {
                 return tempo;
             }
         } catch (e) {
-            console.warn("readTempo error", e);
+            console.warn("readTempo error", e, this.projectInfo);
         }
         return 0;
     }
@@ -472,7 +472,7 @@ export class Project {
             }
         }
         catch (e) {
-            console.warn("readSongKey error: ", e);
+            console.warn("readSongKey error: ", e, this.projectInfo);
         }
         return [];
     }
