@@ -16,19 +16,27 @@ export enum Store {
 
 class Forage {
     public settingsStore: LocalForage;
+    private static instance: Forage;
 
-    constructor() {
+    static getInstance() {
+        if (!Forage.instance) {
+            Forage.instance = new Forage();
+        }
+        return Forage.instance;
+    }
+
+    private constructor() {
         this.settingsStore = localForage.createInstance({
             name: Store.GENERAL,
         });
     }
 
-    get = async (key: string) => {
+    public get = async (key: string) => {
         const val = await this.settingsStore.getItem(key);
         return val;
     }
 
-    set = async (key: string, value: object): Promise<void> => {
+    public set = async (key: string, value: object): Promise<void> => {
         await this.settingsStore.setItem(key, value);
         DispatcherService.dispatch(DispatchEvents.SettingsUpdate, {
             key,
@@ -36,12 +44,12 @@ class Forage {
         })
     }
 
-    clearAll = async (): Promise<void> => {
+    public clearAll = async (): Promise<void> => {
         await this.settingsStore.clear();
         DispatcherService.dispatch(DispatchEvents.SettingsUpdate, {});
     }
 }
 
-const ForageService = new Forage();
+const ForageService = Forage.getInstance();
 
 export default ForageService;
