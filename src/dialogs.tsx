@@ -7,7 +7,7 @@ import {
 import classNames from 'classnames';
 
 import {
-    HotkeyInfo, ExtClasses, DialogContent, os,
+    HotkeyInfo, ExtClasses, DialogContent, os, Hotkey,
 } from './types';
 import './dialogs.scss'
 import ImportURLDialog from './components/ImportURL/ImportURL';
@@ -27,29 +27,57 @@ type groupKeymapType = {
 /* HotKey Dialog */
 const getKeymapGroups = (keyMap: ApplicationKeyMap) => {
     const groups: groupKeymapType = {};
-    Object.keys(keyMap).forEach((key) => {
-        if (key in HotkeyInfo) {
-            const i = HotkeyInfo[key];
-            const obj: { [key: string]: KeyMapDisplayOptions } = {}
-            obj[key] = keyMap[key];
-            if (i.group) {
-                if (!(i.group in groups)) {
-                    groups[i.group] = {};
-                }
-                groups[i.group][key] = keyMap[key];
+
+    const sortable: (string | Hotkey)[][] = [];
+    Object.keys(keyMap).forEach((key: string) => {
+        sortable.push([key, HotkeyInfo[key]]);
+    });
+
+    sortable.sort((a: (string | Hotkey)[], b: (string | Hotkey)[]) => {
+        const aidx = (a[1] as Hotkey).idx;
+        const aval = typeof (aidx) === 'undefined' ? 0 : aidx;
+        const bidx = (b[1] as Hotkey).idx;
+        const bval = typeof (bidx) === 'undefined' ? 0 : bidx;
+
+        return aval - bval;
+    })
+
+    sortable.forEach((a: (string | Hotkey)[]) => {
+        const key = a[0] as string;
+        const i = a[1] as Hotkey;
+        const obj: { [key: string]: KeyMapDisplayOptions } = {}
+        obj[key] = keyMap[key];
+        if (i.group) {
+            if (!(i.group in groups)) {
+                groups[i.group] = {};
             }
-            else {
-                if (!("general" in groups)) {
-                    groups.general = {}
-                }
-                groups.general[key] = keyMap[key];
+            groups[i.group][key] = keyMap[key];
+        }
+        else {
+            if (!("general" in groups)) {
+                groups.general = {}
             }
+            groups.general[key] = keyMap[key];
         }
     });
     return groups;
 }
 
 const getKeyMapForGroup = (group: string, km: keyMapType) => {
+    const keyNode = (s: string, idx: number, len: number) => (
+        <div key={s} style={{ display: 'flex' }}>
+            <KeyCombo key={s} combo={s} />
+            {
+                idx < len - 1
+                    ? (
+                        <div style={{ marginLeft: 0.30 + 'vw' }}>
+                            <KeyCombo key="or" combo="or" />
+                        </div>
+                    )
+                    : null
+            }
+        </div>
+    );
     return (
         <div key={group}>
             {
@@ -62,22 +90,28 @@ const getKeyMapForGroup = (group: string, km: keyMapType) => {
                             </div>
                             <span className={Classes.KEY_COMBO}>
                                 {
-                                    sequences.map(({ sequence }) => {
+                                    sequences.map(({ sequence }, idx) => {
                                         let s = null;
                                         if (typeof sequence === 'string') s = sequence;
                                         else s = sequence.join();
                                         if (s.includes("ctrl")) {
                                             if (isWin) {
-                                                return <KeyCombo key={s} combo={s} />
+                                                return (
+                                                    keyNode(s, idx, sequences.length - 1)
+                                                );
                                             }
                                         }
                                         else if (s.includes("command")) {
                                             if (isMac) {
-                                                return <KeyCombo key={s} combo={s} />
+                                                return (
+                                                    keyNode(s, idx, sequences.length - 1)
+                                                );
                                             }
                                         }
                                         else {
-                                            return <KeyCombo key={s} combo={s} />
+                                            return (
+                                                keyNode(s, idx, sequences.length)
+                                            );
                                         }
                                         return null;
                                     })
@@ -94,7 +128,6 @@ const getKeyMapForGroup = (group: string, km: keyMapType) => {
 export const getHotkeyDialog = (): DialogContent => {
     const keyMap: ApplicationKeyMap = getApplicationKeyMap();
     const groups = getKeymapGroups(keyMap);
-
     const content = (
         <React.Fragment>
             <div className={classNames(Classes.DIALOG_BODY)}>

@@ -125,23 +125,37 @@ export interface Hotkey {
     info: string;
     hotkey: string | string[];
     group?: string;
+    idx?: number;
 }
 export const HotkeyInfo: { [key: string]: Hotkey } = {
     SHOW_ALL_HOTKEYS: { info: "Show this dialog", hotkey: "shift+?" },
-    PLAY_PAUSE: { info: "Play/Pause", hotkey: "space" },
+    PLAY_PAUSE: { info: "Play/Pause", hotkey: ["space", "enter"] },
     FWD: { info: "Seek Forward", hotkey: "right" },
     REWIND: { info: "Seek Barwards", hotkey: "left" },
     STOP: { info: "Stop", hotkey: "s" },
     VOL_UP: { info: "Volume Up", hotkey: "up" },
     VOL_DOWN: { info: "Volume Down", hotkey: "down" },
-
-    OPEN_PROJECT: { info: "Open Project", hotkey: ["command+o", "ctrl+o"], group: "project" },
-    SAVE_PROJECT: { info: "Save Project", hotkey: ["command+s", "ctrl+s"], group: "project" },
-    OPEN_LAST_PROJECT: { info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project" },
-    CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project" },
-    IMPORT_MEDIA: { info: "Import Media", hotkey: ["command+m", "ctrl+m"], group: "project" },
-    IMPORT_URL: { info: "Import URL", hotkey: ["command+u", "ctrl+u"], group: "project" },
-    EDIT_METADATA: { info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project" },
+    OPEN_PROJECT: {
+        info: "Open Project", hotkey: ["command+o", "ctrl+o"], group: "project", idx: 1,
+    },
+    SAVE_PROJECT: {
+        info: "Save Project", hotkey: ["command+s", "ctrl+s"], group: "project", idx: 2,
+    },
+    OPEN_LAST_PROJECT: {
+        info: "Open Last Project", hotkey: ["command+1", "ctrl+1"], group: "project", idx: 3,
+    },
+    CLOSE_PROJECT: {
+        info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project", idx: 4,
+    },
+    IMPORT_MEDIA: {
+        info: "Import Media", hotkey: ["command+m", "ctrl+m"], group: "project", idx: 5,
+    },
+    IMPORT_URL: {
+        info: "Import URL", hotkey: ["command+u", "ctrl+u"], group: "project", idx: 6,
+    },
+    EDIT_METADATA: {
+        info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
+    },
 }
 
 export const getHotkey = (h: Hotkey) => {

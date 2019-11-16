@@ -120,29 +120,30 @@ class App extends HotKeyComponent<{}, AppState> {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
       <React.Fragment>
-        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
-        <InfoPanel project={this.state.project} />
-        <div id="content">
-          <Waveform />
-        </div>
-        <MediaController />
-        <Dialog
-          isOpen={this.state.dialogContent !== null}
-          onClose={this.closeDialog}
-          className={this.state.dialogContent ? this.state.dialogContent.class : ""}
-          isCloseButtonShown
-          lazy
-          title={this.state.dialogContent ? this.state.dialogContent.text : ""}
-          icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
-          canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
-          canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
-        >
-          {
-            this.state.dialogContent
-              ? this.state.dialogContent.content
-              : null
-          }
-        </Dialog>
+        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+          <InfoPanel project={this.state.project} />
+          <div id="content">
+            <Waveform />
+          </div>
+          <MediaController />
+          <Dialog
+            isOpen={this.state.dialogContent !== null}
+            onClose={this.closeDialog}
+            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+            isCloseButtonShown
+            lazy
+            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+          >
+            {
+              this.state.dialogContent
+                ? this.state.dialogContent.content
+                : null
+            }
+          </Dialog>
+        </GlobalHotKeys>
       </React.Fragment>
     );
   }

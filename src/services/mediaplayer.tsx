@@ -73,6 +73,7 @@ class MediaPlayer {
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
+            interactive: true,
             plugins: [
                 TimelinePlugin.create({
                     container: '#timeline',
@@ -244,6 +245,18 @@ class MediaPlayer {
             return this.wavesurfer.setVolume(num);
         }
         return 0;
+    }
+
+    public skipForward = () => {
+        if (this.wavesurfer) {
+            this.wavesurfer.skipForward();
+        }
+    }
+
+    public skipBackward = () => {
+        if (this.wavesurfer) {
+            this.wavesurfer.skipBackward();
+        }
     }
 }
 

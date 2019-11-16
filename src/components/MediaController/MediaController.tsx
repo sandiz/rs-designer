@@ -19,7 +19,7 @@ import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import {
-    readFile, sec2time, base64ImageData, clamp,
+    readFile, sec2time, base64ImageData,
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
@@ -116,24 +116,9 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     _set_media_playing = () => this.setState({ mediaState: MEDIA_STATE.PLAYING });
     _set_media_paused = () => this.setState({ mediaState: MEDIA_STATE.PAUSED });
 
-    volUp = () => {
-        let vol = MediaPlayerService.getVolume();
-        if (vol < 1) {
-            vol += 0.10;
-            vol = clamp(0, 1, vol);
-            MediaPlayerService.setVolume(vol);
-        }
-    }
+    volUp = () => MediaPlayerService.skipForward();
 
-    volDown = () => {
-        let vol = MediaPlayerService.getVolume();
-        if (vol > 0) {
-            vol -= 0.10;
-            vol = clamp(0, 1, vol);
-            MediaPlayerService.setVolume(vol);
-        }
-    }
-
+    volDown = () => MediaPlayerService.skipBackward();
 
     play = async (): Promise<void> => {
         await MediaPlayerService.playPause();
@@ -141,9 +126,9 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         else this._set_media_paused();
     }
 
-    fwd = (): void => MediaPlayerService.ffwd()
+    fwd = (): void => MediaPlayerService.ffwd();
 
-    rewind = (): void => MediaPlayerService.rewind()
+    rewind = (): void => MediaPlayerService.rewind();
 
     clearRecents = async () => {
         await ProjectService.clearRecents();
