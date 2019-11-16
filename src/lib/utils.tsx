@@ -175,3 +175,5 @@ export const fpsize = () => {
 export const base64ImageData = (data: string) => {
     return 'data:image/jpeg;base64,' + data;
 }
+
+export const clamp = (min: number, max: number, val: number) => Math.min(Math.max(min, val), max);

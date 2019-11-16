@@ -18,7 +18,9 @@ import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import { readFile, sec2time, base64ImageData } from '../../lib/utils';
+import {
+    readFile, sec2time, base64ImageData, clamp,
+} from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
 
@@ -54,8 +56,10 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     public handlers = {
         PLAY_PAUSE: () => this.play(),
         FWD: () => this.fwd(),
-        STOP: () => this.stop(),
         REWIND: () => this.rewind(),
+        STOP: () => this.stop(),
+        VOL_UP: () => this.volUp(),
+        VOL_DOWN: () => this.volDown(),
         OPEN_PROJECT: () => this.kbdProxy(() => this.openProject(null)),
         SAVE_PROJECT: () => this.kbdProxy(() => this.saveProject()),
         OPEN_LAST_PROJECT: () => this.kbdProxy(() => this.openLastProject()),
@@ -112,15 +116,34 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     _set_media_playing = () => this.setState({ mediaState: MEDIA_STATE.PLAYING });
     _set_media_paused = () => this.setState({ mediaState: MEDIA_STATE.PAUSED });
 
+    volUp = () => {
+        let vol = MediaPlayerService.getVolume();
+        if (vol < 1) {
+            vol += 0.10;
+            vol = clamp(0, 1, vol);
+            MediaPlayerService.setVolume(vol);
+        }
+    }
+
+    volDown = () => {
+        let vol = MediaPlayerService.getVolume();
+        if (vol > 0) {
+            vol -= 0.10;
+            vol = clamp(0, 1, vol);
+            MediaPlayerService.setVolume(vol);
+        }
+    }
+
+
     play = async (): Promise<void> => {
         await MediaPlayerService.playPause();
         if (MediaPlayerService.isPlaying()) this._set_media_playing()
         else this._set_media_paused();
     }
 
-    fwd = (): void => MediaPlayerService.rewind()
+    fwd = (): void => MediaPlayerService.ffwd()
 
-    rewind = (): void => MediaPlayerService.ffwd()
+    rewind = (): void => MediaPlayerService.rewind()
 
     clearRecents = async () => {
         await ProjectService.clearRecents();
@@ -314,114 +337,113 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     render = () => {
         const c = (
             <React.Fragment>
-                <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-                    <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
-                        <div className="media-bar-container">
-                            <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
-                                <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
-                            </Popover>
-                            <Navbar.Divider className="tall-divider" />
+                <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
+                <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
+                    <div className="media-bar-container">
+                        <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
+                            <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        </Popover>
+                        <Navbar.Divider className="tall-divider" />
 
-                            <div className="media-bar-song-info">
-                                <div className="media-bar-albumart-container">
-                                    <AlbumArt
-                                        onClick={this.metadataEdit}
-                                        className="media-bar-albumart"
-                                        url={this.state.mediaInfo ? base64ImageData(this.state.mediaInfo.image) : ''} />
-                                </div>
-                                <div className="media-bar-titles">
-                                    {
-                                        this.state.mediaInfo
-                                            ? (
+                        <div className="media-bar-song-info">
+                            <div className="media-bar-albumart-container">
+                                <AlbumArt
+                                    onClick={this.metadataEdit}
+                                    className="media-bar-albumart"
+                                    url={this.state.mediaInfo ? base64ImageData(this.state.mediaInfo.image) : ''} />
+                            </div>
+                            <div className="media-bar-titles">
+                                {
+                                    this.state.mediaInfo
+                                        ? (
+                                            <Text>
+                                                <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
                                                 <Text>
-                                                    <Text ellipsize className={ExtClasses.TEXT_LARGER}>{this.state.mediaInfo.song}</Text>
-                                                    <Text>
-                                                        <span className={Classes.TEXT_MUTED}>from</span>
-                                                        <span>&nbsp;{this.state.mediaInfo.album}</span>
-                                                        <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
-                                                        <span>&nbsp;{this.state.mediaInfo.artist}</span>
-                                                    </Text>
+                                                    <span className={Classes.TEXT_MUTED}>from</span>
+                                                    <span>&nbsp;{this.state.mediaInfo.album}</span>
+                                                    <span className={Classes.TEXT_MUTED}>&nbsp;by</span>
+                                                    <span>&nbsp;{this.state.mediaInfo.artist}</span>
                                                 </Text>
-                                            )
-                                            : (
-                                                <Text>No Project Opened</Text>
-                                            )
-                                    }
-                                </div>
-                            </div>
-                            <Navbar.Divider className="tall-divider" />
-
-                            <div className="media-bar-controls">
-                                <div>
-                                    <ButtonExtended icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.rewind} />
-                                </div>
-                                <div>
-                                    <ButtonExtended
-                                        type="button"
-                                        active={this.state.mediaState === MEDIA_STATE.PLAYING}
-                                        icon={(
-                                            <Icon
-                                                icon={this.state.mediaState === MEDIA_STATE.PLAYING ? IconNames.PAUSE : IconNames.PLAY}
-                                                iconSize={35} />
-                                        )}
-                                        className={classNames(Classes.ELEVATION_2, "media-bar-button")}
-                                        onClick={this.play}
-                                    />
-                                </div>
-                                <div>
-                                    <ButtonExtended icon={<Icon icon={IconNames.FAST_FORWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.fwd} />
-                                </div>
-                            </div>
-                            <Navbar.Divider className="tall-divider" />
-
-                            <div className="media-bar-progress">
-                                <div className="media-bar-timer">
-                                    <div
-                                        id="progress-time"
-                                        ref={this.ProgressTimerRef}
-                                        className={classNames("number", ExtClasses.TEXT_LARGER_2, "progress-time")}>
-                                        00:00.000
-                                </div>
-                                </div>
-                                <div className="media-bar-progress-bar">
-                                    <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>00:00</div>
-                                    <div className="progressbar">
-                                        <SliderExtended
-                                            stepSize={1}
-                                            timerSource={MediaPlayerService.getCurrentTime}
-                                            min={0}
-                                            max={this.state.duration === 0 ? 100 : this.state.duration}
-                                            labelRenderer={false}
-                                            dragStart={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
-                                            dragEnd={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
-                                        />
-                                    </div>
-                                    <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>{sec2time(this.state.duration)}</div>
-                                </div>
-                            </div>
-                            <Navbar.Divider className="tall-divider" />
-
-                            <div className="volume">
-                                <Icon icon={IconNames.VOLUME_UP} />
-                                <div>
-                                    <SliderExtended
-                                        stepSize={1 / 100}
-                                        timerSource={MediaPlayerService.getVolume}
-                                        className="volume-slider"
-                                        min={VOLUME.MIN}
-                                        max={VOLUME.MAX}
-                                        labelRenderer={false}
-                                        dragStart={(v: number) => MediaPlayerService.setVolume(v)}
-                                        dragEnd={(v: number) => MediaPlayerService.setVolume(v)}
-                                    />
-                                </div>
-                            </div>
-                            <div className="more-button">
-                                <ButtonExtended icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                                            </Text>
+                                        )
+                                        : (
+                                            <Text>No Project Opened</Text>
+                                        )
+                                }
                             </div>
                         </div>
-                    </CardExtended>
-                </GlobalHotKeys>
+                        <Navbar.Divider className="tall-divider" />
+
+                        <div className="media-bar-controls">
+                            <div>
+                                <ButtonExtended icon={<Icon icon={IconNames.FAST_BACKWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.rewind} />
+                            </div>
+                            <div>
+                                <ButtonExtended
+                                    type="button"
+                                    active={this.state.mediaState === MEDIA_STATE.PLAYING}
+                                    icon={(
+                                        <Icon
+                                            icon={this.state.mediaState === MEDIA_STATE.PLAYING ? IconNames.PAUSE : IconNames.PLAY}
+                                            iconSize={35} />
+                                    )}
+                                    className={classNames(Classes.ELEVATION_2, "media-bar-button")}
+                                    onClick={this.play}
+                                />
+                            </div>
+                            <div>
+                                <ButtonExtended icon={<Icon icon={IconNames.FAST_FORWARD} iconSize={20} />} large className={Classes.ELEVATION_2} onClick={this.fwd} />
+                            </div>
+                        </div>
+                        <Navbar.Divider className="tall-divider" />
+
+                        <div className="media-bar-progress">
+                            <div className="media-bar-timer">
+                                <div
+                                    id="progress-time"
+                                    ref={this.ProgressTimerRef}
+                                    className={classNames("number", ExtClasses.TEXT_LARGER_2, "progress-time")}>
+                                    00:00.000
+                                </div>
+                            </div>
+                            <div className="media-bar-progress-bar">
+                                <div className={classNames("progress-start", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>00:00</div>
+                                <div className="progressbar">
+                                    <SliderExtended
+                                        stepSize={1}
+                                        timerSource={MediaPlayerService.getCurrentTime}
+                                        min={0}
+                                        max={this.state.duration === 0 ? 100 : this.state.duration}
+                                        labelRenderer={false}
+                                        dragStart={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
+                                        dragEnd={(v: number) => MediaPlayerService.seekTo(v / MediaPlayerService.getDuration())}
+                                    />
+                                </div>
+                                <div className={classNames("progress-end", Classes.TEXT_DISABLED, Classes.TEXT_SMALL, "number")}>{sec2time(this.state.duration)}</div>
+                            </div>
+                        </div>
+                        <Navbar.Divider className="tall-divider" />
+
+                        <div className="volume">
+                            <Icon icon={IconNames.VOLUME_UP} />
+                            <div>
+                                <SliderExtended
+                                    stepSize={1 / 100}
+                                    timerSource={MediaPlayerService.getVolume}
+                                    className="volume-slider"
+                                    min={VOLUME.MIN}
+                                    max={VOLUME.MAX}
+                                    labelRenderer={false}
+                                    dragStart={(v: number) => MediaPlayerService.setVolume(v)}
+                                    dragEnd={(v: number) => MediaPlayerService.setVolume(v)}
+                                />
+                            </div>
+                        </div>
+                        <div className="more-button">
+                            <ButtonExtended icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                        </div>
+                    </div>
+                </CardExtended>
             </React.Fragment>
         );
         return c;
