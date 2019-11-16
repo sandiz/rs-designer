@@ -8,10 +8,11 @@ import classNames from 'classnames';
 import { MediaInfo, OnChangeHandler } from '../../types';
 import ProjectService from '../../services/project';
 import { AlbumArt } from '../MediaController/MediaController';
-import { base64ImageData, fetchCover } from '../../lib/utils';
+import { base64ImageData, fetchCover, readFile } from '../../lib/utils';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { successToaster, errorToaster } from '../Extended/Toasters';
 
+const { dialog } = window.require('electron').remote;
 interface MEState {
     mediaInfo: MediaInfo | null;
     projectLoaded: boolean;
@@ -88,8 +89,27 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
         this.setState({ imageDownloadInProgress: false })
     }
 
-    onLocalImage = () => {
-
+    onLocalImage = async () => {
+        const out = await dialog.showOpenDialog({
+            properties: ["openFile"],
+            filters: [
+                { name: 'JPG', extensions: ['jpg'] },
+                { name: 'PNG', extensions: ['png'] },
+            ],
+        });
+        const files = out.filePaths;
+        if (files === null || typeof files === 'undefined' || files.length <= 0) {
+            return;
+        }
+        const file = files[0];
+        const data = await readFile(file);
+        const { mediaInfo } = this.state;
+        if (mediaInfo) {
+            mediaInfo.image = data.toString("base64");
+            this.setState({
+                mediaInfo,
+            });
+        }
     }
 
     onSave = () => {
