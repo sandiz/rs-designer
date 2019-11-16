@@ -200,13 +200,13 @@ export class Project {
             successToaster("Open Project failed:  another project is already being loaded", Intent.DANGER, IconNames.ERROR);
             return;
         }
-        this.isLoading = true;
         const total = 3;
         const key = progressToaster("Opening Project", 0.5, total);
         try {
             if (this.isProjectLoaded() && !importingMedia) {
                 this.closeProject();
             }
+            this.isLoading = true;
             const pInfo = await this.loadProject(externalProject);
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);

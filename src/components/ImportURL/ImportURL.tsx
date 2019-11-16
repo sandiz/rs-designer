@@ -182,6 +182,10 @@ class ImportURLDialog extends React.Component<ImportURLDialogProps, ImportURLDia
                 intent: Intent.SUCCESS,
             },
         });
+        if (this.video) {
+            this.video.kill();
+            this.video = null;
+        }
         console.log("file to import", this.downloadedFile);
         DispatcherService.dispatch(DispatchEvents.ImportMedia, this.downloadedFile);
         DispatcherService.dispatch(DispatchEvents.CloseDialog);

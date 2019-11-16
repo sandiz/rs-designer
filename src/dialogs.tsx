@@ -104,7 +104,6 @@ export const getHotkeyDialog = (): DialogContent => {
                         {
                             Object.keys(groups).map((group: string) => {
                                 const km = groups[group];
-                                console.log(group, Object.keys(km).length);
                                 return (
                                     <Tab
                                         key={group}
