@@ -109,6 +109,7 @@ class MediaPlayer {
 
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
+            this.setStyle();
             resolve();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -150,6 +151,12 @@ class MediaPlayer {
             this.wavesurfer.params.waveColor = nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx);
             this.wavesurfer.setCursorColor(nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK);
             this.wavesurfer.drawBuffer();
+        }
+    }
+
+    setStyle = () => {
+        if (this.wavesurfer) {
+            this.wavesurfer.drawer.wrapper.classList.add("waveform-height");
         }
     }
 

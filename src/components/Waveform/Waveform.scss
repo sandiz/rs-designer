@@ -7,7 +7,16 @@
 
 #timeline {
     border-top: 1px solid gray;
-    margin-top: 15px;
+    height: 10%;
+}
+
+#waveform {
+    height: 92%;
+}
+
+.canvas-container {
+    height: 100%;
+    ;
 }
 
 .description-buttons {
@@ -23,4 +32,8 @@
 .appLogo-waveform {
     width: 10vh;
     height: 10vh;
+}
+
+.waveform-height {
+    height: 95% !important;
 }
