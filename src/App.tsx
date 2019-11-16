@@ -19,7 +19,7 @@ import {
 } from './types'
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
-import ProjectService from './services/project';
+import ProjectService, { ProjectUpdateType } from './services/project';
 import MediaPlayerService from './services/mediaplayer';
 import InfoPanel from './components/InfoPanel/InfoPanel';
 import Waveform from './components/Waveform/Waveform';
@@ -63,7 +63,7 @@ class App extends HotKeyComponent<{}, AppState> {
   componentDidMount = () => {
     super._componentDidMount();
     DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
-    DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectOpened);
+    DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
     DispatcherService.on(DispatchEvents.OpenDialog, this.openDialog);
     DispatcherService.on(DispatchEvents.CloseDialog, this.closeDialog);
@@ -76,6 +76,7 @@ class App extends HotKeyComponent<{}, AppState> {
     super._componentWillUnmount();
     DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
+    DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
     nativeTheme.off('updated', this.changeAppColor);
     AppDestructor();
   }
@@ -84,10 +85,24 @@ class App extends HotKeyComponent<{}, AppState> {
     this.setState({ darkMode: nativeTheme.shouldUseDarkColors });
   }
 
+  projectUpdated = async (data: DispatchData) => {
+    if (this.state.project.loaded) {
+      if (typeof data === 'string'
+        && (data === ProjectUpdateType.ExternalFilesUpdate
+          || data === ProjectUpdateType.MediaInfoUpdated)) {
+        const metadata = await ProjectService.getProjectMetadata();
+        const { project } = this.state;
+        project.metadata = metadata;
+        this.setState({ project });
+      }
+    }
+  }
+
   projectOpened = async () => {
+    const metadata = await ProjectService.getProjectMetadata();
     const project: ProjectDetails = {
       loaded: true,
-      metadata: await ProjectService.getProjectMetadata(),
+      metadata,
     }
     this.setState({ project });
   }

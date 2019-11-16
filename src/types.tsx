@@ -78,9 +78,11 @@ export interface ProjectMetadata {
     path: string;
     key: string;
     tempo: number;
+    chords: ChordTime[];
+    beats: BeatTime[];
 }
 
-export type ProjectDetails = { metadata: ProjectMetadata | null; loaded: boolean };
+export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolean };
 
 /* Music Theory */
 export interface ChordTime {

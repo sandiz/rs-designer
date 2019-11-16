@@ -34,8 +34,8 @@ const bundleExt = "rsdbundle";
 const isWin = os.platform() === "win32";
 
 export enum ProjectUpdateType {
-    ExternalFilesUpdate = "external-files-update",
     ProjectInfoCreated = "project-info-created",
+    ExternalFilesUpdate = "external-files-update",
     MediaInfoUpdated = "media-info-updated",
 }
 export class Project {
@@ -455,6 +455,7 @@ export class Project {
         try {
             if (this.projectInfo) {
                 const keyFile = this.projectInfo.key;
+                console.trace(keyFile)
                 const data = await readFile(keyFile)
                 const s: string[] = JSON.parse(data.toString())
                 let note = s[0];
@@ -472,7 +473,7 @@ export class Project {
             }
         }
         catch (e) {
-            console.warn("readSongKey error: ", e, JSON.stringify(this.projectInfo));
+            console.trace("readSongKey error: ", e, JSON.stringify(this.projectInfo));
         }
         return [];
     }
@@ -545,11 +546,15 @@ export class Project {
     public getProjectMetadata = async (): Promise<ProjectMetadata | null> => {
         if (this.projectInfo) {
             const key = await this.readSongKey();
+            const chords = await this.readChords();
+            const beats = await this.readBeats();
             return {
                 name: path.basename(this.projectDirectory),
                 path: this.projectDirectory,
                 key: key.length > 0 ? `${key[0]} ${key[1]}` : "-",
                 tempo: Math.round(await this.readTempo()),
+                chords,
+                beats,
             }
         }
         return null;
