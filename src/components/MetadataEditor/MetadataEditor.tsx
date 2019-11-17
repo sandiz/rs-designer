@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Classes, InputGroup, Intent, Button, Spinner,
+    Classes, InputGroup, Intent, Button, Spinner, Tooltip, Position,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
@@ -90,6 +90,7 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
     }
 
     onLocalImage = async () => {
+        if (!this.state.mediaInfo) return;
         const out = await dialog.showOpenDialog({
             properties: ["openFile"],
             filters: [
@@ -177,16 +178,20 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
                                     this.state.imageDownloadInProgress
                                         ? <Spinner size={Spinner.SIZE_SMALL} />
                                         : (
-                                            <Button
-                                                onClick={this.onSearchImage}
-                                                minimal
-                                                icon={IconNames.SEARCH} />
+                                            <Tooltip lazy content="Search last.fm for cover image" hoverOpenDelay={1000} position={Position.BOTTOM}>
+                                                <Button
+                                                    onClick={this.onSearchImage}
+                                                    minimal
+                                                    icon={IconNames.SEARCH} />
+                                            </Tooltip>
                                         )
                                 }
-                                <Button
-                                    onClick={this.onLocalImage}
-                                    minimal
-                                    icon={IconNames.UPLOAD} />
+                                <Tooltip content="Upload an image from disk" hoverOpenDelay={1000} lazy position={Position.BOTTOM}>
+                                    <Button
+                                        onClick={this.onLocalImage}
+                                        minimal
+                                        icon={IconNames.UPLOAD} />
+                                </Tooltip>
                             </div>
                         </div>
                     </div>

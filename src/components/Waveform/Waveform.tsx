@@ -91,6 +91,8 @@ class Waveform extends Component<{}, WaveformState> {
                     title={title}
                     description={description} />
                 <div style={{ visibility: this.state.show ? "visible" : "hidden" }} className="canvas-container">
+                    <div id="chordstimeline" />
+                    <div id="beatstimeline" />
                     <div id="waveform" />
                     <div id="timeline" />
                 </div>

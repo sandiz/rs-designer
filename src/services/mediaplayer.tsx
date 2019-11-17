@@ -3,13 +3,18 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
+import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import { DispatcherService, DispatchEvents } from './dispatcher';
-import { VOLUME, ExtClasses, ZOOM } from '../types';
+import {
+    VOLUME, ExtClasses, ZOOM,
+} from '../types';
+import ProjectService from './project';
 
 const { nativeTheme } = window.require("electron").remote;
 
 const COLORS = {
     TIMELINE: { primaryFontColorDark: Colors.WHITE, primaryFontColor: Colors.BLACK },
+    CHORDS: { primaryFontColorDark: Colors.WHITE, primaryFontColor: Colors.BLACK },
 };
 const getGradient = (type: string, ctx: CanvasRenderingContext2D) => {
     if (type === "dark") {
@@ -112,6 +117,7 @@ class MediaPlayer {
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
             this.setStyle();
+            this.loadChordsTimeline();
             resolve();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -130,6 +136,28 @@ class MediaPlayer {
         });
     });
 
+    loadChordsTimeline = async () => {
+        if (this.wavesurfer) {
+            const activePlugins = this.wavesurfer.getActivePlugins();
+            if (activePlugins.chordstimeline === true) {
+                this.wavesurfer.chordstimeline.render();
+            }
+            else {
+                const chords = await ProjectService.readChords();
+                const ct = ChordsTimelinePlugin.create({
+                    container: '#chordstimeline',
+                    chords,
+                    fontSize: 15,
+                    primaryColor: nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
+                    chordColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
+                    alternateColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2,
+                    overflowColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
+                })
+                this.wavesurfer.registerPlugins([ct]);
+            }
+        }
+    }
+
     private updateTheme = () => {
         if (this.wavesurfer) {
             const keys = Object.keys(this.wavesurfer.getActivePlugins());
@@ -146,6 +174,13 @@ class MediaPlayer {
                     "border-right": br,
                 });
                 console.log(cursor.cursor.style);
+            }
+            if (keys.includes("chordstimeline")) {
+                this.wavesurfer.chordstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
+                this.wavesurfer.chordstimeline.params.chordColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
+                this.wavesurfer.chordstimeline.params.alternateColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2;
+                this.wavesurfer.chordstimeline.params.overflowColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
+                this.wavesurfer.chordstimeline.render();
             }
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return;

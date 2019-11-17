@@ -477,7 +477,7 @@ export class Project {
         return [];
     }
 
-    private readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
+    public readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
             const lineReader = readline.createInterface({
@@ -487,8 +487,8 @@ export class Project {
             const chords: ChordTime[] = []
             lineReader.on('line', (line: string) => {
                 const split = line.split(",")
-                const start = split[0]
-                const end = split[1]
+                const start = parseFloat(split[0])
+                const end = parseFloat(split[1])
                 const chord = split[2]
                 const splitch = chord.split(":")
                 const key = splitch[0]
@@ -510,7 +510,7 @@ export class Project {
         return null;
     });
 
-    private readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
+    public readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
             const lineReader = readline.createInterface({

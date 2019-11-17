@@ -132,7 +132,10 @@ export default class ChordsTimelinePlugin {
                 formatTimeCallback: this.defaultFormatTimeCallback,
                 timeInterval: this.defaultTimeInterval,
                 primaryLabelInterval: this.defaultPrimaryLabelInterval,
-                secondaryLabelInterval: this.defaultSecondaryLabelInterval
+                secondaryLabelInterval: this.defaultSecondaryLabelInterval,
+                chordColor: "#3b7eac",
+                alternateColor: "#436a88",
+                overflowColor: "black",
             },
             params
         );
@@ -356,34 +359,73 @@ export default class ChordsTimelinePlugin {
             curSeconds += timeInterval;
             curPixel += pixelsPerSecond * timeInterval;
         }
-
-        this.setFonts(`${fontSize}px Roboto Condensed`);
+        this.setFonts(`${fontSize}px Inconsolata`);
         if (this.params.chords.length == 0) {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {
-                    background: 'azure',
+                    background: this.params.overflowColor,
                 })
             }
-
-            this.fillText("No info available", 10, height1 / 2 + 15);
+            this.setFillStyles(this.params.primaryColor);
+            this.fillText("Chords unavailable", 10, height1 / 2 + 10);
             return;
         }
+        let hidden = false;
+        let hiddenColor = "";
+        let hiddenPatches = [];
+        let startHPixel = 0;
         this.params.chords.forEach((chordData, i) => {
-            let [start, end, chord, type] = chordData;
+            let { start, end, key, type } = chordData;
+            let chord = key;
+            const startPixel = start * pixelsPerSecond;
+            const endPixel = end * pixelsPerSecond;
+            const width = endPixel - startPixel;
             if (chord !== 'N') {
                 chord = getTransposedKey(chord, transpose);
-                const startPixel = this.getPixelForSecond(start, positioning);
-                const endPixel = this.getPixelForSecond(end, positioning);
-                const color = (i % 2 ? '#3b7eac' : '#436a88');
-                this.setFillStyles(color);
-                const width = endPixel - startPixel;
-                this.fillRect(startPixel, 0, width, height1);
-                this.setFillStyles("#fff");
                 if (type == 'maj') type = '';
                 const text = chord + type;
-                const twidth = this.canvases[0].getContext('2d').measureText(text).width;
-                this.fillText(chord + type, startPixel + (width / 2) - (twidth / 2), height1 / 2 + 15); //width of text
-                i++;
+                let twidth = this.canvases[0].getContext('2d').measureText(text).width;
+                let color = (i % 2 ? this.params.chordColor : this.params.alternateColor);
+                if (twidth > width) {
+                    if (hidden == false) {
+                        hiddenColor = color;
+                        startHPixel = startPixel;
+                    }
+                    hidden = true;
+                    color = hiddenColor;
+                } else {
+                    if (hidden == true) {
+                        hiddenPatches.push([startHPixel, startPixel]);
+                        startHPixel = 0;
+                    }
+                    hidden = false;
+                }
+                this.setFillStyles(color);
+                this.fillRect(startPixel, 0, width, height1);
+                this.setFillStyles(this.params.primaryColor);
+                if (twidth < width) {
+                    this.fillText(chord + type, startPixel + (width / 2) - (twidth / 2), height1 / 2 + 10); //width of text
+                }
+                else {
+                    let twidth = this.canvases[0].getContext('2d').measureText(".").width;
+                    this.fillText("", startPixel + (width / 2) - (twidth / 2), height1 / 2 + 9); //width of text
+                }
+            }
+            else {
+                this.setFillStyles(this.params.overflowColor)
+                this.fillRect(startPixel, 0, width, height1);
+            }
+        });
+
+        hiddenPatches.forEach((patch) => {
+            const start = patch[0];
+            const end = patch[1];
+            const width = end - start;
+
+            let twidth = this.canvases[0].getContext('2d').measureText("...").width + 10;
+            if (twidth < width) {
+                this.setFillStyles(this.params.primaryColor)
+                this.fillText("...", start + (width / 2) - (twidth / 2), height1 / 2 + 9); //width of text
             }
         })
     }
@@ -391,14 +433,16 @@ export default class ChordsTimelinePlugin {
     getPixelForSecond(sec, positions) {
         const fp = sec;
         const round = Math.floor(fp);
+        //console.log(round, positions);
         // floor if diff < 0.3, +0.5 if 0.3>x>0.7, ceil > 0.7 
         const diff = fp - round;
         if (diff < 0.3) sec = round;
         else if (diff >= 0.3 && diff < 0.7) sec = round + 0.5;
         else if (diff >= 0.7) sec = Math.ceil(sec)
 
+        console.log(sec, round)
         const [idx, _ign, _ign2] = positions[round];
-        for (let i = idx; i < positions.length; i += 1) {
+        for (let i = 0; i < positions.length; i += 1) {
             const [idx, refSecond, pixel] = positions[i];
             if (refSecond === sec) return pixel;
         }

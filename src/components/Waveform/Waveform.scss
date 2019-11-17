@@ -3,20 +3,17 @@
     width: 100%;
     position: absolute;
     width: 96%;
+    padding-top: 10px;
 }
 
 #timeline {
     border-top: 1px solid gray;
-    height: 10%;
 }
 
-#waveform {
-    height: 92%;
-}
+#waveform {}
 
 .canvas-container {
     height: 100%;
-    ;
 }
 
 .description-buttons {
@@ -25,8 +22,20 @@
     justify-content: space-evenly;
 }
 
-.waveform-root>div:first-child>div:first-child {
-    height: 50%;
+.canvas-container>div:nth-child(1) {
+    height: 10%;
+}
+
+.canvas-container>div:nth-child(2) {
+    height: 10%;
+}
+
+.canvas-container>div:nth-child(3) {
+    height: 75%;
+}
+
+.canvas-container>div:nth-child(4) {
+    height: 10%;
 }
 
 .appLogo-waveform {

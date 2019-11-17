@@ -86,8 +86,8 @@ export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolea
 
 /* Music Theory */
 export interface ChordTime {
-    start: string;
-    end: string;
+    start: number;
+    end: number;
     key: string;
     type: string;
 }
