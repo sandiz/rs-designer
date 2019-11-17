@@ -1,4 +1,3 @@
-import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
 import { getTransposedKey } from "../music-utils";
 
 /* eslint-disable */
@@ -80,7 +79,6 @@ export default class ChordsTimelinePlugin {
         ws.on('redraw', this._onRedraw);
         ws.on('zoom', this._onZoom);
 
-        DispatcherService.on(DispatchEvents.PitchChange, v => this.render(v));
         this.render();
     };
 
@@ -198,7 +196,6 @@ export default class ChordsTimelinePlugin {
             this.wrapper.parentNode.removeChild(this.wrapper);
             this.wrapper = null;
         }
-        DispatcherService.off(DispatchEvents.PitchChange, v => this.render(v));
     }
 
     /**
@@ -374,7 +371,8 @@ export default class ChordsTimelinePlugin {
         let hiddenColor = "";
         let hiddenPatches = [];
         let startHPixel = 0;
-        this.params.chords.forEach((chordData, i) => {
+        for (let i = 0; i < this.params.chords.length; i += 1) {
+            const chordData = this.params.chords[i];
             let { start, end, key, type } = chordData;
             let chord = key;
             const startPixel = start * pixelsPerSecond;
@@ -415,9 +413,10 @@ export default class ChordsTimelinePlugin {
                 this.setFillStyles(this.params.overflowColor)
                 this.fillRect(startPixel, 0, width, height1);
             }
-        });
+        };
 
-        hiddenPatches.forEach((patch) => {
+        for (let i = 0; i < hiddenPatches.length; i += 1) {
+            const patch = hiddenPatches[i];
             const start = patch[0];
             const end = patch[1];
             const width = end - start;
@@ -427,7 +426,7 @@ export default class ChordsTimelinePlugin {
                 this.setFillStyles(this.params.primaryColor)
                 this.fillText("...", start + (width / 2) - (twidth / 2), height1 / 2 + 9); //width of text
             }
-        })
+        }
     }
 
     getPixelForSecond(sec, positions) {
@@ -561,7 +560,7 @@ export default class ChordsTimelinePlugin {
      */
     defaultTimeInterval(pxPerSec) {
         if (pxPerSec >= 25) {
-            return 0.5;
+            return 1;
         } else if (pxPerSec * 5 >= 25) {
             return 5;
         } else if (pxPerSec * 15 >= 25) {

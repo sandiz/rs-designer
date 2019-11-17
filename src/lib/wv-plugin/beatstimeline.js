@@ -1,4 +1,3 @@
-import { DispatcherService, DispatchEvents } from "../../services/dispatcher";
 
 /* eslint-disable */
 /**
@@ -231,14 +230,12 @@ export default class BeatsTimelinePlugin {
      * @private
      */
     render() {
-        DispatcherService.dispatch(DispatchEvents.AboutToDraw, "waveform");
         if (!this.wrapper) {
             this.createWrapper();
         }
         this.updateCanvases();
         this.updateCanvasesPositioning();
         this.renderCanvases();
-        DispatcherService.dispatch(DispatchEvents.FinishedDrawing, "waveform");
     }
 
     /**
@@ -357,34 +354,55 @@ export default class BeatsTimelinePlugin {
             this.params.secondaryLabelInterval
         );
 
-        this.setFonts(`22px Roboto Condensed`);
-        let idx = 1;
-        this.params.beats.forEach((beatsData, i) => {
-            let [start, bn] = beatsData;
+        this.setFonts(`22px Inconsolata`);
+        let idx = 0;
+        let dnBeats = 0, Beats = 0;
+        let dnBeatOnly = false;
+        for (let i = 0; i < this.params.beats.length; i += 1) {
+            const beatsData = this.params.beats[i];
+            let { start, beatNum } = beatsData;
             const startPixel = Number.parseFloat(start) * pixelsPerSecond
+            let bn = beatNum;
 
+            let mod = 1;
+            if (pixelsPerSecond < 20) {
+                dnBeatOnly = true;
+                mod = 5;
+                // per 5 down beat
+            }
+            if (pixelsPerSecond > 20) {
+                dnBeatOnly = true;
+                mod = 1;
+                // per 1 down beat
+            }
+            if (pixelsPerSecond > 30) {
+                dnBeatOnly = false;
+                // per beat
+            }
             bn = Number.parseInt(bn);
             if (bn === 1) {
-                this.setFillStyles("#000000")
-                this.fillRect(startPixel, 0, 1, height1);
+                if (dnBeats % mod == 0) {
+                    this.setFillStyles(this.params.downBeatColor);
+                    this.fillRect(startPixel, 0, 1, height1);
+
+                    this.setFillStyles(this.params.primaryColor);
+                    this.fillText(
+                        idx + 1,
+                        startPixel + this.params.labelPadding * this.pixelRatio,
+                        height1 / 2 + 23,
+                    );
+                    idx++;
+                }
+                dnBeats++;
             }
             else {
-                this.setFillStyles(this.params.unlabeledNotchColor);
-                this.fillRect(startPixel, 0, 1, height2);
-
+                if (!dnBeatOnly) {
+                    Beats++;
+                    this.setFillStyles(this.params.unlabeledNotchColor);
+                    this.fillRect(startPixel, 0, 1, height2);
+                }
             }
-
-            if (bn === 1) {
-                this.setFillStyles("#000");
-                this.fillText(
-                    idx,
-                    startPixel + this.params.labelPadding * this.pixelRatio,
-                    height1 / 2 + 15,
-                );
-                idx++;
-            }
-
-        });
+        }
 
     }
     /**
@@ -500,10 +518,10 @@ export default class BeatsTimelinePlugin {
      */
     defaultTimeInterval(pxPerSec) {
         if (pxPerSec >= 25) {
-            return 0.10;
-        } else if (pxPerSec * 5 >= 25) {
+            return 1;
+        } else if (pxPerSec * 5 >= 80) {
             return 5;
-        } else if (pxPerSec * 15 >= 25) {
+        } else if (pxPerSec * 30 >= 80) {
             return 15;
         }
         return Math.ceil(0.5 / pxPerSec) * 60;

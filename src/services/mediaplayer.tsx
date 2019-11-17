@@ -4,6 +4,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
+import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents } from './dispatcher';
 import {
     VOLUME, ExtClasses, ZOOM,
@@ -117,6 +118,7 @@ class MediaPlayer {
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
             this.setStyle();
+            this.loadBeatsTimeline();
             this.loadChordsTimeline();
             resolve();
         });
@@ -158,6 +160,28 @@ class MediaPlayer {
         }
     }
 
+    loadBeatsTimeline = async () => {
+        if (this.wavesurfer) {
+            const activePlugins = this.wavesurfer.getActivePlugins();
+            if (activePlugins.beatstimeline === true) {
+                this.wavesurfer.beatstimeline.render();
+            }
+            else {
+                const beats = await ProjectService.readBeats();
+                const ct = BeatsTimelinePlugin.create({
+                    container: '#beatstimeline',
+                    beats,
+                    fontSize: 15,
+                    height: 25,
+                    notchPercentHeight: 50,
+                    primaryColor: nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
+                    downBeatColor: nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1,
+                })
+                this.wavesurfer.registerPlugins([ct]);
+            }
+        }
+    }
+
     private updateTheme = () => {
         if (this.wavesurfer) {
             const keys = Object.keys(this.wavesurfer.getActivePlugins());
@@ -179,6 +203,11 @@ class MediaPlayer {
                 this.wavesurfer.chordstimeline.params.alternateColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2;
                 this.wavesurfer.chordstimeline.params.overflowColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
                 this.wavesurfer.chordstimeline.render();
+            }
+            if (keys.includes("beatstimeline")) {
+                this.wavesurfer.beatstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
+                this.wavesurfer.beatstimeline.params.downBeatColor = nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1;
+                this.wavesurfer.beatstimeline.render();
             }
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return;
