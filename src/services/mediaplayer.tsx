@@ -169,11 +169,9 @@ class MediaPlayer {
             if (keys.includes("cursor")) {
                 const cursor = this.wavesurfer.cursor;
                 const br = `${cursor.params.width} solid ${nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK}`;
-                console.log(br);
                 cursor.style(cursor.cursor, {
                     "border-right": br,
                 });
-                console.log(cursor.cursor.style);
             }
             if (keys.includes("chordstimeline")) {
                 this.wavesurfer.chordstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;

@@ -440,6 +440,7 @@ export class Project {
     private readTempo = async (): Promise<number> => {
         try {
             if (this.projectInfo) {
+                if (!fs.existsSync(this.projectInfo.chords)) return 0;
                 const tempoFile = this.projectInfo.tempo;
                 const data = await readFile(tempoFile)
                 const tempo = parseFloat(data.toString());
@@ -455,6 +456,7 @@ export class Project {
         try {
             if (this.projectInfo) {
                 const keyFile = this.projectInfo.key;
+                if (!fs.existsSync(keyFile)) return [];
                 const data = await readFile(keyFile)
                 const s: string[] = JSON.parse(data.toString())
                 let note = s[0];
@@ -479,7 +481,9 @@ export class Project {
 
     public readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
         try {
+            console.log("ReadChords")
             if (this.projectInfo == null) return reject();
+            if (!fs.existsSync(this.projectInfo.chords)) return resolve([]);
             const lineReader = readline.createInterface({
                 input: fs.createReadStream(this.projectInfo.chords),
             });
@@ -513,6 +517,7 @@ export class Project {
     public readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
+            if (!fs.existsSync(this.projectInfo.chords)) return resolve([]);
             const lineReader = readline.createInterface({
                 input: fs.createReadStream(this.projectInfo.beats),
             });
