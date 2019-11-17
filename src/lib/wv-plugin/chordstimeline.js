@@ -360,7 +360,7 @@ export default class ChordsTimelinePlugin {
         if (this.params.chords.length == 0) {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {
-                    background: this.params.overflowColor,
+                    background: 'transparent'
                 })
             }
             this.setFillStyles(this.params.primaryColor);

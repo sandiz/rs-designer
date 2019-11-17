@@ -354,7 +354,19 @@ export default class BeatsTimelinePlugin {
             this.params.secondaryLabelInterval
         );
 
+        this.setFonts(`30px Inconsolata`);
+        if (this.params.beats.length == 0) {
+            for (let i = 0; i < this.canvases.length; i += 1) {
+                this.util.style(this.canvases[i], {
+                    background: 'transparent'
+                })
+            }
+            this.setFillStyles(this.params.primaryColor);
+            this.fillText("Beats  unavailable", 10, height1 / 2 + 10);
+            return;
+        }
         this.setFonts(`22px Inconsolata`);
+
         let idx = 0;
         let dnBeats = 0, Beats = 0;
         let dnBeatOnly = false;

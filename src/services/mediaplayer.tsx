@@ -176,6 +176,7 @@ class MediaPlayer {
                     notchPercentHeight: 50,
                     primaryColor: nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
                     downBeatColor: nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1,
+                    overflowColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
                 })
                 this.wavesurfer.registerPlugins([ct]);
             }
@@ -207,6 +208,7 @@ class MediaPlayer {
             if (keys.includes("beatstimeline")) {
                 this.wavesurfer.beatstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
                 this.wavesurfer.beatstimeline.params.downBeatColor = nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1;
+                this.wavesurfer.beatstimeline.params.overflowColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
                 this.wavesurfer.beatstimeline.render();
             }
             const ctx = document.createElement('canvas').getContext('2d');
