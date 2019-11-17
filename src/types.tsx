@@ -218,6 +218,7 @@ export class HotKeyComponent<P, Q extends HotKeyState> extends Component<P, Q> {
 
 export enum MEDIA_STATE { STOPPED, PLAYING, PAUSED }
 export enum VOLUME { MAX = 1, MIN = 0, DEFAULT = 0.5 }
+export enum ZOOM { MAX = 30, MIN = 5, DEFAULT = 5 }
 
 export interface DialogContent {
     content: React.ReactElement;

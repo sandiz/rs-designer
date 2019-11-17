@@ -62,9 +62,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     mediaReady = () => {
         this.dragging = false;
         if (this.timer) cancelAnimationFrame(this.timer);
-        if (typeof (this.props.timerSource) === 'function') {
-            this.sliderUpdate();
-        }
+        this.sliderUpdate();
     }
 
     mediaReset = () => {
@@ -74,8 +72,14 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     sliderUpdate = () => {
-        if (this.props.timerSource && !this.dragging) {
-            const value = this.props.timerSource();
+        if (typeof (this.props.timerSource) === 'function') {
+            if (!this.dragging) {
+                const value = this.props.timerSource();
+                this.setState({ value });
+            }
+        }
+        else {
+            const value = this.props.value;
             this.setState({ value });
         }
         this.timer = requestAnimationFrame(this.sliderUpdate);

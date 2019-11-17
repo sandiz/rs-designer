@@ -4,7 +4,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
 import { DispatcherService, DispatchEvents } from './dispatcher';
-import { VOLUME, ExtClasses } from '../types';
+import { VOLUME, ExtClasses, ZOOM } from '../types';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -73,7 +73,9 @@ class MediaPlayer {
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
-            interactive: true,
+            loopSelection: false,
+            autoCenter: false,
+            pixelRatio: 2,
             plugins: [
                 TimelinePlugin.create({
                     container: '#timeline',
@@ -120,6 +122,7 @@ class MediaPlayer {
             DispatcherService.dispatch(DispatchEvents.MediaFinishedPlaying, null);
         });
         this.wavesurfer.on('play', () => {
+            if (this.wavesurfer) this.wavesurfer.drawer.recenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration());
             DispatcherService.dispatch(DispatchEvents.MediaStartedPlaying, null);
         });
         this.wavesurfer.on('pause', () => {
@@ -264,6 +267,19 @@ class MediaPlayer {
         if (this.wavesurfer) {
             this.wavesurfer.skipBackward();
         }
+    }
+
+    public zoom = (v: number) => {
+        if (this.wavesurfer) {
+            this.wavesurfer.zoom(v);
+        }
+    }
+
+    getZoom = () => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.params.minPxPerSec;
+        }
+        return ZOOM.DEFAULT;
     }
 }
 

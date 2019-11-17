@@ -37,3 +37,18 @@
 .waveform-height {
     height: 95% !important;
 }
+
+.zoomer {
+    display: flex;
+    flex-direction: row;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.zoom-item {
+    margin-right: 0.75vw;
+}
+
+.zoom-item-button {
+    margin-top: -3px;
+}

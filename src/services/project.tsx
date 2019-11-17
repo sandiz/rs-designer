@@ -455,7 +455,6 @@ export class Project {
         try {
             if (this.projectInfo) {
                 const keyFile = this.projectInfo.key;
-                console.trace(keyFile)
                 const data = await readFile(keyFile)
                 const s: string[] = JSON.parse(data.toString())
                 let note = s[0];
