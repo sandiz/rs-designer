@@ -165,7 +165,7 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
                                 fill
                                 onChange={(v: OnChangeHandler) => this.onChange("year", v)}
                                 leftIcon={IconNames.CALENDAR}
-                                className="metadata-input"
+                                className="metadata-input number"
                                 placeholder="Year" />
                         </div>
                         <div className="metadata-album-art-container">

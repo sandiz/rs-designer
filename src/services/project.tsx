@@ -481,7 +481,6 @@ export class Project {
 
     public readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
         try {
-            console.log("ReadChords")
             if (this.projectInfo == null) return reject();
             if (!fs.existsSync(this.projectInfo.chords)) return resolve([]);
             const lineReader = readline.createInterface({
