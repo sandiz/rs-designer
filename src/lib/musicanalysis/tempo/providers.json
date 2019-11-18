@@ -1,6 +1,8 @@
-[
-    "tempo_essentia_percival",
-    "tempo_essentia_re2013",
-    "tempo_librosa",
-    "tempo_madmom"
-]
+{
+    "providers": [
+        "tempo_essentia_percival",
+        "tempo_essentia_re2013",
+        "tempo_librosa",
+        "tempo_madmom"
+    ]
+}

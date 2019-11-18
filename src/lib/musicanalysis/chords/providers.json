@@ -1,3 +1,5 @@
-[
-    "chord_madmom"
-]
+{
+    "providers": [
+        "chord_madmom"
+    ]
+}

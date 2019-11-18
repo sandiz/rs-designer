@@ -40,17 +40,31 @@ def runProviders(key):
         with open(provider) as json_file:
             data = json.load(json_file)
             idx = 1
-            for key1 in data:
+            p = data["providers"]
+            for key1 in p:
                 c_file = f"{key1}"
                 py_file = f"{key1}.py"
                 c_time = py_time = 0
                 c_found = py_found = False
                 c_output = py_output = 0
                 py_start = time.time()
+
+                spargs = []
+                args = []
+                if "args" in data:
+                    if key1 in data["args"]:
+                        args = data["args"][key1]
+                if len(args) > 0:
+                    for arg in args:
+                        argName = arg["argName"]
+                        value = arg["values"][0]
+                        spargs.append(argName)
+                        spargs.append(value)
+
                 if path.exists(py_file):
                     py_found = True
                     py_output = subprocess.check_output(
-                        ["python3", py_file, file], stderr=subprocess.DEVNULL)
+                        ["python3", py_file, file] + spargs, stderr=subprocess.DEVNULL)
                     if key == "beats" or key == "chords":
                         py_output = "# detected: " + str(
                             len(json.loads(py_output.decode()))) + "\n"
@@ -60,7 +74,7 @@ def runProviders(key):
                 if path.exists(c_file):
                     c_found = True
                     c_output = subprocess.check_output(
-                        [c_file, file], stderr=subprocess.DEVNULL)
+                        [c_file, file] + spargs, stderr=subprocess.DEVNULL)
                     if key == "beats" or key == "chords":
                         c_output = "# detected: " + str(
                             len(json.loads(c_output.decode()))) + "\n"
@@ -72,7 +86,8 @@ def runProviders(key):
                 py_time = f"{round(time.time() - py_start)} seconds"
                 py_print = f" {prGreen(py_time)} | {prGreen(str(py_output.decode()))}" if py_found else prYellow(
                     "[N/A]")
-                print(f"{idx}. {prCyan(key1)}: \nPython: {py_print}C: {c_print}")
+                print(
+                    f"{idx}. {prCyan(key1)}: args: {prLightPurple(spargs)}\nPython: {py_print}C: {c_print}")
                 idx += 1
     else:
         print("No providers.json")

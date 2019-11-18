@@ -1,6 +1,34 @@
-[
-    "key_essentia",
-    "key_madmom",
-    "key_librosa_bayes",
-    "key_librosa_kands"
-]
+{
+    "providers": [
+        "key_essentia",
+        "key_madmom",
+        "key_librosa_bayes",
+        "key_librosa_kands"
+    ],
+    "args": {
+        "key_essentia": [
+            {
+                "argName": "--profileType",
+                "values": [
+                    "braw",
+                    "diatonic",
+                    "krumhansl",
+                    "temperley",
+                    "weichai",
+                    "tonictriad",
+                    "temperley2005",
+                    "thpcp",
+                    "shaath",
+                    "gomez",
+                    "noland",
+                    "faraldo",
+                    "pentatonic",
+                    "edmm",
+                    "edma",
+                    "bgate",
+                    "braw"
+                ]
+            }
+        ]
+    }
+}
