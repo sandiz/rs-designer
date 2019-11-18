@@ -22,6 +22,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
             - break into web workers so we can process them as soon as its done
 
         - adhoc analysis, disable analysis if section is disabled
+        - https://code.soundsoftware.ac.uk/projects/constant-q-cpp
+        - https://www.upf.edu/web/mtg/melodia
+        - http://www.isophonics.net/nnls-chroma
         - https://github.com/DavideBusacca/AudioDSP/blob/master/HPSS/HPSS.py
         - https://librosa.github.io/librosa/generated/librosa.decompose.hpss.html
         - https://aubio.org/ (https://news.ycombinator.com/item?id=19681804)
