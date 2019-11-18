@@ -7,12 +7,20 @@ a = Analysis(['music-analysis.py'],
              pathex=[
                  '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis',
                  '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/key',
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/key/keyedin',
                  '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/chords',
                  '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/beats',
                  '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/tempo'
                  ],
-             datas=[('/usr/local/lib/python3.7/site-packages/resampy/data/*.npz', 'resampy/data')],
-             hiddenimports=[ 'essentia.standard', 'librosa','madmom', 'scipy._lib.messagestream', 'sklearn.tree', 'sklearn.neighbors.typedefs', 'sklearn.neighbors.quad_tree', 'sklearn.tree._utils'],
+             datas=[(
+                    '/usr/local/lib/python3.7/site-packages/resampy/data/*.npz', 
+                    'resampy/data',
+                 ),
+                 (
+                     '/usr/local/lib/python3.7/site-packages/madmom/models',
+                     'madmom/models',
+                 )],
+             hiddenimports=[ 'essentia.standard', 'librosa','madmom', 'scipy._lib.messagestream', 'sklearn.tree', 'sklearn.neighbors.typedefs', 'sklearn.neighbors.quad_tree', 'sklearn.tree._utils','sklearn.utils', 'sklearn.utils._cython_blas', 'keyedin' ],
              hookspath=['.'],
              runtime_hooks=[],
              excludes=['matplotlib', 'TKinter', 'IPython', 'zmq', 'tk', 'tcl', 'mpl-data',],

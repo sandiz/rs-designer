@@ -8,24 +8,24 @@ from beats import beats_essentia, beats_librosa, beats_madmom
 from tempo import tempo_essentia_percival, tempo_essentia_re2013, tempo_librosa, tempo_madmom
 providers = ["key"]  # "tempo", "chords", "beats"]
 key_switcher = {
-    "key_essentia": key_essentia.process,
-    "key_madmom": key_madmom.process,
-    "key_librosa_bayes": key_librosa_bayes.process,
-    "key_librosa_kands": key_librosa_kands.process
+    "key_essentia": key_essentia.process,  # binary compatible
+    "key_madmom": key_madmom.process,     # binary compatible
+    "key_librosa_bayes": key_librosa_bayes.process,  # binary compatible
+    "key_librosa_kands": key_librosa_kands.process  # binary compatible
 }
 chord_switcher = {
-    "chords_madmom":  chords_madmom.process,
+    "chords_madmom":  chords_madmom.process,  # binary compatible
 }
 beats_switcher = {
-    "beats_essentia": beats_essentia.process,
-    "beats_librosa": beats_librosa.process,
-    "beats_madmom": beats_madmom.process,
+    "beats_essentia": beats_essentia.process,  # binary compatible
+    "beats_librosa": beats_librosa.process,   # binary compatible
+    "beats_madmom": beats_madmom.process,     # binary compatible
 }
 tempo_switcher = {
-    "tempo_essentia_percival": tempo_essentia_percival.process,
-    "tempo_essentia_re2013": tempo_essentia_re2013.process,
-    "tempo_librosa": tempo_librosa.process,
-    "tempo_madmom": tempo_madmom.process,
+    "tempo_essentia_percival": tempo_essentia_percival.process,  # binary compatible
+    "tempo_essentia_re2013": tempo_essentia_re2013.process,     # binary compatible
+    "tempo_librosa": tempo_librosa.process,                     # binary compatible
+    "tempo_madmom": tempo_madmom.process,                       # binary compatible
 }
 
 
@@ -58,6 +58,8 @@ def do(key, switcher, args, defaultValue):
             output = defaultValue
         else:
             output = func(args.file, args.args)
+        if(len(args.args)) > 0:
+            print("args: " + json.dumps(args.args), file=sys.stderr)
         print(json.dumps(output))
 
 
