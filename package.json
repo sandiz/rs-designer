@@ -53,9 +53,10 @@
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
     "contributors:check": "all-contributors check",
-    "build-ma": "cd src/lib/musicanalysis && ./bench.sh --compile",
+    "build-ma": "cd src/lib/musicanalysis && ./compile.sh",
+    "build-ma-bench": "cd src/lib/musicanalysis && ./compile.sh --bench",
     "dist-mac": "yarn run build && yarn run build-ma && yarn run electron-builder build --publish=never --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
-    "dist-win": "yarn run build && yarn run build-ma && yarn run electron-builder build --publish=never --win -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null"
+    "dist-win": "yarn run build && yarn run build-ma && yarn run electron-builder build --publish=never --win -c.extraMetadata.main=src/electron-starter.js"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.11.2",
