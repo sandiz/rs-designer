@@ -63,12 +63,15 @@ def runProviders(key):
 
                 if path.exists(py_file):
                     py_found = True
-                    py_output = subprocess.check_output(
-                        ["python3", py_file, file] + spargs, stderr=subprocess.DEVNULL)
-                    if key == "beats" or key == "chords":
-                        py_output = "# detected: " + str(
-                            len(json.loads(py_output.decode()))) + "\n"
-                        py_output = py_output.encode()
+                    try:
+                        py_output = subprocess.check_output(
+                            ["python3", py_file, file] + spargs, stderr=subprocess.DEVNULL)
+                        if key == "beats" or key == "chords":
+                            py_output = "# detected: " + str(
+                                len(json.loads(py_output.decode()))) + "\n"
+                            py_output = py_output.encode()
+                    except:
+                        py_output = "Exception\n".encode()
 
                 c_start = time.time()
                 if path.exists(c_file):

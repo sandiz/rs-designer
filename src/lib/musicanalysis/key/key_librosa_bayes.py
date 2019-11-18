@@ -1,12 +1,13 @@
 import sys
+sys.path.append('./key/keyedin')
 sys.path.append('./keyedin')
-from keyedin import pitchdistribution as pd, classifiers
+import keyedin
 
-# Use naive Bayes classifier to guess the key of SongInGMajor.mp3
-naive_bayes = classifiers.NaiveBayes()
-dist = pd.PitchDistribution.from_file(sys.argv[1])
-op = (naive_bayes.get_key(dist))  # Returns Key object Key('G', 'major')
-output = op.split(" ")
-output.append(1)
-print(output)
-# key=[op.]
+def process(file, args=[]):
+    # Use naive Bayes classifier to guess the key of SongInGMajor.mp3
+    naive_bayes = keyedin.classifiers.NaiveBayes()
+    dist = keyedin.pd.PitchDistribution.from_file(file)
+    op = (naive_bayes.get_key(dist))  # Returns Key object Key('G', 'major')
+    output = op.split(" ")
+    output.append(-1)
+    return output

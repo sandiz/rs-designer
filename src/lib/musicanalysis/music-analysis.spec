@@ -3,12 +3,17 @@
 block_cipher = None
 
 
-a = Analysis(['analysis.py'],
-             pathex=['/Users/sandi/Projects/rs-designer/src/lib/musicanalysis'],
-             binaries=[],
+a = Analysis(['music-analysis.py'],
+             pathex=[
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis',
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/key',
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/chords',
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/beats',
+                 '/Users/sandi/Projects/rs-designer/src/lib/musicanalysis/tempo'
+                 ],
              datas=[('/usr/local/lib/python3.7/site-packages/resampy/data/*.npz', 'resampy/data')],
-             hiddenimports=[ 'madmom', 'scipy._lib.messagestream', 'sklearn.tree', 'sklearn.neighbors.typedefs', 'sklearn.neighbors.quad_tree', 'sklearn.tree._utils'],
-             hookspath=[],
+             hiddenimports=[ 'essentia.standard', 'librosa','madmom', 'scipy._lib.messagestream', 'sklearn.tree', 'sklearn.neighbors.typedefs', 'sklearn.neighbors.quad_tree', 'sklearn.tree._utils'],
+             hookspath=['.'],
              runtime_hooks=[],
              excludes=['matplotlib', 'TKinter', 'IPython', 'zmq', 'tk', 'tcl', 'mpl-data',],
              win_no_prefer_redirects=False,
@@ -23,7 +28,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='analysis',
+          name='music-analysis',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,

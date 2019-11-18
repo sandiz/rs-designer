@@ -1,12 +1,12 @@
 from essentia.standard import KeyExtractor, MonoLoader
-import sys
-import json
 
-profileType = "bgate"
-if(len(sys.argv) > 2 and sys.argv[2] == "--profileType"):
-    profileType = sys.argv[3]
 
-y = MonoLoader(filename=sys.argv[1])()
-#print("using profileType: " + profileType)
-a = KeyExtractor(profileType=profileType)(y)
-print(json.dumps(a))
+def process(path, args=[]):
+    profileType = "bgate"
+    if(len(args) > 1 and args[0] == "--profileType"):
+        profileType = args[1]
+
+    y = MonoLoader(filename=path)()
+    #print("using profileType: " + profileType)
+    a = KeyExtractor(profileType=profileType)(y)
+    return a
