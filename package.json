@@ -55,6 +55,7 @@
     "contributors:check": "all-contributors check",
     "build-ma": "cd src/lib/musicanalysis && ./compile.sh",
     "build-ma-bench": "cd src/lib/musicanalysis && ./compile.sh --bench",
+    "dist-mac-bench": "yarn run build && yarn run build-ma-bench && yarn run electron-builder build --publish=never --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
     "dist-mac": "yarn run build && yarn run build-ma && yarn run electron-builder build --publish=never --mac -c.extraMetadata.main=src/electron-starter.js -c.mac.identity=null",
     "dist-win": "yarn run build && yarn run build-ma && yarn run electron-builder build --publish=never --win -c.extraMetadata.main=src/electron-starter.js"
   },

@@ -1,0 +1,23 @@
+[
+    {
+        "media": "media.mp3",
+        "tests": 
+            {
+                "key_essentia": { "type": "list", "contains" : ["F", "major"] },
+                "key_madmom": { "type": "list", "contains" : ["F", "major"] },
+                "key_librosa_bayes": { "type": "list", "contains" : ["F", "major"] },
+                "key_librosa_kands": { "type": "list", "contains" : ["F", "major"] },
+
+                "tempo_essentia_percival": { "type": "float", "min": 111, "max": 113 },
+                "tempo_essentia_re2013": { "type": "float", "min": 111, "max": 113 },
+                "tempo_librosa": { "type": "float", "min": 111, "max": 113 },
+                "tempo_madmom": { "type": "float", "min": 111, "max": 113 },
+
+                "chords_madmom": { "type": "list", "length": 55 },
+
+                "beats_essentia": { "type": "list", "length": 543 },
+                "beats_librosa": { "type": "list", "length": 531 },
+                "beats_madmom": { "type": "list", "length": 537 }
+            }
+    }
+]

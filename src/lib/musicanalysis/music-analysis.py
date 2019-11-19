@@ -2,11 +2,37 @@ import argparse
 import time
 import sys
 import json
+import os
 from key import key_essentia, key_madmom, key_librosa_bayes, key_librosa_kands
 from chords import chords_madmom
 from beats import beats_essentia, beats_librosa, beats_madmom
 from tempo import tempo_essentia_percival, tempo_essentia_re2013, tempo_librosa, tempo_madmom
-providers = ["key"]  # "tempo", "chords", "beats"]
+
+
+def prRed(skk): return("\033[91m {}\033[00m" .format(skk))
+
+
+def prGreen(skk): return("\033[92m{}\033[00m" .format(skk))
+
+
+def prYellow(skk): return("\033[93m{}\033[00m" .format(skk))
+
+
+def prLightPurple(skk): return("\033[94m{}\033[00m" .format(skk))
+
+
+def prPurple(skk): return("\033[95m{}\033[00m" .format(skk))
+
+
+def prCyan(skk): return("\033[96m{}\033[00m" .format(skk))
+
+
+def prLightGray(skk): return("\033[97m{}\033[00m" .format(skk))
+
+
+def prBlack(skk): return("\033[98m{}\033[00m" .format(skk))
+
+
 key_switcher = {
     "key_essentia": key_essentia.process,  # binary compatible
     "key_madmom": key_madmom.process,     # binary compatible
@@ -28,6 +54,9 @@ tempo_switcher = {
     "tempo_madmom": tempo_madmom.process,                       # binary compatible
 }
 
+benchTestFailed = False
+testData = {}
+
 
 def benchRun(key, switcher, args):
     start = time.time()
@@ -39,7 +68,33 @@ def benchRun(key, switcher, args):
     return None
 
 
+def checkResult(args, key, output):
+    output = json.loads(output)
+    keys = dict.keys(testData)
+    if key in keys:
+        testInfo = testData[key]
+        typeOf = testInfo["type"]
+        isContains = "contains" in testInfo
+        isMinMax = "min" in testInfo and "max" in testInfo
+        isLength = "length" in testInfo
+
+        if typeOf == "list" and type(output) == list:
+            if isContains:
+                contains = testInfo["contains"]
+                return set(contains).issubset(set(output))
+            if isLength:
+                tlength = int(testInfo["length"])
+                return tlength == len(output)
+        elif typeOf == "float" and type(output) == float:
+            if isMinMax:
+                tmin = float(testInfo["min"])
+                tmax = float(testInfo["max"])
+                return tmin <= output <= tmax
+    return False
+
+
 def do(key, switcher, args, defaultValue):
+    global benchTestFailed
     if args.type == "bench":
         print(f"Benchmarking {key} providers")
         keys = dict.keys(switcher)
@@ -47,10 +102,21 @@ def do(key, switcher, args, defaultValue):
         for key1 in keys:
             idx += 1
             (output, diff) = benchRun(key1, switcher, args)
+            print_output = output
             if key == "chords" or key == "beats":
-                output = len(output)
-            print(
-                f"#{idx} algo: {key1} time: {diff} seconds output: {json.dumps(output)}")
+                print_output = len(print_output)
+
+            if(args.results is None):
+                print(
+                    f"#{idx} algo: {prGreen(key1)} | time: {prYellow(diff)} seconds | output: {prLightPurple(json.dumps(print_output))}")
+            else:
+                result = checkResult(args, key1, json.dumps(output))
+                if result is False:
+                    print("test failed here")
+                    benchTestFailed = True
+                msg = prGreen("passed") if result else prRed("failed")
+                print(
+                    f"#{idx} algo: {prGreen(key1)} | time: {prYellow(diff)} seconds | output: {prLightPurple(json.dumps(print_output))} | test: {msg}")
     else:
         output = defaultValue
         func = switcher.get(args.algo, None)
@@ -63,14 +129,7 @@ def do(key, switcher, args, defaultValue):
         print(json.dumps(output))
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', default=None)
-    parser.add_argument('-t', '--type')
-    parser.add_argument('-a', '--algo')
-    parser.add_argument('--args', nargs=argparse.REMAINDER, default=[])
-    args = parser.parse_args()
-
+def processArgs(args):
     if args.file is None:
         print("no file specified")
         sys.exit(0)
@@ -88,3 +147,47 @@ if __name__ == '__main__':
         do("tempo", tempo_switcher, args, 0)
         do("chords", chord_switcher, args, [])
         do("beats", beats_switcher, args, [])
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='music-analysis cli')
+    parser.add_argument('-f', '--file', default=None,
+                        help='file to run analysis on')
+    parser.add_argument(
+        '-t', '--type', help='type of analysis, one of (key|chords|beats|tempo|bench)')
+    parser.add_argument(
+        '-a', '--algo', help='algorithm to use (see providers.json)')
+    parser.add_argument('-r', '--results', default=None,
+                        help='if running in bench mode, compare results with this file')
+    parser.add_argument('--args', nargs=argparse.REMAINDER, default=[],
+                        help="anything after this option is sent to the algorithm as runtime args")
+    args = parser.parse_args()
+
+    if args.results is not None:
+        with open(args.results) as json_file:
+            results = json.load(json_file)
+            for result in results:
+                try:
+                    base = os.path.dirname(args.results)
+                    media = os.path.join(base, result["media"])
+
+                    if os.path.exists(media):
+                        print(prGreen("testing with file: " + media))
+                        args.file = media
+                        testData = result['tests']
+                        processArgs(args)
+                    else:
+                        benchTestFailed = True
+                        print(prRed("failed to find file: " + media))
+                except:
+                    benchTestFailed = True
+                    print("test failed for " + result)
+    else:
+        processArgs(args)
+
+    msg = prRed("False") if benchTestFailed else prGreen("True")
+    print(f"All tests Passed: { msg }")
+    if benchTestFailed:
+        sys.exit(1)
+    else:
+        sys.exit(0)
