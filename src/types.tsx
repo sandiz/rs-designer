@@ -68,7 +68,12 @@ export class ProjectSettingsModel {
         this.recents = [];
         if (projectData && typeof projectData === 'object') {
             this.lastOpenedProject = projectData.lastOpenedProject;
-            this.recents = projectData.recents;
+            for (let i = 0; i < projectData.recents.length; i += 1) {
+                const pR = projectData.recents[i] as ProjectInfo;
+                if (fs.existsSync(pR.media)) {
+                    this.recents.push(pR);
+                }
+            }
         }
     }
 }
