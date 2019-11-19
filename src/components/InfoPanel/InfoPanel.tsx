@@ -28,10 +28,18 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
     }
 
     render = () => {
+        let keymsg = "";
+        if (this.props.project.metadata) {
+            const [key, type, _ignored] = this.props.project.metadata.key;
+            if (key === "-") keymsg = "-";
+            else {
+                keymsg = `${key} ${type}`;
+            }
+        }
         return (
             <div className="info-panel">
                 <div style={{
-                    width: 50 + '%',
+                    width: 100 + '%',
                     display: 'flex',
                     visibility: (this.props.project && this.props.project.loaded) ? "visible" : "hidden",
                 }}>
@@ -45,7 +53,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         </Text>
                     </Card>
                     <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                        Key: <span>{this.props.project.metadata ? this.props.project.metadata.key : "-"}</span>
+                        Key: <span>{keymsg}</span>
                     </Card>
                     <Card elevation={0} id="" className={classNames("info-item", "number")}>
                         Tempo: <span>

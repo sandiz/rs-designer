@@ -95,6 +95,9 @@ export enum DispatchEvents {
     CloseDialog = "close-dialog",         /* event to close an already open dialog */
 
     KbdShortcuts = "kbd-shortcuts",       /* event to turn hotkeys on/off */
+
+    /* Music Analysis */
+    StartMusicAnalysis = "start-music-analysis", /* triggers automatic music analysis flow */
 }
 
 export const DispatcherService = DispatcherBase.getInstance();

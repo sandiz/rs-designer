@@ -76,7 +76,7 @@ export class ProjectSettingsModel {
 export interface ProjectMetadata {
     name: string;
     path: string;
-    key: string;
+    key: SongKey;
     tempo: number;
     chords: ChordTime[];
     beats: BeatTime[];
@@ -85,12 +85,18 @@ export interface ProjectMetadata {
 export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolean };
 
 /* Music Theory */
+export type ChordTriplet = [number, number, string]
+export type BeatTriplet = [number, number]
+export type RunnerResult = ChordTriplet[] | BeatTriplet[] | SongKey | number;
 export interface ChordTime {
     start: number;
     end: number;
     key: string;
     type: string;
 }
+
+export type SongKey = [string, string, number]
+
 export interface BeatTime {
     start: string;
     beatNum: string;

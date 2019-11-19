@@ -5,11 +5,11 @@ import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
-import { DispatcherService, DispatchEvents } from './dispatcher';
+import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM,
+    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime,
 } from '../types';
-import ProjectService from './project';
+import ProjectService, { ProjectUpdateType } from './project';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -111,6 +111,7 @@ class MediaPlayer {
             ],
         };
         DispatcherService.dispatch(DispatchEvents.MediaLoading);
+        DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         //eslint-disable-next-line
         this.wavesurfer = WaveSurfer.create(params as any);
         this.wavesurfer.loadBlob(blob);
@@ -138,10 +139,23 @@ class MediaPlayer {
         });
     });
 
-    loadChordsTimeline = async () => {
+    projectUpdated = async (data: DispatchData) => {
+        if (typeof data === 'string'
+            && (data === ProjectUpdateType.ExternalFilesUpdate
+                || data === ProjectUpdateType.MediaInfoUpdated)) {
+            const metadata = await ProjectService.getProjectMetadata();
+            if (metadata) {
+                this.loadChordsTimeline(metadata.chords);
+                this.loadBeatsTimeline(metadata.beats);
+            }
+        }
+    }
+
+    loadChordsTimeline = async (chordData: ChordTime[] | null = null) => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
             if (activePlugins.chordstimeline === true) {
+                if (chordData) this.wavesurfer.chordstimeline.params.chords = chordData;
                 this.wavesurfer.chordstimeline.render();
             }
             else {
@@ -160,10 +174,11 @@ class MediaPlayer {
         }
     }
 
-    loadBeatsTimeline = async () => {
+    loadBeatsTimeline = async (beatsData: BeatTime[] | null = null) => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
             if (activePlugins.beatstimeline === true) {
+                if (beatsData) this.wavesurfer.beatstimeline.params.beats = beatsData;
                 this.wavesurfer.beatstimeline.render();
             }
             else {

@@ -22,7 +22,7 @@ class Waveform extends Component<{}, WaveformState> {
         this.state = { show: false };
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
     }
@@ -36,7 +36,7 @@ class Waveform extends Component<{}, WaveformState> {
         this.setState({ show: false });
     }
 
-    mediaReady = () => {
+    mediaReady = async () => {
         this.setState({ show: true });
     }
 

@@ -14,9 +14,10 @@ import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata,
+    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata, SongKey, ChordTriplet, BeatTriplet,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
+import MusicAnalysisService from '../lib/musicanalysis';
 import {
     successToaster, progressToaster, errorToaster, dismissToaster,
 } from '../components/Extended/Toasters';
@@ -224,6 +225,8 @@ export class Project {
 
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
                 progressToaster("Project Opened", 3, total, key);
+
+                await MusicAnalysisService.analyse();
                 this.isLoading = false;
                 return;
             }
@@ -366,6 +369,36 @@ export class Project {
         return false;
     }
 
+    public updateSongKey = async (data: SongKey) => {
+        if (this.projectInfo) {
+            await writeFile(this.projectInfo.key, JSON.stringify(data));
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
+        }
+    }
+
+    public updateTempo = async (data: number) => {
+        if (this.projectInfo) {
+            await writeFile(this.projectInfo.tempo, JSON.stringify(data));
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
+        }
+    }
+
+    public updateChords = async (data: ChordTriplet[]) => {
+        if (this.projectInfo) {
+            const lines = data.join("\n");
+            await writeFile(this.projectInfo.chords, lines);
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
+        }
+    }
+
+    public updateBeats = async (data: BeatTriplet[]) => {
+        if (this.projectInfo) {
+            const lines = data.map((item) => `${item[0]} ${item[1]}`).join("\n");
+            await writeFile(this.projectInfo.beats, lines);
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
+        }
+    }
+
     private updateExternalFiles = async () => {
         if (this.projectInfo) {
             this.projectInfo.cqt = path.join(this.projectDirectory, 'cqt.raw.png');
@@ -440,7 +473,7 @@ export class Project {
     private readTempo = async (): Promise<number> => {
         try {
             if (this.projectInfo) {
-                if (!fs.existsSync(this.projectInfo.chords)) return 0;
+                if (!fs.existsSync(this.projectInfo.tempo)) return 0;
                 const tempoFile = this.projectInfo.tempo;
                 const data = await readFile(tempoFile)
                 const tempo = parseFloat(data.toString());
@@ -452,13 +485,13 @@ export class Project {
         return 0;
     }
 
-    private readSongKey = async (): Promise<string[]> => {
+    private readSongKey = async (): Promise<SongKey> => {
         try {
             if (this.projectInfo) {
                 const keyFile = this.projectInfo.key;
-                if (!fs.existsSync(keyFile)) return [];
+                if (!fs.existsSync(keyFile)) return ['-', '-', 0];
                 const data = await readFile(keyFile)
-                const s: string[] = JSON.parse(data.toString())
+                const s: SongKey = JSON.parse(data.toString())
                 let note = s[0];
                 if (note.endsWith('b')) {
                     //convert to sharp
@@ -476,7 +509,7 @@ export class Project {
         catch (e) {
             console.trace("readSongKey error: ", e, JSON.stringify(this.projectInfo));
         }
-        return [];
+        return ['-', '-', 0];
     }
 
     public readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
@@ -516,7 +549,7 @@ export class Project {
     public readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
-            if (!fs.existsSync(this.projectInfo.chords)) return resolve([]);
+            if (!fs.existsSync(this.projectInfo.beats)) return resolve([]);
             const lineReader = readline.createInterface({
                 input: fs.createReadStream(this.projectInfo.beats),
             });
@@ -554,7 +587,7 @@ export class Project {
             return {
                 name: path.basename(this.projectDirectory),
                 path: this.projectDirectory,
-                key: key.length > 0 ? `${key[0]} ${key[1]}` : "-",
+                key,
                 tempo: Math.round(await this.readTempo()),
                 chords,
                 beats,
