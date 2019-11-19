@@ -82,6 +82,7 @@ class MediaPlayer {
             loopSelection: false,
             autoCenter: false,
             pixelRatio: 2,
+            scrollPage: true,
             plugins: [
                 TimelinePlugin.create({
                     container: '#timeline',
