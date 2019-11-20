@@ -22,7 +22,7 @@ const TABID_AUDIO = "audio" as TabId;
 const TABID_SPEC = "spectrogram" as TabId;
 const TABID_ISOLATION = "isolation" as TabId;
 
-class MediaAdvaned extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
+class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
         this.state = { currentTab: TABID_AUDIO, metadata: null }
@@ -88,4 +88,4 @@ class MediaAdvaned extends React.Component<MediaAdvancedProps, MediaAdvancedStat
     }
 }
 
-export default MediaAdvaned;
+export default MediaAdvanced;

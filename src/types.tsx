@@ -170,7 +170,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
     },
     MEDIA_ADVANCED: {
-        info: "Open [meend-intelligence] panel", hotkey: ["o"],
+        info: "Open [meend-intelligence] panel", hotkey: ["a"],
     },
 }
 

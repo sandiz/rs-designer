@@ -184,8 +184,8 @@ export const getImportUrlDialog = (): DialogContent => {
         text,
         icon: IconNames.CLOUD_DOWNLOAD,
         class: classNames(Classes.HOTKEY_DIALOG, "import-url-dialog"),
-        canEscapeKeyClose: false,
-        canOutsideClickClose: false,
+        canEscapeKeyClose: true,
+        canOutsideClickClose: true,
         onClose: () => {
             if (ref.current) ref.current.cancelDownload();
         },

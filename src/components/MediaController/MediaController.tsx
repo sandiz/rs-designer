@@ -23,7 +23,7 @@ import {
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
-import MediaAdvaned from '../MediaAdvanced/MediaAdvanced';
+import MediaAdvanced from '../MediaAdvanced/MediaAdvanced';
 
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
@@ -335,7 +335,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         const c = (
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
-                <MediaAdvaned show={this.state.showAdvanced} />
+                <MediaAdvanced show={this.state.showAdvanced} />
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
