@@ -144,6 +144,15 @@
     }
 }
 
+.warningslider {
+    >.bp3-slider-track {
+        >:nth-child(2) {
+            background-color: $pt-intent-warning !important;
+        }
+    }
+}
+
+
 .bp3-dark .volume-slider {
     >.bp3-slider-track {
         >:nth-child(1) {

@@ -108,7 +108,7 @@
 }
 
 .mi-drawer-bottom {
-    bottom: 10vh !important;
+    bottom: 9vh !important;
 }
 
 .key-panel {
@@ -117,7 +117,7 @@
 }
 
 .tempo-panel {
-    height: 25%;
+    height: 32%;
 }
 
 .mixer-chords-flex {
@@ -136,7 +136,6 @@
     justify-content: center;
     align-items: center;
     margin-top: 1px;
-    margin-right: 0;
 }
 
 .mixer-key-switch {
@@ -201,7 +200,6 @@
 
 
 .mixer-bpm-font {
-    margin-bottom: 1vh;
     font-size: 1.25vw;
     text-transform: lowercase;
 }

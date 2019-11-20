@@ -131,32 +131,30 @@ export const getTransposedKey = (key: string, value: number): string => {
     return '';
 }
 
-export const getTransposedChords = (chords: string[], value: number): string[] => {
-    const t = [...chords];
-    for (let i = 0; i < t.length; i += 1) {
-        const chord = t[i];
-        if (chord.endsWith('m')) {
-            const key = chord.replace('m', '');
-            t[i] = getTransposedKey(key, value) + 'm';
-        }
-        else if (chord === 'N') {
-            t[i] = chord;
-        }
-        else {
-            t[i] = getTransposedKey(t[i], value);
-        }
+export const getChordCombinedForm = (item: ChordTime): string => {
+    let c = ""
+    if (item.type === 'maj') c = item.key;
+    else if (item.type === 'min') c = item.key + "m";
+    else {
+        c = "N";
     }
-    //console.log(chords, value, t);
+    return c;
+}
+
+export const getTransposedChords = (chords: ChordTime[], value: number): ChordTime[] => {
+    //return chords;
+    const t: ChordTime[] = []
+    for (let i = 0; i < chords.length; i += 1) {
+        const c: ChordTime = { ...chords[i] };
+        c.key = getTransposedKey(chords[i].key, value);
+        t.push(c);
+    }
     return t;
 }
 
 export const getUniqueChords = (chordsAnalysisData: ChordTime[]): string[] => {
     const onlyChords = chordsAnalysisData.map((v) => {
-        if (v.type === 'maj') return v.key;
-        else if (v.type === 'min') return v.key + "m";
-        else {
-            return "N";
-        }
+        return getChordCombinedForm(v);
     })
     const uniq = [...Array.from(new Set(onlyChords))];
     return uniq;
@@ -164,16 +162,12 @@ export const getUniqueChords = (chordsAnalysisData: ChordTime[]): string[] => {
 
 export const countChords = (chord: string, chordArray: ChordTime[]): number => {
     return chordArray.filter(item => {
-        let c = ""
-        if (item.type === 'maj') c = item.key;
-        else if (item.type === 'min') c = item.key + "m";
-        else {
-            c = "N";
-        }
+        const c = getChordCombinedForm(item);
         if (c === chord) return true;
         return false;
     }).length;
 }
+
 
 export const semitonesForTempoChange = (startBPM: number, endBPM: number): number => {
     return Math.round((Math.log(endBPM / startBPM) / 0.05776227) * 100) / 100;     // calculate math function
