@@ -14,8 +14,8 @@ let ready = false;
 async function createWindow() {
     // Load the previous state with fallback to defaults
     let mainWindowState = windowStateKeeper({
-        defaultWidth: 1750,
-        defaultHeight: 1070
+        defaultWidth: 1700,
+        defaultHeight: 1080
     });
     let frameOpts = {}
     if (process.platform !== 'win32') {
@@ -48,7 +48,7 @@ async function createWindow() {
     // automatically (the listeners will be removed when the window is closed)
     // and restore the maximized or full screen state
     mainWindowState.manage(mainWindow);
-    mainWindow.setMinimumSize(1700, 1070);
+    mainWindow.setMinimumSize(1700, 1080);
     //mainWindow.maximize();
     mainWindow.loadURL(
         process.env.ELECTRON_START_URL ||

@@ -64,6 +64,7 @@ class MediaAdvaned extends React.Component<MediaAdvancedProps, MediaAdvancedStat
                 position={Position.BOTTOM}
                 size={Drawer.SIZE_STANDARD}
                 portalClassName="mi-drawer"
+                className="mi-drawer-bottom"
             >
                 {this.title()}
                 {this.state.currentTab === TABID_AUDIO ? <Mixer /> : null}

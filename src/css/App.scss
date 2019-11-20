@@ -19,6 +19,7 @@ button,
 canvas,
 input,
 .info-panel,
+.mixer,
 .media-bar-sticky {
     -webkit-app-region: no-drag;
 }
@@ -196,4 +197,8 @@ pre {
 
 .tooltip {
     width: 30vh;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0 !important;
 }
