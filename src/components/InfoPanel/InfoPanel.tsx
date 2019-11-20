@@ -7,6 +7,7 @@ import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails, ZOOM } from '../../types';
 import SliderExtended from '../Extended/FadeoutSlider';
 import MediaPlayerService from '../../services/mediaplayer';
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 const { shell } = window.require("electron").remote;
 
@@ -22,6 +23,19 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
         super(props);
         this.state = { zoom: ZOOM.DEFAULT };
     }
+
+    componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+    }
+
+    mediaReset = () => {
+        this.setState({ zoom: ZOOM.DEFAULT });
+    }
+
     setZoom = (cur: number) => {
         MediaPlayerService.zoom(cur);
         this.setState({ zoom: cur });

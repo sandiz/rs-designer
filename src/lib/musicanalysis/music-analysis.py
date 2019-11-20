@@ -186,7 +186,10 @@ if __name__ == '__main__':
         processArgs(args)
 
     msg = prRed("False") if benchTestFailed else prGreen("True")
-    print(f"All tests Passed: { msg }")
+
+    if args.type == "bench":
+        print(f"All tests Passed: { msg }")
+
     if benchTestFailed:
         sys.exit(1)
     else:
