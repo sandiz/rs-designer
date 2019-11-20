@@ -119,6 +119,7 @@
       "!test${/*}",
       "!functest${/*}",
       "!src/lib/musicanalysis/build/*",
+      "!src/lib/musicanalysis/test/*",
       "!src/lib/musicanalysis/cqt.npy",
       "!patches/*",
       "!packages/*"

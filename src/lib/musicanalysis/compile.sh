@@ -17,7 +17,10 @@ FILESIZE=$(stat -f%z "dist/music-analysis")
 FILESIZE=$((FILESIZE / (1024 * 1024 ) ))
 echo "dist/music-analysis size = $FILESIZE mb."
 
-if [ $1 == "--bench" ]
-then
-    /usr/bin/time -l ./dist/music-analysis -f ~/Downloads/test-music/Boondein.rsdbundle/media.mp3 --type bench 2>/dev/null
+if [[ $# -gt 0 ]];
+then 
+    if [ $1 == "--bench" ]
+    then
+        ./dist/music-analysis --type bench --results test/results.json 2>/dev/null
+    fi
 fi
