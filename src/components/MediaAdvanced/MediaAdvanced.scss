@@ -41,14 +41,14 @@
     display: flex;
     flex-direction: column;
     align-items: left;
-    justify-content: center;
-    width: 40%;
+    justify-content: space-evenly;
+    width: 47%;
     margin: auto;
     height: 100%;
 }
 
 .mixer-right {
-    width: 52%;
+    width: 50%;
     margin: auto;
     margin-right: 0;
 }
@@ -92,15 +92,19 @@
 }
 
 .mixer-chords-container {
-    width: 100%;
+    width: 80%;
     height: 100%;
 }
 
 .mixer-chords {
     display: flex;
     width: 100%;
-    justify-content: space-between;
-    margin-bottom: 5px;
+    justify-content: left;
+    margin-left: 0.5vw;
+}
+
+.mixer-chords * {
+    margin-right: 0.5vw;
 }
 
 .mi-drawer-bottom {
@@ -132,6 +136,7 @@
     justify-content: center;
     align-items: center;
     margin-top: 1px;
+    margin-right: 0;
 }
 
 .mixer-key-switch {
@@ -141,6 +146,7 @@
     justify-content: center;
     align-items: center;
     width: 15%;
+    margin-left: 0;
 }
 
 .mixer-key-tag {
@@ -182,8 +188,24 @@
     margin-bottom: 5px;
 }
 
+.mixer-chord-list {
+    display: flex;
+    width: 100%;
+    justify-content: left;
+    margin-bottom: 5px;
+}
+
+.mixer-chord-list * {
+    margin-right: 1vw;
+}
+
+
 .mixer-bpm-font {
     margin-bottom: 1vh;
     font-size: 1.25vw;
     text-transform: lowercase;
+}
+
+.mixer-tempo-tooltip {
+    margin: 0;
 }

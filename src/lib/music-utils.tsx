@@ -9,15 +9,13 @@ const rotate = (array: string[], times: number): string[] => {
     //eslint-disable-next-line
     while (times--) {
         const temp: string | undefined = copy.shift();
-        if (temp) copy.push(temp)
+        if (typeof temp !== 'undefined') copy.push(temp)
     }
     return copy;
 }
 
 const rotateMode = (obj: ScaleInfo, times: number) => {
-    const copy = { ...obj }
-    copy.steps = rotate(copy.steps, times)
-    copy.chordType = rotate(copy.chordType, times);
+    const copy: ScaleInfo = { steps: rotate(obj.steps, times), chordType: rotate(obj.chordType, times) }
     return copy;
 }
 
@@ -60,6 +58,7 @@ export const getChordsInKey = (key: string, type: string): string[] => {
                 }
                 const newNote = pitches[noteIndex];
                 if (mode) {
+                    //console.log(mode.chordType, i);
                     newSteps.push(`${newNote}${mode.chordType[i]}`)
                 }
                 return newSteps;
@@ -244,4 +243,41 @@ export const noteToMidi = (note: string, roundMidi = true): number => {
 
 export const noteToHz = (note: string): number => {
     return midiToHz(noteToMidi(note));
+}
+
+interface TempoMarking {
+    min: number;
+    max: number;
+    tag: string;
+}
+const tempoMarkings: { [key: string]: TempoMarking } = {
+    Larghissimo: { min: 0, max: 24, tag: "very, very slow" },
+    Grave: { min: 25, max: 45, tag: "very slow" },
+    Largo: { min: 40, max: 60, tag: "broadly" },
+    Lento: { min: 45, max: 60, tag: "slowly" },
+    Larghetto: { min: 60, max: 66, tag: "rather broadly" },
+    Adagio: { min: 66, max: 76, tag: "slowly with great expression" },
+    Andante: { min: 76, max: 108, tag: "walking pace" },
+    Andantino: { min: 80, max: 108, tag: "slightly faster than andante" },
+    "Marcia moderato": { min: 83, max: 85, tag: "the manner of a march" },
+    "Andante moderato": { min: 92, max: 112, tag: "between andante and moderato" },
+    Moderato: { min: 108, max: 120, tag: "at a moderate speed" },
+    Allegretto: { min: 112, max: 120, tag: "moderately fast" },
+    "Allegro moderato": { min: 116, max: 120, tag: "close to, but not quite allegro" },
+    Allegro: { min: 120, max: 156, tag: "fast, quickly, and bright" },
+    Vivace: { min: 156, max: 176, tag: "lively and fast" },
+    Vivacissimo: { min: 172, max: 176, tag: "very fast and lively" },
+    Allegrissimo: { min: 172, max: 176, tag: "very fast" },
+    Presto: { min: 168, max: 200, tag: "very, very fast" },
+    Prestissimo: { min: 200, max: 400, tag: "faster than presto" },
+}
+
+export const findTempoMarkings = (tempo: number): [string, TempoMarking][] => {
+    const markings: [string, TempoMarking][] = [];
+    const keys = Object.keys(tempoMarkings);
+    for (let i = 0; i < keys.length; i += 1) {
+        const ti = tempoMarkings[keys[i]];
+        if (tempo >= ti.min && tempo <= ti.max) markings.push([keys[i], ti]);
+    }
+    return markings;
 }

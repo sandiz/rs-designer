@@ -173,7 +173,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     }
 
     projectClosed = () => {
-        this.setState({ mediaInfo: null });
+        this.setState({ mediaInfo: null, showAdvanced: false });
         this.settingsMenu();
     }
 
@@ -435,7 +435,14 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                             </div>
                         </div>
                         <div className="more-button">
-                            <ButtonExtended active={this.state.showAdvanced} onClick={this.showAdvanced} icon={<Icon icon={this.state.showAdvanced ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                            <ButtonExtended
+                                disabled={this.state.mediaInfo == null}
+                                active={this.state.showAdvanced}
+                                onClick={this.showAdvanced}
+                                icon={<Icon icon={this.state.showAdvanced ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP} iconSize={20} />}
+                                large
+                                className={Classes.ELEVATION_2}
+                            />
                         </div>
                     </div>
                 </CardExtended>

@@ -120,6 +120,7 @@ class MediaPlayer {
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
             this.setStyle();
+            if (this.wavesurfer) console.log(this.wavesurfer.getActivePlugins());
             this.loadBeatsTimeline();
             this.loadChordsTimeline();
             resolve();
@@ -251,6 +252,7 @@ class MediaPlayer {
         }
         this.audioContext = null;
         this.wavesurfer = null;
+        DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.dispatch(DispatchEvents.MediaReset);
     }
 

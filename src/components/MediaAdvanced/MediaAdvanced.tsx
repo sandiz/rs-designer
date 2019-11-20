@@ -6,12 +6,16 @@ import { IconNames } from '@blueprintjs/icons'
 
 import './MediaAdvanced.scss'
 import { Mixer } from './Mixer'
+import { ProjectMetadata } from '../../types'
+import ProjectService from '../../services/project'
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
 
 interface MediaAdvancedProps {
     show: boolean;
 }
 interface MediaAdvancedState {
     currentTab: TabId | undefined;
+    metadata: ProjectMetadata | null;
 }
 
 const TABID_AUDIO = "audio" as TabId;
@@ -21,10 +25,21 @@ const TABID_ISOLATION = "isolation" as TabId;
 class MediaAdvaned extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
-        this.state = { currentTab: TABID_AUDIO }
+        this.state = { currentTab: TABID_AUDIO, metadata: null }
     }
 
-    componentDidMount = () => console.log(this.state.currentTab)
+    componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
+    }
+
+    projectOpened = async () => {
+        const metadata = await ProjectService.getProjectMetadata();
+        this.setState({ metadata })
+    }
 
     handleTabChange = (newTab: React.ReactText, prevTab: React.ReactText, event: React.MouseEvent<HTMLElement>) => {
         this.setState({ currentTab: newTab });
@@ -56,18 +71,18 @@ class MediaAdvaned extends React.Component<MediaAdvancedProps, MediaAdvancedStat
             </Navbar>
         );
     }
+
     render = () => {
         return (
             <Drawer
                 isOpen={this.props.show}
-                lazy
                 position={Position.BOTTOM}
-                size={Drawer.SIZE_STANDARD}
+                size={45 + '%'}
                 portalClassName="mi-drawer"
                 className="mi-drawer-bottom"
             >
                 {this.title()}
-                {this.state.currentTab === TABID_AUDIO ? <Mixer /> : null}
+                {this.state.metadata && this.state.currentTab === TABID_AUDIO ? <Mixer metadata={this.state.metadata} /> : null}
             </Drawer>
         )
     }
