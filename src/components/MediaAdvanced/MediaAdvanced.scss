@@ -1,0 +1,89 @@
+.mi-drawer {
+    z-index: 4 !important;
+}
+
+.mi-header {
+    //font-family: Inconsolata, monospace;
+    font-weight: 100;
+}
+
+.mi-header-group {
+    width: 75%;
+}
+
+.mi-heading {
+    width: 100%;
+    display: flex;
+    justify-content: left;
+    font-size: 20px !important;
+}
+
+.mi-header-icon {
+    width: 1.5vw;
+    margin-top: 2px;
+}
+
+.mixer-root {
+    display: flex;
+    width: 90%;
+    margin: auto;
+    flex-direction: row;
+    height: 98%;
+    justify-content: space-evenly;
+}
+
+.mixer {
+    width: 100%;
+    height: 75%;
+}
+
+.mixer-left {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+    width: 40%;
+    margin: auto;
+}
+
+.mixer-right {
+    width: 52%;
+    margin: auto;
+    margin-right: 0;
+}
+
+.mixer-panel {
+    margin-bottom: 1vw;
+}
+
+.mixer-info {
+    display: flex;
+    width: 100%;
+}
+
+.mixer-info-details {
+    width: 80%;
+}
+
+.mixer-info-key {
+    display: flex;
+    flex-direction: column;
+    width: 20% !important;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.25 !important;
+    padding-left: 10px !important;
+}
+
+.mixer-key-font {
+    font-size: 3vw;
+}
+
+.mixer-tonality-font {
+    font-size: 1.25vw;
+    text-transform: lowercase;
+}
+
+.mixer-bpm {
+    font-family: Inconsolata, monospace;
+}

@@ -23,6 +23,7 @@ import {
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
+import MediaAdvaned from '../MediaAdvanced/MediaAdvanced';
 
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
@@ -36,6 +37,7 @@ interface MediaBarState extends HotKeyState {
     settingsMenu: React.ReactElement | null;
     mediaState: MEDIA_STATE;
     duration: number;
+    showAdvanced: boolean;
 }
 
 class MediaController extends HotKeyComponent<{}, MediaBarState> {
@@ -77,6 +79,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             duration: 0,
             mediaState: MEDIA_STATE.STOPPED,
             isHKEnabled: true,
+            showAdvanced: false,
         };
         this.state = { ...super.getInitialState(), ...b };
         this.settingsMenu();
@@ -226,6 +229,12 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         this.timer = requestAnimationFrame(this.progressUpdate);
     }
 
+    showAdvanced = () => {
+        this.setState(prevState => ({
+            showAdvanced: !prevState.showAdvanced,
+        }));
+    }
+
     QUIT = () => {
         if (ProjectService.isProjectLoaded()) {
             this.saveProject();
@@ -323,6 +332,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         const c = (
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
+                <MediaAdvaned show={this.state.showAdvanced} />
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
@@ -425,7 +435,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                             </div>
                         </div>
                         <div className="more-button">
-                            <ButtonExtended icon={<Icon icon={IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
+                            <ButtonExtended active={this.state.showAdvanced} onClick={this.showAdvanced} icon={<Icon icon={this.state.showAdvanced ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </div>
                     </div>
                 </CardExtended>

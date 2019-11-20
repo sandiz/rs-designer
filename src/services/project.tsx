@@ -131,27 +131,6 @@ export class Project {
         }
     }
 
-    private isAnalysisReqd() {
-        if (this.projectInfo) {
-            const {
-                cqt, tempo, beats, key, chords,
-            } = this.projectInfo;
-            if (
-                cqt === ''
-                || tempo === ''
-                || beats === ''
-                || key === ''
-                || chords === ''
-            ) {
-                return true;
-            }
-        }
-        else {
-            return true;
-        }
-        return false;
-    }
-
     public isProjectLoaded() {
         return this.isLoaded;
     }

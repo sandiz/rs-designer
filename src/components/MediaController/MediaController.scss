@@ -9,6 +9,7 @@
     display: flex;
     align-items: center;
     border-top: 1px solid $pt-divider-black;
+    z-index: 5;
 }
 
 .bp3-dark .media-bar-sticky {
@@ -161,7 +162,6 @@
     justify-content: flex-end;
     width: 38%;
 }
-
 
 :root {
     --media-bar-zoom: 1;

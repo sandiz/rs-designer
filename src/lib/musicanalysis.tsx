@@ -261,13 +261,13 @@ class MusicAnalysis {
             resolve(false);
         }
         successToaster(`[ meend-intelligence ] analysis pending for ${toAnalyse.join(", ")}.`,
-            Intent.NONE, IconNames.PREDICTIVE_ANALYSIS, action, 50000, dismiss, "extra-wide-toaster");
+            Intent.NONE, IconNames.LAYOUT_AUTO, action, 50000, dismiss, "extra-wide-toaster");
     });
 
     analyse = async () => {
         const toAnalyse = await this.isAnalysisReqd();
         if (toAnalyse.length === 0) {
-            successToaster("[ meend-intelligence ] up-to-date!", Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS);
+            successToaster("[ meend-intelligence ] up-to-date!", Intent.SUCCESS, IconNames.LAYOUT_AUTO);
         }
         else {
             const analysePrompt = await this.analysePrompt(toAnalyse);
@@ -275,16 +275,16 @@ class MusicAnalysis {
                 console.log("[meend-intelligence] analysis started");
                 this.activeRunners = [];
                 const promises: Promise<RunnerResult>[] = [];
-                let longRunningPromise: Promise<RunnerResult> | null = null;
-                const tkey = progressToaster("[ meend-intelligence ] analysis in progress...", 0, toAnalyse.length, undefined, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS);
-                let idx = -1;
+                let idx = 0;
+                const total = toAnalyse.length + 1;
+                const tkey = progressToaster("[ meend-intelligence ] analysis in progress...", 0.5, total, undefined, Intent.SUCCESS, IconNames.LAYOUT_AUTO);
                 if (toAnalyse.includes(AnalysisType.KEY)) {
                     const f = KeyRunner();
                     this.activeRunners.push(f);
                     const p = f.fetchAndSave()
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] key detection complete", idx, toAnalyse.length, tkey, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS)
+                        progressToaster("[ meend-intelligence ] key detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     });
                     promises.push(p)
                 }
@@ -294,7 +294,7 @@ class MusicAnalysis {
                     const p = f.fetchAndSave();
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] tempo detection complete", idx, toAnalyse.length, tkey, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS)
+                        progressToaster("[ meend-intelligence ] tempo detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     });
                     promises.push(p)
                 }
@@ -304,26 +304,24 @@ class MusicAnalysis {
                     const p = f.fetchAndSave();
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] chords detection complete", idx, toAnalyse.length, tkey, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS)
+                        progressToaster("[ meend-intelligence ] chords detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     });
                     promises.push(p);
                 }
                 if (toAnalyse.includes(AnalysisType.BEATS)) {
                     const f = BeatsRunner();
                     this.activeRunners.push(f);
-                    longRunningPromise = f.fetchAndSave();
-                    longRunningPromise.then(() => {
+                    const p = f.fetchAndSave();
+                    p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] beats detection complete", idx, toAnalyse.length, tkey, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS)
+                        progressToaster("[ meend-intelligence ] beats detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     });
+                    promises.push(p);
                 }
 
                 try {
                     await Promise.all(promises);
-                    if (longRunningPromise) {
-                        await longRunningPromise;
-                    }
-                    progressToaster("[ meend-intelligence ] analysis complete", toAnalyse.length, toAnalyse.length, tkey, Intent.SUCCESS, IconNames.PREDICTIVE_ANALYSIS)
+                    progressToaster("[ meend-intelligence ] analysis complete", total, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                 }
                 catch (e) {
                     for (let i = 0; i < this.activeRunners.length; i += 1) {
