@@ -5,7 +5,7 @@ import {
 import classNames from 'classnames';
 import NativeListener from 'react-native-listener';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import { UUID } from '../../lib/utils';
+import { UUID, stopEventPropagation } from '../../lib/utils';
 
 interface SliderExtendedProps extends ISliderProps {
     timerSource: () => number;
@@ -46,6 +46,14 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         if (this.sliderRef.current != null) {
             this.sliderRef.current.addEventListener('mouseover', this.handleMouse);
             this.sliderRef.current.addEventListener('mouseout', this.handleMouse);
+
+            const all = this.sliderRef.current.querySelectorAll("*");
+            for (let i = 0; i < all.length; i += 1) {
+                const item = all[i];
+                (item as HTMLElement).addEventListener('keydown', (e) => { stopEventPropagation(e); (item as HTMLElement).blur(); });
+                (item as HTMLElement).addEventListener('keypress', (e) => { stopEventPropagation(e); (item as HTMLElement).blur(); });
+                (item as HTMLElement).addEventListener('keyup', (e) => { stopEventPropagation(e); (item as HTMLElement).blur(); });
+            }
         }
         this.handleMouse(new Event("mouseout"));
     }
@@ -113,7 +121,10 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
 
     render = () => {
         const c = (
-            <div ref={this.sliderRef}>
+            <div
+                style={{ width: 100 + '%' }}
+                ref={this.sliderRef}
+            >
                 <Slider
                     stepSize={this.props.stepSize}
                     min={this.state.min}

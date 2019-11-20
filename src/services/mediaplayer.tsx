@@ -338,6 +338,20 @@ class MediaPlayer {
         return 0;
     }
 
+    public increaseVolume = () => {
+        if (this.wavesurfer) {
+            const current = this.getVolume();
+            if (current < VOLUME.MAX) this.setVolume(current + 0.1);
+        }
+    }
+
+    public decreaseVolume = () => {
+        if (this.wavesurfer) {
+            const current = this.getVolume();
+            if (current > VOLUME.MIN) this.setVolume(current - 0.1);
+        }
+    }
+
     public skipForward = () => {
         if (this.wavesurfer) {
             this.wavesurfer.skipForward();

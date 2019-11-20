@@ -1,12 +1,13 @@
 import React, { FunctionComponent } from 'react';
 import {
-    Card, Elevation, Callout, Tag, Slider, Switch, Intent, Tooltip,
+    Card, Elevation, Callout, Tag, Switch, Intent, Tooltip,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import { ProjectMetadata } from '../../types';
 import {
     getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings, countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
+import SliderExtended from '../Extended/FadeoutSlider';
 
 interface MixerProps {
     metadata: ProjectMetadata;
@@ -125,14 +126,16 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
                             <div className="mixer-chords">
                                 <Tag interactive large minimal className="mixer-key-tag" onClick={this.resetKey}>Change Key</Tag>
                                 <div className="mixer-key-slider">
-                                    <Slider
+                                    <SliderExtended
                                         className={classNames({ warningslider: kcdiff !== 0 })}
                                         stepSize={1}
-                                        onChange={this.handleChange}
                                         min={this.minKey}
                                         max={this.maxKey}
                                         labelRenderer={false}
-                                        value={this.state.keyChange} />
+                                        value={this.state.keyChange}
+                                        dragStart={this.handleChange}
+                                        dragEnd={this.handleChange}
+                                    />
                                 </div>
                                 <div className="mixer-key-switch">
                                     <Switch inline label="Transpose" style={{ margin: 'auto' }} />
@@ -164,7 +167,7 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
         const diff = this._cur() - this.props.metadata.tempo;
         const markings = findTempoMarkings(this._cur());
         const { tempoChange } = this.state;
-        const keyMsg = (tempoChange) === 100 ? "" : ((tempoChange >= 100 ? `(+${tempoChange}%)` : `(-${tempoChange}%)`));
+        const keyMsg = (tempoChange) === 100 ? "" : ((tempoChange >= 100 ? `(${tempoChange}%)` : `(${tempoChange}%)`));
 
         return (
             <React.Fragment>
@@ -202,13 +205,15 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                             <div className="mixer-chords">
                                 <Tag large minimal interactive className="mixer-tempo-tag" onClick={this.resetTempo}>Change Tempo</Tag>
                                 <div className="mixer-tempo-slider">
-                                    <Slider
+                                    <SliderExtended
+                                        stepSize={1}
                                         className={classNames({ warningslider: diff !== 0 })}
                                         min={this.state.tempoMin}
                                         max={this.state.tempoMax}
                                         labelRenderer={false}
                                         value={this.state.tempoChange}
-                                        onChange={this.handleChange}
+                                        dragStart={this.handleChange}
+                                        dragEnd={this.handleChange}
                                     />
                                 </div>
                             </div>

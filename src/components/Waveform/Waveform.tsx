@@ -22,6 +22,10 @@ class Waveform extends Component<{}, WaveformState> {
         this.state = { show: false };
     }
 
+    shouldComponentUpdate(nextProps: {}) {
+        return this.props !== nextProps
+    }
+
     componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);

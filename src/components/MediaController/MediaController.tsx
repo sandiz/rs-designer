@@ -53,6 +53,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         OPEN_LAST_PROJECT: HotkeyInfo.OPEN_LAST_PROJECT.hotkey,
         CLOSE_PROJECT: HotkeyInfo.CLOSE_PROJECT.hotkey,
         IMPORT_MEDIA: HotkeyInfo.IMPORT_MEDIA.hotkey,
+        MEDIA_ADVANCED: HotkeyInfo.MEDIA_ADVANCED.hotkey,
     };
 
     public handlers = {
@@ -67,6 +68,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         OPEN_LAST_PROJECT: () => this.kbdProxy(() => this.openLastProject()),
         CLOSE_PROJECT: () => this.kbdProxy(() => this.closeProject()),
         IMPORT_MEDIA: () => this.kbdProxy(() => this.importMedia(null)),
+        MEDIA_ADVANCED: () => this.kbdProxy(() => this.showAdvanced()),
     };
 
     private timer: number | null = null;
@@ -119,9 +121,9 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     _set_media_playing = () => this.setState({ mediaState: MEDIA_STATE.PLAYING });
     _set_media_paused = () => this.setState({ mediaState: MEDIA_STATE.PAUSED });
 
-    volUp = () => MediaPlayerService.skipForward();
+    volUp = () => MediaPlayerService.increaseVolume();
 
-    volDown = () => MediaPlayerService.skipBackward();
+    volDown = () => MediaPlayerService.decreaseVolume();
 
     play = async (): Promise<void> => {
         await MediaPlayerService.playPause();
@@ -230,6 +232,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     }
 
     showAdvanced = () => {
+        if (this.state.mediaInfo == null) return;
         this.setState(prevState => ({
             showAdvanced: !prevState.showAdvanced,
         }));

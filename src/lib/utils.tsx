@@ -177,3 +177,10 @@ export const base64ImageData = (data: string) => {
 }
 
 export const clamp = (min: number, max: number, val: number) => Math.min(Math.max(min, val), max);
+
+export function stopEventPropagation(e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (e.currentTarget)
+        (e.currentTarget as HTMLElement).blur()
+}
