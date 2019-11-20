@@ -4,7 +4,7 @@ import {
 } from '@blueprintjs/core';
 import { ProjectMetadata } from '../../types';
 import {
-    getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings,
+    getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings, countChords,
 } from '../../lib/music-utils';
 
 interface MixerProps {
@@ -44,22 +44,44 @@ export const KeyPanel: FunctionComponent<MixerProps> = (props: MixerProps) => {
                 <div className="mixer-chords-container">
                     <Callout className="mixer-chords-flex">
                         <div className="mixer-chords">
-                            <Tag large minimal>Relative Key</Tag>
+                            <Tooltip>
+                                <Tag large minimal>Relative Key</Tag>
+                            </Tooltip>
                             <Tag interactive large>{relativeKey.join(" ")}</Tag>
                         </div>
                         <div className="mixer-chords">
-                            <Tag large minimal>Key Chords</Tag>
+                            <Tooltip>
+                                <Tag large minimal>Key Chords</Tag>
+                            </Tooltip>
                             {
                                 keyChords.map((item) => {
-                                    return <Tag key={item} large intent={unique.includes(item) ? Intent.PRIMARY : Intent.NONE} interactive title={unique.includes(item) ? "used in song" : ""}>{item}</Tag>
+                                    return (
+                                        <Tooltip
+                                            key={item}
+                                            content={(
+                                                <span className="number">used {countChords(item, props.metadata.chords)} times</span>
+                                            )}>
+                                            <Tag large intent={unique.includes(item) ? Intent.PRIMARY : Intent.NONE} interactive>{item}</Tag>
+                                        </Tooltip>
+                                    );
                                 })
                             }
                         </div>
                         <div className="mixer-chords">
-                            <Tag large minimal>Parallel Chords</Tag>
+                            <Tooltip>
+                                <Tag large minimal>Parallel Chords</Tag>
+                            </Tooltip>
                             {
                                 parallelChords.map((item) => {
-                                    return <Tag key={item} large intent={unique.includes(item) ? Intent.PRIMARY : Intent.NONE} interactive>{item}</Tag>
+                                    return (
+                                        <Tooltip
+                                            key={item}
+                                            content={(
+                                                <span className="number">used {countChords(item, props.metadata.chords)} times</span>
+                                            )}>
+                                            <Tag large intent={unique.includes(item) ? Intent.PRIMARY : Intent.NONE} interactive>{item}</Tag>
+                                        </Tooltip>
+                                    );
                                 })
                             }
                         </div>
@@ -91,7 +113,9 @@ export const TempoPanel: FunctionComponent<MixerProps> = (props: MixerProps) => 
                 <div className="mixer-chords-container">
                     <Callout className="mixer-tempo-flex">
                         <div className="mixer-chords">
-                            <Tag large minimal interactive className="mixer-tempo-cat">Category</Tag>
+                            <Tooltip>
+                                <Tag large minimal interactive className="mixer-tempo-cat">Category</Tag>
+                            </Tooltip>
                             {
                                 markings.map((mark) => {
                                     return (

@@ -162,6 +162,19 @@ export const getUniqueChords = (chordsAnalysisData: ChordTime[]): string[] => {
     return uniq;
 }
 
+export const countChords = (chord: string, chordArray: ChordTime[]): number => {
+    return chordArray.filter(item => {
+        let c = ""
+        if (item.type === 'maj') c = item.key;
+        else if (item.type === 'min') c = item.key + "m";
+        else {
+            c = "N";
+        }
+        if (c === chord) return true;
+        return false;
+    }).length;
+}
+
 export const semitonesForTempoChange = (startBPM: number, endBPM: number): number => {
     return Math.round((Math.log(endBPM / startBPM) / 0.05776227) * 100) / 100;     // calculate math function
 }
