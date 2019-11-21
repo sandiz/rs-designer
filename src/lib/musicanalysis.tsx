@@ -104,7 +104,7 @@ class Runner {
                 if (code === 0) {
                     try {
                         resolve(JSON.parse(output));
-                        console.log(`[${this.type} - runner] finished succesfully!`);
+                        console.log(`[${this.type} - runner] finished successfully!`);
                     }
                     catch (e) {
                         reject(new Error("error: output failed to parse " + output));
@@ -278,7 +278,7 @@ class MusicAnalysis {
         else {
             const analysePrompt = await this.analysePrompt(toAnalyse);
             if (analysePrompt) {
-                console.log("[meend-intelligence] analysis started");
+                console.log("[ meend-intelligence ] analysis started");
                 this.activeRunners = [];
                 const promises: Promise<RunnerResult>[] = [];
                 let idx = 0;
@@ -347,17 +347,17 @@ class MusicAnalysis {
                     for (let i = 0; i < this.activeRunners.length; i += 1) {
                         this.activeRunners[i].stop();
                     }
-                    console.log("[meend-intelligence] failed error: ", e);
+                    console.log("[ meend-intelligence ] failed error: ", e);
                     if (failed > 0) progressToaster(`[ meend-intelligence ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO);
                 }
-                console.log("[meend-intelligence] analysis finished, # analysed: ", this.activeRunners.length);
+                console.log("[ meend-intelligence ] analysis finished, # analysed: ", this.activeRunners.length);
                 for (let i = 0; i < this.activeRunners.length; i += 1) {
                     this.activeRunners[i].stop();
                 }
                 this.activeRunners = [];
             }
             else {
-                console.log("[meend-intelligence] analysis cancelled");
+                console.log("[ meend-intelligence ] analysis cancelled");
             }
         }
     }

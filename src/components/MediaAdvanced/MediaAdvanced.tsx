@@ -7,8 +7,8 @@ import { IconNames } from '@blueprintjs/icons'
 import './MediaAdvanced.scss'
 import { Mixer } from './Mixer'
 import { ProjectMetadata } from '../../types'
-import ProjectService from '../../services/project'
-import { DispatcherService, DispatchEvents } from '../../services/dispatcher'
+import ProjectService, { ProjectUpdateType } from '../../services/project'
+import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
 
 interface MediaAdvancedProps {
     show: boolean;
@@ -30,15 +30,26 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
     }
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
     }
 
     projectOpened = async () => {
         const metadata = await ProjectService.getProjectMetadata();
         this.setState({ metadata })
+    }
+
+    projectUpdated = async (data: DispatchData) => {
+        if (typeof data === 'string'
+            && (data === ProjectUpdateType.ExternalFilesUpdate
+                || data === ProjectUpdateType.MediaInfoUpdated)) {
+            const metadata = await ProjectService.getProjectMetadata();
+            this.setState({ metadata });
+        }
     }
 
     handleTabChange = (newTab: React.ReactText, prevTab: React.ReactText, event: React.MouseEvent<HTMLElement>) => {
@@ -51,7 +62,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 <Navbar.Group className="mi-header-group">
                     <Navbar.Heading className="mi-heading">
                         <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
-                        <span>[meend-intelligence]</span>
+                        <span>[ meend-intelligence ]</span>
                     </Navbar.Heading>
                 </Navbar.Group>
                 <Navbar.Group align={Alignment.RIGHT}>

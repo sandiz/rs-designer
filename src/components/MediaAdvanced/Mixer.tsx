@@ -31,7 +31,7 @@ export const Mixer: FunctionComponent<MixerProps> = (props: MixerProps) => (
                 <Card elevation={Elevation.TWO} className="mixer-panel tempo-panel"><TempoPanel metadata={props.metadata} /></Card>
             </div>
             <div className="mixer-right">
-                <Card elevation={Elevation.ZERO} className="mixer-panel"> Equalizer</Card>
+                <Card elevation={Elevation.TWO} className="mixer-panel"> <EqualizerPanel metadata={props.metadata} /> </Card>
             </div>
         </div>
     </div>
@@ -55,6 +55,7 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
 
     render = () => {
         const props = this.props;
+        const mKey = props.metadata.key[0];
         const kcdiff = this.state.keyChange - this.diff;
         const currentKey = getTransposedKey(props.metadata.key[0], this.state.keyChange - this.diff);
         const keyMsg = (kcdiff) === 0 ? currentKey : ((kcdiff > 0 ? `+${kcdiff}` : `${kcdiff}`));
@@ -71,8 +72,8 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
             <React.Fragment>
                 <div className="mixer-info">
                     <Callout className="mixer-info-key" icon={false} intent={kcdiff === 0 ? Intent.PRIMARY : Intent.WARNING}>
-                        <div className="mixer-key-font">{currentKey}</div>
-                        <div className="mixer-tonality-font">{keyTonality.toLowerCase()}</div>
+                        <div className="mixer-key-font">{mKey === '-' ? "n/a" : currentKey}</div>
+                        <div className="mixer-tonality-font">{keyTonality === '-' ? "" : keyTonality.toLowerCase()}</div>
                         {
                             kcdiff !== 0
                                 ? <div className="number">({keyMsg})</div>
@@ -85,7 +86,11 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
                                 <Tooltip>
                                     <Tag large minimal>Relative Key</Tag>
                                 </Tooltip>
-                                <Tag interactive large>{relativeKey.join(" ")}</Tag>
+                                {
+                                    mKey === '-'
+                                        ? null
+                                        : <Tag interactive large>{relativeKey.join(" ")}</Tag>
+                                }
                             </div>
                             <div className="mixer-chords">
                                 <Tooltip>
@@ -135,6 +140,7 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
                                         value={this.state.keyChange}
                                         dragStart={this.handleChange}
                                         dragEnd={this.handleChange}
+                                        disabled={mKey === '-'}
                                     />
                                 </div>
                                 <div className="mixer-key-switch">
@@ -168,12 +174,18 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
         const markings = findTempoMarkings(this._cur());
         const { tempoChange } = this.state;
         const keyMsg = (tempoChange) === 100 ? "" : ((tempoChange >= 100 ? `(${tempoChange}%)` : `(${tempoChange}%)`));
-
+        const cur = this._cur() === 0
+            ? (
+                <div className="mixer-key-font">n/a</div>
+            )
+            : (
+                <div className="mixer-key-font">{this._cur()}</div>
+            )
         return (
             <React.Fragment>
                 <div className="mixer-info">
                     <Callout className="mixer-info-key" icon={false} intent={diff === 0 ? Intent.PRIMARY : Intent.WARNING}>
-                        <div className="mixer-key-font number">{this._cur()}</div>
+                        {cur}
                         <div className="mixer-bpm-font">bpm</div>
                         <div className="number">
                             {keyMsg}
@@ -207,6 +219,7 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                                 <div className="mixer-tempo-slider">
                                     <SliderExtended
                                         stepSize={1}
+                                        disabled={this._cur() === 0}
                                         className={classNames({ warningslider: diff !== 0 })}
                                         min={this.state.tempoMin}
                                         max={this.state.tempoMax}
@@ -222,6 +235,33 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                 </div>
             </React.Fragment>
         );
+    }
+}
+
+interface EqualizerState {
+    eqsLoaded: string[];
+}
+export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> {
+    constructor(props: MixerProps) {
+        super(props);
+        this.state = { eqsLoaded: [] };
+        console.log(this.state.eqsLoaded);
+    }
+
+    render = () => {
+        return (
+            <React.Fragment>
+                <div className="mixer-eq">
+                    <Callout className="mixer-eq-list" icon={false} intent={Intent.PRIMARY}>
+                        <div className="mixer-key-font number">0</div>
+                        <div className="mixer-bpm-font">bpm</div>
+                    </Callout>
+                    <Callout className="mixer-eq-container">
+                        test
+                    </Callout>
+                </div>
+            </React.Fragment>
+        )
     }
 }
 

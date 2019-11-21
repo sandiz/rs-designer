@@ -258,7 +258,7 @@ interface TempoMarking {
     tag: string;
 }
 const tempoMarkings: { [key: string]: TempoMarking } = {
-    Larghissimo: { min: 0, max: 24, tag: "very, very slow" },
+    Larghissimo: { min: 1, max: 24, tag: "very, very slow" },
     Grave: { min: 25, max: 45, tag: "very slow" },
     Largo: { min: 40, max: 60, tag: "broadly" },
     Lento: { min: 45, max: 60, tag: "slowly" },

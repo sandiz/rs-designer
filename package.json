@@ -11,6 +11,7 @@
     "@blueprintjs/select": "^3.11.1",
     "about-window": "^1.13.1",
     "album-art": "^2.0.1",
+    "audiomotion-analyzer": "^1.0.1",
     "chord-chart": "^1.1.0",
     "classnames": "^2.2.6",
     "electron-is-dev": "^1.0.1",
