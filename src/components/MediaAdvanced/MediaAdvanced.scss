@@ -49,6 +49,7 @@
 
 .mixer-right {
     width: 50%;
+    height: 86%;
     margin: auto;
     margin-right: 0;
 }
@@ -211,7 +212,8 @@
 
 .mixer-eq-container {
     width: 100%;
-    height: 80%;
+    height: 70%;
+    padding: 0px !important;
 }
 
 .mixer-eq {
@@ -223,10 +225,31 @@
 
 .mixer-eq-list {
     display: flex;
-    flex-direction: row;
-    width: 100% !important;
-    height: 20% !important;
+    flex-direction: column;
+    width: 30% !important;
+    height: 100% !important;
     justify-content: center;
     align-items: center;
     line-height: 1.25 !important;
-    padding: 0 !important;}
+    padding: 0 !important;
+}
+
+.mixer-eq-tags {
+    width: 70%;
+    display: flex;
+}
+
+.mixer-eq-top {
+    display: flex;
+    flex-direction: row;
+    height: 30%;
+}
+
+.eq-panel {
+    height: 96%;
+}
+
+#container canvas {
+    width: 100%;
+    height: 100%;
+}

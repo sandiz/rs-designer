@@ -17,6 +17,7 @@ interface SliderExtendedState {
     value: number | undefined;
     min: number | undefined;
     max: number | undefined;
+    disabled: boolean | undefined;
 }
 export default class SliderExtended extends Component<SliderExtendedProps, SliderExtendedState> {
     //eslint-disable-next-line
@@ -30,11 +31,17 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         super(props);
         this.sliderRef = React.createRef();
         this.timer = null;
-        this.state = { value: props.value, min: props.min, max: props.max };
+        this.state = {
+            value: props.value, min: props.min, max: props.max, disabled: props.disabled,
+        };
     }
 
     static getDerivedStateFromProps(nextProps: SliderExtendedProps, prevState: SliderExtendedState) {
-        if (nextProps !== prevState) {
+        if (
+            nextProps.min !== prevState.min
+            || nextProps.max !== prevState.max
+            || nextProps.disabled !== prevState.disabled
+        ) {
             return { min: nextProps.min, max: nextProps.max, disabled: nextProps.disabled };
         }
         else return null;
@@ -83,12 +90,12 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         if (typeof (this.props.timerSource) === 'function') {
             if (!this.dragging) {
                 const value = this.props.timerSource();
-                this.setState({ value });
+                if (value !== this.state.value) this.setState({ value });
             }
         }
         else {
             const value = this.props.value;
-            this.setState({ value });
+            if (value !== this.props.value) this.setState({ value });
         }
         this.timer = requestAnimationFrame(this.sliderUpdate);
     }

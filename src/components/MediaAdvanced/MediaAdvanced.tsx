@@ -15,7 +15,7 @@ interface MediaAdvancedProps {
 }
 interface MediaAdvancedState {
     currentTab: TabId | undefined;
-    metadata: ProjectMetadata | null;
+    metadata: ProjectMetadata;
 }
 
 const TABID_AUDIO = "audio" as TabId;
@@ -25,22 +25,28 @@ const TABID_ISOLATION = "isolation" as TabId;
 class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
-        this.state = { currentTab: TABID_AUDIO, metadata: null }
+        this.state = { currentTab: TABID_AUDIO, metadata: new ProjectMetadata() }
+    }
+
+    shouldComponentUpdate = (nextProps: MediaAdvancedProps) => {
+        return this.props.show !== nextProps.show
     }
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
+        console.log("ma -mount")
     }
 
     componentWillUnmount = () => {
+        console.log("ma -unmount")
         DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
     }
 
     projectOpened = async () => {
         const metadata = await ProjectService.getProjectMetadata();
-        this.setState({ metadata })
+        if (metadata) this.setState({ metadata })
     }
 
     projectUpdated = async (data: DispatchData) => {
@@ -48,7 +54,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
             && (data === ProjectUpdateType.ExternalFilesUpdate
                 || data === ProjectUpdateType.MediaInfoUpdated)) {
             const metadata = await ProjectService.getProjectMetadata();
-            this.setState({ metadata });
+            if (metadata) this.setState({ metadata });
         }
     }
 
@@ -58,7 +64,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
 
     title = () => {
         return (
-            <Navbar className="mi-header">
+            <Navbar key="mi-title" className="mi-header">
                 <Navbar.Group className="mi-header-group">
                     <Navbar.Heading className="mi-heading">
                         <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
@@ -84,16 +90,19 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
     }
 
     render = () => {
+        console.log("ma-render");
         return (
             <Drawer
+                lazy
                 isOpen={this.props.show}
                 position={Position.BOTTOM}
                 size={45 + '%'}
                 portalClassName="mi-drawer"
                 className="mi-drawer-bottom"
+                key="mi-drawer"
             >
                 {this.title()}
-                {this.state.metadata && this.state.currentTab === TABID_AUDIO ? <Mixer metadata={this.state.metadata} /> : null}
+                <Mixer key={TABID_AUDIO} metadata={this.state.metadata} style={{ visibility: this.state.currentTab === TABID_AUDIO ? "visible" : "hidden" }} />
             </Drawer>
         )
     }

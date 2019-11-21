@@ -1,0 +1,25 @@
+diff --git a/node_modules/audiomotion-analyzer/dist/audioMotion-analyzer.js b/node_modules/audiomotion-analyzer/dist/audioMotion-analyzer.js
+index be734c8..e229274 100644
+--- a/node_modules/audiomotion-analyzer/dist/audioMotion-analyzer.js
++++ b/node_modules/audiomotion-analyzer/dist/audioMotion-analyzer.js
+@@ -90,7 +90,10 @@ export default class AudioMotionAnalyzer {
+ 		var AudioContext = window.AudioContext || window.webkitAudioContext;
+ 
+ 		try {
+-			this.audioCtx = new AudioContext();
++			if(options.audioCtx)
++				this.audioCtx = options.audioCtx;
++			else
++				this.audioCtx = new AudioContext();
+ 		}
+ 		catch( err ) {
+ 			throw 'Could not create audio context. Web Audio API not supported?';
+@@ -98,7 +101,7 @@ export default class AudioMotionAnalyzer {
+ 
+ 		// Create analyzer node, connect audio source (if provided) and connect it to the destination
+ 
+-		this.analyzer = this.audioCtx.createAnalyser();
++		this.analyzer = options.analyzer ? options.analyzer : this.audioCtx.createAnalyser();
+ 		this._audioSource = ( options.source ) ? this.connectAudio( options.source ) : undefined;
+ 		this.analyzer.connect( this.audioCtx.destination );
+ 

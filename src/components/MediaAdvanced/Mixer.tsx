@@ -1,16 +1,20 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, RefObject } from 'react';
 import {
     Card, Elevation, Callout, Tag, Switch, Intent, Tooltip,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
+import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { ProjectMetadata } from '../../types';
 import {
     getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings, countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
 import SliderExtended from '../Extended/FadeoutSlider';
+import MediaPlayerService from '../../services/mediaplayer';
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 interface MixerProps {
     metadata: ProjectMetadata;
+    style?: React.CSSProperties;
 }
 
 interface KeyPanelState {
@@ -24,14 +28,20 @@ interface TempoPanelState {
 }
 
 export const Mixer: FunctionComponent<MixerProps> = (props: MixerProps) => (
-    <div className="mixer">
-        <div className="mixer-root">
-            <div className="mixer-left">
-                <Card elevation={Elevation.TWO} className="mixer-panel key-panel"><KeyPanel metadata={props.metadata} /></Card>
-                <Card elevation={Elevation.TWO} className="mixer-panel tempo-panel"><TempoPanel metadata={props.metadata} /></Card>
+    <div key="mixer" className="mixer" style={props.style}>
+        <div key="mixer-root" className="mixer-root">
+            <div key="left" className="mixer-left">
+                <Card key="key-panel" elevation={Elevation.TWO} className="mixer-panel key-panel">
+                    <KeyPanel key="key" metadata={props.metadata} />
+                </Card>
+                <Card key="tempo-panel" elevation={Elevation.TWO} className="mixer-panel tempo-panel">
+                    <TempoPanel key="tempo" metadata={props.metadata} />
+                </Card>
             </div>
-            <div className="mixer-right">
-                <Card elevation={Elevation.TWO} className="mixer-panel"> <EqualizerPanel metadata={props.metadata} /> </Card>
+            <div key="right" className="mixer-right">
+                <Card key="eq-panel" elevation={Elevation.TWO} className="mixer-panel eq-panel">
+                    <EqualizerPanel key="eq" metadata={props.metadata} />
+                </Card>
             </div>
         </div>
     </div>
@@ -240,24 +250,77 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
 
 interface EqualizerState {
     eqsLoaded: string[];
+    errorMsg: React.ReactNode | null;
 }
 export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> {
+    private canvasRef: RefObject<Callout> = React.createRef();
+    //eslint-disable-next-line
+    private audioMotion: any | null = null;
     constructor(props: MixerProps) {
         super(props);
-        this.state = { eqsLoaded: [] };
+        this.state = { eqsLoaded: [], errorMsg: null };
         console.log(this.state.eqsLoaded);
+    }
+
+    componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReady);
+        if (MediaPlayerService.isActive()) this.mediaReady();
+        console.log("eq panel mount")
+    }
+
+    mediaReady = () => {
+        try {
+            this.audioMotion = new AudioMotionAnalyzer(
+                document.getElementById("container"),
+                {
+                    showFPS: false,
+                    loRes: true,
+                    start: true,
+                    width: undefined,
+                    showPeaks: false,
+                    showScale: true,
+                    audioCtx: MediaPlayerService.getAudioContext(),
+                    analyzer: MediaPlayerService.getPostAnalyzer(),
+                    ///onCanvasDraw: displayCanvasMsg
+                },
+            );
+        }
+        catch (err) {
+            if (this.canvasRef.current) {
+                this.setState({ errorMsg: <div>audioMotion failed with error: <em>{err.toString()}</em></div> })
+                console.log("audioMotion error: " + err);
+            }
+        }
+    }
+
+    mediaReset = () => {
+        this.audioMotion = null;
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReady);
+        console.log("eq panel dismount")
     }
 
     render = () => {
         return (
             <React.Fragment>
                 <div className="mixer-eq">
-                    <Callout className="mixer-eq-list" icon={false} intent={Intent.PRIMARY}>
-                        <div className="mixer-key-font number">0</div>
-                        <div className="mixer-bpm-font">bpm</div>
-                    </Callout>
-                    <Callout className="mixer-eq-container">
-                        test
+                    <div className="mixer-eq-top">
+                        <Callout className="mixer-eq-list" icon={false} intent={Intent.PRIMARY}>
+                            <div className="mixer-key-font">EQ</div>
+                            <div className="">
+                                <Switch>Active</Switch>
+                            </div>
+                        </Callout>
+                        <Callout className="mixer-eq-tags">
+                            test
+                        </Callout>
+                    </div>
+                    <Callout className="mixer-eq-container" id="container" ref={this.canvasRef}>
+                        {this.state.errorMsg}
                     </Callout>
                 </div>
             </React.Fragment>

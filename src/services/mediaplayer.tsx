@@ -370,11 +370,26 @@ class MediaPlayer {
         }
     }
 
-    getZoom = () => {
+    public getZoom = () => {
         if (this.wavesurfer) {
             return this.wavesurfer.params.minPxPerSec;
         }
         return ZOOM.DEFAULT;
+    }
+
+    public getAudioContext = (): AudioContext | null => {
+        return this.audioContext;
+    }
+
+    public getPostAnalyzer = (): AudioNode | null => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.backend.postAnalyser;
+        }
+        return null;
+    }
+
+    public isActive = () => {
+        return (this.wavesurfer != null);
     }
 }
 

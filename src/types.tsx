@@ -84,13 +84,13 @@ export class ProjectSettingsModel {
 }
 
 /* Class storing the analysis data for the Project */
-export interface ProjectMetadata {
-    name: string;
-    path: string;
-    key: SongKey;
-    tempo: number;
-    chords: ChordTime[];
-    beats: BeatTime[];
+export class ProjectMetadata {
+    name = "";
+    path = "";
+    key: SongKey = ["-", "-", -1];
+    tempo = 0;
+    chords: ChordTime[] = [];
+    beats: BeatTime[] = [];
 }
 
 export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolean };
