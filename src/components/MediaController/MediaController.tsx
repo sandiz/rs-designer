@@ -292,7 +292,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                     icon={
                         json
                             ? (
-                                <img className="recent-image" alt="cover art" src={base64ImageData(json.image)} width={25} height={25} />
+                                <img className="recent-image" alt="cover art" src={json.image === '' ? nothumb.default : base64ImageData(json.image)} width={25} height={25} />
                             )
                             : IconNames.DOCUMENT
                     }

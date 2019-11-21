@@ -173,6 +173,7 @@ export const fpsize = () => {
 }
 
 export const base64ImageData = (data: string) => {
+    if (data === '') return data;
     return 'data:image/jpeg;base64,' + data;
 }
 
