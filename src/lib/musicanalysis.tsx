@@ -16,10 +16,10 @@ interface Provider {
     args: { [key: string]: ProviderArgs[] };
 }
 // eslint-disable-next-line
-const key: Provider = require('./musicanalysis/key/providers.json');
-const chords: Provider = require('./musicanalysis/chords/providers.json');
-const beats: Provider = require('./musicanalysis/beats/providers.json');
-const tempo: Provider = require('./musicanalysis/tempo/providers.json');
+const key: Provider = require('../app-config/musicanalysis/key/providers.json');
+const chords: Provider = require('../app-config/musicanalysis/chords/providers.json');
+const beats: Provider = require('../app-config/musicanalysis/beats/providers.json');
+const tempo: Provider = require('../app-config/musicanalysis/tempo/providers.json');
 
 const { isPackaged, getAppPath } = window.require('electron').remote.app;
 const isDev = window.require('electron-is-dev');
