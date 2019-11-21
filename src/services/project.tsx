@@ -120,6 +120,9 @@ export class Project {
                     dupItem = i;
                 }
             });
+            if (this.projectSettings.recents.length > 10) {
+                this.projectSettings.recents = this.projectSettings.recents.slice(0, 9);
+            }
             if (dupItem) {
                 this.projectSettings.recents.splice(dupIdx, 1);
                 this.projectSettings.recents.unshift(dupItem);
