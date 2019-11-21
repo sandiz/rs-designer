@@ -23,6 +23,7 @@ const isMac = platform() === "darwin";
     }
 }*/
 
+/* class representing the metadata of the media (ID3 tags)*/
 export interface MediaInfo {
     song: string;
     artist: string;
@@ -31,7 +32,10 @@ export interface MediaInfo {
     year: string;
 }
 
-/* Project DataType */
+/* class representing the Project that's loaded or saved to disk.
+   Update version number to add new field to the project and optionally modify Project::loadProject
+   to migrate the serialized version to new version
+  */
 export class ProjectInfo {
     public media: string;
     public original: string;
@@ -58,6 +62,7 @@ export class ProjectInfo {
         this.projectPath = "";
     }
 }
+/* Classes maintaining an history of projects */
 export class ProjectSettingsModel {
     public lastOpenedProject: ProjectInfo | null;
     public recents: ProjectInfo[];
@@ -78,6 +83,7 @@ export class ProjectSettingsModel {
     }
 }
 
+/* Class storing the analysis data for the Project */
 export interface ProjectMetadata {
     name: string;
     path: string;
@@ -90,9 +96,15 @@ export interface ProjectMetadata {
 export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolean };
 
 /* Music Theory */
+/* type representing the format of Chords serialization */
 export type ChordTriplet = [number, number, string]
+/* type representing the format of Beats serialization */
 export type BeatTriplet = [number, number]
+/* tyoe representing the result of music-analysis run, result will be on these */
 export type RunnerResult = ChordTriplet[] | BeatTriplet[] | SongKey | number;
+
+/* class representing a chord in memory */
+/* generated from ChordTriplet */
 export interface ChordTime {
     start: number;
     end: number;
@@ -100,12 +112,17 @@ export interface ChordTime {
     type: string;
 }
 
+/* class represting a Song Key, this is also the serialized representation */
 export type SongKey = [string, string, number]
 
+/* class representing a beat in memory */
+/* generated from BeatTriplet */
 export interface BeatTime {
     start: string;
     beatNum: string;
 }
+
+/* Represents a minor or major scale */
 export interface ScaleInfo {
     steps: string[];
     chordType: string[];
