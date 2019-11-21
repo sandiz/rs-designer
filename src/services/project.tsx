@@ -49,6 +49,7 @@ export class Project {
     public projectInfo: ProjectInfo | null;
     public tmpHandle: TMP.DirResult | null;
     public projectSettings: ProjectSettingsModel | null;
+    static MAX_RECENTS = 10;
 
     private static instance: Project;
 
@@ -120,8 +121,8 @@ export class Project {
                     dupItem = i;
                 }
             });
-            if (this.projectSettings.recents.length > 10) {
-                this.projectSettings.recents = this.projectSettings.recents.slice(0, 9);
+            if (this.projectSettings.recents.length >= Project.MAX_RECENTS) {
+                this.projectSettings.recents = this.projectSettings.recents.slice(0, Project.MAX_RECENTS);
             }
             if (dupItem) {
                 this.projectSettings.recents.splice(dupIdx, 1);
