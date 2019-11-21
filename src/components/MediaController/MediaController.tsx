@@ -263,10 +263,13 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             const pathInfo = path.parse(mmFile);
             const dirName = path.basename(pathInfo.dir);
             let text = "";
+            let json: MediaInfo | null = null;
             try {
                 const data = await readFile(item.metadata);
-                const json: MediaInfo = JSON.parse(data.toString());
-                text = `${json.artist} - ${json.song} [${dirName}]`;
+                json = JSON.parse(data.toString());
+                if (json) {
+                    text = `${json.artist} - ${json.song} [${dirName}]`;
+                }
             }
             catch (e) {
                 text = `[${dirName}]`;
@@ -281,8 +284,18 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             return (
                 <MenuItem
                     key={item.media}
-                    text={text}
-                    icon={IconNames.DOCUMENT}
+                    text={(
+                        <Text ellipsize className="recent-text">
+                            {text}
+                        </Text>
+                    )}
+                    icon={
+                        json
+                            ? (
+                                <img className="recent-image" alt="cover art" src={base64ImageData(json.image)} width={25} height={25} />
+                            )
+                            : IconNames.DOCUMENT
+                    }
                     title={pathInfo.dir}
                     onClick={() => this.openProject(projectName)}
                 />
