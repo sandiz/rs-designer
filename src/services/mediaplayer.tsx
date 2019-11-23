@@ -7,7 +7,7 @@ import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime,
+    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag,
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
 
@@ -34,7 +34,8 @@ const getGradient = (type: string, ctx: CanvasRenderingContext2D) => {
 class MediaPlayer {
     public wavesurfer: WaveSurfer | null;
     public audioContext: AudioContext | null;
-
+    public isEQOn: boolean;
+    public currentEQs: EQFilter[];
     private static instance: MediaPlayer;
 
     static getInstance() {
@@ -47,6 +48,8 @@ class MediaPlayer {
     private constructor() {
         this.wavesurfer = null;
         this.audioContext = null;
+        this.isEQOn = false;
+        this.currentEQs = [];
         nativeTheme.on("updated", this.updateTheme);
     }
 
@@ -113,6 +116,7 @@ class MediaPlayer {
         };
         DispatcherService.dispatch(DispatchEvents.MediaLoading);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
+        DispatcherService.on(DispatchEvents.EqualizerToggle, this.toggleEqualizer);
         //eslint-disable-next-line
         this.wavesurfer = WaveSurfer.create(params as any);
         this.wavesurfer.loadBlob(blob);
@@ -249,6 +253,8 @@ class MediaPlayer {
             this.wavesurfer.unAll();
             this.wavesurfer.destroy();
         }
+        this.currentEQs = [];
+        this.isEQOn = false;
         this.audioContext = null;
         this.wavesurfer = null;
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
@@ -388,8 +394,64 @@ class MediaPlayer {
         return null;
     }
 
+    public addEQFilter = (tag: EQTag) => {
+        if (this.wavesurfer && this.audioContext) {
+            const filter = this.audioContext.createBiquadFilter();
+            if (tag.type !== 'edit') filter.type = tag.type;
+            filter.Q.value = tag.q;
+            filter.frequency.value = tag.freq;
+            filter.gain.value = tag.gain;
+
+            const eqFilter: EQFilter = { tag, filter };
+            this.currentEQs.push(eqFilter);
+            if (this.isEQOn) this.toggleEqualizer(true);
+        }
+    }
+
+    public removeFilter = (tag: EQTag) => {
+        if (this.wavesurfer) {
+            for (let i = 0; i < this.currentEQs.length; i += 1) {
+                if (this.currentEQs[i].tag.id === tag.id) {
+                    this.currentEQs.splice(i, 1);
+                    break;
+                }
+            }
+            if (this.isEQOn) this.toggleEqualizer(this.currentEQs.length !== 0);
+        }
+    }
+
+    public getFilters = (): EQFilter[] => {
+        return this.currentEQs;
+    }
+
+    public getFilterFrom = (tag: EQTag): BiquadFilterNode | null => {
+        for (let i = 0; i < this.currentEQs.length; i += 1) {
+            if (this.currentEQs[i].tag.id === tag.id) {
+                return this.currentEQs[i].filter;
+            }
+        }
+        return null;
+    }
+
     public isActive = () => {
         return (this.wavesurfer != null);
+    }
+
+    toggleEqualizer = (data: DispatchData) => {
+        const val = data as boolean;
+        if (this.wavesurfer != null) {
+            const backend = this.wavesurfer.backend;
+            if (val) {
+                const filters = this.currentEQs
+                    .map(item => item.filter);
+                backend.setFilters(filters);
+            }
+            else {
+                backend.disconnectFilters();
+            }
+            DispatcherService.dispatch(DispatchEvents.EqualizerToggled, val);
+            this.isEQOn = val;
+        }
     }
 }
 

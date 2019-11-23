@@ -160,6 +160,9 @@ const onReady = () => {
         installExtension(REACT_DEVELOPER_TOOLS)
             .then((name) => console.log(`Added Extension:  ${name}`))
             .catch((err) => console.log('An error occurred: ', err));
+        installExtension("cmhomipkklckpomafalojobppmmidlgl") // web audio api
+            .then((name) => console.log(`Added Extension:  ${name}`))
+            .catch((err) => console.log('An error occurred: ', err));
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     sendOpenFileRequest();

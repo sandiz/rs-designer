@@ -277,6 +277,12 @@ export interface EQTag {
     gain: number;
     q: number;
     type: BiquadFilterType | "edit";
+    color: string;
+}
+
+export interface EQFilter {
+    tag: EQTag;
+    filter: BiquadFilterNode;
 }
 
 export enum BiQuadFilterNames {

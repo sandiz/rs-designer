@@ -11,7 +11,7 @@ import {
     getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings, countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
 import MediaPlayerService from '../../services/mediaplayer';
-import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
+import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
 import { setStateAsync, UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
 import { drawEQTags } from './EQRenderer';
@@ -266,6 +266,7 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
 
 interface EqualizerState {
     enableSpectrum: boolean;
+    enableEQ: boolean;
     errorMsg: React.ReactNode | null;
     tags: EQTag[];
 }
@@ -276,21 +277,39 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     private audioMotion: any | null = null;
     constructor(props: MixerProps) {
         super(props);
-        this.state = { enableSpectrum: false, errorMsg: null, tags: [] };
+        this.state = {
+            enableSpectrum: false, enableEQ: false, errorMsg: null, tags: [],
+        };
     }
 
     componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.on(DispatchEvents.EqualizerToggled, this.eqToggled);
+        this.initEQ();
     }
 
     componentWillUnmount = () => {
         ProjectService.saveLastEQTags(this.state.tags);
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.EqualizerToggled, this.eqToggled);
         this.endSpectrum();
+    }
+
+    mediaReady = () => {
+        this.initEQ();
     }
 
     mediaReset = () => {
         this.endSpectrum();
+    }
+
+    initEQ = () => {
+        this.setState({
+            enableEQ: MediaPlayerService.isEQOn,
+            tags: MediaPlayerService.getFilters().map(item => item.tag),
+        })
     }
 
     initAudioMotion = () => {
@@ -309,7 +328,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     onCanvasDraw: (instance: unknown) => {
                         //displayCanvasMsg(instance);
-                        drawEQTags(instance, this.state.tags);
+                        drawEQTags(instance, MediaPlayerService.getFilters());
                     },
                 },
             );
@@ -341,13 +360,15 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     addTag = () => {
+        const colors = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
         const t: EQTag = {
-            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(),
+            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: colors[this.state.tags.length],
         };
         const { tags } = this.state;
         if (tags.length < EqualizerPanel.MAX_TAGS) {
             tags.unshift(t);
             this.setState({ tags });
+            MediaPlayerService.addEQFilter(t);
         }
     }
 
@@ -355,6 +376,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         const { tags } = this.state;
         for (let i = 0; i < tags.length; i += 1) {
             if (tags[i].id === id) {
+                MediaPlayerService.removeFilter(tags[i]);
                 tags.splice(i, 1);
                 break;
             }
@@ -362,11 +384,29 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         this.setState({ tags });
     }
 
+    toggleEQ = (e: React.FormEvent<HTMLInputElement>) => {
+        if (e.currentTarget.checked) {
+            DispatcherService.dispatch(DispatchEvents.EqualizerToggle, true);
+        }
+        else {
+            DispatcherService.dispatch(DispatchEvents.EqualizerToggle, false);
+        }
+        e.currentTarget.blur();
+    }
+
+    eqToggled = (val: DispatchData) => {
+        this.setState({ enableEQ: val as boolean });
+    }
+
     onChangeFilterType = (item: EQTag, event: React.ChangeEvent<HTMLSelectElement>) => {
         const { tags } = this.state;
         for (let i = 0; i < tags.length; i += 1) {
             if (tags[i].id === item.id) {
                 tags[i].type = event.target.value as BiquadFilterType;
+                const filter = MediaPlayerService.getFilterFrom(tags[i]);
+                if (filter) {
+                    filter.type = event.target.value as BiquadFilterType;
+                }
             }
         }
         this.setState({ tags });
@@ -376,9 +416,19 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         const { tags } = this.state;
         for (let i = 0; i < tags.length; i += 1) {
             if (tags[i].id === item.id) {
-                if (type === "gain") tags[i].gain = v;
-                else if (type === "q") tags[i].q = v;
-                else if (type === "freq") tags[i].freq = v;
+                const filter = MediaPlayerService.getFilterFrom(tags[i]);
+                if (type === "gain") {
+                    tags[i].gain = v;
+                    if (filter) filter.gain.value = v;
+                }
+                else if (type === "q") {
+                    tags[i].q = v;
+                    if (filter) filter.Q.value = v;
+                }
+                else if (type === "freq") {
+                    tags[i].freq = v;
+                    if (filter) filter.frequency.value = v;
+                }
             }
         }
         this.setState({ tags });
@@ -478,10 +528,10 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
             <React.Fragment>
                 <div className="mixer-eq">
                     <div className="mixer-eq-top">
-                        <Callout className="mixer-eq-list" icon={false} intent={Intent.PRIMARY}>
+                        <Callout className="mixer-eq-list" icon={false} intent={this.state.enableEQ ? Intent.WARNING : Intent.PRIMARY}>
                             <div className="mixer-key-font">EQ</div>
                             <div className="">
-                                <Switch>Enable</Switch>
+                                <Switch checked={this.state.enableEQ} className={classNames({ "eq-checked-warning": this.state.enableEQ })} onChange={this.toggleEQ}>Enable</Switch>
                             </div>
                         </Callout>
                         <Callout className="mixer-eq-tags">
@@ -514,6 +564,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                             key={item.id}
                                         >
                                             <Tag
+                                                style={{ backgroundColor: item.color }}
                                                 className="eq-tag"
                                                 interactive
                                                 large

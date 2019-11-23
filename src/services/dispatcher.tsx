@@ -97,7 +97,9 @@ export enum DispatchEvents {
     KbdShortcuts = "kbd-shortcuts",       /* event to turn hotkeys on/off */
 
     /* Music Analysis */
-    StartMusicAnalysis = "start-music-analysis", /* triggers automatic music analysis flow */
+    MusicAnalysisStart = "start-music-analysis",    /* triggers automatic music analysis flow */
+    EqualizerToggle = "equalizer-toggle",           /* toggle equalizer on/off, defaults to off */
+    EqualizerToggled = "equalizer-toggled",         /* fired after all eq nodes are attached/removed */
 }
 
 export const DispatcherService = DispatcherBase.getInstance();

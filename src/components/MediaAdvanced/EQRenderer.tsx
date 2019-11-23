@@ -1,4 +1,4 @@
-import { EQTag } from "../../types";
+import { EQFilter } from "../../types";
 
 //eslint-disable-next-line
 export function displayCanvasMsg(instance: any) {
@@ -13,7 +13,7 @@ export function displayCanvasMsg(instance: any) {
     instance.canvasCtx.fillText('audioMotion', instance.canvas.width - w - size * 4, size * 2);
 }
 
-const curveColor = "rgb(224,27,106)";
+// const curveColor = "rgb(224,27,106)";
 const gridColor = "rgb(100,100,100)";
 
 const dbScale = 60;
@@ -26,11 +26,16 @@ function dbToY(db: number) {
     return y;
 }
 
+/* 
+    thanks to https://github.com/borismus/webaudioapi.com/blob/master/docs/samples/frequency-response/frequency-response-sample.js
+*/
+
 const drawCurve = (
     canvas: HTMLCanvasElement,
     canvasContext: CanvasRenderingContext2D,
     context: AudioContext,
-
+    filter: BiquadFilterNode,
+    strokeColor: string,
 ) => {
     // draw center
     width = canvas.width;
@@ -38,7 +43,7 @@ const drawCurve = (
 
     //canvasContext.clearRect(0, 0, width, height);
 
-    canvasContext.strokeStyle = curveColor;
+    canvasContext.strokeStyle = strokeColor;
     canvasContext.lineWidth = 3;
     canvasContext.beginPath();
     canvasContext.moveTo(0, 0);
@@ -49,20 +54,20 @@ const drawCurve = (
 
     const frequencyHz = new Float32Array(width);
     const magResponse = new Float32Array(width);
-    //let phaseResponse = new Float32Array(width);
+    const phaseResponse = new Float32Array(width);
     const nyquist = 0.5 * context.sampleRate;
     // First get response.
     for (let i = 0; i < width; i += 1) {
         let f = i / width;
 
         // Convert to log frequency scale (octaves).
-        f = nyquist * (2.0 ** noctaves * (f - 1.0));
+        //eslint-disable-next-line
+        f = nyquist * Math.pow(2.0, noctaves * (f - 1.0));
 
         frequencyHz[i] = f;
     }
 
-    //filter.getFrequencyResponse(frequencyHz, magResponse, phaseResponse);
-
+    filter.getFrequencyResponse(frequencyHz, magResponse, phaseResponse);
 
     for (let i = 0; i < width; i += 1) {
         //let f = magResponse[i];
@@ -88,17 +93,13 @@ const drawCurve = (
 }
 
 //eslint-disable-next-line
-export function drawEQTags(instance: any, tags: EQTag[]) {
-    tags = tags.filter(tag => tag.type !== 'edit');
-    for (let i = 0; i < tags.length; i += 1) {
-        //const filter = tags[i].type;
-        //const freq = tags[i].freq;
-        //const resonance = tags[i].q;
-        //sconst gain = tags[i].gain;
+export function drawEQTags(instance: any, filters: EQFilter[]) {
+    for (let i = 0; i < filters.length; i += 1) {
+        const filter = filters[i].filter;
 
         const canvasCtx = instance.canvasCtx;
         const audioCtx = instance.audioCtx;
 
-        drawCurve(instance.canvas, canvasCtx, audioCtx)
+        drawCurve(instance.canvas, canvasCtx, audioCtx, filter, filters[i].tag.color)
     }
 }
