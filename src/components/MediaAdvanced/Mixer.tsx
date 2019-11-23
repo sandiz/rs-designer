@@ -13,6 +13,8 @@ import {
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { setStateAsync, UUID } from '../../lib/utils';
+import ProjectService from '../../services/project';
+import { drawEQTags } from './EQRenderer';
 
 interface MixerProps {
     metadata: ProjectMetadata;
@@ -282,6 +284,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     componentWillUnmount = () => {
+        ProjectService.saveLastEQTags(this.state.tags);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         this.endSpectrum();
     }
@@ -296,6 +299,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                 document.getElementById("container"),
                 {
                     showFPS: false,
+                    showLogo: true,
                     loRes: true,
                     start: true,
                     width: undefined,
@@ -303,7 +307,10 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     showScale: true,
                     audioCtx: MediaPlayerService.getAudioContext(),
                     analyzer: MediaPlayerService.getPostAnalyzer(),
-                    ///onCanvasDraw: displayCanvasMsg
+                    onCanvasDraw: (instance: unknown) => {
+                        //displayCanvasMsg(instance);
+                        drawEQTags(instance, this.state.tags);
+                    },
                 },
             );
         }
@@ -326,7 +333,10 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     endSpectrum = () => {
-        this.audioMotion = null;
+        if (this.audioMotion) {
+            this.audioMotion.toggleAnalyzer(false);
+            this.audioMotion = null;
+        }
         this.setState({ enableSpectrum: false });
     }
 
@@ -543,5 +553,4 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         )
     }
 }
-
 export default {};

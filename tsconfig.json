@@ -25,7 +25,7 @@
     "pretty": true,
     "experimentalDecorators": true,
     "outDir": "build",
-    "inlineSourceMap": true,
+    "inlineSourceMap": true
   },
   "include": [
     "src/**/*.tsx",

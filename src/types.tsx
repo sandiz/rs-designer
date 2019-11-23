@@ -66,11 +66,13 @@ export class ProjectInfo {
 export class ProjectSettingsModel {
     public lastOpenedProject: ProjectInfo | null;
     public recents: ProjectInfo[];
+    public lastUsedEQTags: EQTag[];
 
     //eslint-disable-next-line
     constructor(projectData: any) {
         this.lastOpenedProject = null;
         this.recents = [];
+        this.lastUsedEQTags = [];
         if (projectData && typeof projectData === 'object') {
             this.lastOpenedProject = projectData.lastOpenedProject;
             for (let i = 0; i < projectData.recents.length; i += 1) {
@@ -78,6 +80,9 @@ export class ProjectSettingsModel {
                 if (fs.existsSync(pR.media)) {
                     this.recents.push(pR);
                 }
+            }
+            if (projectData.lastUsedEQTags) {
+                this.lastUsedEQTags = projectData.lastUsedEQTags;
             }
         }
     }
