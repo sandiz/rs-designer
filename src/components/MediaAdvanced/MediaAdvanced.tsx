@@ -35,11 +35,9 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
-        console.log("ma -mount")
     }
 
     componentWillUnmount = () => {
-        console.log("ma -unmount")
         DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
     }
@@ -90,10 +88,8 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
     }
 
     render = () => {
-        console.log("ma-render");
         return (
             <Drawer
-                lazy
                 isOpen={this.props.show}
                 position={Position.BOTTOM}
                 size={45 + '%'}

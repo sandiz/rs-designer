@@ -212,7 +212,7 @@
 
 .mixer-eq-container {
     width: 100%;
-    height: 70%;
+    height: 70% !important;
     padding: 0px !important;
 }
 
@@ -226,7 +226,7 @@
 .mixer-eq-list {
     display: flex;
     flex-direction: column;
-    width: 30% !important;
+    width: 25% !important;
     height: 100% !important;
     justify-content: center;
     align-items: center;
@@ -235,8 +235,25 @@
 }
 
 .mixer-eq-tags {
-    width: 70%;
+    width: 75%;
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-items: flex-start;
+}
+
+.eq-tag {
+    flex: 1 0 17%;
+    margin: 5px;
+}
+
+.eq-tag-no-grow {
+    flex: 0 0 20%;
+}
+
+.eq-tag-small {
+    margin-top: 10px;
 }
 
 .mixer-eq-top {
@@ -252,4 +269,17 @@
 #container canvas {
     width: 100%;
     height: 100%;
+}
+
+.eq-form {
+    display: flex;
+    justify-content: space-between;
+    //align-items: center !important;
+}
+
+.eq-form-button>div {
+    display: flex;
+    align-items: center !important;
+    width: 100%;
+    justify-content: space-evenly;
 }

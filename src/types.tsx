@@ -264,4 +264,26 @@ export interface DialogContent {
 /* dialog onchange handler typedef */
 export type OnChangeHandler = React.FormEventHandler<HTMLElement> & React.ChangeEvent<HTMLInputElement>;
 
+
+/* EQ Tag */
+export interface EQTag {
+    id: string;
+    freq: number;
+    gain: number;
+    q: number;
+    type: BiquadFilterType | "edit";
+}
+
+export enum BiQuadFilterNames {
+    "lowpass" = "LP",
+    "highpass" = "HP",
+    "highshelf" = "HS",
+    "lowshelf" = "LS",
+    "bandpass" = "BP",
+    "peaking" = "PK",
+    "notch" = "NT",
+    "allpass" = "AP",
+    "edit" = "edit",
+}
+
 export default {};
