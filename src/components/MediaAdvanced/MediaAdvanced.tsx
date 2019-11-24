@@ -83,7 +83,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                             selectedTabId={this.state.currentTab}
                         >
                             <Tab id={TABID_HOME} title="Home" />
-                            <Tab id={TABID_AUDIO} title="MIxer" />
+                            <Tab id={TABID_AUDIO} title="Mixer" />
                             <Tab id={TABID_SPEC} title="Spectrogram" />
                             <Tab id={TABID_ISOLATION} title="Track Isolation" />
                         </Tabs>

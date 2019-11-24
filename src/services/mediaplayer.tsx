@@ -413,7 +413,7 @@ class MediaPlayer {
             }
             if (filters.length > 0) {
                 this.currentEQs = filters;
-                if (this.isEQOn) = this.toggleEqualizer(true);
+                if (this.isEQOn) this.toggleEqualizer(true);
             }
         }
     }

@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { IconNames } from '@blueprintjs/icons';
 import {
-    ProjectMetadata, EQTag, BiQuadFilterNames, EQPreset,
+    ProjectMetadata, EQTag, EQPreset,
 } from '../../types';
 import {
     getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords,
@@ -460,7 +460,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     getTagDialog = (item: EQTag): string | JSX.Element | undefined => {
-        const isQ = ["lowpass", "highpass", "bandpass", "notch", "allpass"].includes(item.type);
+        const isQ = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking"].includes(item.type);
         const isG = ["lowshelf", "highshelf", "peaking"].includes(item.type)
         return (
             <div className="eq-edit">
@@ -607,6 +607,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                         <Popover
                                             popoverClassName={classNames(Classes.POPOVER_CONTENT_SIZING, "eq-extra-padding")}
                                             key={item.id}
+                                            content={this.getTagDialog(item)}
                                         >
                                             <Tag
                                                 style={{ backgroundColor: item.color }}
@@ -617,10 +618,8 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                                 intent={Intent.NONE}
                                                 onRemove={() => this.removeTag(item.id)}
                                             >
-                                                <span>{BiQuadFilterNames[item.type]}</span>
-                                                <span className="number">&nbsp;[{t}]</span>
+                                                <span className="number">&nbsp;[{t}Hz]</span>
                                             </Tag>
-                                            {this.getTagDialog(item)}
                                         </Popover>
                                     )
                                 })
