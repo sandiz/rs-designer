@@ -21,15 +21,12 @@ interface MediaAdvancedState {
 const TABID_AUDIO = "audio" as TabId;
 const TABID_SPEC = "spectrogram" as TabId;
 const TABID_ISOLATION = "isolation" as TabId;
+const TABID_HOME = "home" as TabId;
 
 class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
-        this.state = { currentTab: TABID_AUDIO, metadata: new ProjectMetadata() }
-    }
-
-    shouldComponentUpdate = (nextProps: MediaAdvancedProps) => {
-        return this.props.show !== nextProps.show
+        this.state = { currentTab: TABID_HOME, metadata: new ProjectMetadata() }
     }
 
     componentDidMount = () => {
@@ -60,33 +57,6 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
         this.setState({ currentTab: newTab });
     }
 
-    title = () => {
-        return (
-            <Navbar key="mi-title" className="mi-header">
-                <Navbar.Group className="mi-header-group">
-                    <Navbar.Heading className="mi-heading">
-                        <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
-                        <span>[ meend-intelligence ]</span>
-                    </Navbar.Heading>
-                </Navbar.Group>
-                <Navbar.Group align={Alignment.RIGHT}>
-                    {/* controlled mode & no panels (see h1 below): */}
-                    <Tabs
-                        animate
-                        id="navbar"
-                        large
-                        onChange={this.handleTabChange}
-                        selectedTabId={this.state.currentTab}
-                    >
-                        <Tab id={TABID_AUDIO} title="MIxer" />
-                        <Tab id={TABID_SPEC} title="Spectrogram" />
-                        <Tab id={TABID_ISOLATION} title="Track Isolation" />
-                    </Tabs>
-                </Navbar.Group>
-            </Navbar>
-        );
-    }
-
     render = () => {
         return (
             <Drawer
@@ -97,8 +67,34 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 className="mi-drawer-bottom"
                 key="mi-drawer"
             >
-                {this.title()}
-                <Mixer key={TABID_AUDIO} metadata={this.state.metadata} style={{ visibility: this.state.currentTab === TABID_AUDIO ? "visible" : "hidden" }} />
+                <Navbar key="mi-title" className="mi-header">
+                    <Navbar.Group className="mi-header-group">
+                        <Navbar.Heading className="mi-heading">
+                            <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
+                            <span>[ meend-intelligence ]</span>
+                        </Navbar.Heading>
+                    </Navbar.Group>
+                    <Navbar.Group align={Alignment.RIGHT}>
+                        <Tabs
+                            animate
+                            id="navbar"
+                            large
+                            onChange={this.handleTabChange}
+                            selectedTabId={this.state.currentTab}
+                        >
+                            <Tab id={TABID_HOME} title="Home" />
+                            <Tab id={TABID_AUDIO} title="MIxer" />
+                            <Tab id={TABID_SPEC} title="Spectrogram" />
+                            <Tab id={TABID_ISOLATION} title="Track Isolation" />
+                        </Tabs>
+                    </Navbar.Group>
+                </Navbar>
+                {
+                    this.state.currentTab === TABID_AUDIO
+                        ? <Mixer key={TABID_AUDIO} metadata={this.state.metadata} />
+                        : null
+                }
+
             </Drawer>
         )
     }

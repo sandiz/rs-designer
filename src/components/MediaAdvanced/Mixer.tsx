@@ -1,14 +1,17 @@
 import React, { FunctionComponent, RefObject } from 'react';
 import {
     Card, Elevation, Callout, Tag, Switch, Intent, Tooltip,
-    NonIdealState, Popover, H4, Classes, Slider, HTMLSelect, FormGroup,
+    NonIdealState, Popover, H4, Classes, Slider, HTMLSelect, FormGroup, Menu, MenuItem,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { IconNames } from '@blueprintjs/icons';
-import { ProjectMetadata, EQTag, BiQuadFilterNames } from '../../types';
 import {
-    getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords, findTempoMarkings, countChords, getTransposedKey, getTransposedChords,
+    ProjectMetadata, EQTag, BiQuadFilterNames, EQPreset,
+} from '../../types';
+import {
+    getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords,
+    findTempoMarkings, countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
@@ -269,16 +272,19 @@ interface EqualizerState {
     enableEQ: boolean;
     errorMsg: React.ReactNode | null;
     tags: EQTag[];
+    presets: React.ReactElement | null;
 }
 export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> {
     static MAX_TAGS = 8;
+    static TAG_COLORS = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
+
     private canvasRef: RefObject<Callout> = React.createRef();
     //eslint-disable-next-line
     private audioMotion: any | null = null;
     constructor(props: MixerProps) {
         super(props);
         this.state = {
-            enableSpectrum: false, enableEQ: false, errorMsg: null, tags: [],
+            enableSpectrum: false, enableEQ: false, errorMsg: null, tags: [], presets: null,
         };
     }
 
@@ -305,10 +311,11 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         this.endSpectrum();
     }
 
-    initEQ = () => {
+    initEQ = async () => {
         this.setState({
             enableEQ: MediaPlayerService.isEQOn,
             tags: MediaPlayerService.getFilters().map(item => item.tag),
+            presets: this.getEQPresetsMenu(await MediaPlayerService.getEQPresets()),
         })
     }
 
@@ -360,9 +367,8 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     addTag = () => {
-        const colors = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
         const t: EQTag = {
-            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: colors[this.state.tags.length],
+            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: EqualizerPanel.TAG_COLORS[this.state.tags.length],
         };
         const { tags } = this.state;
         if (tags.length < EqualizerPanel.MAX_TAGS) {
@@ -370,6 +376,25 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
             this.setState({ tags });
             MediaPlayerService.addEQFilter(t);
         }
+    }
+
+    addPreset = (item: EQPreset) => {
+        const tags: EQTag[] = [];
+        for (let i = 0; i < item.tags.length; i += 1) {
+            const t = item.tags[i];
+
+            const newt: EQTag = {
+                freq: t.freq ? t.freq : 0,
+                gain: t.gain ? t.gain : 0,
+                q: t.q ? t.q : 1,
+                type: t.type ? t.type : "edit",
+                id: UUID(),
+                color: EqualizerPanel.TAG_COLORS[i],
+            };
+            tags.push(newt);
+        }
+        this.setState({ tags });
+        MediaPlayerService.addEQFilters(tags);
     }
 
     removeTag = (id: string) => {
@@ -523,6 +548,24 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         );
     }
 
+    getEQPresetsMenu = (presets: EQPreset[]) => {
+        return (
+            <Menu>
+                {
+                    presets.map((item) => {
+                        return (
+                            <MenuItem
+                                onClick={() => this.addPreset(item)}
+                                key={item.name}
+                                icon={IconNames.DOCUMENT}
+                                text={item.name} />
+                        )
+                    })
+                }
+            </Menu>
+        );
+    }
+
     render = () => {
         return (
             <React.Fragment>
@@ -545,15 +588,17 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                 icon={IconNames.ADD}>
                                 EQ FIlter
                                 </Tag>
-                            <Tag
-                                key="add-preset"
-                                className="eq-tag eq-tag-no-grow"
-                                minimal
-                                interactive
-                                large
-                                icon={IconNames.PROPERTIES}>
-                                EQ Presets
+                            <Popover content={this.state.presets ? this.state.presets : undefined}>
+                                <Tag
+                                    key="add-preset"
+                                    className="eq-tag eq-tag-no-grow"
+                                    minimal
+                                    interactive
+                                    large
+                                    icon={IconNames.PROPERTIES}>
+                                    EQ Presets
                              </Tag>
+                            </Popover>
                             {
                                 this.state.tags.map((item: EQTag) => {
                                     const v = item.freq;

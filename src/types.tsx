@@ -285,6 +285,11 @@ export interface EQFilter {
     filter: BiquadFilterNode;
 }
 
+export interface EQPreset {
+    tags: EQTag[];
+    name: string;
+}
+
 export enum BiQuadFilterNames {
     "lowpass" = "LP",
     "highpass" = "HP",

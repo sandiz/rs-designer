@@ -1,0 +1,37 @@
+{
+    "name": "Standard EQ Frequencies",
+    "tags": [
+        {
+            "freq": 32,
+            "type": "lowshelf"
+        },
+        {
+            "freq": 60,
+            "type": "peaking"
+        },
+        {
+            "freq": 310,
+            "type": "peaking"
+        },
+        {
+            "freq": 1000,
+            "type": "peaking"
+        },
+        {
+            "freq": 3000,
+            "type": "peaking"
+        },
+        {
+            "freq": 6000,
+            "type": "peaking"
+        },
+        {
+            "freq": 12000,
+            "type": "peaking"
+        },
+        {
+            "freq": 16000,
+            "type": "highshelf"
+        }
+    ]
+}

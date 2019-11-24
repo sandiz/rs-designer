@@ -3,15 +3,19 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
+import * as PATH from 'path';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag,
+    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset,
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
+import { readDir, readFile } from '../lib/utils';
 
-const { nativeTheme } = window.require("electron").remote;
+const { nativeTheme, app } = window.require("electron").remote;
+const path: typeof PATH = window.require('path');
+
 
 const COLORS = {
     TIMELINE: { primaryFontColorDark: Colors.WHITE, primaryFontColor: Colors.BLACK },
@@ -394,6 +398,26 @@ class MediaPlayer {
         return null;
     }
 
+    public addEQFilters = (tags: EQTag[]) => {
+        if (this.wavesurfer && this.audioContext) {
+            const filters: EQFilter[] = [];
+            for (let i = 0; i < tags.length; i += 1) {
+                const tag = tags[i];
+                const filter = this.audioContext.createBiquadFilter();
+                filter.Q.value = tag.q;
+                filter.frequency.value = tag.freq;
+                filter.gain.value = tag.gain;
+
+                const eqFilter: EQFilter = { tag, filter };
+                filters.push(eqFilter);
+            }
+            if (filters.length > 0) {
+                this.currentEQs = filters;
+                if (this.isEQOn) = this.toggleEqualizer(true);
+            }
+        }
+    }
+
     public addEQFilter = (tag: EQTag) => {
         if (this.wavesurfer && this.audioContext) {
             const filter = this.audioContext.createBiquadFilter();
@@ -418,6 +442,31 @@ class MediaPlayer {
             }
             if (this.isEQOn) this.toggleEqualizer(this.currentEQs.length !== 0);
         }
+    }
+
+    public getEQPresets = async (): Promise<EQPreset[]> => {
+        const presets: EQPreset[] = [];
+        try {
+            const appPath = path.join(app.getAppPath(), 'src/app-config/eq-presets');
+            const files: string[] = await readDir(appPath);
+            for (let i = 0; i < files.length; i += 1) {
+                const file = files[i];
+                try {
+                    //eslint-disable-next-line
+                    const data: EQPreset = JSON.parse(await (await readFile(path.join(appPath, file))).toString());
+                    if (data && data.name && data.tags && data.tags.length > 0) {
+                        presets.push(data);
+                    }
+                }
+                catch (e) {
+                    continue;
+                }
+            }
+        }
+        catch (e) {
+            console.log("eq-preset readdir exception", e);
+        }
+        return presets;
     }
 
     public getFilters = (): EQFilter[] => {

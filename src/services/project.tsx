@@ -14,7 +14,8 @@ import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo, ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
+    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
+    ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
 import MusicAnalysisService from '../lib/musicanalysis';
@@ -59,7 +60,6 @@ export class Project {
         }
         return Project.instance;
     }
-
 
     private constructor() {
         tmp.setGracefulCleanup();

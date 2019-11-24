@@ -67,6 +67,13 @@ export const removeDir = (src: string) => new Promise((resolve, reject) => {
     })
 })
 
+export const readDir = (dir: string): Promise<string[]> => new Promise((resolve, reject) => {
+    fs.readdir(dir, null, (err, files) => {
+        if (err) reject(err);
+        resolve(files);
+    });
+})
+
 export const assign = (obj: { [key: string]: any }, keyPath: string[], value: any) => {
     let lastKeyIndex = keyPath.length - 1;
     for (var i = 0; i < lastKeyIndex; ++i) {
