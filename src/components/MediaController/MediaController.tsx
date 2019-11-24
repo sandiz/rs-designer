@@ -1,4 +1,4 @@
-import React, { FunctionComponent, RefObject } from 'react'
+import React, { FunctionComponent, RefObject, Suspense } from 'react'
 import {
     Navbar, Elevation, Card, Classes, Text, Icon,
     MenuItem, Popover, Position, Menu,
@@ -23,8 +23,8 @@ import {
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
-import MediaAdvanced from '../MediaAdvanced/MediaAdvanced';
 
+const MediaAdvanced = React.lazy(() => import('../MediaAdvanced/MediaAdvanced'));
 const { app } = window.require('electron').remote;
 const path: typeof PATH = window.require('path');
 const { platform } = window.require('os');
@@ -348,7 +348,9 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         const c = (
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
-                <MediaAdvanced show={this.state.showAdvanced} />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <MediaAdvanced show={this.state.showAdvanced} />
+                </Suspense>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
                         <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>

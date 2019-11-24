@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import {
     Drawer, Position, Navbar, Tabs, Tab, Alignment, Icon, TabId,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
 import './MediaAdvanced.scss'
-import { Mixer } from './Mixer'
 import { ProjectMetadata } from '../../types'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
+
+const Mixer = React.lazy(() => import('./Mixer'));
 
 interface MediaAdvancedProps {
     show: boolean;
@@ -91,7 +92,11 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 </Navbar>
                 {
                     this.state.currentTab === TABID_AUDIO
-                        ? <Mixer key={TABID_AUDIO} metadata={this.state.metadata} />
+                        ? (
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <Mixer key={TABID_AUDIO} metadata={this.state.metadata} />
+                            </Suspense>
+                        )
                         : null
                 }
 
