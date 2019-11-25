@@ -271,12 +271,14 @@ export type OnChangeHandler = React.FormEventHandler<HTMLElement> & React.Change
 
 
 /* EQ Tag */
+export type ExtendedBiquadFilterType = BiquadFilterType | "edit";
+
 export interface EQTag {
     id: string;
     freq: number;
     gain: number;
     q: number;
-    type: BiquadFilterType | "edit";
+    type: ExtendedBiquadFilterType;
     color: string;
 }
 
@@ -288,6 +290,7 @@ export interface EQFilter {
 export interface EQPreset {
     tags: EQTag[];
     name: string;
+    default?: boolean;
 }
 
 export enum BiQuadFilterNames {

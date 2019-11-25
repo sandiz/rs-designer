@@ -1,5 +1,6 @@
 {
     "name": "Standard EQ Frequencies",
+    "default": true,
     "tags": [
         {
             "freq": 32,
@@ -7,6 +8,10 @@
         },
         {
             "freq": 60,
+            "type": "peaking"
+        },
+        {
+            "freq": 170,
             "type": "peaking"
         },
         {

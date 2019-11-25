@@ -11,7 +11,7 @@ import {
     VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset,
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
-import { readDir, readFile } from '../lib/utils';
+import { readDir, readFile, UUID } from '../lib/utils';
 
 const { nativeTheme, app } = window.require("electron").remote;
 const path: typeof PATH = window.require('path');
@@ -404,6 +404,7 @@ class MediaPlayer {
             for (let i = 0; i < tags.length; i += 1) {
                 const tag = tags[i];
                 const filter = this.audioContext.createBiquadFilter();
+                if (tag.type !== 'edit') filter.type = tag.type;
                 filter.Q.value = tag.q;
                 filter.frequency.value = tag.freq;
                 filter.gain.value = tag.gain;
@@ -455,6 +456,9 @@ class MediaPlayer {
                     //eslint-disable-next-line
                     const data: EQPreset = JSON.parse(await (await readFile(path.join(appPath, file))).toString());
                     if (data && data.name && data.tags && data.tags.length > 0) {
+                        for (let j = 0; j < data.tags.length; j += 1) {
+                            data.tags[j].id = UUID();
+                        }
                         presets.push(data);
                     }
                 }
