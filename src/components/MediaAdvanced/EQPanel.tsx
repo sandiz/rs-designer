@@ -104,7 +104,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     showPeaks: false,
                     showScale: false,
                     showBgColor: false,
-                    gradient: 'prism',
+                    gradient: 'cool',
                     audioCtx: MediaPlayerService.getAudioContext(),
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     mode: 2,
@@ -338,7 +338,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                     min={GAIN_MIN}
                                     max={GAIN_MAX}
                                     stepSize={1}
-                                    labelStepSize={80}
+                                    labelStepSize={40}
                                     value={item.gain}
                                     labelRenderer={v => {
                                         return (
@@ -447,7 +447,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                                 min={GAIN_MIN}
                                                 max={GAIN_MAX}
                                                 stepSize={1}
-                                                labelStepSize={80}
+                                                labelStepSize={40}
                                                 value={item.gain}
                                                 labelRenderer={(
                                                     this.state.lastUsedTag && this.state.lastUsedTag.id === item.id
