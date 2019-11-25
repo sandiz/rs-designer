@@ -41,14 +41,11 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     private canvasRef: RefObject<Callout> = React.createRef();
     //eslint-disable-next-line
     private audioMotion: any | null = null;
-    private canvasBGFill = "";
     constructor(props: MixerProps) {
         super(props);
         this.state = {
             enableSpectrum: false, enableEQ: false, errorMsg: null, tags: [], presets: null, lastUsedTag: null,
         };
-        this.canvasBGFill = nativeTheme.shouldUseDarkColors ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light;
-        nativeTheme.on('updated', () => { this.canvasBGFill = nativeTheme.shouldUseDarkColors ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light });
         this.initEQ();
     }
 
@@ -109,12 +106,9 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     mode: 2,
                     colorCb: () => { return nativeTheme.shouldUseDarkColors ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light },
-                    //bgColor: this.canvasBGFill,
                     onCanvasDraw: (instance: unknown) => {
                         //displayCanvasMsg(instance);
                         //drawEQTags(instance, MediaPlayerService.getFilters());
-                        // eslint-disable-next-line
-                        //(instance as any).fillStyle = this.canvasBGFill;
                     },
                 },
             );

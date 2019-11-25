@@ -7,37 +7,58 @@ import {
     findTempoMarkings,
 } from '../../lib/music-utils';
 import { MixerProps } from './Mixer';
+import { TEMPO } from '../../types';
+import MediaPlayerService from '../../services/mediaplayer';
+import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 interface TempoPanelState {
     tempoChange: number;
-    tempoMin: number;
-    tempoMax: number;
 }
 
+const TEMPO_MIN = TEMPO.MIN;
+const TEMPO_MAX = TEMPO.MAX;
+const TEMPO_DEFAULT = TEMPO.DEFAULT;
 export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
     private fixSliderHack = false;
 
     constructor(props: MixerProps) {
         super(props);
-        this.state = { tempoChange: 100, tempoMax: 120, tempoMin: 50 }
+        this.state = { tempoChange: TEMPO_DEFAULT }
     }
 
     private _cur = () => Math.round((this.state.tempoChange / 100) * this.props.metadata.tempo);
 
+    componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+        this.setState({ tempoChange: MediaPlayerService.getPlaybackRate() * 100 });
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+    }
+
+    mediaReady = () => {
+        this.setState({ tempoChange: MediaPlayerService.getPlaybackRate() * 100 });
+    }
+
     handleRelease = (v: number) => {
         //this.setState({ tempoChange: v });
-        console.log("tempo", "onRelease");
+        //MediaPlayerService.changeTempo(v);
     }
 
     handleChange = (v: number) => {
         if (this.fixSliderHack === false) {
-            if (v === this.state.tempoMax || v === this.state.tempoMin) v = 100;
+            if (v === TEMPO_MAX || v === TEMPO_MIN) v = TEMPO_DEFAULT;
             this.fixSliderHack = true;
         }
         this.setState({ tempoChange: v });
+        MediaPlayerService.changeTempo(v);
     }
 
-    resetTempo = () => this.setState({ tempoChange: 100 });
+    resetTempo = () => {
+        this.setState({ tempoChange: TEMPO_DEFAULT });
+        MediaPlayerService.changeTempo(TEMPO_DEFAULT);
+    }
 
     render = () => {
         const diff = this._cur() - this.props.metadata.tempo;
@@ -91,12 +112,12 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                                 <div className="mixer-tempo-slider">
                                     <Slider
                                         stepSize={1}
-                                        disabled={this._cur() === 0}
+                                        //disabled={this._cur() === 0}
                                         className={classNames({ warningslider: diff !== 0 })}
-                                        min={this.state.tempoMin}
-                                        max={this.state.tempoMax}
+                                        min={TEMPO_MIN}
+                                        max={TEMPO_MAX}
                                         labelRenderer={false}
-                                        labelStepSize={this.state.tempoMax - this.state.tempoMin}
+                                        labelStepSize={TEMPO_MAX - TEMPO_MIN}
                                         value={this.state.tempoChange}
                                         onChange={this.handleChange}
                                         onRelease={this.handleRelease}

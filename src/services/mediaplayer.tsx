@@ -3,12 +3,13 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
+import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 import * as PATH from 'path';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset,
+    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset, TEMPO, KEY,
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
@@ -41,6 +42,9 @@ class MediaPlayer {
     public isEQOn: boolean;
     public currentEQs: EQFilter[];
     private static instance: MediaPlayer;
+    private shifter: unknown;
+    private stNode: AudioNode | null;
+    private pitchSemitonesDiff = 0;
 
     static getInstance() {
         if (!MediaPlayer.instance) {
@@ -54,6 +58,9 @@ class MediaPlayer {
         this.audioContext = null;
         this.isEQOn = false;
         this.currentEQs = [];
+        this.shifter = new SoundTouch();
+        this.stNode = null;
+        this.pitchSemitonesDiff = 0;
         nativeTheme.on("updated", this.updateTheme);
     }
 
@@ -127,7 +134,8 @@ class MediaPlayer {
 
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
-            this.setStyle();
+            this.initShifter();
+            this.setWaveformStyle();
             this.loadBeatsTimeline();
             this.loadChordsTimeline();
             resolve();
@@ -140,7 +148,9 @@ class MediaPlayer {
             DispatcherService.dispatch(DispatchEvents.MediaFinishedPlaying, null);
         });
         this.wavesurfer.on('play', () => {
-            if (this.wavesurfer) this.wavesurfer.drawer.recenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration());
+            if (this.wavesurfer) {
+                this.wavesurfer.drawer.recenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration());
+            }
             DispatcherService.dispatch(DispatchEvents.MediaStartedPlaying, null);
         });
         this.wavesurfer.on('pause', () => {
@@ -245,7 +255,7 @@ class MediaPlayer {
         }
     }
 
-    setStyle = () => {
+    private setWaveformStyle = () => {
         if (this.wavesurfer) {
             this.wavesurfer.drawer.wrapper.classList.add("waveform-height");
         }
@@ -490,7 +500,7 @@ class MediaPlayer {
         return (this.wavesurfer != null);
     }
 
-    toggleEqualizer = (data: DispatchData) => {
+    private toggleEqualizer = (data: DispatchData) => {
         const val = data as boolean;
         if (this.wavesurfer != null) {
             const backend = this.wavesurfer.backend;
@@ -504,6 +514,116 @@ class MediaPlayer {
             }
             DispatcherService.dispatch(DispatchEvents.EqualizerToggled, val);
             this.isEQOn = val;
+        }
+    }
+
+    public getPlaybackRate = (): number => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.getPlaybackRate();
+        }
+        return 1;
+    }
+
+    public getPitchSemitones = (): number => {
+        return this.pitchSemitonesDiff;
+    }
+
+    public changeTempo = (v: number) => {
+        if (this.wavesurfer) {
+            const nt = v / 100;
+            if (v >= TEMPO.MIN && v <= TEMPO.MAX) {
+                this.wavesurfer.setPlaybackRate(nt);
+            }
+        }
+    }
+
+    public changePitchSemitones = (v: number) => {
+        if (this.wavesurfer) {
+            if (v >= KEY.MIN && v <= KEY.MAX) {
+                //eslint-disable-next-line
+                (this.shifter as any).pitchSemitones = v;
+                this.pitchSemitonesDiff = v;
+                this.wavesurfer.skipForward(0.001);
+            }
+        }
+    }
+
+    private initShifter = () => {
+        if (this.wavesurfer) {
+            const bk = this.wavesurfer.backend;
+            const buffer = bk.buffer;
+            const channels = buffer.numberOfChannels;
+            const l = buffer.getChannelData(0);
+            const r = channels > 1 ? buffer.getChannelData(1) : l;
+            const length = buffer.length;
+            let seekingDiff = 0;
+            let seekingPos: number | null = null;
+
+
+            const source = {
+                //eslint-disable-next-line
+                extract: (target: any[], numFrames: number, position: number) => {
+                    if (seekingPos != null) {
+                        seekingDiff = seekingPos - position;
+                        seekingPos = null;
+                    }
+
+                    position += seekingDiff;
+
+                    for (let i = 0; i < numFrames; i += 1) {
+                        target[i * 2] = l[i + position];
+                        target[i * 2 + 1] = r[i + position];
+                    }
+
+                    return Math.min(numFrames, length - position);
+                },
+            };
+            this.wavesurfer.on('play', () => {
+                if (!this.wavesurfer) return;
+                // if (this.state.transposeMode) return;
+                const backend = bk;
+                // const length = backend.buffer.length;
+                //eslint-disable-next-line
+                seekingPos = ~~(backend.getPlayedPercents() * length);
+                const tempo = this.wavesurfer.getPlaybackRate();
+                //eslint-disable-next-line
+                (this.shifter as any).tempo = tempo;
+                //eslint-disable-next-line
+                (this.shifter as any).pitchSemitones = this.pitchSemitonesDiff;
+                if (tempo === 1 && this.pitchSemitonesDiff === 0) {
+                    if (this.stNode) {
+                        this.stNode.disconnect();
+                        backend.source.connect(backend.analyser);
+                    }
+                }
+                else {
+                    if (!this.stNode) {
+                        const filter = new SimpleFilter(source, this.shifter);
+                        this.stNode = getWebAudioNode(
+                            backend.ac,
+                            filter,
+                        );
+                    }
+
+                    backend.source.disconnect(backend.analyser);
+                    backend.source.connect(this.stNode);
+
+                    if (this.stNode) this.stNode.connect(backend.analyser);
+                }
+            });
+            this.wavesurfer.on('pause', () => {
+                if (this.stNode) {
+                    this.stNode.disconnect();
+                    const backend = bk;
+                    backend.source.connect(backend.analyser);
+                }
+            });
+            this.wavesurfer.on('seek', (per) => {
+                // if (this.state.transposeMode) return;
+                const backend = bk;
+                //eslint-disable-next-line
+                seekingPos = ~~(backend.getPlayedPercents() * length);
+            });
         }
     }
 }

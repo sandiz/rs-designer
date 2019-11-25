@@ -9,25 +9,46 @@ import {
     countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
 import { MixerProps } from './Mixer';
+import { KEY } from '../../types';
+import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
+import MediaPlayerService from '../../services/mediaplayer';
 
 interface KeyPanelState {
     keyChange: number;
 }
 
+const KEY_MIN = KEY.MIN;
+const KEY_MAX = KEY.MAX;
+const KEY_DEFAULT = KEY.DEFAULT;
 
 export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
-    private minKey = -12;
-    private maxKey = +12;
+    private minKey = KEY_MIN;
+    private maxKey = KEY_MAX;
     private diff = 0;//12;
     private fixSliderHack = false;
 
     constructor(props: MixerProps) {
         super(props);
-        this.state = { keyChange: 0 + this.diff };
+        this.state = { keyChange: KEY_DEFAULT + this.diff };
+    }
+
+    componentDidMount = () => {
+        DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+        console.log(MediaPlayerService.getPitchSemitones());
+        this.setState({ keyChange: MediaPlayerService.getPitchSemitones() });
+    }
+
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+    }
+
+    mediaReady = () => {
+        this.setState({ keyChange: MediaPlayerService.getPitchSemitones() });
     }
 
     handleRelease = (v: number) => {
         this.setState({ keyChange: v });
+        MediaPlayerService.changePitchSemitones(v);
     }
 
     handleChange = (v: number) => {
@@ -36,9 +57,10 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
             this.fixSliderHack = true;
         }
         this.setState({ keyChange: v });
+        MediaPlayerService.changePitchSemitones(v);
     }
 
-    resetKey = () => this.setState({ keyChange: 12 });
+    resetKey = () => this.setState({ keyChange: 0 });
 
     render = () => {
         const props = this.props;
