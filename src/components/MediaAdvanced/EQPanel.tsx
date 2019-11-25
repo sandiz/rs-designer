@@ -16,7 +16,7 @@ import { setStateAsync, UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
 import { MixerProps } from './Mixer';
 
-const { nativeTheme } = window.require("electron").remote;
+const { nativeTheme, shell } = window.require("electron").remote;
 interface EqualizerState {
     enableSpectrum: boolean;
     enableEQ: boolean;
@@ -273,7 +273,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         return (
             <div className="eq-edit">
                 <H4 className="font-weight-unset">Edit Filter</H4>
-                <FormGroup inline label="Filter Type">
+                <FormGroup inline label={(<a onClick={() => shell.openExternal("https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode/type")}>Filter Type</a>)}>
                     <HTMLSelect onChange={v => this.onChangeFilterType(item, v)} value={item.type}>
                         <option value="lowpass">lowpass</option>
                         <option value="highpass">highpass</option>
