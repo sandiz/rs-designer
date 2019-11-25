@@ -118,6 +118,15 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     },
                 },
             );
+            this.audioMotion.registerGradient('cool', {
+                name: 'Summer',
+                bgColor: '#041919',
+                colorStops: [
+                    { pos: 0.1, color: '#fdbb2d' },
+                    { pos: 1, color: '#22c1c3' },
+                ],
+            });
+            this.audioMotion.gradient = 'cool';
         }
         catch (err) {
             if (this.canvasRef.current) {
