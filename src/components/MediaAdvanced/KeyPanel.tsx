@@ -16,16 +16,25 @@ interface KeyPanelState {
 
 
 export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
-    private minKey = 0;
-    private maxKey = 23;
-    private diff = 12;
+    private minKey = -12;
+    private maxKey = +12;
+    private diff = 0;//12;
+    private fixSliderHack = false;
 
     constructor(props: MixerProps) {
         super(props);
         this.state = { keyChange: 0 + this.diff };
     }
 
+    handleRelease = (v: number) => {
+        this.setState({ keyChange: v });
+    }
+
     handleChange = (v: number) => {
+        if (this.fixSliderHack === false) {
+            if (v === this.minKey || v === this.maxKey) v = 0;
+            this.fixSliderHack = true;
+        }
         this.setState({ keyChange: v });
     }
 
@@ -106,7 +115,7 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
                                     })
                                 }
                             </div>
-                            <div className="mixer-chords">
+                            <div className="mixer-slider">
                                 <Tag minimal interactive large className="mixer-key-tag" onClick={this.resetKey}>
                                     {
                                         kcdiff !== 0
@@ -120,10 +129,11 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
                                         stepSize={1}
                                         min={this.minKey}
                                         max={this.maxKey}
+                                        labelStepSize={24}
                                         labelRenderer={false}
                                         value={this.state.keyChange}
                                         onChange={this.handleChange}
-                                        onRelease={this.handleChange}
+                                        onRelease={this.handleRelease}
                                         disabled={mKey === '-'}
                                     />
                                 </div>

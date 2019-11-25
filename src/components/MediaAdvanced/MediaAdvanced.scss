@@ -289,3 +289,44 @@
 .eq-checked-warning>span {
     background-color: $pt-intent-warning !important;
 }
+
+.eq-slider-row {
+    position: absolute;
+    width: 45%;
+    height: 52%;
+    top: 39%;
+}
+
+.slider-label-no-margin {
+    margin: 0 !important;
+}
+
+.mixer-slider {
+    display: flex;
+    width: 100%;
+    justify-content: left;
+    margin-left: 0.5vw;
+}
+
+.eq-toggle-spectrum {
+    text-align: right;
+    position: absolute;
+    right: .5vw;
+    //top: .25vw;
+    bottom: 0;
+}
+
+.eq-slider-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 0;
+    width: 104%;
+    height: 95%;
+    padding: 0;
+    align-items: center;
+}
+
+.hznum {
+    margin-top: 1vh;
+}

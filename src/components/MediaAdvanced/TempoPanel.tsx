@@ -15,6 +15,8 @@ interface TempoPanelState {
 }
 
 export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
+    private fixSliderHack = false;
+
     constructor(props: MixerProps) {
         super(props);
         this.state = { tempoChange: 100, tempoMax: 120, tempoMin: 50 }
@@ -22,7 +24,16 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
 
     private _cur = () => Math.round((this.state.tempoChange / 100) * this.props.metadata.tempo);
 
+    handleRelease = (v: number) => {
+        //this.setState({ tempoChange: v });
+        console.log("tempo", "onRelease");
+    }
+
     handleChange = (v: number) => {
+        if (this.fixSliderHack === false) {
+            if (v === this.state.tempoMax || v === this.state.tempoMin) v = 100;
+            this.fixSliderHack = true;
+        }
         this.setState({ tempoChange: v });
     }
 
@@ -34,12 +45,8 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
         const { tempoChange } = this.state;
         const keyMsg = (tempoChange) === 100 ? "" : ((tempoChange >= 100 ? `(${tempoChange}%)` : `(${tempoChange}%)`));
         const cur = this._cur() === 0
-            ? (
-                <div className="mixer-key-font">n/a</div>
-            )
-            : (
-                <div className="mixer-key-font number">{this._cur()}</div>
-            )
+            ? <div className="mixer-key-font">n/a</div>
+            : <div className="mixer-key-font number">{this._cur()}</div>
         return (
             <React.Fragment>
                 <div className="mixer-info">
@@ -73,7 +80,7 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                                     })
                                 }
                             </div>
-                            <div className="mixer-chords">
+                            <div className="mixer-slider">
                                 <Tag interactive minimal large className="mixer-tempo-tag" onClick={this.resetTempo}>
                                     {
                                         diff !== 0
@@ -89,9 +96,10 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                                         min={this.state.tempoMin}
                                         max={this.state.tempoMax}
                                         labelRenderer={false}
+                                        labelStepSize={this.state.tempoMax - this.state.tempoMin}
                                         value={this.state.tempoChange}
                                         onChange={this.handleChange}
-                                        onRelease={this.handleChange}
+                                        onRelease={this.handleRelease}
                                     />
                                 </div>
                             </div>

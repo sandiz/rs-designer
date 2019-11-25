@@ -1,8 +1,8 @@
 import React, { RefObject } from 'react';
 import {
     Callout, Tag, Switch, Intent,
-    NonIdealState, Popover, H4, Classes, Slider,
-    HTMLSelect, FormGroup, Menu, MenuItem,
+    Popover, H4, Classes, Slider,
+    HTMLSelect, FormGroup, Menu, MenuItem, Card,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
@@ -14,7 +14,6 @@ import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
 import { setStateAsync, UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
-import { drawEQTags } from './EQRenderer';
 import { MixerProps } from './Mixer';
 
 interface EqualizerState {
@@ -87,7 +86,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     onCanvasDraw: (instance: unknown) => {
                         //displayCanvasMsg(instance);
-                        drawEQTags(instance, MediaPlayerService.getFilters());
+                        //drawEQTags(instance, MediaPlayerService.getFilters());
                     },
                 },
             );
@@ -362,7 +361,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                             content={this.getTagDialog(item)}
                                         >
                                             <Tag
-                                                style={{ backgroundColor: item.color }}
+                                                //style={{ backgroundColor: item.color }}
                                                 className="eq-tag"
                                                 interactive
                                                 large
@@ -370,7 +369,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                                                 intent={Intent.NONE}
                                                 onRemove={() => this.removeTag(item.id)}
                                             >
-                                                <span className="number">&nbsp;[{t}Hz]</span>
+                                                <span className="number">{t}Hz</span>
                                             </Tag>
                                         </Popover>
                                     )
@@ -378,23 +377,29 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                             }
                         </Callout>
                     </div>
-                    {
-                        this.state.enableSpectrum
-                            ? (
-                                <Callout className="mixer-eq-container" id="container" ref={this.canvasRef}>
-                                    {this.state.errorMsg}
-                                </Callout>
-                            )
-                            : (
-                                <NonIdealState
-                                    className="mixer-eq-container"
-                                    icon={IconNames.TIMELINE_BAR_CHART}
-                                    description={(
-                                        <Tag minimal interactive large onClick={this.startSpectrum} intent={Intent.NONE}>Display Spectrum</Tag>
-                                    )}
-                                />
-                            )
-                    }
+                    <div className="eq-slider-row">
+                        <div className="eq-toggle-spectrum"><Switch>Spectrum</Switch> </div>
+                        <div className="eq-slider-flex">
+                            {
+                                this.state.tags.map((item) => {
+                                    const t = item.freq >= 1000 ? Math.round(item.freq / 1000) + "k" : item.freq.toString();
+                                    return (
+                                        <div style={{ display: 'flex', flexDirection: "column" }}>
+                                            <Slider
+                                                key={item.id}
+                                                vertical
+                                                labelRenderer={false}
+                                            />
+                                            <span className="number hznum">{t}</span>
+                                        </div>
+                                    );
+                                })
+                            }
+                        </div>
+                    </div>
+                    <Card className="mixer-eq-container" id="container" ref={this.canvasRef}>
+                        {this.state.errorMsg}
+                    </Card>
                 </div>
             </React.Fragment>
         )

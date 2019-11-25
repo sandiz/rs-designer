@@ -37,7 +37,9 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     static getDerivedStateFromProps(nextProps: SliderExtendedProps, prevState: SliderExtendedState) {
-        if (nextProps !== prevState) {
+        if (nextProps.min !== prevState.min
+            || nextProps.max !== prevState.max
+            || nextProps.disabled !== prevState.disabled) {
             return { min: nextProps.min, max: nextProps.max, disabled: nextProps.disabled };
         }
         else return null;
@@ -135,7 +137,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                     value={this.state.value}
                     initialValue={this.state.value}
                     labelRenderer={false}
-                    className={classNames(this.props.className)}
+                    className={this.props.className}
                     onRelease={this.handleDragEnd}
                     onChange={this.handleDragStart}
                     disabled={this.state.disabled}
