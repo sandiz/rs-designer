@@ -654,6 +654,9 @@ export class Project {
             this.isLoading = false;
             await this.openProject(this.projectInfo.projectPath, true);
         }
+        else {
+            this.isLoading = false;
+        }
     }
 }
 

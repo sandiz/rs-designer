@@ -8,6 +8,7 @@ import { ProjectDetails, ZOOM } from '../../types';
 import SliderExtended from '../Extended/FadeoutSlider';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
+import { getTransposedKey } from '../../lib/music-utils';
 
 const { shell } = window.require("electron").remote;
 
@@ -16,20 +17,35 @@ interface InfoPanelProps {
 }
 interface InfoPanelState {
     zoom: number;
+    keyChange: number;
+    tempoChange: number;
 }
 
 class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
     constructor(props: InfoPanelProps) {
         super(props);
-        this.state = { zoom: ZOOM.DEFAULT };
+        this.state = { zoom: ZOOM.DEFAULT, keyChange: 0, tempoChange: 1 };
     }
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.on(DispatchEvents.PitchChange, this.pitchChange);
+        DispatcherService.on(DispatchEvents.TempoChange, this.tempoChange);
     }
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.PitchChange, this.pitchChange);
+        DispatcherService.off(DispatchEvents.TempoChange, this.tempoChange);
+    }
+
+
+    pitchChange = () => {
+        this.setState({ keyChange: MediaPlayerService.getPitchSemitones() });
+    }
+
+    tempoChange = () => {
+        this.setState({ tempoChange: MediaPlayerService.getPlaybackRate() });
     }
 
     mediaReset = () => {
@@ -43,12 +59,14 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
 
     render = () => {
         let keymsg = "";
+        let tempomsg = "";
         if (this.props.project.metadata) {
             const [key, type, _ignored] = this.props.project.metadata.key;
             if (key === "-") keymsg = "-";
             else {
-                keymsg = `${key} ${type}`;
+                keymsg = `${getTransposedKey(key, this.state.keyChange)} ${type}`;
             }
+            tempomsg = (this.props.project.metadata.tempo === 0 ? "-" : `${Math.round(this.props.project.metadata.tempo * this.state.tempoChange)} bpm`);
         }
         return (
             <div className="info-panel">
@@ -63,20 +81,48 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         elevation={0}
                         className={classNames("info-item", "info-item-large", "number")}>
                         <Text ellipsize>
-                            Project: <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
+                            <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
                         </Text>
                     </Card>
-                    <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                        Key: <span>{keymsg}</span>
-                    </Card>
-                    <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                        Tempo: <span>
-                            {
-                                this.props.project && this.props.project.metadata
-                                    ? (this.props.project.metadata.tempo === 0 ? "-" : `${this.props.project.metadata.tempo} bpm`)
-                                    : "-"
-                            }</span>
-                    </Card>
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content={(
+                            keymsg === "-"
+                                ? <span>Key unavailable or pending analysis</span>
+                                : (
+                                    <span>
+                                        Key of the song detected using the key_madmom algorithm
+                                    </span>
+                                )
+                        )}>
+                        <Card
+                            elevation={0}
+                            id=""
+                            className={classNames("info-item", "number")}>
+                            {keymsg}
+                        </Card>
+                    </Tooltip>
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content={(
+                            keymsg === "-"
+                                ? <span>Tempo unavailable or pending analysis</span>
+                                : (
+                                    <span>
+                                        Tempo of the song in beats per minute, detected using the tempo_madmom algorithm.
+                                    </span>
+                                )
+                        )}>
+                        <Card elevation={0} id="" className={classNames("info-item", "number")}>
+                            <span>
+                                {tempomsg}
+                            </span>
+                        </Card>
+                    </Tooltip>
                     <Card elevation={0} id="" className={classNames("info-item", "number", "zoomer")}>
                         <Button
                             small
@@ -138,7 +184,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         content={(
                             <span>
                                 Total amount of memory used / total allocated by JS objects.
-                 </span>
+                            </span>
                         )}>
                         <Card elevation={0} id="memory" className={classNames("memory-meter", "number", "info-item")}>0 / 0 mb</Card>
                     </Tooltip>
@@ -149,7 +195,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         content={(
                             <span>
                                 Frames per second.
-                 </span>
+                            </span>
                         )}>
                         <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
                     </Tooltip>

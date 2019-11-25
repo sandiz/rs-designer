@@ -533,6 +533,7 @@ class MediaPlayer {
             const nt = v / 100;
             if (v >= TEMPO.MIN && v <= TEMPO.MAX) {
                 this.wavesurfer.setPlaybackRate(nt);
+                DispatcherService.dispatch(DispatchEvents.TempoChange, nt);
             }
         }
     }
@@ -544,6 +545,7 @@ class MediaPlayer {
                 (this.shifter as any).pitchSemitones = v;
                 this.pitchSemitonesDiff = v;
                 this.wavesurfer.skipForward(0.001);
+                DispatcherService.dispatch(DispatchEvents.PitchChange, v);
             }
         }
     }

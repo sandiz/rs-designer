@@ -30,7 +30,7 @@ class DispatcherEvent {
     }
 }
 
-export type DispatchData = string | object | boolean | null;
+export type DispatchData = string | object | boolean | number | null;
 class DispatcherBase {
     public events: { [key: string]: DispatcherEvent }
     private static instance: DispatcherBase;
@@ -100,6 +100,10 @@ export enum DispatchEvents {
     MusicAnalysisStart = "start-music-analysis",    /* triggers automatic music analysis flow */
     EqualizerToggle = "equalizer-toggle",           /* toggle equalizer on/off, defaults to off */
     EqualizerToggled = "equalizer-toggled",         /* fired after all eq nodes are attached/removed */
+
+    /* Music Manipulation */
+    PitchChange = "pitch-change",       /* fired when the pitch of the song is changed */
+    TempoChange = "tempo-change",       /* fired when the tempo of the song is changed */
 }
 
 export const DispatcherService = DispatcherBase.getInstance();
