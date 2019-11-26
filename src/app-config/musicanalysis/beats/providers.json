@@ -1,7 +1,5 @@
 {
     "providers": [
-        "beats_librosa",
-        "beats_essentia",
-        "beats_madmom"
+        "beats_essentia"
     ]
 }
