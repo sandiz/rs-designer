@@ -1,7 +1,7 @@
 import React, { FunctionComponent, RefObject, Suspense } from 'react'
 import {
     Navbar, Elevation, Card, Classes, Text, Icon,
-    MenuItem, Popover, Position, Menu,
+    MenuItem, Popover, Position, Menu, Drawer,
 } from '@blueprintjs/core';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { IconNames } from "@blueprintjs/icons";
@@ -26,6 +26,8 @@ import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
 
 const MediaAdvanced = React.lazy(() => import('../MediaAdvanced/MediaAdvanced'));
 const { app } = window.require('electron').remote;
+const { ipcRenderer } = window.require("electron");
+
 const path: typeof PATH = window.require('path');
 const { platform } = window.require('os');
 const isWin = platform() === "win32";
@@ -369,12 +371,26 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         this.setState({ settingsMenu: menu });
     }
 
+    sideWindow = (): void => {
+        ipcRenderer.send('open-mi-window');
+        this.setState({ showAdvanced: false });
+    }
+
     render = () => {
         const c = (
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <MediaAdvanced show={this.state.showAdvanced} />
+                    <Drawer
+                        isOpen={this.state.showAdvanced}
+                        position={Position.BOTTOM}
+                        size={45 + '%'}
+                        portalClassName="mi-drawer"
+                        className="mi-drawer-bottom"
+                        key="mi-drawer"
+                    >
+                        <MediaAdvanced allowPopout popoutFunc={this.sideWindow} />
+                    </Drawer>
                 </Suspense>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">

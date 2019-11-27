@@ -1,6 +1,5 @@
-//eslint-disable
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './App'
+import ViewManager from './ViewManager'
 
-ReactDOM.render(<App />, document.getElementById('app-root'))
+ReactDOM.render(<ViewManager />, document.getElementById('app-root'))

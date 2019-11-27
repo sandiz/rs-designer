@@ -1,5 +1,5 @@
 const electron = require("electron");
-var { app, BrowserWindow, Menu } = electron;
+var { app, BrowserWindow, Menu, ipcMain } = electron;
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
@@ -8,6 +8,7 @@ const openAboutWindow = require('about-window').default;
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
 let mainWindow;
+let sideWindow;
 let incomingPath = "";
 let ready = false;
 
@@ -50,10 +51,11 @@ async function createWindow() {
     mainWindowState.manage(mainWindow);
     mainWindow.setMinimumSize(1700, 1080);
     //mainWindow.maximize();
+    const purl = `${process.env.ELECTRON_START_URL}?App`;
     mainWindow.loadURL(
-        process.env.ELECTRON_START_URL ||
+        purl ||
         url.format({
-            pathname: path.join(__dirname, "/../build/index.html"),
+            pathname: path.join(__dirname, "/../build/index.html?App"),
             protocol: "file:",
             slashes: true
         })
@@ -145,6 +147,51 @@ async function createWindow() {
 
 }
 
+async function createMediaWindow() {
+    let frameOpts = {}
+    if (process.platform !== 'win32') {
+        frameOpts = {
+            frame: false,
+            titleBarStyle: 'hidden',
+        };
+    }
+
+    sideWindow = new BrowserWindow({
+        id: 1,
+        x: 0,
+        y: 0,
+        width: 1700,
+        height: 500,
+        show: false,
+        ...frameOpts,
+        icon: path.join(__dirname, "./icons/png/icon-1024x1024.png"),
+        webPreferences: {
+            preload: path.join(__dirname, "./preload.js"),
+            webSecurity: false,
+            nodeIntegration: true,
+            contextIsolation: false,
+            nodeIntegrationInWorker: true
+        },
+        autoHideMenuBar: true,
+    });
+    sideWindow.setMinimumSize(1700, 500);
+    const purl = `${process.env.ELECTRON_START_URL}?MeendIntelligence`;
+    sideWindow.loadURL(
+        purl ||
+        url.format({
+            pathname: path.join(__dirname, "/../build/index.html?MeendIntelligence"),
+            protocol: "file:",
+            slashes: true
+        })
+    );
+    sideWindow.on("closed", () => {
+        sideWindow = null;
+    });
+    sideWindow.once('ready-to-show', () => {
+        sideWindow.show()
+    })
+}
+
 const sendOpenFileRequest = () => {
     if (incomingPath.length > 0) {
         setTimeout(() => {
@@ -198,11 +245,14 @@ const onBeforeQuit = () => {
     app.off('will-finish-launching', onWillFinishLaunching);
     app.off("window-all-closed", onWindowAllClosed);
     app.off("ready", onReady);
+    ipcMain.off('open-mi-window', sideWindow);
 }
+
 
 app.on("activate", onActivate);
 app.on("before-quit", onBeforeQuit);
 app.on('will-finish-launching', onWillFinishLaunching);
 app.on("window-all-closed", onWindowAllClosed);
 app.on("ready", onReady);
+ipcMain.on('open-mi-window', createMediaWindow);
 

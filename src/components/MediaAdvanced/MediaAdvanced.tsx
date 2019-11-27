@@ -1,22 +1,23 @@
 import React, { Suspense } from 'react'
 import {
-    Drawer, Position, Navbar, Tabs, Tab, Alignment, Icon, TabId,
+    Navbar, Tabs, Tab, Alignment, Icon, TabId, Button,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
-
+import classNames from 'classnames';
 import './MediaAdvanced.scss'
 import { ProjectMetadata } from '../../types'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
 
 const Mixer = React.lazy(() => import('./Mixer'));
-
-interface MediaAdvancedProps {
-    show: boolean;
-}
 interface MediaAdvancedState {
     currentTab: TabId | undefined;
     metadata: ProjectMetadata;
+}
+
+interface MediaAdvancedProps {
+    allowPopout?: boolean;
+    popoutFunc?: () => void;
 }
 
 const TABID_AUDIO = "audio" as TabId;
@@ -60,19 +61,24 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
 
     render = () => {
         return (
-            <Drawer
-                isOpen={this.props.show}
-                position={Position.BOTTOM}
-                size={45 + '%'}
-                portalClassName="mi-drawer"
-                className="mi-drawer-bottom"
-                key="mi-drawer"
-            >
-                <Navbar key="mi-title" className="mi-header">
+            <React.Fragment>
+                <Navbar key="mi-title" className={classNames("mi-header", { "mi-popout": this.props.allowPopout })}>
                     <Navbar.Group className="mi-header-group">
                         <Navbar.Heading className="mi-heading">
                             <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
                             <span>[ meend-intelligence ]</span>
+                            {
+                                this.props.allowPopout
+                                    ? (
+                                        <Button
+                                            onClick={this.props.popoutFunc}
+                                            minimal
+                                            className="popout"
+                                            icon={IconNames.ARROW_TOP_RIGHT}
+                                        />
+                                    )
+                                    : null
+                            }
                         </Navbar.Heading>
                     </Navbar.Group>
                     <Navbar.Group align={Alignment.RIGHT}>
@@ -100,7 +106,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         : null
                 }
 
-            </Drawer>
+            </React.Fragment>
         )
     }
 }
