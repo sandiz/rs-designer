@@ -235,7 +235,6 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     }
 
     showAdvanced = () => {
-        if (this.state.mediaInfo == null) return;
         this.setState(prevState => ({
             showAdvanced: !prevState.showAdvanced,
         }));
@@ -309,6 +308,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     }
 
     settingsMenu = async () => {
+        await this.recentsMenu();
         const { recentMenu } = this.state;
         const menu = (
             <Menu large>
@@ -328,6 +328,10 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                     icon={IconNames.FOLDER_CLOSE}
                     onClick={this.closeProject} />
                 <Menu.Divider />
+                <MenuItem
+                    text={this.getMenuItemText("[ meend-intelligence ]")}
+                    icon={IconNames.LAYOUT_AUTO}
+                    onClick={this.showAdvanced} />
                 <MenuItem
                     text="Recent Projects"
                     icon={IconNames.HISTORY}
@@ -475,7 +479,6 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                         </div>
                         <div className="more-button">
                             <ButtonExtended
-                                disabled={this.state.mediaInfo == null}
                                 active={this.state.showAdvanced}
                                 onClick={this.showAdvanced}
                                 icon={<Icon icon={this.state.showAdvanced ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP} iconSize={20} />}

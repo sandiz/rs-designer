@@ -41,7 +41,7 @@ export const copyFile = (src: string, dest: string) => new Promise((resolve, rej
 });
 
 export const readTags = (file: string): Promise<MM.IAudioMetadata> => new Promise((resolve, reject) => {
-    mm.parseFile(file, { native: true })
+    mm.parseFile(file)
         .then((metadata) => {
             resolve(metadata);
         })
