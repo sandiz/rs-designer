@@ -19,7 +19,7 @@ import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import {
-    readFile, sec2time, base64ImageData,
+    readFile, sec2time, base64ImageData, setStateAsync,
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
@@ -35,6 +35,7 @@ const isMac = platform() === "darwin";
 interface MediaBarState extends HotKeyState {
     mediaInfo: MediaInfo | null;
     settingsMenu: React.ReactElement | null;
+    recentMenu: JSX.Element[];
     mediaState: MEDIA_STATE;
     duration: number;
     showAdvanced: boolean;
@@ -78,13 +79,13 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         const b = {
             mediaInfo: null,
             settingsMenu: null,
+            recentMenu: [],
             duration: 0,
             mediaState: MEDIA_STATE.STOPPED,
             isHKEnabled: true,
             showAdvanced: false,
         };
         this.state = { ...super.getInitialState(), ...b };
-        this.settingsMenu();
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
@@ -95,8 +96,10 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         DispatcherService.on(DispatchEvents.MediaWasPaused, this._set_media_paused);
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
         super._componentDidMount();
+        await this.recentsMenu();
+        await this.settingsMenu();
     }
 
     componentWillUnmount() {
@@ -256,7 +259,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         );
     }
 
-    settingsMenu = async () => {
+    recentsMenu = async () => {
         const recents = await ProjectService.getRecents();
         const map = recents.map(async (item) => {
             const mmFile = item.metadata;
@@ -302,6 +305,11 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             );
         });
         const recentMenu = await Promise.all(map);
+        await setStateAsync(this, { recentMenu });
+    }
+
+    settingsMenu = async () => {
+        const { recentMenu } = this.state;
         const menu = (
             <Menu large>
                 <MenuItem
@@ -309,19 +317,23 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                     icon={IconNames.FOLDER_OPEN}
                     onClick={() => this.openProject(null)}
                 />
-                <MenuItem text={this.getMenuItemText("Save Project")} icon={IconNames.DOWNLOAD} disabled={this.state.mediaInfo === null} onClick={this.saveProject} />
-                <MenuItem text={this.getMenuItemText("Close Project")} disabled={this.state.mediaInfo === null} icon={IconNames.FOLDER_CLOSE} onClick={this.closeProject} />
+                <MenuItem
+                    text={this.getMenuItemText("Save Project")}
+                    icon={IconNames.DOWNLOAD}
+                    disabled={this.state.mediaInfo === null}
+                    onClick={this.saveProject} />
+                <MenuItem
+                    text={this.getMenuItemText("Close Project")}
+                    disabled={this.state.mediaInfo === null}
+                    icon={IconNames.FOLDER_CLOSE}
+                    onClick={this.closeProject} />
                 <Menu.Divider />
                 <MenuItem text="Recent Projects" icon={IconNames.HISTORY} disabled={recentMenu.length === 0}>
                     {
                         recentMenu.length > 0
-                            ? recentMenu
-                            : null
-                    }
-                    {
-                        recents.length > 0
                             ? (
                                 <React.Fragment>
+                                    {recentMenu}
                                     <Menu.Divider />
                                     <MenuItem text="Clear Recents" icon={IconNames.TRASH} onClick={this.clearRecents} />
                                 </React.Fragment>

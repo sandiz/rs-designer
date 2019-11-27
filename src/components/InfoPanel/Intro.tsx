@@ -46,7 +46,7 @@ export const IntroPanel: FunctionComponent<{}> = (props: {}) => {
         <React.Fragment>
             <div className="number version">v{app.getVersion()}</div>
             <div className="font-weight-unset">
-                Meend: Transcribe and Analyse Music.
+                Meend: Transcribe and Analyse Music
             </div>
         </React.Fragment>
     )
