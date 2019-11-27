@@ -171,7 +171,7 @@ export class Project {
         if (this.isProjectLoaded()) {
             this.unload();
             DispatcherService.dispatch(DispatchEvents.ProjectClosed);
-            successToaster("Project Closed", Intent.PRIMARY, IconNames.TICK);
+            successToaster("Project Closed", Intent.NONE, IconNames.TICK);
             this.projectInfo = null;
         }
     }

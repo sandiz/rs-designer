@@ -328,7 +328,12 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                     icon={IconNames.FOLDER_CLOSE}
                     onClick={this.closeProject} />
                 <Menu.Divider />
-                <MenuItem text="Recent Projects" icon={IconNames.HISTORY} disabled={recentMenu.length === 0}>
+                <MenuItem
+                    text="Recent Projects"
+                    icon={IconNames.HISTORY}
+                    disabled={recentMenu.length === 0}
+                    popoverProps={{ openOnTargetFocus: false }}
+                >
                     {
                         recentMenu.length > 0
                             ? (
@@ -341,7 +346,11 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                             : null
                     }
                 </MenuItem>
-                <MenuItem text="Import Media" icon={IconNames.IMPORT}>
+                <MenuItem
+                    text="Import Media"
+                    icon={IconNames.IMPORT}
+                    popoverProps={{ openOnTargetFocus: false }}
+                >
                     <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
                     <MenuItem
                         text="from URL"
