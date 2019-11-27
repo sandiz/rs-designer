@@ -152,7 +152,7 @@ async function createMediaWindow() {
     if (process.platform !== 'win32') {
         frameOpts = {
             frame: false,
-            titleBarStyle: 'hidden',
+            titleBarStyle: 'customButtonsOnHover',
         };
     }
 
@@ -173,6 +173,7 @@ async function createMediaWindow() {
             nodeIntegrationInWorker: true
         },
         autoHideMenuBar: true,
+        resizable: false,
     });
     sideWindow.setMinimumSize(1700, 500);
     const purl = `${process.env.ELECTRON_START_URL}?MeendIntelligence`;

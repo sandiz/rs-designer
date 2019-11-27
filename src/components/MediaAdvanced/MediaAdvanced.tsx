@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import {
-    Navbar, Tabs, Tab, Alignment, Icon, TabId, Button,
+    Navbar, Tabs, Tab, Alignment, Icon, TabId, Button, Drawer, Position,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 import classNames from 'classnames';
@@ -16,8 +16,9 @@ interface MediaAdvancedState {
 }
 
 interface MediaAdvancedProps {
-    allowPopout?: boolean;
+    isPopout: boolean;
     popoutFunc?: () => void;
+    isOpen: boolean;
 }
 
 const TABID_AUDIO = "audio" as TabId;
@@ -61,14 +62,22 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
 
     render = () => {
         return (
-            <React.Fragment>
-                <Navbar key="mi-title" className={classNames("mi-header", { "mi-popout": this.props.allowPopout })}>
+            <Drawer
+                isOpen={this.props.isOpen}
+                position={Position.BOTTOM}
+                size={(this.props.isPopout ? 100 : 45) + '%'}
+                portalClassName="mi-drawer"
+                className={classNames({ "mi-drawer-bottom": !this.props.isPopout })}
+                key="mi-drawer"
+                transitionName={this.props.isPopout ? "" : undefined}
+            >
+                <Navbar key="mi-title" className={classNames("mi-header", { "mi-popout": this.props.isPopout })}>
                     <Navbar.Group className="mi-header-group">
                         <Navbar.Heading className="mi-heading">
                             <Icon iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />
                             <span>[ meend-intelligence ]</span>
                             {
-                                this.props.allowPopout
+                                !this.props.isPopout
                                     ? (
                                         <Button
                                             onClick={this.props.popoutFunc}
@@ -106,7 +115,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         : null
                 }
 
-            </React.Fragment>
+            </Drawer>
         )
     }
 }

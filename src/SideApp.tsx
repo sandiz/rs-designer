@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Classes,
+    Classes, FocusStyleManager,
 } from "@blueprintjs/core"
 
 const { nativeTheme } = window.require("electron").remote;
@@ -20,6 +20,7 @@ class SideApp extends React.Component<SideAppProps, SideAppState> {
 
     componentDidMount = () => {
         nativeTheme.on('updated', this.changeAppColor);
+        FocusStyleManager.onlyShowFocusOnTabs();
     }
 
     componentWillUnmount = () => {
