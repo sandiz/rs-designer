@@ -1,16 +1,9 @@
 import React, { Component } from 'react';
-import {
-    Classes, Button, Intent, Popover, Position,
-    MenuItem, Menu,
-} from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import NonIdealExtended from '../Extended/NonIdealExtended';
 import './Waveform.scss';
-import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import { CardExtended } from '../Extended/FadeoutSlider';
-import { getImportUrlDialog } from '../../dialogs';
+import { IntroPanel } from '../InfoPanel/Intro';
 
 interface WaveformState {
     show: boolean;
@@ -44,56 +37,10 @@ class Waveform extends Component<{}, WaveformState> {
         this.setState({ show: true });
     }
 
-    importMedia = (external: string | null) => {
-        DispatcherService.dispatch(DispatchEvents.ImportMedia, external);
-    }
-
-    getImportMenu = () => {
-        return (
-            <React.Fragment>
-                <Menu large>
-                    <MenuItem text="from Local File" icon={IconNames.DOWNLOAD} onClick={() => this.importMedia(null)} />
-                    <MenuItem
-                        text="from URL"
-                        icon={IconNames.CLOUD}
-                        onClick={() => {
-                            DispatcherService.dispatch(DispatchEvents.OpenDialog, getImportUrlDialog());
-                        }} />
-                </Menu>
-            </React.Fragment>
-        );
-    }
-
-    openProject = () => {
-        DispatcherService.dispatch(DispatchEvents.ProjectOpen);
-    }
-
     render = () => {
-        const title = (
-            <div style={{ fontWeight: 100 }}>
-                Meend: Transcribe and Analyse Music.
-            </div>
-        )
-        const icon = (
-            <div>
-                <img src={AppLogo.default} alt="app logo" className="appLogo-waveform" />
-            </div>
-        )
-        const description = (
-            <div className="description-buttons">
-                <Button large intent={Intent.PRIMARY} icon={IconNames.FOLDER_OPEN} onClick={this.openProject}>Open Project</Button>
-                <Popover content={this.getImportMenu()} position={Position.BOTTOM}>
-                    <Button large icon={IconNames.IMPORT}>Import Media</Button>
-                </Popover>
-            </div>
-        );
         return (
             <CardExtended className={classNames("waveform-root")} elevation={3}>
-                <NonIdealExtended
-                    className={classNames(Classes.TEXT_DISABLED)}
-                    icon={icon}
-                    title={title}
-                    description={description} />
+                <IntroPanel />
                 <div style={{ visibility: this.state.show ? "visible" : "hidden" }} className="canvas-container">
                     <div id="chordstimeline" />
                     <div id="beatstimeline" />
