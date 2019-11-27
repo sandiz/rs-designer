@@ -34,7 +34,6 @@ export class KeyPanel extends React.Component<MixerProps, KeyPanelState> {
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
-        console.log(MediaPlayerService.getPitchSemitones());
         this.setState({ keyChange: MediaPlayerService.getPitchSemitones() });
     }
 

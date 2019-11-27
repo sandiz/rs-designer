@@ -41,7 +41,9 @@ async function createWindow() {
             webSecurity: false,
             nodeIntegration: true,
             contextIsolation: false,
-            nodeIntegrationInWorker: true
+            nodeIntegrationInWorker: true,
+            nativeWindowOpen: true,// window.open return Window object(like in regular browsers), not BrowserWindowProxy
+            affinity: 'main-window'
         },
         autoHideMenuBar: true,
     });
@@ -143,8 +145,14 @@ async function createWindow() {
     });
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
-    })
+    });
+    mainWindow.webContents.on('new-window', function (e, url, frameName, disposition, options) {
+        // hook on new opened window
 
+        // at now new window in mainWindow renderer process.
+        // Also, this will automatically get an option `nodeIntegration=false`(not override to true, like in iframe's) - like in regular browsers
+        options.webPreferences.affinity = 'main-window';
+    });
 }
 
 async function createMediaWindow() {
@@ -170,7 +178,9 @@ async function createMediaWindow() {
             webSecurity: false,
             nodeIntegration: true,
             contextIsolation: false,
-            nodeIntegrationInWorker: true
+            nodeIntegrationInWorker: true,
+            nativeWindowOpen: true,// window.open return Window object(like in regular browsers), not BrowserWindowProxy
+            affinity: 'main-window'
         },
         autoHideMenuBar: true,
         resizable: false,

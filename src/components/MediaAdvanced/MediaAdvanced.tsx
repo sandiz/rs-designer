@@ -32,9 +32,12 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
         this.state = { currentTab: TABID_HOME, metadata: new ProjectMetadata() }
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
+        if (ProjectService.isProjectLoaded()) {
+            this.projectOpened();
+        }
     }
 
     componentWillUnmount = () => {
