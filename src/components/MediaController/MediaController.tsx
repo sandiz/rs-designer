@@ -180,7 +180,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
     }
 
     projectClosed = () => {
-        this.setState({ mediaInfo: null, showAdvanced: false });
+        this.setState({ mediaInfo: null });
         this.settingsMenu();
     }
 

@@ -14,7 +14,7 @@ import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
 import { setStateAsync, UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
-import { MixerProps } from './Mixer';
+import { MixerProps } from './MixerTab';
 
 const { nativeTheme, shell } = window.require("electron").remote;
 interface EqualizerState {

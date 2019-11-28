@@ -15,7 +15,7 @@ export interface MixerProps {
     style?: React.CSSProperties;
 }
 
-export const Mixer: FunctionComponent<MixerProps> = (props: MixerProps) => (
+export const MixerTab: FunctionComponent<MixerProps> = (props: MixerProps) => (
     <div key="mixer" className="mixer" style={props.style}>
         <div key="mixer-root" className="mixer-root">
             <div key="left" className="mixer-left">
@@ -35,4 +35,4 @@ export const Mixer: FunctionComponent<MixerProps> = (props: MixerProps) => (
     </div>
 );
 
-export default Mixer;
+export default MixerTab;

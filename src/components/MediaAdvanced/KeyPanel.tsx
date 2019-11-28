@@ -8,7 +8,7 @@ import {
     getParalleKey, getChordsInKey, getRelativeKey, getUniqueChords,
     countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
-import { MixerProps } from './Mixer';
+import { MixerProps } from './MixerTab';
 import { KEY } from '../../types';
 import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
 import MediaPlayerService from '../../services/mediaplayer';

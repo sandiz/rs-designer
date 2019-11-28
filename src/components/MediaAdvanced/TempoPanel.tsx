@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import {
     findTempoMarkings,
 } from '../../lib/music-utils';
-import { MixerProps } from './Mixer';
+import { MixerProps } from './MixerTab';
 import { TEMPO } from '../../types';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
