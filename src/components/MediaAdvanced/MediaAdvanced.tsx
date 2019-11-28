@@ -24,6 +24,7 @@ interface MediaAdvancedProps {
 
 const TABID_HOME = "home" as TabId;
 const TABID_MIXER = "mixer" as TabId;
+const TABID_CLOUDANALYSIS = "cloud" as TabId;
 const TABID_SPEC = "spectrogram" as TabId;
 const TABID_ISOLATION = "isolation" as TabId;
 const TABID_PITCH_TRACKING = "pitch-tracking" as TabId;
@@ -82,7 +83,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 elem = <MixerTab key={TABID_MIXER} metadata={this.state.metadata} />
                 break;
             case TABID_HOME:
-                elem = <HomeTab key={TABID_HOME} />
+                elem = <HomeTab key={TABID_HOME} metadata={this.state.metadata} />
                 break;
             default:
                 elem = null;
@@ -119,7 +120,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                     <Navbar.Group className="mi-header-group">
                         <Navbar.Heading className="mi-heading">
                             {
-                                this.state.currentTab !== TABID_HOME
+                                this.state.currentTab
                                     ? [
                                         <Icon key="layout_auto" iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />,
                                         <span key="title">[ meend-intelligence ]</span>,
@@ -139,6 +140,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         >
                             <Tab id={TABID_HOME} title="Home" />
                             <Tab id={TABID_MIXER} title="Mixer" />
+                            <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
                             <Tab id={TABID_SPEC} title="Spectrogram" />
                             <Tab id={TABID_ISOLATION} title="Track Isolation" />
                             <Tab id={TABID_PITCH_TRACKING} title="Pitch Tracking" />

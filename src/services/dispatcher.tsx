@@ -97,7 +97,9 @@ export enum DispatchEvents {
     KbdShortcuts = "kbd-shortcuts",       /* event to turn hotkeys on/off */
 
     /* Music Analysis */
-    MusicAnalysisStart = "start-music-analysis",    /* triggers automatic music analysis flow */
+    MusicAnalysisStart = "music-analysis-start",    /* triggers automatic music analysis flow */
+    MusicAnalysisStarted = "music-analysis-started",    /* triggers automatic music analysis flow */
+    MusicAnalysisEnded = "music-analysis-ended",    /* triggers automatic music analysis flow */
     EqualizerToggle = "equalizer-toggle",           /* toggle equalizer on/off, defaults to off */
     EqualizerToggled = "equalizer-toggled",         /* fired after all eq nodes are attached/removed */
 

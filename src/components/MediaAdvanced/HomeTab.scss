@@ -1,5 +1,5 @@
 .home-main {
-    width: 65%;
+    width: 82%;
     margin: auto;
     margin-top: 7px;
     padding: 0;
@@ -55,7 +55,7 @@
 }
 
 .home-key-font {
-    font-size: 2vw;
+    font-size: 1.5vw;
 }
 
 .home-analysis-buttons {
@@ -65,4 +65,12 @@
     justify-content: space-evenly;
     margin-left: 1vw;
     margin-right: 1vw;
+}
+
+.home-online-content {
+    flex-direction: row;
+    justify-content: space-evenly;
+    height: 92%;
+    align-items: flex-start;
+    display: flex;
 }

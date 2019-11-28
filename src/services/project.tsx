@@ -576,14 +576,14 @@ export class Project {
             const key = await this.readSongKey();
             const chords = await this.readChords();
             const beats = await this.readBeats();
-            return {
-                name: path.basename(this.projectDirectory),
-                path: this.projectDirectory,
+            return new ProjectMetadata(
+                path.basename(this.projectDirectory),
+                this.projectDirectory,
                 key,
-                tempo: Math.round(await this.readTempo()),
+                Math.round(await this.readTempo()),
                 chords,
                 beats,
-            }
+            );
         }
         return null;
     }

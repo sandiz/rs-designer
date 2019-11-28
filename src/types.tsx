@@ -96,6 +96,19 @@ export class ProjectMetadata {
     tempo = 0;
     chords: ChordTime[] = [];
     beats: BeatTime[] = [];
+
+    constructor(name?: string, path1?: string, key?: SongKey, tempo?: number, chords?: ChordTime[], beats?: BeatTime[]) {
+        this.name = name || "";
+        this.path = path1 || "";
+        this.key = key || ["-", "-", -1];
+        this.tempo = tempo || 0;
+        this.chords = chords || [];
+        this.beats = beats || [];
+    }
+
+    public isEmpty = () => {
+        return this.name === "" && this.path === "";
+    }
 }
 
 export type ProjectDetails = { metadata: ProjectMetadata | null; loaded?: boolean };

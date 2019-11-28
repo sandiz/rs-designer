@@ -6,6 +6,7 @@ import {
 } from '../types'
 import ProjectService from '../services/project';
 import { successToaster, progressToaster } from '../components/Extended/Toasters';
+import { DispatcherService, DispatchEvents } from '../services/dispatcher';
 
 interface ProviderArgs {
     argName: string;
@@ -199,10 +200,12 @@ export const ChordsRunner = () => new Runner("chords", chords);
 export const BeatsRunner = () => new Runner("beats", beats);
 export const TempoRunner = () => new Runner("tempo", tempo);
 
-enum AnalysisType { KEY = "key", CHORDS = "chords", BEATS = "beats", TEMPO = "tempo" }
+export enum AnalysisType { KEY = "key", CHORDS = "chords", BEATS = "beats", TEMPO = "tempo", AUTO = "auto" }
 class MusicAnalysis {
     private static instance: MusicAnalysis;
     private activeRunners: Runner[] = [];
+    private promises: Promise<RunnerResult>[] = [];
+    private isAutoAnalysisRunning = false;
     static getInstance() {
         if (!MusicAnalysis.instance) {
             MusicAnalysis.instance = new MusicAnalysis();
@@ -212,6 +215,7 @@ class MusicAnalysis {
 
     private constructor() {
         this.activeRunners = [];
+        this.promises = [];
     }
 
     isKeyValid(keyer: SongKey) {
@@ -258,6 +262,17 @@ class MusicAnalysis {
         return analysis;
     }
 
+    cancel = async () => {
+        for (let i = 0; i < this.activeRunners.length; i += 1) {
+            this.activeRunners[i].stop();
+        }
+        this.activeRunners = [];
+        this.promises = [];
+        this.isAutoAnalysisRunning = false;
+    }
+
+    isAnalysisInProgress = () => this.isAutoAnalysisRunning;
+
     analysePrompt = (toAnalyse: AnalysisType[]): Promise<boolean> => new Promise((resolve, reject) => {
         const action = {
             text: "Start",
@@ -270,17 +285,22 @@ class MusicAnalysis {
             Intent.NONE, IconNames.LAYOUT_AUTO, action, 50000, dismiss, "extra-wide-toaster");
     });
 
-    analyse = async () => {
-        const toAnalyse = await this.isAnalysisReqd();
+    analyse = async (customAnalysis: AnalysisType[] | null = null) => {
+        let toAnalyse: AnalysisType[] = [];
+        if (customAnalysis) toAnalyse = customAnalysis;
+        else toAnalyse = await this.isAnalysisReqd();
         if (toAnalyse.length === 0) {
             successToaster("[ meend-intelligence ] up-to-date!", Intent.SUCCESS, IconNames.LAYOUT_AUTO);
         }
         else {
+            console.log(" [ meend-intelligence ] analysis pending for " + toAnalyse.join(", "));
+            this.cancel();  /* cancel any pending analysis */
+            this.isAutoAnalysisRunning = true;
+            DispatcherService.dispatch(DispatchEvents.MusicAnalysisStarted, AnalysisType.AUTO);
             const analysePrompt = await this.analysePrompt(toAnalyse);
             if (analysePrompt) {
                 console.log("[ meend-intelligence ] analysis started");
                 this.activeRunners = [];
-                const promises: Promise<RunnerResult>[] = [];
                 let idx = 0;
                 let failed = 0;
                 const total = toAnalyse.length + 1;
@@ -296,7 +316,7 @@ class MusicAnalysis {
                         idx += 1;
                         failed += 1;
                     })
-                    promises.push(p)
+                    this.promises.push(p)
                 }
                 if (toAnalyse.includes(AnalysisType.TEMPO)) {
                     const f = TempoRunner();
@@ -309,7 +329,7 @@ class MusicAnalysis {
                         idx += 1;
                         failed += 1;
                     })
-                    promises.push(p)
+                    this.promises.push(p)
                 }
                 if (toAnalyse.includes(AnalysisType.CHORDS)) {
                     const f = ChordsRunner();
@@ -322,7 +342,7 @@ class MusicAnalysis {
                         idx += 1;
                         failed += 1;
                     })
-                    promises.push(p);
+                    this.promises.push(p);
                 }
                 if (toAnalyse.includes(AnalysisType.BEATS)) {
                     const f = BeatsRunner();
@@ -335,11 +355,11 @@ class MusicAnalysis {
                         idx += 1;
                         failed += 1;
                     });
-                    promises.push(p);
+                    this.promises.push(p);
                 }
 
                 try {
-                    await Promise.all(promises);
+                    await Promise.all(this.promises);
                     if (failed > 0) progressToaster(`[ meend-intelligence ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO)
                     else progressToaster("[ meend-intelligence ] analysis complete", total, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                 }
@@ -355,11 +375,30 @@ class MusicAnalysis {
                     this.activeRunners[i].stop();
                 }
                 this.activeRunners = [];
+                this.promises = [];
             }
             else {
                 console.log("[ meend-intelligence ] analysis cancelled");
             }
+            this.isAutoAnalysisRunning = false;
+            DispatcherService.dispatch(DispatchEvents.MusicAnalysisEnded, AnalysisType.AUTO);
         }
+    }
+
+    analyseKey = async () => {
+        this.analyse([AnalysisType.KEY]);
+    }
+
+    analyseChords = async () => {
+        this.analyse([AnalysisType.CHORDS]);
+    }
+
+    analyseBeats = async () => {
+        this.analyse([AnalysisType.BEATS]);
+    }
+
+    analyseTempo = async () => {
+        this.analyse([AnalysisType.TEMPO]);
     }
 }
 
