@@ -159,7 +159,7 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
                         {
                             analysisOptions.map((item) => {
                                 return (
-                                    <Card elevation={Elevation.TWO} className="" style={{ width: 23 + '%', padding: 10 + 'px' }}>
+                                    <Card key={item.title} elevation={Elevation.TWO} className="" style={{ width: 23 + '%', padding: 10 + 'px' }}>
                                         <div className="d-flex">
                                             <div className="number">{item.title}&nbsp;</div>
                                             {

@@ -50,14 +50,14 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     componentDidMount = () => {
-        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReady);
+        DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.EqualizerToggled, this.eqToggled);
     }
 
     componentWillUnmount = () => {
         ProjectService.saveLastEQTags(this.state.tags);
-        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReady);
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.EqualizerToggled, this.eqToggled);
         this.endSpectrum();
