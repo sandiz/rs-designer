@@ -8,9 +8,10 @@ import './MediaAdvanced.scss'
 import { ProjectMetadata } from '../../types'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
-import HomeTab from './HomeTab';
 
 const MixerTab = React.lazy(() => import('./MixerTab'));
+const HomeTab = React.lazy(() => import('./HomeTab'));
+const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
 interface MediaAdvancedState {
     currentTab: TabId | undefined;
     metadata: ProjectMetadata;
@@ -85,6 +86,9 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
             case TABID_HOME:
                 elem = <HomeTab key={TABID_HOME} metadata={this.state.metadata} />
                 break;
+            case TABID_SPEC:
+                elem = <SpectrogramTab key={TABID_SPEC} />
+                break;
             default:
                 elem = null;
                 break;
@@ -140,8 +144,8 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         >
                             <Tab id={TABID_HOME} title="Home" />
                             <Tab id={TABID_MIXER} title="Mixer" />
-                            <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
                             <Tab id={TABID_SPEC} title="Spectrogram" />
+                            <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
                             <Tab id={TABID_ISOLATION} title="Track Isolation" />
                             <Tab id={TABID_PITCH_TRACKING} title="Pitch Tracking" />
                             <Tab id={TABID_REGIONS} title="Regions" />

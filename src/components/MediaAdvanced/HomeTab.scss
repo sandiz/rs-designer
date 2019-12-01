@@ -1,5 +1,7 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
 .home-main {
-    width: 82%;
+    width: 72%;
     margin: auto;
     margin-top: 7px;
     padding: 0;
@@ -73,4 +75,8 @@
     height: 92%;
     align-items: flex-start;
     display: flex;
+}
+
+.cta {
+    background-color: $pt-intent-primary !important;
 }

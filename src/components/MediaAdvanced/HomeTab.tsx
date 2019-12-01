@@ -159,7 +159,7 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
                         {
                             analysisOptions.map((item) => {
                                 return (
-                                    <Card key={item.title} elevation={Elevation.TWO} className="" style={{ width: 23 + '%', padding: 10 + 'px' }}>
+                                    <Card className="cta" key={item.title} elevation={Elevation.TWO} style={{ width: 23 + '%', padding: 10 + 'px' }}>
                                         <div className="d-flex">
                                             <div className="number">{item.title}&nbsp;</div>
                                             {
@@ -172,7 +172,8 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
                                         <div className="">
                                             <Button
                                                 fill
-                                                intent={item.subscription ? Intent.PRIMARY : Intent.PRIMARY}
+                                                minimal
+                                                //intent={item.subscription ? Intent.PRIMARY : Intent.PRIMARY}
                                                 icon={IconNames.ENDORSED}
                                                 className=""
                                             >
