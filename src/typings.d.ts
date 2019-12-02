@@ -2,8 +2,7 @@ declare module 'teoria';
 declare module 'streamify';
 declare module 'react-native-listener';
 declare module 'audiomotion-analyzer';
-declare module 'soundtouchjs'
-declare module 'react-wasm';
+declare module 'soundtouchjs';
 declare module 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 declare module 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 declare module './wv-plugin/chordstimeline';

@@ -7,9 +7,8 @@
     "README.md"
   ],
   "imageSize": 100,
-  "commit": true,
-  "contributors": [
-    {
-    }
-  ]
+  "commit": false,
+  "commitConvention": "none",
+  "contributors": [],
+  "contributorsPerLine": 7
 }

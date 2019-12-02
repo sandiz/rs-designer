@@ -1,10 +1,11 @@
 import React from 'react';
+//import await { add } from "./add.wasm";
+import add from './add.wasm';
 
 export class SpectrogramTab extends React.Component<{}, {}> {
     componentDidMount = async () => {
         console.log("Asd")
-        const wasm = await import('../../lib/musicanalysis/cqt/meend-core');
-        console.log(wasm);
+        console.log(add);
     }
 
     /*   loadWasm = async () => {
