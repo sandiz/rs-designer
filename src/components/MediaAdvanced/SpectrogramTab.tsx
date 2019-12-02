@@ -1,8 +1,10 @@
 import React from 'react';
 
 export class SpectrogramTab extends React.Component<{}, {}> {
-    componentDidMount() {
+    componentDidMount = async () => {
         console.log("Asd")
+        const wasm = await import('../../lib/musicanalysis/cqt/meend-core');
+        console.log(wasm);
     }
 
     /*   loadWasm = async () => {

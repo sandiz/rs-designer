@@ -11,8 +11,8 @@ var source_files = [];
 
 source_files.push('src/lib/musicanalysis/cqt/cqt.c');
 
-var js_file = 'src/lib/musicanalysis/cqt/cqt-core.js';
-var wasm_file = 'src/lib/musicanalysis/cqt/cqt-core.wasm';
+var js_file = 'src/lib/musicanalysis/cqt/meend-core.js';
+var wasm_file = 'src/lib/musicanalysis/cqt/meend-core.wasm';
 var wasm_dir = "build/static/js"
 
 var exported_functions = [
@@ -43,7 +43,7 @@ var flags = [
     '-s', 'ALLOW_MEMORY_GROWTH=1',
     '-s', 'ASSERTIONS=0',      // assertions increase runtime size about 100K
     '-s', 'MODULARIZE=1',
-    '-s', 'EXPORT_NAME=CQT_CORE',
+    '-s', 'EXPORT_NAME=MEEND_CORE',
     '-s', 'ENVIRONMENT=web',
     '-s', 'USE_ZLIB=1',
     '-s', 'EXPORT_ES6=1',
