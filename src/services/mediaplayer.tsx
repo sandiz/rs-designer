@@ -9,7 +9,7 @@ import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset, TEMPO, KEY,
+    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset, TEMPO, KEY, WasmTypes,
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
@@ -36,6 +36,21 @@ const getGradient = (type: string, ctx: CanvasRenderingContext2D) => {
         return linGrad;
     }
 }
+const asciiToBinary = (str: string) => {
+    if (typeof atob === 'function') {
+        return atob(str)
+    } else {
+        return Buffer.from(str, 'base64').toString('binary');
+    }
+}
+const decode = (encoded: string): ArrayBuffer => {
+    const binaryString = asciiToBinary(encoded);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i += 1) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
 class MediaPlayer {
     public wavesurfer: WaveSurfer | null;
     public audioContext: AudioContext | null;
@@ -45,6 +60,7 @@ class MediaPlayer {
     private shifter: unknown;
     private stNode: AudioNode | null;
     private pitchSemitonesDiff = 0;
+    private wasm = WasmTypes;
 
     static getInstance() {
         if (!MediaPlayer.instance) {
@@ -62,10 +78,42 @@ class MediaPlayer {
         this.stNode = null;
         this.pitchSemitonesDiff = 0;
         nativeTheme.on("updated", this.updateTheme);
+        this.initWebAssembly();
     }
 
     public destructor() {
         nativeTheme.off("updated", this.updateTheme);
+    }
+
+    private initWebAssembly = async () => {
+        //eslint-disable-next-line
+        const providers = require("../lib/musicanalysis/providers.json");
+        /* init cqt */
+        const cqt = decode(providers.cqt);
+        console.log("cqt wasm isValid: ", WebAssembly.validate(cqt));
+        const waObj = await WebAssembly.instantiate(cqt, {
+            env: {
+                cos: Math.cos,
+                sin: Math.sin,
+                exp: Math.exp,
+                logf: Math.log,
+            },
+        });
+        //const { cqt_init: cqtFunc } = waObj.instance.exports;
+        this.wasm = {
+            cqt: waObj.instance.exports,
+        }
+    }
+
+    public getCQTProvider = (func: string): Function | null => {
+        if (this.wasm) {
+            if (this.wasm.cqt) {
+                if (func in this.wasm.cqt) {
+                    return this.wasm.cqt[func] as Function;
+                }
+            }
+        }
+        return null;
     }
 
     public loadMedia = (blob: Blob) => new Promise((resolve, reject) => {

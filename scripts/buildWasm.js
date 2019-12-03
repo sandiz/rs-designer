@@ -13,10 +13,10 @@ source_files.push('src/lib/musicanalysis/cqt/cqt.c');
 
 var js_file = 'src/lib/musicanalysis/cqt/meend-core.js';
 var wasm_file = 'src/lib/musicanalysis/cqt/meend-core.wasm';
+var providers_json = 'src/lib/musicanalysis/providers.json'
 var wasm_dir = "build/static/js"
 
 var exported_functions = [
-    // From showcqtbar.c
     '_cqt_init',
     '_cqt_calc',
     '_cqt_render_line',
@@ -40,18 +40,11 @@ var flags = [
     '--no-heap-copy',
     '-s', 'EXPORTED_FUNCTIONS=[' + exported_functions.join(',') + ']',
     '-s', 'EXPORTED_RUNTIME_METHODS=[' + runtime_methods.join(',') + ']',
-    '-s', 'ALLOW_MEMORY_GROWTH=1',
     '-s', 'ASSERTIONS=0',      // assertions increase runtime size about 100K
     '-s', 'MODULARIZE=1',
     '-s', 'EXPORT_NAME=MEEND_CORE',
-    '-s', 'ENVIRONMENT=web',
-    '-s', 'USE_ZLIB=1',
-    '-s', 'EXPORT_ES6=1',
     '-Os',
-    '-o', js_file,
-
-    '-DHAVE_ZLIB_H',
-    '-DHAVE_STDINT_H',
+    '-o', wasm_file,
 
     '-Qunused-arguments',
     '-Wno-deprecated',
@@ -80,13 +73,12 @@ build_proc.on('exit', function (code) {
         //execSync(`mv ${wasm_file} ${wasm_dir}`);
 
         // Don't use --pre-js because it can get stripped out by closure.
-        const eslint_disable = '/*eslint-disable*/\n';
-        console.log('Prepending %s with %s.', js_file, eslint_disable.trim());
-        const data = fs.readFileSync(js_file);
-        const fd = fs.openSync(js_file, 'w+');
-        const insert = Buffer.from(eslint_disable);
-        fs.writeSync(fd, insert, 0, insert.length, 0);
-        fs.writeSync(fd, data, 0, data.length, insert.length);
+        const wasm = fs.readFileSync(wasm_file);
+        const fd = fs.openSync(providers_json, 'w+');
+        const obj = {
+            "cqt": wasm.toString('base64'),
+        }
+        fs.writeSync(fd, JSON.stringify(obj));
         fs.close(fd, (err) => {
             if (err) throw err;
         });

@@ -320,4 +320,8 @@ export enum BiQuadFilterNames {
     "edit" = "edit",
 }
 
+export const WasmTypes: { [key: string]: WebAssembly.Exports | null } = {
+    cqt: null,
+}
+
 export default {};
