@@ -21,6 +21,8 @@ var exported_functions = [
     '_cqt_calc',
     '_cqt_render_line',
     '_cqt_bin_to_freq',
+    '_cqt_malloc',
+    '_cqt_free',
 ];
 
 var runtime_methods = [
@@ -69,7 +71,7 @@ console.log(`Invocation:\n${compiler} ${chalk.blue(flags.join(' '))} ${chalk.gra
 var build_proc = spawn(compiler, args, { stdio: 'inherit' });
 build_proc.on('exit', function (code) {
     if (code === 0) {
-        //console.log('Moving %s to %s.', wasm_file, wasm_dir);
+        console.log('updating..', providers_json);
         //execSync(`mv ${wasm_file} ${wasm_dir}`);
 
         // Don't use --pre-js because it can get stripped out by closure.

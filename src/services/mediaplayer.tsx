@@ -90,7 +90,6 @@ class MediaPlayer {
         const providers = require("../lib/musicanalysis/providers.json");
         /* init cqt */
         const cqt = decode(providers.cqt);
-        console.log("cqt wasm isValid: ", WebAssembly.validate(cqt));
         const waObj = await WebAssembly.instantiate(cqt, {
             env: {
                 cos: Math.cos,
@@ -99,7 +98,7 @@ class MediaPlayer {
                 logf: Math.log,
             },
         });
-        //const { cqt_init: cqtFunc } = waObj.instance.exports;
+        console.log("cqt wasm isValid: ", WebAssembly.validate(cqt), waObj.instance.exports);
         this.wasm = {
             cqt: waObj.instance.exports,
         }
@@ -182,6 +181,12 @@ class MediaPlayer {
 
         this.wavesurfer.on("ready", () => {
             DispatcherService.dispatch(DispatchEvents.MediaReady);
+            const aNode = this.getPostAnalyzer() as AnalyserNode;
+            if (aNode) {
+                aNode.minDecibels = -90;
+                aNode.maxDecibels = -30;
+                aNode.smoothingTimeConstant = 0.0;
+            }
             this.initShifter();
             this.setWaveformStyle();
             this.loadBeatsTimeline();

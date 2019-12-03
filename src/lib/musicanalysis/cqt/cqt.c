@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #define MAX_FFT_SIZE 32768
 #define MAX_WIDTH 1920
@@ -418,6 +419,17 @@ extern "C"
         double log_end = log(cqt.endfreq);
         double freq = exp(log_base + (bin + 0.5) * (log_end - log_base) * (1.0 / cqt.out_bins));
         return freq;
+    }
+
+    void *cqt_malloc(int size)
+    {
+        return malloc(size);
+    }
+
+    void cqt_free(void *ptr)
+    {
+        if (ptr != NULL)
+            free(ptr);
     }
 
 #ifdef __cplusplus
