@@ -1,0 +1,73 @@
+.spec-canvas {
+    // transform: rotate(-90deg) scaleY(-1);
+    //position: absolute;
+    //top: -0.5vw;
+    // width: 100%;
+    // height: 100%;
+}
+
+.spec-info {
+    display: flex;
+    width: 62%;
+    height: 80%;
+    flex-direction: column;
+    margin: auto;
+    padding: 0;
+}
+
+.spec-info-canvas {
+    height: 80% !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.spec-info-options {
+    height: 20% !important;
+    padding: 0 !important;
+}
+
+.piano-key {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+}
+
+.piano-key>div {
+    //border-bottom-left-radius: 2px;
+    //border-bottom-right-radius: 2px;
+    background-color: #fff;
+    width: 20.23px;
+    height: 80px;
+    color: #10161a;
+    //margin-right: 3.6px;
+}
+
+.piano-key-text {
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+    left: 0;
+    text-align: center;
+    //margin-left: -5px;
+}
+
+.piano-key-note {
+    opacity: .75;
+}
+
+.piano-key-sharp {
+    z-index: 2;
+    width: 0;
+    overflow: visible;
+    vertical-align: top;
+}
+
+.piano-key-sharp>div {
+    position: absolute;
+    top: 0;
+    left: -6px;
+    background-color: #10161a;
+    height: 40px;
+    width: 12px;
+    color: #fff;
+}
