@@ -25,12 +25,13 @@ export class SpectrogramTab extends React.Component<{}, {}> {
     private _totalTime = 0;
     private _timeCount = 0;
     private _lastTime = 0;
+    private raf = 0;
 
     constructor(props: {}) {
         super(props);
         this.specCanvas = React.createRef();
         this.tempCanvas = document.createElement("canvas");
-        this.tempCtx = this.tempCanvas.getContext('2d', { alpha: false });
+        this.tempCtx = null;
         this.specCtx = null;
         this.memory = null;
         this.analyserNode = null;
@@ -47,6 +48,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.initLiveCQT);
+        this.freeCQT();
     }
 
     private initLiveCQT = () => {
@@ -92,6 +94,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
         this.tempCanvas.width = this.specCanvas.current.width;
         this.tempCanvas.height = this.specCanvas.current.height;
 
+        this.tempCtx = this.tempCanvas.getContext('2d', { alpha: false });
         this.specCtx = this.specCanvas.current.getContext('2d', { alpha: false });
 
         this.memory = MediaPlayerService.getCQTProvider("memory") as unknown as WebAssembly.Memory;
@@ -102,7 +105,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
     }
 
     updateFrame = () => {
-        requestAnimationFrame(this.updateFrame);
+        this.raf = requestAnimationFrame(this.updateFrame);
         if (this.memory
             && this.analyserNode
             && this.cqtCalc
@@ -121,7 +124,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
             this.tempCtx.fillStyle = '#000033';
             this.tempCtx.fillRect(0, 0, this.tempCanvas.width, specSpeed);
 
-            const dataHeap = new Float32Array(this.memory.buffer, this.dataPtr as number, this.cqtSize);
+            let dataHeap = new Float32Array(this.memory.buffer, this.dataPtr as number, this.cqtSize);
             const start = performance.now();
             this.analyserNode.getFloatTimeDomainData(dataHeap);
             if (!dataHeap.every(n => n === 0)) {
@@ -151,19 +154,14 @@ export class SpectrogramTab extends React.Component<{}, {}> {
             this.tempCtx.setTransform(1, 0, 0, 1, 0, 0);
 
             this.specCtx.drawImage(this.tempCanvas, 0, 0);
-            // Disabled because this is rendered as plain HTML IMG element
-            // if (this.mode === MODE_CONSTANT_Q) {
-            //   this.specCtx.drawImage(this.pianoKeysImage, 0, 0);
-            // }
 
             const end = performance.now();
-
             this._calcTime += middle - start;
             this._totalTime += end - start;
             this._timeCount += 1;
             if (this._timeCount >= 200) {
                 console.log(
-                    '[Viz] %s ms analysis, %s ms total (%s fps) (%s% utilization)',
+                    '[Spectrogram] %s ms analysis, %s ms total (%s fps) (%s% utilization)',
                     (this._calcTime / this._timeCount).toFixed(2),
                     (this._totalTime / this._timeCount).toFixed(2),
                     (1000 * this._timeCount / (start - this._lastTime)).toFixed(1),
@@ -174,7 +172,18 @@ export class SpectrogramTab extends React.Component<{}, {}> {
                 this._totalTime = 0;
                 this._lastTime = start;
             }
+            dataHeap = new Float32Array(0);
         }
+    }
+
+    mediaReset = () => this.freeCQT();
+
+    freeCQT = () => {
+        cancelAnimationFrame(this.raf);
+        const CQT_FREE = MediaPlayerService.getCQTProvider("cqt_free");
+        if (CQT_FREE) CQT_FREE(this.dataPtr);
+        this.tempCtx = null;
+        this.specCtx = null;
     }
 
     render = () => {

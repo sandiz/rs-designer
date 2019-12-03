@@ -13,7 +13,7 @@ module.exports = override(
             globalObject: 'this'
         },
     }),
-    myOverrides,
+    //myOverrides,
     useBabelRc(),
     useEslintRc(path.resolve(__dirname, '.eslintrc')),
     addWebpackModuleRule(
