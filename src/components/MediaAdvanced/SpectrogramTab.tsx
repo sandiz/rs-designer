@@ -116,16 +116,15 @@ export class SpectrogramTab extends React.Component<{}, {}> {
             const fqHeight = this.specCanvas.current.height;
             const canvasWidth = this.specCanvas.current.width;
             const specSpeed = 2;
-            const hCoeff = fqHeight / 256.0;
+            const hCoeff = fqHeight / 256;
 
-            //const specCtx = this.specCtx;
             this.specCtx.fillStyle = 'black';
             this.specCtx.fillRect(0, 0, this.specCanvas.current.width, this.specCanvas.current.height);
             this.tempCtx.fillStyle = '#000033';
             this.tempCtx.fillRect(0, 0, this.tempCanvas.width, specSpeed);
 
-            let dataHeap = new Float32Array(this.memory.buffer, this.dataPtr as number, this.cqtSize);
-            const start = performance.now();
+            let dataHeap: Float32Array | null = new Float32Array(this.memory.buffer, this.dataPtr as number, this.cqtSize);
+            //const start = performance.now();
             this.analyserNode.getFloatTimeDomainData(dataHeap);
             if (!dataHeap.every(n => n === 0)) {
                 this.cqtCalc(this.dataPtr, this.dataPtr);
@@ -144,17 +143,13 @@ export class SpectrogramTab extends React.Component<{}, {}> {
                     this.tempCtx.fillRect(x, 0, 1, specSpeed);
                 }
             }
-            const middle = performance.now();
-            // tempCtx.drawImage(this.specCanvas, 0, 0);
-            // translate the transformation matrix. subsequent draws happen in this frame
+            //const middle = performance.now();
             this.tempCtx.translate(0, specSpeed);
-            // draw the copied image
             this.tempCtx.drawImage(this.tempCanvas, 0, 0);
-            // reset the transformation matrix
             this.tempCtx.setTransform(1, 0, 0, 1, 0, 0);
-
             this.specCtx.drawImage(this.tempCanvas, 0, 0);
 
+            /*
             const end = performance.now();
             this._calcTime += middle - start;
             this._totalTime += end - start;
@@ -171,8 +166,8 @@ export class SpectrogramTab extends React.Component<{}, {}> {
                 this._timeCount = 0;
                 this._totalTime = 0;
                 this._lastTime = start;
-            }
-            dataHeap = new Float32Array(0);
+            }*/
+            dataHeap = null;
         }
     }
 
