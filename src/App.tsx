@@ -4,7 +4,8 @@ import {
 } from "@blueprintjs/core"
 import { IconNames } from '@blueprintjs/icons';
 import { GlobalHotKeys } from 'react-hotkeys';
-import MediaController from './components/MediaController/MediaController'
+import MediaController from './components/MediaController/MediaController';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import 'normalize.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
@@ -136,11 +137,17 @@ class App extends HotKeyComponent<{}, AppState> {
     return (
       <React.Fragment>
         <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-          <InfoPanel project={this.state.project} />
+          <ErrorBoundary className="info-panel">
+            <InfoPanel project={this.state.project} />
+          </ErrorBoundary>
           <div id="content">
-            <Waveform />
+            <ErrorBoundary className="waveform-root">
+              <Waveform />
+            </ErrorBoundary>
           </div>
-          <MediaController />
+          <ErrorBoundary className="media-bar-sticky">
+            <MediaController />
+          </ErrorBoundary>
           <Dialog
             isOpen={this.state.dialogContent !== null}
             onClose={this.closeDialog}

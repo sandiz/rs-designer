@@ -213,3 +213,29 @@ pre {
     display: flex;
     width: 100%;
 }
+
+.error-callout {
+    display: block;
+    z-index: 10;
+    border-radius: 7px;
+    overflow: auto;
+}
+
+.error-pre {
+    background-color: rgba(16, 22, 26, 0.95) !important;
+    margin-right: 20px;
+}
+
+.error-button-detail {
+    position: absolute;
+    right: 35px;
+    top: 5px;
+    border: 1px solid rgba(16, 22, 26, 0.5);
+}
+
+.error-button-report {
+    position: absolute;
+    right: 105px;
+    top: 5px;
+    border: 1px solid rgba(16, 22, 26, 0.5);
+}
