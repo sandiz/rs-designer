@@ -56,7 +56,8 @@
         "react/no-access-state-in-setstate": "off",
         "no-nested-ternary": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
-        "no-console": "off"
+        "no-console": "off",
+        "@typescript-eslint/no-unused-vars": "off"
     },
     "parser": "@typescript-eslint/parser",
     "extends": [

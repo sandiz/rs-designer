@@ -4,11 +4,18 @@ import {
     Callout, Card, Elevation, Intent, Switch, Slider, FormGroup, HTMLSelect, Text, Colors,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
+import colormap from 'colormap';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 import './Spectrogram.scss'
-import { pitchesFromC, getNoteFrom } from '../../lib/music-utils';
+import { pitchesFromC, getNoteFrom, colorMaps } from '../../lib/music-utils';
+
+type ctype = 'default' | typeof colorMaps[number];
+interface SpecState {
+    sensitivity: number;
+    colormap: ctype;
+}
 
 function getAWeighting(f: number) {
     const f2 = f * f;
@@ -16,10 +23,6 @@ function getAWeighting(f: number) {
         / ((f2 + 424.36) * Math.sqrt((f2 + 11599.29) * (f2 + 544496.41)) * (f2 + 148840000));
 }
 
-interface SpecState {
-    sensitivity: number;
-    colormap: 'default' | 'viridis';
-}
 const chromaScale: { [key: string]: Scale } = {
     default: scale([
         '#000000',
@@ -32,6 +35,14 @@ const chromaScale: { [key: string]: Scale } = {
         '#ffffff',
     ]).domain([0, 255]),
 }
+colorMaps.forEach(item => {
+    chromaScale[item] = scale(colormap({
+        colormap: item,
+        format: 'hex',
+        alpha: 1,
+    })).domain([0, 255])
+});
+console.log(chromaScale);
 export class SpectrogramTab extends React.Component<{}, SpecState> {
     private specCanvas: RefObject<HTMLCanvasElement>;
     private freqCanvas: RefObject<HTMLCanvasElement>;
@@ -48,7 +59,6 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
     private cqtRenderLine: Function | null;
     private aWeightingLUT: Array<number> = [];
     private cqtFreqs: Array<number> = [];
-    private colorMap: chroma.Scale<chroma.Color> | null;
     private _calcTime = 0;
     private _totalTime = 0;
     private _timeCount = 0;
@@ -68,7 +78,6 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         this.analyserNode = null;
         this.cqtCalc = null;
         this.cqtRenderLine = null;
-        this.colorMap = null;
         this.keyRef = [];
         this.state = { sensitivity: 150, colormap: 'default' }
     }
@@ -99,7 +108,6 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         const fMax = 4504.0;
         this.cqtSize = CQT_INIT(MediaPlayerService.getSampleRate(), cqtBins, db, fMin, fMax, supersample);
         if (!this.cqtSize) throw Error('Error initializing constant Q transform.');
-        this.colorMap = chromaScale[this.state.colormap];
 
         const CQT_BIN_TO_FREQ = MediaPlayerService.getCQTProvider("cqt_bin_to_freq");
         if (!CQT_BIN_TO_FREQ) return console.error("cqt provider entry point not found", "cqt_bin_to_freq");
@@ -131,6 +139,13 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         return true;
     }
 
+    private resetKeys = () => {
+        this.keyRef.forEach(item => {
+            if (item.parentElement && item.parentElement.classList.contains("piano-key-sharp")) item.style.backgroundColor = "#10161a";
+            else item.style.backgroundColor = "white";
+        });
+    }
+
     private updateFrame = () => {
         this.raf = requestAnimationFrame(this.updateFrame);
         if (this.memory
@@ -139,13 +154,14 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
             && this.cqtRenderLine
             && this.specCanvas.current
             && this.freqCanvas.current
-            && this.specCtx && this.tempCtx && this.colorMap && this.freqCtx
+            && this.specCtx && this.tempCtx && this.freqCtx
         ) {
             const fqHeight = this.freqCanvas.current.height;
             const canvasWidth = this.freqCanvas.current.width;
             const specSpeed = 2;
             const hCoeff = fqHeight / 256.0;
 
+            const colorMap = chromaScale[this.state.colormap as string];
             this.freqCtx.fillStyle = 'black';//'#30404E';
             this.freqCtx.fillRect(0, 0, this.freqCanvas.current.width, this.freqCanvas.current.height);
             this.tempCtx.fillStyle = '000033';//'#30404E';
@@ -159,17 +175,14 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                 this.cqtRenderLine(this.dataPtr);
 
                 //const each = (canvasWidth / 88);
-                this.keyRef.forEach(item => {
-                    if (item.parentElement && item.parentElement.classList.contains("piano-key-sharp")) item.style.backgroundColor = "#10161a";
-                    else item.style.backgroundColor = "white";
-                });
+                this.resetKeys();
                 for (let x = 0; x < canvasWidth; x += 1) {
                     const weighting = this.aWeightingLUT[x];
                     //eslint-disable-next-line
                     const val = 255 * weighting * dataHeap[x] | 0;
                     //eslint-disable-next-line
                     const h = val * hCoeff | 0;
-                    const style = this.colorMap(val).hex();
+                    const style = colorMap(val).hex();
                     if (val > this.state.sensitivity) {
                         const freq = this.cqtFreqs[x];
                         const idx = getNoteFrom(Math.round(freq))[0];
@@ -222,6 +235,15 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         cancelAnimationFrame(this.raf);
         const CQT_FREE = MediaPlayerService.getCQTProvider("cqt_free");
         if (CQT_FREE) CQT_FREE(this.dataPtr);
+        if (this.freqCtx && this.freqCanvas.current) {
+            this.freqCtx.clearRect(0, 0, this.freqCanvas.current.width, this.freqCanvas.current.height);
+        }
+        if (this.specCtx && this.specCanvas.current) {
+            this.specCtx.clearRect(0, 0, this.specCanvas.current.width, this.specCanvas.current.height);
+        }
+        this.resetKeys();
+
+        this.freqCtx = null;
         this.tempCtx = null;
         this.specCtx = null;
     }
@@ -238,7 +260,7 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                         <Callout style={{ width: 80 + '%' }}>
                             <Text>Options</Text>
                             <br />
-                            <FormGroup label="Sensitivity">
+                            <FormGroup label="Note Sensitivity">
                                 <Slider
                                     min={0}
                                     max={255}
@@ -253,9 +275,18 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                                 />
                             </FormGroup>
                             <FormGroup label="Colormap" inline>
-                                <HTMLSelect>
-                                    <option value="lowpass">viridis</option>
-                                    <option value="highpass">rainbow</option>
+                                <HTMLSelect
+                                    onChange={v => {
+                                        this.setState({ colormap: v.target.value as ctype });
+                                        v.target.blur();
+                                    }}
+                                    value={this.state.colormap}>
+                                    <option value="default">default</option>
+                                    {
+                                        colorMaps.map((item) => {
+                                            return <option key={item} value={item}>{item}</option>
+                                        })
+                                    }
                                 </HTMLSelect>
                             </FormGroup>
                         </Callout>

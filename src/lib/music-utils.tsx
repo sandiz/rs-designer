@@ -391,3 +391,13 @@ export const getNoteFrom = (freq: number): [number, string] => {
     const note = hzToNote(freq);
     return [keys.indexOf(note), note];
 }
+
+
+export const colorMaps = [
+    "alpha", "autumn", "bathymetry", "blackbody", "bluered", "bone", "cdom",
+    "chlorophyll", "cool", "copper", "cubehelix", "density", "earth", "electric",
+    "freesurface-blue", "freesurface-red", "greens", "greys", "hot", "hsv", "inferno",
+    "jet", "magma", "oxygen", "par", "phase", "picnic", "plasma", "portland", "rainbow",
+    "rainbow-soft", "rdbu", "salinity", "spring", "summer", "temperature", "turbidity",
+    "velocity-blue", "velocity-green", "viridis", "warm", "winter", "yignbu", "yiorrd",
+] as const;
