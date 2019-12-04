@@ -1,5 +1,6 @@
 import React, { RefObject } from 'react';
 import { scale, Scale } from 'chroma-js';
+import Tone from 'tone';
 import {
     Callout, Card, Elevation, Intent, Switch, Slider, FormGroup, HTMLSelect, Text, Colors,
 } from '@blueprintjs/core';
@@ -9,7 +10,9 @@ import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 import './Spectrogram.scss'
-import { pitchesFromC, getNoteFrom, colorMaps } from '../../lib/music-utils';
+import {
+    pitchesFromC, getNoteFrom, colorMaps, noteToHz,
+} from '../../lib/music-utils';
 import { setStateAsync } from '../../lib/utils';
 
 type ctype = 'default' | typeof colorMaps[number];
@@ -17,6 +20,7 @@ interface SpecState {
     sensitivity: number;
     colormap: ctype;
     eqAware: boolean;
+    isTriggeringSynth: boolean;
 }
 
 function getAWeighting(f: number) {
@@ -66,6 +70,8 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
     private _lastTime = 0;
     private raf = 0;
     private lastMax = 0;
+    private synth: unknown;
+    private lastModifiedKeyRefs: HTMLDivElement[] = [];
 
     constructor(props: {}) {
         super(props);
@@ -80,7 +86,9 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         this.cqtCalc = null;
         this.cqtRenderLine = null;
         this.keyRef = [];
-        this.state = { sensitivity: 150, colormap: 'default', eqAware: false }
+        this.state = {
+            sensitivity: 150, colormap: 'default', eqAware: false, isTriggeringSynth: false,
+        }
     }
 
     componentDidMount = async () => {
@@ -89,12 +97,17 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         if (MediaPlayerService.isActive()) {
             this.initLiveCQT();
         }
+        this.synth = new Tone.Synth().toMaster();
     }
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.initLiveCQT);
         DispatcherService.off(DispatchEvents.MediaReset, this.freeCQT);
         this.freeCQT();
+        //eslint-disable-next-line
+        (this.synth as any).disconnect();
+        //eslint-disable-next-line
+        (this.synth as any).dispose();
     }
 
     toggleEQAware = async (event: React.FormEvent<HTMLInputElement>) => {
@@ -153,8 +166,9 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         return true;
     }
 
-    private resetKeys = () => {
-        this.keyRef.forEach(item => {
+    private resetKeys = (arr: HTMLDivElement[] | null = null) => {
+        const a = arr || this.keyRef;
+        a.forEach(item => {
             if (item.parentElement && item.parentElement.classList.contains("piano-key-sharp")) item.style.backgroundColor = "#10161a";
             else item.style.backgroundColor = "white";
         });
@@ -188,8 +202,8 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                 this.cqtCalc(this.dataPtr, this.dataPtr);
                 this.cqtRenderLine(this.dataPtr);
 
-                //const each = (canvasWidth / 88);
-                this.resetKeys();
+                if (this.lastModifiedKeyRefs.length > 0) this.resetKeys(this.lastModifiedKeyRefs);
+                this.lastModifiedKeyRefs = [];
                 let cnt = 0;
                 for (let x = 0; x < canvasWidth; x += 1) {
                     const weighting = this.aWeightingLUT[x];
@@ -207,6 +221,7 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                             if (this.keyRef.length > idx) {
                                 const div = this.keyRef[idx];
                                 div.style.backgroundColor = Colors.BLUE5;
+                                this.lastModifiedKeyRefs.push(div);
                                 cnt += 1
                             }
                         }
@@ -265,6 +280,36 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         this.specCtx = null;
     }
 
+    private triggerSynth = (note: string) => {
+        const idx = getNoteFrom(noteToHz(note))[0];
+        const keyref = this.keyRef[idx];
+        keyref.style.backgroundColor = Colors.BLUE5;
+        //eslint-disable-next-line
+        (this.synth as any).triggerRelease();
+        //eslint-disable-next-line
+        (this.synth as any).triggerAttack(note, '8n');
+        this.setState({ isTriggeringSynth: true });
+    }
+
+    private releaseSynth = () => {
+        this.resetKeys();
+        //eslint-disable-next-line
+        (this.synth as any).triggerRelease();
+        this.setState({ isTriggeringSynth: false });
+    }
+
+    private onMouseEnter = (note: string) => {
+        if (this.state.isTriggeringSynth) {
+            this.triggerSynth(note);
+        }
+    }
+
+    private onMouseLeave = () => {
+        if (this.state.isTriggeringSynth) {
+            this.releaseSynth();
+        }
+    }
+
     render = () => {
         return (
             <div className="spec-root">
@@ -314,15 +359,28 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                 </Card>
                 <Card key="spec-panel" elevation={Elevation.TWO} className="spec-info">
                     <Callout className="spec-info-options" icon={false}>
-                        <div className="piano-key">
-                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                        <div
+                            onMouseDown={() => this.triggerSynth('A0')}
+                            onMouseUp={() => this.releaseSynth()}
+                            onMouseEnter={() => this.onMouseEnter('A0')}
+                            onMouseLeave={() => this.onMouseLeave()}
+                            className="piano-key"
+                        >
+                            <div
+                                className="bp3-elevation-2"
+                                ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                 <div className="piano-key-text">
                                     <span className="piano-key-note">A</span>
                                     <br />
                                 </div>
                             </div>
                         </div>
-                        <div className="piano-key piano-key-sharp">
+                        <div
+                            onMouseDown={() => this.triggerSynth('A#0')}
+                            onMouseUp={() => this.releaseSynth()}
+                            onMouseEnter={() => this.onMouseEnter('A#0')}
+                            onMouseLeave={() => this.onMouseLeave()}
+                            className="piano-key piano-key-sharp">
                             <div className="" ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                 <div className="piano-key-text">
                                     <span className="piano-key-note" />
@@ -330,7 +388,12 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                                 </div>
                             </div>
                         </div>
-                        <div className="piano-key">
+                        <div
+                            onMouseDown={() => this.triggerSynth('B0')}
+                            onMouseUp={() => this.releaseSynth()}
+                            onMouseEnter={() => this.onMouseEnter('B0')}
+                            onMouseLeave={() => this.onMouseLeave()}
+                            className="piano-key">
                             <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                 <div className="piano-key-text">
                                     <span className="piano-key-note">B</span>
@@ -342,7 +405,13 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                             [1, 2, 3, 4, 5, 6, 7].map((idx) => {
                                 return pitchesFromC.map((note) => {
                                     return (
-                                        <div key={note + idx} className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
+                                        <div
+                                            onMouseDown={() => this.triggerSynth(`${note}${idx}`)}
+                                            onMouseUp={() => this.releaseSynth()}
+                                            onMouseEnter={() => this.onMouseEnter(`${note}${idx}`)}
+                                            onMouseLeave={() => this.onMouseLeave()}
+                                            key={note + idx}
+                                            className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
                                             <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                                 <div className="piano-key-text">
                                                     <span className="piano-key-note">{note.includes("#") ? "" : note}</span>
@@ -355,7 +424,12 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                             })
 
                         }
-                        <div className="piano-key">
+                        <div
+                            onMouseDown={() => this.triggerSynth('C8')}
+                            onMouseUp={() => this.releaseSynth()}
+                            onMouseEnter={() => this.onMouseEnter('C8')}
+                            onMouseLeave={() => this.onMouseLeave()}
+                            className="piano-key">
                             <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                 <div className="piano-key-text">
                                     <span className="piano-key-note">C</span>

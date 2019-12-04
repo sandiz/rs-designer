@@ -39,6 +39,7 @@
     "soundtouchjs": "https://github.com/sandiz/SoundTouchJS.git",
     "teoria": "^2.5.0",
     "tmp": "^0.1.0",
+    "tone": "^13.8.25",
     "typeface-inconsolata": "^0.0.72",
     "typeface-magra": "^0.0.71",
     "vexchords": "^1.2.0",

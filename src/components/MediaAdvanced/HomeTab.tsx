@@ -240,11 +240,6 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
                         [ offline - mode ] - runs local analysis, supports the following providers:
                     </Callout>
                 </Callout>
-                <div className="home-analysis-buttons">
-                    {
-                        this.onlineRender()
-                    }
-                </div>
             </Card>
         )
     }
