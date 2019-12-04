@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import {
     Callout, Tag, Switch, Intent,
     Popover, H4, Classes, Slider,
-    HTMLSelect, FormGroup, Menu, MenuItem, Card, Colors,
+    HTMLSelect, FormGroup, Menu, MenuItem, Card, Colors, Elevation,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
@@ -18,7 +18,6 @@ import { MixerProps } from './MixerTab';
 
 const { nativeTheme, shell } = window.require("electron").remote;
 interface EqualizerState {
-    enableSpectrum: boolean;
     enableEQ: boolean;
     errorMsg: React.ReactNode | null;
     tags: EQTag[];
@@ -33,18 +32,18 @@ const Q_MAX = 15;
 const FREQ_MIN = 30;
 const FREQ_MAX = 16000;
 const CANVAS_BG_FILL = { dark: "#30404E", light: Colors.WHITE };
-export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> {
-    static MAX_TAGS = 8;
+export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
+    static MAX_TAGS = 11;
     static TAG_COLORS = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
     static Q_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking"];
     static G_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowshelf", "highshelf", "peaking"];
-    private canvasRef: RefObject<Callout> = React.createRef();
+    private canvasRef: RefObject<HTMLDivElement> = React.createRef();
     //eslint-disable-next-line
     private audioMotion: any | null = null;
     constructor(props: MixerProps) {
         super(props);
         this.state = {
-            enableSpectrum: false, enableEQ: false, errorMsg: null, tags: [], presets: null, lastUsedTag: null,
+            enableEQ: false, errorMsg: null, tags: [], presets: null, lastUsedTag: null,
         };
         this.initEQ();
     }
@@ -53,6 +52,10 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.EqualizerToggled, this.eqToggled);
+        DispatcherService.on(DispatchEvents.ProjectClosed, this.mediaReset);
+        if (MediaPlayerService.isActive()) {
+            this.initAudioMotion();
+        }
     }
 
     componentWillUnmount = () => {
@@ -60,15 +63,23 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.EqualizerToggled, this.eqToggled);
+        DispatcherService.off(DispatchEvents.ProjectClosed, this.mediaReset);
         this.endSpectrum();
     }
 
     mediaReady = () => {
         this.initEQ();
+        this.initAudioMotion();
     }
 
     mediaReset = () => {
         this.endSpectrum();
+        const { tags } = this.state;
+        for (let i = 0; i < tags.length; i += 1) {
+            tags[i].gain = 0;
+            tags[i].q = 1;
+        }
+        this.setState({ tags });
     }
 
     initEQ = async () => {
@@ -99,7 +110,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                     start: true,
                     width: undefined,
                     showPeaks: false,
-                    showScale: false,
+                    showScale: true,
                     showBgColor: false,
                     gradient: 'cool',
                     audioCtx: MediaPlayerService.getAudioContext(),
@@ -126,18 +137,14 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
             if (this.canvasRef.current) {
                 this.setState({ errorMsg: <div>audioMotion failed with error: <em>{err.toString()}</em></div> })
                 console.log("audioMotion error: " + err);
+                const container = document.getElementById("container");
+                if (container) {
+                    while (container.firstChild) {
+                        container.removeChild(container.firstChild);
+                    }
+                }
             }
         }
-    }
-
-    componentDidUpdate = () => {
-        if (this.state.enableSpectrum && this.audioMotion == null) {
-            this.initAudioMotion();
-        }
-    }
-
-    startSpectrum = async () => {
-        setStateAsync(this, { enableSpectrum: true });
     }
 
     endSpectrum = () => {
@@ -151,15 +158,15 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                 container.removeChild(container.firstChild);
             }
         }
-        this.setState({ enableSpectrum: false });
+        this.setState({ enableEQ: false });
     }
 
     addTag = () => {
         const t: EQTag = {
-            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: EqualizerPanel.TAG_COLORS[this.state.tags.length],
+            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: EqualizerTab.TAG_COLORS[this.state.tags.length],
         };
         const { tags } = this.state;
-        if (tags.length < EqualizerPanel.MAX_TAGS) {
+        if (tags.length < EqualizerTab.MAX_TAGS) {
             tags.unshift(t);
             this.setState({ tags });
             MediaPlayerService.addEQFilter(t);
@@ -177,7 +184,7 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
                 q: t.q ? t.q : 1,
                 type: t.type ? t.type : "edit",
                 id: UUID(),
-                color: EqualizerPanel.TAG_COLORS[i],
+                color: EqualizerTab.TAG_COLORS[i],
             };
             tags.push(newt);
         }
@@ -195,16 +202,6 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
             }
         }
         this.setState({ tags });
-    }
-
-    toggleSpectrum = (e: React.FormEvent<HTMLInputElement>) => {
-        if (e.currentTarget.checked) {
-            this.startSpectrum();
-        }
-        else {
-            this.endSpectrum();
-        }
-        e.currentTarget.blur();
     }
 
     toggleEQ = (e: React.FormEvent<HTMLInputElement>) => {
@@ -262,8 +259,8 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
     }
 
     getTagDialog = (item: EQTag): string | JSX.Element | undefined => {
-        const isQ = EqualizerPanel.Q_FILTERS.includes(item.type);
-        const isG = EqualizerPanel.G_FILTERS.includes(item.type)
+        const isQ = EqualizerTab.Q_FILTERS.includes(item.type);
+        const isG = EqualizerTab.G_FILTERS.includes(item.type)
         return (
             <div className="eq-edit">
                 <H4 className="font-weight-unset">Edit Filter</H4>
@@ -370,106 +367,111 @@ export class EqualizerPanel extends React.Component<MixerProps, EqualizerState> 
 
     render = () => {
         return (
-            <React.Fragment>
-                <div className="mixer-eq">
-                    <div className="mixer-eq-top">
-                        <Callout className="mixer-eq-list" icon={false} intent={this.state.enableEQ ? Intent.WARNING : Intent.PRIMARY}>
-                            <div className="mixer-key-font">EQ</div>
-                            <div className="">
-                                <Switch checked={this.state.enableEQ} className={classNames({ "eq-checked-warning": this.state.enableEQ })} onChange={this.toggleEQ}>Enable</Switch>
-                            </div>
-                        </Callout>
-                        <Callout className="mixer-eq-tags">
-                            <Tag
-                                key="add-eq"
-                                onClick={this.addTag}
-                                className="eq-tag eq-tag-no-grow"
-                                minimal
-                                interactive={this.state.tags.length < EqualizerPanel.MAX_TAGS}
-                                large
-                                icon={IconNames.ADD}>
-                                EQ FIlter
-                                </Tag>
-                            <Popover content={this.state.presets ? this.state.presets : undefined}>
+            <div className="eq-root">
+                <Card elevation={Elevation.TWO} className="eq-first-pane">
+                    <div className="mixer-eq">
+                        <div className="mixer-eq-top">
+                            <Callout className="mixer-eq-list" icon={false} intent={this.state.enableEQ ? Intent.WARNING : Intent.PRIMARY}>
+                                <div className="mixer-key-font">EQ</div>
+                                <div className="">
+                                    <Switch checked={this.state.enableEQ} className={classNames({ "eq-checked-warning": this.state.enableEQ })} onChange={this.toggleEQ}>Enable</Switch>
+                                </div>
+                            </Callout>
+                            <Callout className="mixer-eq-tags">
                                 <Tag
-                                    key="add-preset"
+                                    key="add-eq"
+                                    onClick={this.addTag}
                                     className="eq-tag eq-tag-no-grow"
                                     minimal
-                                    interactive
+                                    interactive={this.state.tags.length < EqualizerTab.MAX_TAGS}
                                     large
-                                    icon={IconNames.PROPERTIES}>
-                                    EQ Presets
+                                    icon={IconNames.ADD}>
+                                    EQ FIlter
+                                </Tag>
+                                <Popover content={this.state.presets ? this.state.presets : undefined}>
+                                    <Tag
+                                        key="add-preset"
+                                        className="eq-tag eq-tag-no-grow"
+                                        minimal
+                                        interactive
+                                        large
+                                        icon={IconNames.PROPERTIES}>
+                                        EQ Presets
                              </Tag>
-                            </Popover>
-                            {
-                                this.state.tags.map((item: EQTag) => {
-                                    const v = item.freq;
-                                    const t = v >= 1000 ? Math.round(v / 1000) + "k" : v.toString();
-                                    return (
-                                        <Popover
-                                            popoverClassName={classNames(Classes.POPOVER_CONTENT_SIZING, "eq-extra-padding")}
-                                            key={item.id}
-                                            content={this.getTagDialog(item)}
-                                        >
-                                            <Tag
-                                                //style={{ backgroundColor: item.color }}
-                                                className="eq-tag"
-                                                interactive
-                                                large
+                                </Popover>
+                                {
+                                    this.state.tags.map((item: EQTag) => {
+                                        const v = item.freq;
+                                        const t = v >= 1000 ? Math.round(v / 1000) + "k" : v.toString();
+                                        return (
+                                            <Popover
+                                                popoverClassName={classNames(Classes.POPOVER_CONTENT_SIZING, "eq-extra-padding")}
                                                 key={item.id}
-                                                intent={Intent.NONE}
-                                                onRemove={() => this.removeTag(item.id)}
+                                                content={this.getTagDialog(item)}
                                             >
-                                                <span className="number">{t}Hz</span>
-                                            </Tag>
-                                        </Popover>
-                                    )
-                                })
-                            }
-                        </Callout>
-                    </div>
-                    <div className="eq-slider-row">
-                        <div className="eq-toggle-spectrum"><Switch onChange={this.toggleSpectrum}>Spectrum</Switch> </div>
-                        <div className="eq-slider-flex">
-                            {
-                                this.state.tags.map((item) => {
-                                    const t = item.freq >= 1000 ? Math.round(item.freq / 1000) + "k" : item.freq.toString();
-                                    return (
-                                        <div key={item.id} style={{ display: 'flex', flexDirection: "column" }}>
-                                            <Slider
-                                                className={classNames({ warningslider: item.gain !== 0 })}
-                                                min={GAIN_MIN}
-                                                max={GAIN_MAX}
-                                                stepSize={1}
-                                                labelStepSize={40}
-                                                value={item.gain}
-                                                labelRenderer={(
-                                                    this.state.lastUsedTag && this.state.lastUsedTag.id === item.id
-                                                        ? v => {
-                                                            return (
-                                                                <span className="number">{v}dB</span>
-                                                            );
-                                                        }
-                                                        : false
-                                                )}
-                                                onRelease={v => this.onChangeQGainType("gain", item, v)}
-                                                onChange={v => this.onChangeQGainType("gain", item, v)}
-                                                vertical
-                                            />
-                                            <Tag className="number hznum">{t}</Tag>
-                                        </div>
-                                    );
-                                })
-                            }
+                                                <Tag
+                                                    //style={{ backgroundColor: item.color }}
+                                                    className="eq-tag"
+                                                    interactive
+                                                    large
+                                                    key={item.id}
+                                                    intent={Intent.NONE}
+                                                    onRemove={() => this.removeTag(item.id)}
+                                                >
+                                                    <span className="number">{t}Hz</span>
+                                                </Tag>
+                                            </Popover>
+                                        )
+                                    })
+                                }
+                            </Callout>
+                        </div>
+                        <div className="eq-slider-row">
+                            <div className="eq-slider-flex">
+                                {
+                                    this.state.tags.map((item) => {
+                                        const t = item.freq >= 1000 ? Math.round(item.freq / 1000) + "k" : item.freq.toString();
+                                        return (
+                                            <div key={item.id} style={{ display: 'flex', flexDirection: "column" }}>
+                                                <Slider
+                                                    className={classNames({ warningslider: item.gain !== 0 })}
+                                                    min={GAIN_MIN}
+                                                    max={GAIN_MAX}
+                                                    stepSize={1}
+                                                    labelStepSize={40}
+                                                    value={item.gain}
+                                                    labelRenderer={(
+                                                        this.state.lastUsedTag && this.state.lastUsedTag.id === item.id
+                                                            ? v => {
+                                                                return (
+                                                                    <span className="number">{v}dB</span>
+                                                                );
+                                                            }
+                                                            : false
+                                                    )}
+                                                    onRelease={v => this.onChangeQGainType("gain", item, v)}
+                                                    onChange={v => this.onChangeQGainType("gain", item, v)}
+                                                    vertical
+                                                />
+                                                <Tag className="number hznum">{t}</Tag>
+                                            </div>
+                                        );
+                                    })
+                                }
+                            </div>
                         </div>
                     </div>
-                    <Card className="mixer-eq-container" id="container" ref={this.canvasRef}>
-                        {this.state.errorMsg}
-                    </Card>
-                </div>
-            </React.Fragment>
+                </Card>
+                <Card elevation={Elevation.TWO} className="eq-card">
+                    {
+                        this.state.errorMsg
+                            ? <Callout>{this.state.errorMsg}</Callout>
+                            : <div className="mixer-eq-container" id="container" ref={this.canvasRef} />
+                    }
+                </Card>
+            </div>
         )
     }
 }
 
-export default EqualizerPanel;
+export default EqualizerTab;

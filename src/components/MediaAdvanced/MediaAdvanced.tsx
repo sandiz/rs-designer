@@ -12,6 +12,7 @@ import { DispatcherService, DispatchEvents, DispatchData } from '../../services/
 const MixerTab = React.lazy(() => import('./MixerTab'));
 const HomeTab = React.lazy(() => import('./HomeTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
+const EqualizerTab = React.lazy(() => import("./EQPanel"));
 interface MediaAdvancedState {
     currentTab: TabId | undefined;
     metadata: ProjectMetadata;
@@ -86,6 +87,9 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 break;
             case TABID_HOME:
                 elem = <HomeTab key={TABID_HOME} metadata={this.state.metadata} />
+                break;
+            case TABID_EQUALIZER:
+                elem = <EqualizerTab key={TABID_EQUALIZER} metadata={this.state.metadata} />
                 break;
             case TABID_SPEC:
                 elem = <SpectrogramTab key={TABID_SPEC} />

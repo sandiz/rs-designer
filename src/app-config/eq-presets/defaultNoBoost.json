@@ -19,6 +19,10 @@
             "type": "peaking"
         },
         {
+            "freq": 600,
+            "type": "peaking"
+        },
+        {
             "freq": 1000,
             "type": "peaking"
         },
@@ -36,6 +40,10 @@
         },
         {
             "freq": 16000,
+            "type": "highshelf"
+        },
+        {
+            "freq": 20000,
             "type": "highshelf"
         }
     ]

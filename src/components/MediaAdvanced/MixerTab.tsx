@@ -6,7 +6,6 @@ import {
     ProjectMetadata,
 } from '../../types';
 
-const EqualizerPanel = React.lazy(() => import("./EQPanel"));
 const TempoPanel = React.lazy(() => import("./TempoPanel"));
 const KeyPanel = React.lazy(() => import("./KeyPanel"));
 
@@ -24,11 +23,6 @@ export const MixerTab: FunctionComponent<MixerProps> = (props: MixerProps) => (
                 </Card>
                 <Card key="tempo-panel" elevation={Elevation.TWO} className="mixer-panel tempo-panel">
                     <TempoPanel key="tempo" metadata={props.metadata} />
-                </Card>
-            </div>
-            <div key="right" className="mixer-right">
-                <Card key="eq-panel" elevation={Elevation.TWO} className="mixer-panel eq-panel">
-                    <EqualizerPanel key="eq" metadata={props.metadata} />
                 </Card>
             </div>
         </div>
