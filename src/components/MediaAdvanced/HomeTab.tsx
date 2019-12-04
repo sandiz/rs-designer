@@ -24,14 +24,8 @@ interface HomeTabState {
     currentAnalysisMode: "offline" | "online";
     defaultMsg: Msg;
     updateMsg: Msg | null;
-    isOfflineAnalysisInProgress: boolean;
 }
 
-interface OfflineItems {
-    title: string;
-    description: string;
-    analyseFn: () => void;
-}
 interface PurchaseItems {
     title: string;
     cost: number;
@@ -46,7 +40,7 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
     constructor(props: HomeTabProps) {
         super(props);
         this.state = {
-            currentAnalysisMode: "offline", defaultMsg: { ...emptyMsg }, updateMsg: null, isOfflineAnalysisInProgress: false,
+            currentAnalysisMode: "online", defaultMsg: { ...emptyMsg }, updateMsg: null,
         };
     }
 
@@ -69,7 +63,6 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
     }
 
     maStatus = () => {
-        this.setState({ isOfflineAnalysisInProgress: MusicAnalysisService.isAnalysisInProgress() });
     }
 
     projectClosed = async () => {
@@ -217,54 +210,6 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
         );
     }
 
-    offlineRender = () => {
-        const analysisOptions: OfflineItems[] = [
-            {
-                title: "Key Detection",
-                description: "detects the key of the song using the Temperley-Krumhansl-Schmuckler algorithm.",
-                analyseFn: MusicAnalysisService.analyseKey,
-            },
-            {
-                title: "Tempo Detection",
-                description: "detects the tempo in beats-per-minute (bpm) using the Zapata-Gomez algorithm.",
-                analyseFn: MusicAnalysisService.analyseTempo,
-            },
-            {
-                title: "Beat Tracking",
-                description: "detects the beat positions using the Zapata-Gomez algorithm.",
-                analyseFn: MusicAnalysisService.analyseBeats,
-            },
-            {
-                title: "Chord Analysis",
-                description: "detects chords used in the song using a Conditional Random Field.",
-                analyseFn: MusicAnalysisService.analyseChords,
-            },
-        ];
-        return analysisOptions.map((item) => {
-            return (
-                <Callout key={item.title} icon={IconNames.LAYOUT_AUTO} className="d-flex offline-icon">
-                    <div className="offline-item-name">
-                        <div>{item.title}</div>
-                        <span className={Classes.TEXT_MUTED}>{item.description}</span>
-                    </div>
-                    <div className="offline-item-action">
-                        <Button
-                            disabled={this.state.isOfflineAnalysisInProgress || this.props.metadata.isEmpty()}
-                            icon={IconNames.PULSE}
-                            className="offline-buttons"
-                            onClick={item.analyseFn}
-                        >
-                            {
-                                this.state.isOfflineAnalysisInProgress
-                                    ? "In Progress.."
-                                    : "Analyze"
-                            }
-                        </Button>
-                    </div>
-                </Callout>
-            )
-        })
-    }
 
     render = () => {
         const isOnline = this.state.currentAnalysisMode === "online";
@@ -297,9 +242,7 @@ class HomeTab extends React.Component<HomeTabProps, HomeTabState> {
                 </Callout>
                 <div className="home-analysis-buttons">
                     {
-                        isOnline
-                            ? this.onlineRender()
-                            : this.offlineRender()
+                        this.onlineRender()
                     }
                 </div>
             </Card>
