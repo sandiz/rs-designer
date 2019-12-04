@@ -461,6 +461,13 @@ class MediaPlayer {
         return null;
     }
 
+    public getAnalyzer = (): AnalyserNode | null => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.backend.analyser;
+        }
+        return null;
+    }
+
     public addEQFilters = (tags: EQTag[]) => {
         if (this.wavesurfer && this.audioContext) {
             const filters: EQFilter[] = [];

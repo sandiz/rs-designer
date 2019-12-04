@@ -24,7 +24,8 @@ interface MediaAdvancedProps {
 }
 
 const TABID_HOME = "home" as TabId;
-const TABID_MIXER = "mixer" as TabId;
+const TABID_ANALYSIS = "analysis" as TabId;
+const TABID_EQUALIZER = "equalizer" as TabId;
 const TABID_CLOUDANALYSIS = "cloud" as TabId;
 const TABID_SPEC = "spectrogram" as TabId;
 const TABID_ISOLATION = "isolation" as TabId;
@@ -32,7 +33,7 @@ const TABID_PITCH_TRACKING = "pitch-tracking" as TabId;
 const TABID_REGIONS = "regions" as TabId;
 const TABID_CDLC = "cdlc" as TabId;
 const TABID_LYRICS = "lyrics" as TabId;
-const TABID_VIDEO = "video-ref" as TabId;
+const TABID_NOTES = "video-ref" as TabId;
 
 class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
@@ -80,8 +81,8 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
     getTab = (tabid: TabId | undefined): React.ReactElement | null => {
         let elem: React.ReactElement | null = null;
         switch (tabid) {
-            case TABID_MIXER:
-                elem = <MixerTab key={TABID_MIXER} metadata={this.state.metadata} />
+            case TABID_ANALYSIS:
+                elem = <MixerTab key={TABID_ANALYSIS} metadata={this.state.metadata} />
                 break;
             case TABID_HOME:
                 elem = <HomeTab key={TABID_HOME} metadata={this.state.metadata} />
@@ -143,7 +144,8 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                             selectedTabId={this.state.currentTab}
                         >
                             <Tab id={TABID_HOME} title="Home" />
-                            <Tab id={TABID_MIXER} title="Mixer" />
+                            <Tab id={TABID_ANALYSIS} title="Analysis" />
+                            <Tab id={TABID_EQUALIZER} title="Equalizer" />
                             <Tab id={TABID_SPEC} title="Chromagram" />
                             <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
                             <Tab id={TABID_ISOLATION} title="Track Isolation" />
@@ -151,7 +153,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                             <Tab id={TABID_REGIONS} title="Regions" />
                             <Tab id={TABID_CDLC} title="CDLC" />
                             <Tab id={TABID_LYRICS} title="Lyrics" />
-                            <Tab id={TABID_VIDEO} title="Video Refs" />
+                            <Tab id={TABID_NOTES} title="Notes" />
                         </Tabs>
                     </Navbar.Group>
                 </Navbar>

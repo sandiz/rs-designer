@@ -10,11 +10,13 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 import './Spectrogram.scss'
 import { pitchesFromC, getNoteFrom, colorMaps } from '../../lib/music-utils';
+import { setStateAsync } from '../../lib/utils';
 
 type ctype = 'default' | typeof colorMaps[number];
 interface SpecState {
     sensitivity: number;
     colormap: ctype;
+    eqAware: boolean;
 }
 
 function getAWeighting(f: number) {
@@ -42,7 +44,6 @@ colorMaps.forEach(item => {
         alpha: 1,
     })).domain([0, 255])
 });
-console.log(chromaScale);
 export class SpectrogramTab extends React.Component<{}, SpecState> {
     private specCanvas: RefObject<HTMLCanvasElement>;
     private freqCanvas: RefObject<HTMLCanvasElement>;
@@ -79,7 +80,7 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         this.cqtCalc = null;
         this.cqtRenderLine = null;
         this.keyRef = [];
-        this.state = { sensitivity: 150, colormap: 'default' }
+        this.state = { sensitivity: 150, colormap: 'default', eqAware: false }
     }
 
     componentDidMount = async () => {
@@ -94,6 +95,18 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         DispatcherService.off(DispatchEvents.MediaReady, this.initLiveCQT);
         DispatcherService.off(DispatchEvents.MediaReset, this.freeCQT);
         this.freeCQT();
+    }
+
+    toggleEQAware = async (event: React.FormEvent<HTMLInputElement>) => {
+        event.currentTarget.blur();
+        const { eqAware } = this.state;
+        await setStateAsync(this, { eqAware: !eqAware });
+        this.analyserNode = this.state.eqAware ? MediaPlayerService.getPostAnalyzer() as AnalyserNode
+            : MediaPlayerService.getAnalyzer() as AnalyserNode;
+        this.analyserNode.fftSize = this.cqtSize;
+        this.analyserNode.smoothingTimeConstant = 0;
+        this.analyserNode.minDecibels = -90;
+        this.analyserNode.maxDecibels = -30;
     }
 
     private initLiveCQT = () => {
@@ -118,7 +131,8 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         if (!CQT_MALLOC) return console.error("cqt provider entry point not found", "cqt_malloc");
         this.dataPtr = CQT_MALLOC(this.cqtSize * 4);
 
-        this.analyserNode = MediaPlayerService.getPostAnalyzer() as AnalyserNode;
+        this.analyserNode = this.state.eqAware ? MediaPlayerService.getPostAnalyzer() as AnalyserNode
+            : MediaPlayerService.getAnalyzer() as AnalyserNode;
         if (!this.analyserNode) return console.error("cqt failed to get post analyser");
         this.analyserNode.fftSize = this.cqtSize;
         this.analyserNode.smoothingTimeConstant = 0;
@@ -176,6 +190,7 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
 
                 //const each = (canvasWidth / 88);
                 this.resetKeys();
+                let cnt = 0;
                 for (let x = 0; x < canvasWidth; x += 1) {
                     const weighting = this.aWeightingLUT[x];
                     //eslint-disable-next-line
@@ -187,10 +202,12 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                         const freq = this.cqtFreqs[x];
                         const idx = getNoteFrom(Math.round(freq))[0];
                         //const note = getNoteFrom(freq)[1];
-                        if (idx !== -1) {
+                        if (idx !== -1 && cnt <= 10) {
+                            /* limit max keys highlighted to 10 */
                             if (this.keyRef.length > idx) {
                                 const div = this.keyRef[idx];
                                 div.style.backgroundColor = Colors.BLUE5;
+                                cnt += 1
                             }
                         }
                     }
@@ -288,6 +305,9 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                                         })
                                     }
                                 </HTMLSelect>
+                            </FormGroup>
+                            <FormGroup label="EQ Aware" inline>
+                                <Switch checked={this.state.eqAware} onChange={this.toggleEQAware} />
                             </FormGroup>
                         </Callout>
                     </Callout>
