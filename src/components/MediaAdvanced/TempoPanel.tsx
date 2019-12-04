@@ -68,6 +68,17 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
         const cur = this._cur() === 0
             ? <div className="mixer-key-font">n/a</div>
             : <div className="mixer-key-font number">{this._cur()}</div>
+        let bar = "-"
+        let beat = "-"
+        const first1 = this.props.metadata.beats.findIndex(v => v.beatNum === "1");
+        if (first1 !== -1) {
+            const next1 = this.props.metadata.beats.findIndex((v, i) => v.beatNum === "1" && i > first1);
+            if (next1 > 0) {
+                const prev1 = next1 - 1;
+                bar = this.props.metadata.beats[prev1].beatNum;
+                beat = "4";
+            }
+        }
         return (
             <React.Fragment>
                 <div className="mixer-info">
@@ -100,6 +111,12 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
                                         )
                                     })
                                 }
+                            </div>
+                            <div className="mixer-chords">
+                                <Tooltip>
+                                    <Tag large minimal className="mixer-tempo-cat">Meter</Tag>
+                                </Tooltip>
+                                <Tag className="mixer-tempo-tooltip mixer-tempo-cat number" large interactive>{bar}/{beat}</Tag>
                             </div>
                             <div className="mixer-slider">
                                 <Tag interactive minimal large className="mixer-tempo-tag" onClick={this.resetTempo}>

@@ -85,7 +85,7 @@ export const MixerTab: FunctionComponent<MixerProps> = (props: MixerProps) => {
             DispatcherService.off(DispatchEvents.MusicAnalysisStarted, _cb);
             DispatcherService.off(DispatchEvents.MusicAnalysisEnded, _cb2);
         };
-    });
+    }, []);
     return (
         <div key="mixer" className="mixer" style={props.style}>
             <div key="mixer-root" className="mixer-root">
