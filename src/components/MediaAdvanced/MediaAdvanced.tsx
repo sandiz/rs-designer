@@ -73,7 +73,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
         this.setState({ metadata: new ProjectMetadata() });
     }
 
-    handleTabChange = (newTab: React.ReactText, prevTab: React.ReactText, event: React.MouseEvent<HTMLElement>) => {
+    handleTabChange = (newTab: React.ReactText) => {
         this.setState({ currentTab: newTab });
     }
 
@@ -144,7 +144,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         >
                             <Tab id={TABID_HOME} title="Home" />
                             <Tab id={TABID_MIXER} title="Mixer" />
-                            <Tab id={TABID_SPEC} title="Spectrogram" />
+                            <Tab id={TABID_SPEC} title="Chromagram" />
                             <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
                             <Tab id={TABID_ISOLATION} title="Track Isolation" />
                             <Tab id={TABID_PITCH_TRACKING} title="Pitch Tracking" />

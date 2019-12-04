@@ -1,15 +1,47 @@
-.spec-canvas {
+/*.spec-canvas {
     // transform: rotate(-90deg) scaleY(-1);
     //position: absolute;
     //top: -0.5vw;
     // width: 100%;
     // height: 100%;
+}*/
+
+.spec-root {
+    display: flex;
+    width: 77.4%;
+    /* height: 80%; */
+    margin: auto;
+    padding: 0 !important;
 }
+
+.spec-controls {
+    width: 20%;
+    padding: 0;
+}
+
+.spec-name {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 25%;
+}
+
+.spec-callout {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    line-height: 1.25 !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
 
 .spec-info {
     display: flex;
-    width: 62%;
-    height: 80%;
+    width: 80%;
+    height: 100%;
     flex-direction: column;
     margin: auto;
     padding: 0;
@@ -70,4 +102,12 @@
     height: 40px;
     width: 12px;
     color: #fff;
+}
+
+.freq-canvas {
+    height: 24%;
+}
+
+.spec-canvas {
+    height: 100%;
 }

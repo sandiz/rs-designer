@@ -673,13 +673,20 @@ class MediaPlayer {
                     backend.source.connect(backend.analyser);
                 }
             });
-            this.wavesurfer.on('seek', (per) => {
+            this.wavesurfer.on('seek', () => {
                 // if (this.state.transposeMode) return;
                 const backend = bk;
                 //eslint-disable-next-line
                 seekingPos = ~~(backend.getPlayedPercents() * length);
             });
         }
+    }
+
+    public getSampleRate = () => {
+        if (this.audioContext) {
+            return this.audioContext.sampleRate;
+        }
+        return 0;
     }
 }
 

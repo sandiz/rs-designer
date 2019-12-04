@@ -381,14 +381,13 @@ export const frequencies = [
 ]
 
 export const getNoteFrom = (freq: number): [number, string] => {
-    for (let i = 0; i < frequencies.length; i += 1) {
-        const item = Object.values(frequencies[i]);
-        const next = (i === frequencies.length - 1) ? [9999] : Object.values(frequencies[i + 1])
-        if (item.length > 0 && next.length > 0 && item[0] && next[0]) {
-            if (freq >= item[0] && freq < next[0]) {
-                return [i, Object.keys(item)[0]];
-            }
-        }
+    let keys = ['A0', 'A#0', 'B0'];
+    for (let i = 1; i < 8; i += 1) {
+        keys = keys.concat(
+            pitchesFromC.map((item) => `${item}${i}`),
+        )
     }
-    return [-1, "-"];
+    keys.push('C8');
+    const note = hzToNote(freq);
+    return [keys.indexOf(note), note];
 }

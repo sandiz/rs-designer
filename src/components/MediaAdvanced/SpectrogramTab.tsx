@@ -1,21 +1,38 @@
 import React, { RefObject } from 'react';
-import { scale } from 'chroma-js';
+import { scale, Scale } from 'chroma-js';
 import {
-    Callout, Card, Elevation,
+    Callout, Card, Elevation, Intent, Switch, Slider, FormGroup, HTMLSelect, Text, Colors,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 import './Spectrogram.scss'
-import { pitchesFromC } from '../../lib/music-utils';
+import { pitchesFromC, getNoteFrom } from '../../lib/music-utils';
 
 function getAWeighting(f: number) {
     const f2 = f * f;
     return 1.5 * 1.2588966 * 148840000 * f2 * f2
         / ((f2 + 424.36) * Math.sqrt((f2 + 11599.29) * (f2 + 544496.41)) * (f2 + 148840000));
 }
-export class SpectrogramTab extends React.Component<{}, {}> {
+
+interface SpecState {
+    sensitivity: number;
+    colormap: 'default' | 'viridis';
+}
+const chromaScale: { [key: string]: Scale } = {
+    default: scale([
+        '#000000',
+        '#0000a0',
+        '#6000a0',
+        '#962761',
+        '#dd1440',
+        '#f0b000',
+        '#ffffa0',
+        '#ffffff',
+    ]).domain([0, 255]),
+}
+export class SpectrogramTab extends React.Component<{}, SpecState> {
     private specCanvas: RefObject<HTMLCanvasElement>;
     private freqCanvas: RefObject<HTMLCanvasElement>;
     private tempCanvas: HTMLCanvasElement;
@@ -30,6 +47,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
     private cqtCalc: Function | null;
     private cqtRenderLine: Function | null;
     private aWeightingLUT: Array<number> = [];
+    private cqtFreqs: Array<number> = [];
     private colorMap: chroma.Scale<chroma.Color> | null;
     private _calcTime = 0;
     private _totalTime = 0;
@@ -52,6 +70,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
         this.cqtRenderLine = null;
         this.colorMap = null;
         this.keyRef = [];
+        this.state = { sensitivity: 150, colormap: 'default' }
     }
 
     componentDidMount = async () => {
@@ -76,29 +95,16 @@ export class SpectrogramTab extends React.Component<{}, {}> {
         const db = 32;
         const supersample = 0;
         const cqtBins = this.freqCanvas.current.width;
-        //                MIDI note  16 ==   20.60 hz
-        // Piano key  1 = MIDI note  21 ==   27.50 hz
-        // Piano key 88 = MIDI note 108 == 4186.01 hz
-        //                MIDI note 127 == 12543.8 hz
         const fMin = 25.95;
         const fMax = 4504.0;
-        this.cqtSize = CQT_INIT(44100, cqtBins, db, fMin, fMax, supersample);
+        this.cqtSize = CQT_INIT(MediaPlayerService.getSampleRate(), cqtBins, db, fMin, fMax, supersample);
         if (!this.cqtSize) throw Error('Error initializing constant Q transform.');
-        this.colorMap = scale([
-            '#000000',
-            '#0000a0',
-            '#6000a0',
-            '#962761',
-            '#dd1440',
-            '#f0b000',
-            '#ffffa0',
-            '#ffffff',
-        ]).domain([0, 255]);
+        this.colorMap = chromaScale[this.state.colormap];
 
         const CQT_BIN_TO_FREQ = MediaPlayerService.getCQTProvider("cqt_bin_to_freq");
         if (!CQT_BIN_TO_FREQ) return console.error("cqt provider entry point not found", "cqt_bin_to_freq");
-        const cqtFreqs = Array(cqtBins).fill(0).map((_, i) => CQT_BIN_TO_FREQ(i));
-        this.aWeightingLUT = cqtFreqs.map(f => 0.5 + 0.5 * getAWeighting(f));
+        this.cqtFreqs = Array(cqtBins).fill(0).map((_, i) => CQT_BIN_TO_FREQ(i));
+        this.aWeightingLUT = this.cqtFreqs.map(f => 0.5 + 0.5 * getAWeighting(f));
 
         const CQT_MALLOC = MediaPlayerService.getCQTProvider("cqt_malloc");
         if (!CQT_MALLOC) return console.error("cqt provider entry point not found", "cqt_malloc");
@@ -152,7 +158,7 @@ export class SpectrogramTab extends React.Component<{}, {}> {
                 this.cqtCalc(this.dataPtr, this.dataPtr);
                 this.cqtRenderLine(this.dataPtr);
 
-                const each = (canvasWidth / 88);
+                //const each = (canvasWidth / 88);
                 this.keyRef.forEach(item => {
                     if (item.parentElement && item.parentElement.classList.contains("piano-key-sharp")) item.style.backgroundColor = "#10161a";
                     else item.style.backgroundColor = "white";
@@ -164,28 +170,26 @@ export class SpectrogramTab extends React.Component<{}, {}> {
                     //eslint-disable-next-line
                     const h = val * hCoeff | 0;
                     const style = this.colorMap(val).hex();
-                    if (val > 150) {
-                        //const per = (x / canvasWidth);
-                        //const freq = 4158.5 * per;
-                        const note = Math.round(x / each);
-                        //const note = getNoteFrom(freq)[0];
-                        if (this.keyRef.length > note) {
-                            const div = this.keyRef[note];
-                            div.style.backgroundColor = 'lightblue';
+                    if (val > this.state.sensitivity) {
+                        const freq = this.cqtFreqs[x];
+                        const idx = getNoteFrom(Math.round(freq))[0];
+                        //const note = getNoteFrom(freq)[1];
+                        if (idx !== -1) {
+                            if (this.keyRef.length > idx) {
+                                const div = this.keyRef[idx];
+                                div.style.backgroundColor = Colors.BLUE5;
+                            }
                         }
                     }
                     this.freqCtx.fillStyle = style;
                     this.freqCtx.fillRect(x, fqHeight - h, 1, h);
-                    //this.specCtx.fillRect(h, x, 1, h);
                     this.tempCtx.fillStyle = style;
                     this.tempCtx.fillRect(x, 0, 1, specSpeed)
-                    //this.tempCtx.fillRect(0, x, specSpeed, 1);
                 }
             }
             this.lastMax = 0;
             //const middle = performance.now();
             this.tempCtx.translate(0, specSpeed);
-            //this.tempCtx.translate(specSpeed, 0);
             this.tempCtx.drawImage(this.tempCanvas, 0, 0);
             this.tempCtx.setTransform(1, 0, 0, 1, 0, 0);
             this.specCtx.drawImage(this.tempCanvas, 0, 0);
@@ -224,73 +228,107 @@ export class SpectrogramTab extends React.Component<{}, {}> {
 
     render = () => {
         return (
-            <Card key="key-panel" elevation={Elevation.TWO} className="spec-info">
-                <Callout className="spec-info-options" icon={false}>
-                    <div className="piano-key">
-                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                            <div className="piano-key-text">
-                                <span className="piano-key-note">A</span>
-                                <br />
+            <div className="spec-root">
+                <Card key="spec-controls" className="spec-controls" elevation={Elevation.TWO}>
+                    <Callout className="spec-callout font-weight-unset" intent={Intent.PRIMARY} icon={false}>
+                        <div className="spec-name">
+                            <span style={{ fontSize: 30 + 'px' }}>Chromagram</span>
+                            <Switch> online</Switch>
+                        </div>
+                        <Callout style={{ width: 80 + '%' }}>
+                            <Text>Options</Text>
+                            <br />
+                            <FormGroup label="Sensitivity">
+                                <Slider
+                                    min={0}
+                                    max={255}
+                                    value={this.state.sensitivity}
+                                    labelStepSize={255}
+                                    labelRenderer={false}
+                                    onChange={v => this.setState({ sensitivity: v })}
+                                    onRelease={v => this.setState({ sensitivity: v })}
+                                /* labelRenderer={item => {
+                                    return <span className="number">{item}</span>
+                                }} */
+                                />
+                            </FormGroup>
+                            <FormGroup label="Colormap" inline>
+                                <HTMLSelect>
+                                    <option value="lowpass">viridis</option>
+                                    <option value="highpass">rainbow</option>
+                                </HTMLSelect>
+                            </FormGroup>
+                        </Callout>
+                    </Callout>
+                </Card>
+                <Card key="spec-panel" elevation={Elevation.TWO} className="spec-info">
+                    <Callout className="spec-info-options" icon={false}>
+                        <div className="piano-key">
+                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                <div className="piano-key-text">
+                                    <span className="piano-key-note">A</span>
+                                    <br />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="piano-key piano-key-sharp">
-                        <div className="" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                            <div className="piano-key-text">
-                                <span className="piano-key-note" />
-                                <br />
+                        <div className="piano-key piano-key-sharp">
+                            <div className="" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                <div className="piano-key-text">
+                                    <span className="piano-key-note" />
+                                    <br />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="piano-key">
-                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                            <div className="piano-key-text">
-                                <span className="piano-key-note">B</span>
-                                <br />
+                        <div className="piano-key">
+                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                <div className="piano-key-text">
+                                    <span className="piano-key-note">B</span>
+                                    <br />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {
-                        [1, 2, 3, 4, 5, 6, 7].map((idx) => {
-                            return pitchesFromC.map((note) => {
-                                return (
-                                    <div key={note + idx} className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
-                                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                            <div className="piano-key-text">
-                                                <span className="piano-key-note">{note.includes("#") ? "" : note}</span>
-                                                <br />
+                        {
+                            [1, 2, 3, 4, 5, 6, 7].map((idx) => {
+                                return pitchesFromC.map((note) => {
+                                    return (
+                                        <div key={note + idx} className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
+                                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                                <div className="piano-key-text">
+                                                    <span className="piano-key-note">{note.includes("#") ? "" : note}</span>
+                                                    <br />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                );
+                                    );
+                                })
                             })
-                        })
 
-                    }
-                    <div className="piano-key">
-                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                            <div className="piano-key-text">
-                                <span className="piano-key-note">C</span>
-                                <br />
+                        }
+                        <div className="piano-key">
+                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                <div className="piano-key-text">
+                                    <span className="piano-key-note">C</span>
+                                    <br />
+                                </div>
                             </div>
                         </div>
+                    </Callout>
+                    <div className="spec-info-canvas">
+                        <canvas
+                            className="freq-canvas"
+                            ref={this.freqCanvas}
+                            width={448}
+                            height={60}
+                        />
+                        <canvas
+                            className="spec-canvas"
+                            ref={this.specCanvas}
+                            width={448}
+                            height={250}
+                        />
                     </div>
-                </Callout>
-                <div className="spec-info-canvas">
-                    <canvas
-                        className="freq-canvas"
-                        ref={this.freqCanvas}
-                        width={448}
-                        height={60}
-                    />
-                    <canvas
-                        className="spec-canvas"
-                        ref={this.specCanvas}
-                        width={448}
-                        height={250}
-                    />
-                </div>
-            </Card>
+                </Card>
+            </div>
         )
     }
 }
