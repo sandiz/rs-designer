@@ -43,6 +43,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             //this.setState({ image })
             if (this.imageRef.current) {
                 this.imageRef.current.src = image;
+                this.imageRef.current.style.visibility = ""
             }
         }
         catch (e) {
@@ -143,57 +144,45 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             <div className="tabeditor-root">
                 <InfoPanel />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
-                    <div
-                        style={{
-                            width: 100 + '%',
-                            height: 100 + '%',
-                            overflowX: 'auto',
-                            position: 'relative',
-                        }}>
-                        <div style={{
-                            width: PX_PER_SEC * this.state.duration + 'px',
-                            height: 100 + '%',
-                            position: 'absolute',
-                        }}>
+                    <div className="tab-overflow-root">
+                        <div
+                            className="tab-wv-img"
+                            style={{
+                                width: PX_PER_SEC * this.state.duration + 'px',
+                            }}>
                             <img
                                 ref={this.imageRef}
                                 className="tab-img"
                                 alt="waveform"
-                                height={100 + '%'}
-                                width={100 + '%'}
-                                src=""
+                                style={{ visibility: "hidden" }}
                             />
                         </div>
                         <div
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
-                                position: 'absolute',
-                                height: 100 + '%',
-                                marginTop: 36 + 'px',
                             }}
+                            className="tab-note-edit"
                         >
-                            <div style={{ height: 80 + '%', padding: 0, paddingTop: 15 + 'px' }}>
-                                <div style={{
-                                    display: 'flex', flexDirection: 'column', height: 100 + '%', backgroundColor: 'rgb(1,1,1,0.2)',
-                                }}>
-                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray', borderTop: '1px solid gray' }} />
-                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
-                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
-                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
-                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
+                            <div className="neck-container">
+                                <div className="neck">
+                                    <div className="strings strings-first" />
+                                    <div className="strings" />
+                                    <div className="strings" />
+                                    <div className="strings" />
+                                    <div className="strings" />
                                 </div>
                             </div>
                         </div>
                         <div
-                            ref={this.beatsRef}
                             className="tabs-beats-timeline"
+                            ref={this.beatsRef}
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />
                         <div
-                            ref={this.timelineRef}
                             className="tabs-timeline"
+                            ref={this.timelineRef}
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}

@@ -115,5 +115,47 @@
 
 .tab-img {
     height: 46%;
+    width: 100%;
     margin-top: 121px;
+}
+
+.strings-first {
+    border-top: 1px solid gray;
+}
+
+.strings {
+    height: 20%;
+    border-bottom: 1px solid gray;
+}
+
+.neck {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: rgba(1, 1, 1, 0.2);
+}
+
+.neck-container {
+    height: 80%;
+    padding: 0;
+    padding-top: 15px;
+}
+
+.tab-note-edit {
+    position: absolute;
+    height: 100%;
+    margin-top: 36px;
+}
+
+.tab-wv-img {
+    position: absolute;
+    height: 100%;
+}
+
+.tab-overflow-root {
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
 }
