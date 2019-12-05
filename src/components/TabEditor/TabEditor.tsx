@@ -12,13 +12,15 @@ import ProjectService from '../../services/project';
 interface TabEditorState {
     duration: number;
 }
-const PX_PER_SEC = 20;
+const PX_PER_SEC = 40;
 class TabEditor extends React.Component<{}, TabEditorState> {
     private beatsRef: RefObject<HTMLDivElement>;
+    private timelineRef: RefObject<HTMLDivElement>;
     constructor(props: {}) {
         super(props);
         this.state = { duration: 0 };
         this.beatsRef = React.createRef();
+        this.timelineRef = React.createRef();
     }
 
     componentDidMount = () => {
@@ -36,7 +38,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         const duration = MediaPlayerService.getDuration();
         this.setState({ duration })
         const metadata = await ProjectService.getProjectMetadata();
-        let gridColums = "";
+        let gridColumns = "";
         let prev = 0;
         let onecounter = 0;
         if (metadata) {
@@ -58,8 +60,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     onecounter += 1;
                     const sp = document.createElement('span');
                     c.appendChild(sp);
-                    sp.className = "beats-num-span";
-                    sp.textContent = onecounter.toString().padStart(beats.length % 10, "0");
+                    sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 });
+                    sp.textContent = onecounter.toString();
                 }
                 else {
                     c.className = "beats-other";
@@ -69,13 +71,38 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 if (this.beatsRef.current) {
                     this.beatsRef.current.appendChild(c);
                 }
-                gridColums += `${per}% `;
+                gridColumns += `${per}% `;
 
                 prev = start;
             });
-            if (this.beatsRef.current) {
-                this.beatsRef.current.style.gridTemplateColumns = gridColums;
+            let timelinegridColumns = "";
+            for (let i = 0; i < Math.round(duration); i += 1) {
+                const diff = 1
+
+                const c = document.createElement('div');
+                let j = i + 1;
+                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+
+                c.className = classNames(
+                    //{ "time-notch-left": i === 0 },
+                    { "time-notch": true },
+                    { "time-notch-half": i % 5 !== 0 },
+                )
+                if (i % 5 !== 0) c.style.borderColor = "#c0c0c0"
+
+                const sp = document.createElement('span');
+                c.appendChild(sp);
+                sp.className = "time-num-span";
+                if (i % 5 === 0) sp.textContent = i.toString();
+
+                const per = (diff / duration) * 100;
+                if (this.timelineRef.current) {
+                    this.timelineRef.current.appendChild(c);
+                }
+                timelinegridColumns += `${per}% `;
             }
+            if (this.beatsRef.current) this.beatsRef.current.style.gridTemplateColumns = gridColumns;
+            if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
         }
     }
 
@@ -87,25 +114,42 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     <div
                         style={{
                             width: 100 + '%',
+                            height: 100 + '%',
                             overflowX: 'auto',
                             maxWidth: 100 + '%',
                         }}>
+                        {
+                            /*
                         <div
-                            ref={this.beatsRef}
-                            className="beats-timeline"
-                            style={{ width: PX_PER_SEC * this.state.duration + 'px' }}
-                        />
-                        <div
-                            style={{ width: PX_PER_SEC * this.state.duration + 'px' }}
+                            style={{
+                                width: PX_PER_SEC * this.state.duration + 'px',
+                                position: 'relative',
+                                top: -50 + 'px',
+                                height: 100 + '%',
+                            }}
                         >
-                            <Callout>
+                            <Callout style={{ height: 100 + '%' }}>
                                 test
                                 test
                                 test
                             </Callout>
                         </div>
+                        */
+                        }
                         <div
-                            style={{ width: PX_PER_SEC * this.state.duration + 'px' }}
+                            ref={this.beatsRef}
+                            className="tabs-beats-timeline"
+                            style={{
+                                width: PX_PER_SEC * this.state.duration + 'px',
+                            }}
+                        />
+                        <div
+                            ref={this.timelineRef}
+                            className="tabs-timeline"
+                            style={{
+                                height: 8 + '%',
+                                width: PX_PER_SEC * this.state.duration + 'px',
+                            }}
                         />
                     </div>
                 </CardExtended>

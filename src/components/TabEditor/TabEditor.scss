@@ -1,5 +1,5 @@
 .tabeditor-root {
-    height: 30vh;
+    height: 44vh;
     padding-top: 10px;
     margin-top: 3vh;
 }
@@ -14,36 +14,99 @@
 .tabeditor-body {
     margin-top: 1.5vh;
     height: 100%;
+    padding-top: 10px;
+    padding-bottom: 5px;
 }
 
-.beats-timeline {
+.tabs-beats-timeline {
     display: grid;
     grid-template-rows: 1fr;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
-    height: 26px;
     border-radius: 0px;
-    border-top: 1px solid black;
-    background: azure;
+    height: 94%;
+}
+
+.tabs-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    border-radius: 0px;
+    border-top: 1px solid gray;
 }
 
 
 .beats-start {
-    border-right: 1px solid black;
+    border-right: 1px solid #CED9E0;
+    text-align: right;
+}
+
+.bp3-dark .beats-start {
+    border-right: 1px solid #5C7080;
     text-align: right;
 }
 
 .beats-other {
-    border-right: 1px solid lightgray;
+    border-right: 1px solid #CED9E0;
     height: 15px;
+}
+
+.bp3-dark .beats-other {
+    border-right: 1px solid #5C7080;
+    text-align: right;
+}
+
+
+.beats-num-span-0 {
+    margin-left: 55px !important;
 }
 
 .beats-num-span {
     font-family: Inconsolata, monospace;
     text-align: right;
-    color: black;
-    font-size: 11px;
+    color: #10161A;
+    font-size: 12px;
     position: relative;
-    right: -13px;
-    top: 9px;
+    top: 14px;
+    margin-left: 26px;
+}
+
+.bp3-dark .beats-num-span {
+    font-family: Inconsolata, monospace;
+    text-align: right;
+    color: #fff;
+    font-size: 12px;
+    position: relative;
+    top: 14px;
+    margin-left: 26px;
+}
+
+.time-notch {
+    border-left: 1px solid #c0c0c0;
+    height: 20px;
+}
+
+.time-notch-half {
+    height: 10px !important;
+}
+
+.time-num-span {
+    font-family: Inconsolata, monospace;
+    text-align: right;
+    color: #10161A;
+    font-size: 12px;
+    margin-left: 4px;
+    position: relative;
+    top: 5px;
+}
+
+.bp3-dark .time-num-span {
+    font-family: Inconsolata, monospace;
+    text-align: right;
+    color: #fff;
+    font-size: 12px;
+    margin-left: 4px;
+    position: relative;
+    top: 5px;
 }

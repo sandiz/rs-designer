@@ -18,7 +18,7 @@ const { nativeTheme, app } = window.require("electron").remote;
 const path: typeof PATH = window.require('path');
 
 
-const COLORS = {
+export const COLORS = {
     TIMELINE: { primaryFontColorDark: Colors.WHITE, primaryFontColor: Colors.BLACK },
     CHORDS: { primaryFontColorDark: Colors.WHITE, primaryFontColor: Colors.BLACK },
 };
@@ -168,7 +168,7 @@ class MediaPlayer {
                         'font-family': 'Inconsolata',
                         visibility: 'visible',
                     },
-                    extraOffset: 20, /* waveform-root has padding of 20px */
+                    //extraOffset: 20, /* waveform-root has padding of 20px */
                 }),
             ],
         };

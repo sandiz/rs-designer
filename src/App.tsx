@@ -148,7 +148,7 @@ class App extends HotKeyComponent<{}, AppState> {
             </ErrorBoundary>
             {
               //eslint-disable-next-line
-              false
+              this.state.project.loaded
                 ? (
                   <ErrorBoundary className="waveform-root">
                     <Suspense fallback={<div>Loading...</div>}>
