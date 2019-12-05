@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import {
   Classes, FocusStyleManager, Dialog,
 } from "@blueprintjs/core"
@@ -24,6 +24,8 @@ import ProjectService, { ProjectUpdateType } from './services/project';
 import MediaPlayerService from './services/mediaplayer';
 import InfoPanel from './components/InfoPanel/InfoPanel';
 import Waveform from './components/Waveform/Waveform';
+
+const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -144,6 +146,17 @@ class App extends HotKeyComponent<{}, AppState> {
             <ErrorBoundary className="waveform-root">
               <Waveform />
             </ErrorBoundary>
+            {
+              this.state.project.loaded
+                ? (
+                  <ErrorBoundary className="waveform-root">
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <TabEditor />
+                    </Suspense>
+                  </ErrorBoundary>
+                )
+                : null
+            }
           </div>
           <ErrorBoundary className="media-bar-sticky">
             <MediaController />
