@@ -9,6 +9,7 @@ import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 import { ZOOM } from '../../types';
+import { sec2time } from '../../lib/utils';
 
 interface TabEditorState {
     duration: number;
@@ -111,7 +112,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 const sp = document.createElement('span');
                 c.appendChild(sp);
                 sp.className = "time-num-span";
-                if (i % 5 === 0) sp.textContent = i.toString();
+                let seconds = i;
+                let output = ""
+                if (seconds / 60 > 1) {
+                    const minutes = parseInt((seconds / 60).toString(), 10);
+                    seconds = parseInt((seconds % 60).toString(), 10);
+                    const tseconds = seconds < 10 ? '0' + seconds : seconds;
+                    output = `${minutes}:${tseconds}`;
+                }
+                else {
+                    output = "" + Math.round(seconds * 1000) / 1000;
+                }
+
+                if (i % 5 === 0) sp.textContent = output;
 
                 const per = (diff / duration) * 100;
                 if (this.timelineRef.current) {
