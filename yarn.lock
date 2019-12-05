@@ -9416,6 +9416,11 @@ neo-async@^2.5.0, neo-async@^2.6.0, neo-async@^2.6.1:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
 
+next-frame@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/next-frame/-/next-frame-0.2.3.tgz#58bee5d1213b31b3cf2c064685388118d32c4794"
+  integrity sha1-WL7l0SE7MbPPLAZGhTiBGNMsR5Q=
+
 next-tick@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"

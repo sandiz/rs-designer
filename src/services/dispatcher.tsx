@@ -106,6 +106,9 @@ export enum DispatchEvents {
     /* Music Manipulation */
     PitchChange = "pitch-change",       /* fired when the pitch of the song is changed */
     TempoChange = "tempo-change",       /* fired when the tempo of the song is changed */
+
+    WaveformImageGenerated = "waveform-image-generated",
+    ZoomChanged = "zoom-changed",
 }
 
 export const DispatcherService = DispatcherBase.getInstance();

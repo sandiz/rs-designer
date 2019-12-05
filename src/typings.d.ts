@@ -5,6 +5,7 @@ declare module 'audiomotion-analyzer';
 declare module 'soundtouchjs';
 declare module 'colormap';
 declare module 'tone';
+declare module 'next-frame';
 declare module 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 declare module 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 declare module './wv-plugin/chordstimeline';

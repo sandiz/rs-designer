@@ -3,6 +3,7 @@ import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
+import nextFrame from 'next-frame';
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 import * as PATH from 'path';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
@@ -180,6 +181,7 @@ class MediaPlayer {
         this.wavesurfer.loadBlob(blob);
 
         this.wavesurfer.on("ready", () => {
+            if (this.wavesurfer) this.wavesurfer.zoom(ZOOM.DEFAULT);
             DispatcherService.dispatch(DispatchEvents.MediaReady);
             const aNode = this.getPostAnalyzer() as AnalyserNode;
             if (aNode) {
@@ -440,6 +442,7 @@ class MediaPlayer {
     public zoom = (v: number) => {
         if (this.wavesurfer) {
             this.wavesurfer.zoom(v);
+            DispatcherService.dispatch(DispatchEvents.ZoomChanged, v);
         }
     }
 
@@ -694,6 +697,43 @@ class MediaPlayer {
             return this.audioContext.sampleRate;
         }
         return 0;
+    }
+
+    public exportImage = async (width: number): Promise<string> => {
+        if (this.wavesurfer) {
+            const d = document.createElement("div");
+            d.style.width = width + 'px';
+            d.style.height = 100 + 'px';
+            //d.style.top = 0 + 'px';
+            //d.style.visibility = "hidden";
+            d.style.position = "absolute"
+            document.body.appendChild(d);
+            const drawer = new this.wavesurfer.Drawer(d, {
+                pixelRatio: 1,
+                heght: 180,
+                maxCanvasWidth: width,
+                waveColor: '#fff',
+                progressColor: '#fff',
+                barWidth: 3,
+                barRadius: 3,
+                barGap: 2,
+                height: 180,
+                barHeight: 0.85,
+                scrollParent: false,
+            });
+            drawer.createWrapper();
+            drawer.createElements();
+            drawer.setWidth(width);
+            const len = drawer.getWidth();
+            const peaks = this.wavesurfer.backend.getPeaks(len, 0, len);
+            drawer.drawPeaks(peaks, len, 0, len);
+            await nextFrame();
+            const image = drawer.getImage("image/png", 1, "dataURL")
+            document.body.removeChild(d);
+            drawer.destroy();
+            return image;
+        }
+        return "";
     }
 }
 

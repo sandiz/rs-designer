@@ -23,6 +23,7 @@
     "fs-extra": "^8.1.0",
     "localforage": "^1.7.3",
     "music-metadata": "^5.0.2",
+    "next-frame": "^0.2.3",
     "normalize.css": "^8.0.1",
     "pixi.js": "^5.2.0",
     "prop-types": "^15.6.2",

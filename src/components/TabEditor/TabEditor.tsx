@@ -8,25 +8,44 @@ import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
+import { ZOOM } from '../../types';
 
 interface TabEditorState {
     duration: number;
+    //image: string | undefined;
 }
 const PX_PER_SEC = 40;
 class TabEditor extends React.Component<{}, TabEditorState> {
     private beatsRef: RefObject<HTMLDivElement>;
     private timelineRef: RefObject<HTMLDivElement>;
+    private imageRef: RefObject<HTMLImageElement>;
     constructor(props: {}) {
         super(props);
         this.state = { duration: 0 };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
+        this.imageRef = React.createRef();
     }
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
+        }
+    }
+
+    updateImage = async () => {
+        if (!MediaPlayerService.wavesurfer) return;
+        //sif (this.state.image) return;
+        try {
+            const image = await MediaPlayerService.exportImage(PX_PER_SEC * this.state.duration);
+            //this.setState({ image })
+            if (this.imageRef.current) {
+                this.imageRef.current.src = image;
+            }
+        }
+        catch (e) {
+            console.log("update-image exception", e);
         }
     }
 
@@ -88,7 +107,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     { "time-notch": true },
                     { "time-notch-half": i % 5 !== 0 },
                 )
-                if (i % 5 !== 0) c.style.borderColor = "#c0c0c0"
 
                 const sp = document.createElement('span');
                 c.appendChild(sp);
@@ -104,6 +122,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             if (this.beatsRef.current) this.beatsRef.current.style.gridTemplateColumns = gridColumns;
             if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
         }
+        this.updateImage();
     }
 
     render = () => {
@@ -116,26 +135,42 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             width: 100 + '%',
                             height: 100 + '%',
                             overflowX: 'auto',
-                            maxWidth: 100 + '%',
+                            position: 'relative',
                         }}>
-                        {
-                            /*
+                        <div style={{
+                            width: PX_PER_SEC * this.state.duration + 'px',
+                            height: 100 + '%',
+                            position: 'absolute',
+                        }}>
+                            <img
+                                ref={this.imageRef}
+                                className="tab-img"
+                                alt="waveform"
+                                height={100 + '%'}
+                                width={100 + '%'}
+                                src=""
+                            />
+                        </div>
                         <div
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
-                                position: 'relative',
-                                top: -50 + 'px',
+                                position: 'absolute',
                                 height: 100 + '%',
+                                marginTop: 36 + 'px',
                             }}
                         >
-                            <Callout style={{ height: 100 + '%' }}>
-                                test
-                                test
-                                test
-                            </Callout>
+                            <div style={{ height: 80 + '%', padding: 0, paddingTop: 15 + 'px' }}>
+                                <div style={{
+                                    display: 'flex', flexDirection: 'column', height: 100 + '%', backgroundColor: 'rgb(1,1,1,0.2)',
+                                }}>
+                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray', borderTop: '1px solid gray' }} />
+                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
+                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
+                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
+                                    <div style={{ height: 20 + '%', borderBottom: '1px solid gray' }} />
+                                </div>
+                            </div>
                         </div>
-                        */
-                        }
                         <div
                             ref={this.beatsRef}
                             className="tabs-beats-timeline"
@@ -147,7 +182,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             ref={this.timelineRef}
                             className="tabs-timeline"
                             style={{
-                                height: 8 + '%',
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />
