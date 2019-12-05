@@ -399,7 +399,7 @@ export default class BeatsTimelinePlugin {
 
                     this.setFillStyles(this.params.primaryColor);
                     this.fillText(
-                        idx + 1,
+                        dnBeats + 1,
                         startPixel + this.params.labelPadding * this.pixelRatio,
                         height1 / 2 + 23,
                     );

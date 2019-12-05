@@ -13,4 +13,37 @@
 
 .tabeditor-body {
     margin-top: 1.5vh;
+    height: 100%;
+}
+
+.beats-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 26px;
+    border-radius: 0px;
+    border-top: 1px solid black;
+    background: azure;
+}
+
+
+.beats-start {
+    border-right: 1px solid black;
+    text-align: right;
+}
+
+.beats-other {
+    border-right: 1px solid lightgray;
+    height: 15px;
+}
+
+.beats-num-span {
+    font-family: Inconsolata, monospace;
+    text-align: right;
+    color: black;
+    font-size: 11px;
+    position: relative;
+    right: -13px;
+    top: 9px;
 }

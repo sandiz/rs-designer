@@ -161,11 +161,9 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         </Tabs>
                     </Navbar.Group>
                 </Navbar>
-                {
-                    <Suspense fallback={<div>Loading...</div>}>
-                        {this.getTab(this.state.currentTab)}
-                    </Suspense>
-                }
+                <Suspense fallback={<div>Loading...</div>}>
+                    {this.getTab(this.state.currentTab)}
+                </Suspense>
 
             </Drawer>
         )

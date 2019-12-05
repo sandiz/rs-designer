@@ -165,18 +165,16 @@ export const blur = (e: React.MouseEvent<HTMLElement, MouseEvent>): void => {
 export const ButtonExtended = (props: IButtonProps) => {
     return (
         <NativeListener stopKeyUp stopKeyDown stopKeyPress>
-            {
-                <Button
-                    //eslint-disable-next-line
-                    {...props}
-                    onClick={(e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                        if (props.onClick) {
-                            props.onClick(e);
-                        }
-                        blur(e);
-                    }}
-                />
-            }
+            <Button
+                //eslint-disable-next-line
+                {...props}
+                onClick={(e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                    if (props.onClick) {
+                        props.onClick(e);
+                    }
+                    blur(e);
+                }}
+            />
         </NativeListener>
     );
 }

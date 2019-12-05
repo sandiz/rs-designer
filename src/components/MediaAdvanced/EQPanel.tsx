@@ -32,11 +32,11 @@ const Q_MAX = 15;
 const FREQ_MIN = 30;
 const FREQ_MAX = 16000;
 const CANVAS_BG_FILL = { dark: "#30404E", light: Colors.WHITE };
+const MAX_TAGS = 11;
+const TAG_COLORS = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
+const Q_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking"];
+const G_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowshelf", "highshelf", "peaking"];
 export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
-    static MAX_TAGS = 11;
-    static TAG_COLORS = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B3A4", "#DB2C6F", "#9BBF30", "#96622D", "#7157D9"];
-    static Q_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking"];
-    static G_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowshelf", "highshelf", "peaking"];
     private canvasRef: RefObject<HTMLDivElement> = React.createRef();
     //eslint-disable-next-line
     private audioMotion: any | null = null;
@@ -163,10 +163,10 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
 
     addTag = () => {
         const t: EQTag = {
-            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: EqualizerTab.TAG_COLORS[this.state.tags.length],
+            freq: 0, gain: 0, q: 1, type: "edit", id: UUID(), color: TAG_COLORS[this.state.tags.length],
         };
         const { tags } = this.state;
-        if (tags.length < EqualizerTab.MAX_TAGS) {
+        if (tags.length < MAX_TAGS) {
             tags.unshift(t);
             this.setState({ tags });
             MediaPlayerService.addEQFilter(t);
@@ -184,7 +184,7 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
                 q: t.q ? t.q : 1,
                 type: t.type ? t.type : "edit",
                 id: UUID(),
-                color: EqualizerTab.TAG_COLORS[i],
+                color: TAG_COLORS[i],
             };
             tags.push(newt);
         }
@@ -259,8 +259,8 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
     }
 
     getTagDialog = (item: EQTag): string | JSX.Element | undefined => {
-        const isQ = EqualizerTab.Q_FILTERS.includes(item.type);
-        const isG = EqualizerTab.G_FILTERS.includes(item.type)
+        const isQ = Q_FILTERS.includes(item.type);
+        const isG = G_FILTERS.includes(item.type)
         return (
             <div className="eq-edit">
                 <H4 className="font-weight-unset">Edit Filter</H4>
@@ -383,7 +383,7 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
                                     onClick={this.addTag}
                                     className="eq-tag eq-tag-no-grow"
                                     minimal
-                                    interactive={this.state.tags.length < EqualizerTab.MAX_TAGS}
+                                    interactive={this.state.tags.length < MAX_TAGS}
                                     large
                                     icon={IconNames.ADD}>
                                     EQ FIlter
