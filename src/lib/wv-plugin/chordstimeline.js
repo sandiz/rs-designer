@@ -62,7 +62,7 @@ export default class ChordsTimelinePlugin {
     };
 
     /** @private */
-    _onRedraw = () => this.render();
+    _onRedraw = () => this.render(this.lastTranspose);
 
     /** @private */
     _onReady = () => {
@@ -79,7 +79,7 @@ export default class ChordsTimelinePlugin {
         ws.on('redraw', this._onRedraw);
         ws.on('zoom', this._onZoom);
 
-        this.render();
+        this.render(this.lastTranspose);
     };
 
     /** @private */
@@ -150,6 +150,7 @@ export default class ChordsTimelinePlugin {
         this.maxCanvasWidth = null;
         /** @private */
         this.maxCanvasElementWidth = null;
+        this.lastTranspose = 0;
         /**
          * This event handler has to be in the constructor function because it
          * relies on the debounce function which is only available after
@@ -161,10 +162,10 @@ export default class ChordsTimelinePlugin {
          */
         this._onZoom = this.params.zoomDebounce
             ? this.wavesurfer.util.debounce(
-                () => this.render(),
+                () => this.render(this.lastTranspose),
                 this.params.zoomDebounce
             )
-            : () => this.render();
+            : () => this.render(this.lastTranspose);
     }
 
     /**
@@ -233,7 +234,8 @@ export default class ChordsTimelinePlugin {
      *
      * @private
      */
-    render(transpose = 0) {
+    render(transpose) {
+        this.lastTranspose = transpose;
         if (!this.wrapper) {
             this.createWrapper();
         }

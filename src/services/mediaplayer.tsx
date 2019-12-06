@@ -176,6 +176,7 @@ class MediaPlayer {
         DispatcherService.dispatch(DispatchEvents.MediaLoading);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         DispatcherService.on(DispatchEvents.EqualizerToggle, this.toggleEqualizer);
+        DispatcherService.on(DispatchEvents.PitchChange, this.pitchChanged);
         //eslint-disable-next-line
         this.wavesurfer = WaveSurfer.create(params as any);
         this.wavesurfer.loadBlob(blob);
@@ -225,12 +226,22 @@ class MediaPlayer {
         }
     }
 
+    pitchChanged = () => {
+        console.log(this.pitchSemitonesDiff);
+        if (this.wavesurfer) {
+            const activePlugins = this.wavesurfer.getActivePlugins();
+            if (activePlugins.chordstimeline === true) {
+                this.wavesurfer.chordstimeline.render(this.pitchSemitonesDiff);
+            }
+        }
+    }
+
     loadChordsTimeline = async (chordData: ChordTime[] | null = null) => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
             if (activePlugins.chordstimeline === true) {
                 if (chordData) this.wavesurfer.chordstimeline.params.chords = chordData;
-                this.wavesurfer.chordstimeline.render();
+                this.wavesurfer.chordstimeline.render(this.pitchSemitonesDiff);
             }
             else {
                 const chords = await ProjectService.readChords();
@@ -327,6 +338,8 @@ class MediaPlayer {
         this.audioContext = null;
         this.wavesurfer = null;
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
+        DispatcherService.off(DispatchEvents.PitchChange, this.pitchChanged);
+        DispatcherService.off(DispatchEvents.EqualizerToggle, this.toggleEqualizer);
         DispatcherService.dispatch(DispatchEvents.MediaReset);
     }
 
