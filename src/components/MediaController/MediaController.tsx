@@ -479,6 +479,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                                     min={VOLUME.MIN}
                                     max={VOLUME.MAX}
                                     labelRenderer={false}
+                                    drag={(v: number) => MediaPlayerService.setVolume(v)}
                                     dragStart={(v: number) => MediaPlayerService.setVolume(v)}
                                     dragEnd={(v: number) => MediaPlayerService.setVolume(v)}
                                 />

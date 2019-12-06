@@ -2,6 +2,7 @@ import React, { Component, RefObject } from 'react';
 import {
     Slider, ISliderProps, Classes, ICardProps, Card, IButtonProps, Button,
 } from '@blueprintjs/core';
+import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import classNames from 'classnames';
 import NativeListener from 'react-native-listener';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
@@ -11,10 +12,10 @@ interface SliderExtendedProps extends ISliderProps {
     timerSource: () => number;
     dragStart: (v: number) => void;
     dragEnd: (v: number) => void;
+    drag?: (v: number) => void;
     stepSize: number;
 }
 interface SliderExtendedState {
-    value: number | undefined;
     min: number | undefined;
     max: number | undefined;
     disabled: boolean | undefined;
@@ -26,13 +27,19 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     private timer: number | null;
     private id = UUID();
     private dragging = false;
+    private trackRef: React.RefObject<HTMLDivElement> = React.createRef();
+    private prRef1: React.RefObject<HTMLDivElement> = React.createRef();
+    private prRef2: React.RefObject<HTMLDivElement> = React.createRef();
+    private prRef3: React.RefObject<HTMLDivElement> = React.createRef();
+    private handleRef: React.RefObject<HTMLSpanElement> = React.createRef();
+    private value = 0;
 
     constructor(props: SliderExtendedProps) {
         super(props);
         this.sliderRef = React.createRef();
         this.timer = null;
         this.state = {
-            value: props.value, min: props.min, max: props.max, disabled: props.disabled,
+            min: props.min, max: props.max, disabled: props.disabled,
         };
     }
 
@@ -59,6 +66,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                 (item as HTMLElement).addEventListener('keypress', (e) => { stopEventPropagation(e); (item as HTMLElement).blur(); });
                 (item as HTMLElement).addEventListener('keyup', (e) => { stopEventPropagation(e); (item as HTMLElement).blur(); });
             }
+            this.addDefaultListeners();
         }
         this.handleMouse(new Event("mouseout"));
     }
@@ -70,6 +78,68 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
             this.sliderRef.current.removeEventListener('mouseover', this.handleMouse);
             this.sliderRef.current.removeEventListener('mouseout', this.handleMouse);
         }
+        this.removeDefaultListeners();
+    }
+
+    addDefaultListeners = () => {
+        if (this.handleRef.current && this.sliderRef.current) {
+            this.handleRef.current.addEventListener("mousedown", this.onMouseDown);
+            this.sliderRef.current.addEventListener("mousedown", this.onMouseDown);
+        }
+    }
+
+    removeDefaultListeners = () => {
+        if (this.handleRef.current && this.sliderRef.current) {
+            this.handleRef.current.removeEventListener("mousedown", this.onMouseDown);
+            this.sliderRef.current.removeEventListener("mousedown", this.onMouseDown);
+        }
+    }
+
+    onMouseDown = (event: MouseEvent) => {
+        console.log("onmousedown");
+        this.dragging = true;
+        const v = this.eventToValue(event);
+        this.updateTrackAndHandle(v);
+        if (this.props.dragStart) this.props.dragStart(v);
+        document.addEventListener("mousemove", this.onMouseMove);
+        document.addEventListener("mouseup", this.onMouseUp);
+    }
+
+    onMouseUp = (event: MouseEvent) => {
+        this.dragging = false;
+        const v = this.eventToValue(event);
+        this.updateTrackAndHandle(v);
+        if (this.props.dragEnd) this.props.dragEnd(v);
+        document.removeEventListener("mousemove", this.onMouseMove);
+        document.removeEventListener("mouseup", this.onMouseUp);
+    }
+
+    onMouseMove = (event: MouseEvent) => {
+        const v = this.eventToValue(event);
+        this.updateTrackAndHandle(v);
+        if (this.props.drag) this.props.drag(v);
+    }
+
+    eventToValue = (event: MouseEvent) => {
+        const handleElement = this.handleRef.current as HTMLElement;
+        const handleRect = handleElement.getBoundingClientRect();
+        const handleOffset = handleRect.left;
+
+        const center = (handleRect.width / 2) + handleOffset;
+
+        const clientPixelNormalized = event.clientX;
+        const handleCenterPixel = center;
+        const pixelDelta = clientPixelNormalized - handleCenterPixel;
+
+        if (Number.isNaN(pixelDelta)) {
+            return this.value;
+        }
+        const trackSize = (this.trackRef.current as HTMLElement).clientWidth;
+        const tickSizeRatio = 1 / ((this.state.max as number) - (this.state.min as number));
+        const tickSize = trackSize * tickSizeRatio;
+        let value = this.value + Math.round(pixelDelta / (tickSize * this.props.stepSize)) * this.props.stepSize;
+        value = clamp(value, this.state.min as number, this.state.max as number);
+        return value;
     }
 
     mediaReady = () => {
@@ -81,33 +151,40 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     mediaReset = () => {
         this.dragging = false;
         if (this.timer) cancelAnimationFrame(this.timer);
-        this.setState({ value: 0 });
     }
 
     sliderUpdate = () => {
         if (typeof (this.props.timerSource) === 'function') {
             if (!this.dragging) {
                 const value = this.props.timerSource();
-                if (value !== this.state.value) this.setState({ value });
+                this.updateTrackAndHandle(value);
             }
         }
         else {
             const value = this.props.value;
-            if (value !== this.props.value) this.setState({ value });
+            this.updateTrackAndHandle(value as number);
         }
         this.timer = requestAnimationFrame(this.sliderUpdate);
     }
 
-    handleDragStart = (v: number) => {
-        this.dragging = true;
-        this.setState({ value: v });
-        if (this.props.dragStart) this.props.dragStart(v);
-    }
+    updateTrackAndHandle = (v: number) => {
+        this.value = v;
+        const per = ((v - (this.state.min as number)) / ((this.state.max as number) - (this.state.min as number))) * 100;
+        const hper = 100 - per;
+        if (this.handleRef.current) {
+            const h = this.handleRef.current as HTMLElement;
+            h.style.left = `calc(${per}% - 8px)`;
+        }
+        if (this.prRef1.current && this.prRef2.current && this.prRef3.current) {
+            this.prRef1.current.style.left = "0%";
+            this.prRef1.current.style.right = `${hper}%`;
 
-    handleDragEnd = (v: number) => {
-        this.dragging = false;
-        this.setState({ value: v })
-        if (this.props.dragEnd) this.props.dragEnd(v);
+            this.prRef2.current.style.left = `${hper}%`;
+            this.prRef2.current.style.right = `${per}%`;
+
+            this.prRef3.current.style.left = `${per}%`;
+            this.prRef3.current.style.right = `${0}%`;
+        }
     }
 
     handleMouse = (event: Event): void => {
@@ -128,20 +205,45 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         const c = (
             <div
                 style={{ width: 100 + '%' }}
-                ref={this.sliderRef}
             >
-                <Slider
-                    stepSize={this.props.stepSize}
-                    min={this.state.min}
-                    max={this.state.max}
-                    value={this.state.value}
-                    initialValue={this.state.value}
-                    labelRenderer={false}
-                    className={this.props.className}
-                    onRelease={this.handleDragEnd}
-                    onChange={this.handleDragStart}
-                    disabled={this.state.disabled}
-                />
+                <div
+                    ref={this.sliderRef}
+                    className={classNames(Classes.SLIDER, "bp3-slider-unlabeled", this.props.className)}
+                >
+                    <div className={Classes.SLIDER_TRACK} ref={this.trackRef}>
+                        <div
+                            ref={this.prRef1}
+                            className={classNames(Classes.SLIDER_PROGRESS, Classes.INTENT_PRIMARY)}
+                            style={{
+                                left: 0 + '%',
+                                right: 100 + '%',
+                                top: 0 + 'px',
+                            }} />
+                        <div
+                            ref={this.prRef2}
+                            className={classNames(Classes.SLIDER_PROGRESS)}
+                            style={{
+                                left: 0 + '%',
+                                right: 100 + '%',
+                                top: 0 + 'px',
+                            }} />
+                        <div
+                            ref={this.prRef3}
+                            className={classNames(Classes.SLIDER_PROGRESS)}
+                            style={{
+                                left: 0 + '%',
+                                right: 0 + '%',
+                                top: 0 + 'px',
+                            }} />
+                    </div>
+                    <div className={classNames(Classes.SLIDER_AXIS)} />
+                    <span
+                        ref={this.handleRef}
+                        className={classNames(Classes.SLIDER_HANDLE, "fadeout")}
+                        style={{
+                            left: 'calc(0% - 8px)',
+                        }} />
+                </div>
             </div>
         );
         return c;

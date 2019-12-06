@@ -5,7 +5,7 @@ import {
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails, ZOOM } from '../../types';
-import SliderExtended from '../Extended/FadeoutSlider';
+import SliderExtended, { ButtonExtended } from '../Extended/FadeoutSlider';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { getTransposedKey } from '../../lib/music-utils';
@@ -16,7 +16,6 @@ interface InfoPanelProps {
     project: ProjectDetails;
 }
 interface InfoPanelState {
-    zoom: number;
     keyChange: number;
     tempoChange: number;
 }
@@ -24,7 +23,7 @@ interface InfoPanelState {
 class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
     constructor(props: InfoPanelProps) {
         super(props);
-        this.state = { zoom: ZOOM.DEFAULT, keyChange: 0, tempoChange: 1 };
+        this.state = { keyChange: 0, tempoChange: 1 };
     }
 
     componentDidMount = () => {
@@ -49,12 +48,10 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
     }
 
     mediaReset = () => {
-        this.setState({ zoom: ZOOM.DEFAULT });
     }
 
     setZoom = (cur: number) => {
         MediaPlayerService.zoom(cur);
-        this.setState({ zoom: cur });
     }
 
     render = () => {
@@ -124,13 +121,13 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         </Card>
                     </Tooltip>
                     <Card elevation={0} id="" className={classNames("info-item", "number", "zoomer")}>
-                        <Button
+                        <ButtonExtended
                             small
                             minimal
                             icon={IconNames.ZOOM_OUT}
                             className={classNames("zoom-item", "zoom-item-button")}
                             onClick={() => {
-                                const cur = this.state.zoom;
+                                const cur = MediaPlayerService.getZoom();
                                 if (cur > ZOOM.MIN) {
                                     this.setZoom(cur - 1);
                                 }
@@ -139,7 +136,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                             <SliderExtended
                                 min={ZOOM.MIN}
                                 max={ZOOM.MAX}
-                                value={this.state.zoom}
+                                timerSource={MediaPlayerService.getZoom}
                                 stepSize={1}
                                 labelRenderer={false}
                                 className="zoom-item"
@@ -147,13 +144,13 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                                 dragEnd={(v: number) => this.setZoom(v)}
                             />
                         </div>
-                        <Button
+                        <ButtonExtended
                             small
                             minimal
                             className={classNames("zoom-item-button")}
                             icon={IconNames.ZOOM_IN}
                             onClick={() => {
-                                const cur = this.state.zoom;
+                                const cur = MediaPlayerService.getZoom();
                                 if (cur < ZOOM.MAX) {
                                     this.setZoom(cur + 1)
                                 }
