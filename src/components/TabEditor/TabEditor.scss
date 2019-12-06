@@ -160,3 +160,12 @@
     position: relative;
     will-change: scroll-position;
 }
+
+.tab-progress {
+    border-right: 1px solid white;
+    position: absolute;
+    height: 76.4%;
+    width: 0%;
+    transform: translateX(0px);
+    will-change: transform;
+}

@@ -20,12 +20,24 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private beatsRef: RefObject<HTMLDivElement>;
     private timelineRef: RefObject<HTMLDivElement>;
     private imageRef: RefObject<HTMLImageElement>;
+    private neckContainerRef: RefObject<HTMLDivElement>;
+    private progressRef: RefObject<HTMLDivElement>;
+    private tabImgRef: RefObject<HTMLDivElement>;
+    private tabNoteRef: RefObject<HTMLDivElement>;
+    private overflowRef: RefObject<HTMLDivElement>;
+    private progressRAF = 0;
+
     constructor(props: {}) {
         super(props);
         this.state = { duration: 0 };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
         this.imageRef = React.createRef();
+        this.neckContainerRef = React.createRef();
+        this.progressRef = React.createRef();
+        this.tabImgRef = React.createRef();
+        this.tabNoteRef = React.createRef();
+        this.overflowRef = React.createRef();
     }
 
     componentDidMount = () => {
@@ -37,10 +49,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     updateImage = async () => {
         if (!MediaPlayerService.wavesurfer) return;
-        //sif (this.state.image) return;
         try {
             const image = await MediaPlayerService.exportImage(PX_PER_SEC * this.state.duration);
-            //this.setState({ image })
             if (this.imageRef.current) {
                 this.imageRef.current.src = image;
                 this.imageRef.current.style.visibility = ""
@@ -53,6 +63,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+        cancelAnimationFrame(this.progressRAF);
     }
 
     mediaReady = async () => {
@@ -137,6 +148,26 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
         }
         this.updateImage();
+        this.updateProgress();
+    }
+
+    updateProgress = () => {
+        this.progressRAF = requestAnimationFrame(this.updateProgress);
+        const time = MediaPlayerService.getCurrentTime();
+        const per = (time / MediaPlayerService.getDuration()) * 100;
+        const perat10 = (10 / MediaPlayerService.getDuration()) * 100;
+        if (this.neckContainerRef.current && this.progressRef.current) {
+            const width = this.neckContainerRef.current.clientWidth;
+            this.progressRef.current.style.transform = `translateX(${(per / 100) * width}px)`;
+
+            if (this.overflowRef.current) {
+                const sl = this.overflowRef.current.scrollLeft + this.overflowRef.current.clientWidth;
+                const pos = (per / 100) * width
+                if (pos > sl) {
+                    this.overflowRef.current.scrollLeft += this.overflowRef.current.clientWidth;
+                }
+            }
+        }
     }
 
     render = () => {
@@ -144,11 +175,17 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             <div className="tabeditor-root">
                 <InfoPanel />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
-                    <div className="tab-overflow-root">
+                    <div
+                        ref={this.overflowRef}
+                        className="tab-overflow-root"
+                    >
                         <div
+                            ref={this.tabImgRef}
                             className="tab-wv-img"
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
+                                willChange: 'transform',
+                                imageRendering: 'pixelated',
                             }}>
                             <img
                                 ref={this.imageRef}
@@ -158,12 +195,15 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             />
                         </div>
                         <div
+                            ref={this.tabNoteRef}
                             style={{
                                 width: PX_PER_SEC * this.state.duration + 'px',
+                                willChange: 'transform',
                             }}
                             className="tab-note-edit"
                         >
-                            <div className="neck-container">
+                            <div className="neck-container" ref={this.neckContainerRef}>
+                                <div className="tab-progress" ref={this.progressRef} />
                                 <div className="neck">
                                     <div className="strings strings-first" />
                                     <div className="strings" />
@@ -177,7 +217,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             className="tabs-beats-timeline"
                             ref={this.beatsRef}
                             style={{
-                                willChange: 'scroll-position',
+                                willChange: 'transform',
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />
@@ -185,7 +225,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             className="tabs-timeline"
                             ref={this.timelineRef}
                             style={{
-                                willChange: 'scroll-position',
+                                willChange: 'transform',
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />

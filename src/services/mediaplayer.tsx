@@ -717,8 +717,6 @@ class MediaPlayer {
             const d = document.createElement("div");
             d.style.width = width + 'px';
             d.style.height = 100 + 'px';
-            //d.style.top = 0 + 'px';
-            //d.style.visibility = "hidden";
             d.style.position = "absolute"
             document.body.appendChild(d);
             const drawer = new this.wavesurfer.Drawer(d, {
@@ -730,8 +728,8 @@ class MediaPlayer {
                 barWidth: 3,
                 barRadius: 3,
                 barGap: 2,
-                height: 180,
-                barHeight: 0.85,
+                height: 200,
+                barHeight: 1,
                 scrollParent: false,
             });
             drawer.createWrapper();
