@@ -96,7 +96,6 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
     }
 
     onMouseDown = (event: MouseEvent) => {
-        console.log("onmousedown");
         this.dragging = true;
         const v = this.eventToValue(event);
         this.updateTrackAndHandle(v);
@@ -173,17 +172,32 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
         const hper = 100 - per;
         if (this.handleRef.current) {
             const h = this.handleRef.current as HTMLElement;
-            h.style.left = `calc(${per}% - 8px)`;
+            const handleRect = h.getBoundingClientRect();
+            const mPoint = handleRect.width / 2;
+            const parent = h.parentElement;
+            if (parent) {
+                const val = `${(parent.offsetWidth * per) / 100 - mPoint}px`;
+                h.style.transform = `translateX(${val})`
+            }
         }
         if (this.prRef1.current && this.prRef2.current && this.prRef3.current) {
-            this.prRef1.current.style.left = "0%";
-            this.prRef1.current.style.right = `${hper}%`;
-
-            this.prRef2.current.style.left = `${hper}%`;
-            this.prRef2.current.style.right = `${per}%`;
-
-            this.prRef3.current.style.left = `${per}%`;
-            this.prRef3.current.style.right = `${0}%`;
+            const h = this.handleRef.current as HTMLElement;
+            const parent = h.parentElement;
+            if (parent) {
+                const r = (parent.offsetWidth * hper) / 100;
+                const p = (parent.offsetWidth * per) / 100;
+                if (parseInt(this.prRef1.current.style.right, 10) !== 0) {
+                    this.prRef1.current.style.right = 0 + 'px';
+                    this.prRef1.current.style.left = 0 + 'px';
+                    this.prRef2.current.style.left = 0 + 'px';
+                    this.prRef2.current.style.right = 0 + 'px';
+                    this.prRef3.current.style.left = 0 + 'px';
+                    this.prRef3.current.style.right = 0 + 'px';
+                }
+                this.prRef1.current.style.transform = `translateX(${-r}px)`;
+                this.prRef2.current.style.transform = `translateX(${-r - p}px)`;
+                this.prRef3.current.style.transform = `translateX(${p}px)`;
+            }
         }
     }
 
@@ -218,6 +232,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                                 left: 0 + '%',
                                 right: 100 + '%',
                                 top: 0 + 'px',
+                                willChange: 'transform',
                             }} />
                         <div
                             ref={this.prRef2}
@@ -226,6 +241,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                                 left: 0 + '%',
                                 right: 100 + '%',
                                 top: 0 + 'px',
+                                willChange: 'transform',
                             }} />
                         <div
                             ref={this.prRef3}
@@ -234,6 +250,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                                 left: 0 + '%',
                                 right: 0 + '%',
                                 top: 0 + 'px',
+                                willChange: 'transform',
                             }} />
                     </div>
                     <div className={classNames(Classes.SLIDER_AXIS)} />
@@ -241,7 +258,7 @@ export default class SliderExtended extends Component<SliderExtendedProps, Slide
                         ref={this.handleRef}
                         className={classNames(Classes.SLIDER_HANDLE, "fadeout")}
                         style={{
-                            left: 'calc(0% - 8px)',
+                            willChange: 'transform',
                         }} />
                 </div>
             </div>

@@ -8,9 +8,9 @@ import './MediaAdvanced.scss'
 import { ProjectMetadata } from '../../types'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
+import HomeTab from './HomeTab';
 
 const MixerTab = React.lazy(() => import('./MixerTab'));
-const HomeTab = React.lazy(() => import('./HomeTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
 const EqualizerTab = React.lazy(() => import("./EQPanel"));
 interface MediaAdvancedState {
