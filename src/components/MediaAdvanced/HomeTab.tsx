@@ -1,14 +1,13 @@
 import React from 'react';
 import { IconNames, IconName } from '@blueprintjs/icons';
 import {
-    Callout, Card, Elevation, Intent, Switch, Classes,
+    Callout, Card, Elevation, Intent, Switch,
     Button, FormGroup, InputGroup, Checkbox,
 } from '@blueprintjs/core';
 import './HomeTab.scss';
 import { ProjectMetadata } from '../../types';
 import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import MusicAnalysisService from '../../lib/musicanalysis';
 
 interface HomeTabProps {
     metadata: ProjectMetadata;

@@ -12,7 +12,7 @@ import {
 } from '../../types';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
-import { setStateAsync, UUID } from '../../lib/utils';
+import { UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
 import { MixerProps } from './MixerTab';
 
@@ -117,7 +117,7 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     mode: 2,
                     colorCb: () => { return nativeTheme.shouldUseDarkColors ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light },
-                    onCanvasDraw: (instance: unknown) => {
+                    onCanvasDraw: (/*instance: unknown*/) => {
                         //displayCanvasMsg(instance);
                         //drawEQTags(instance, MediaPlayerService.getFilters());
                     },

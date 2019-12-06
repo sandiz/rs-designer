@@ -1,6 +1,6 @@
 import React, { Component, RefObject } from 'react';
 import {
-    Slider, ISliderProps, Classes, ICardProps, Card, IButtonProps, Button,
+    ISliderProps, Classes, ICardProps, Card, IButtonProps, Button,
 } from '@blueprintjs/core';
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import classNames from 'classnames';

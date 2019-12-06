@@ -717,7 +717,7 @@ class MediaPlayer {
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return "";
             const linGradDark = ctx.createLinearGradient(0, 155, 0, 200);
-            linGradDark.addColorStop(0.0, 'rgba(255, 255, 255, 0.35)');
+            linGradDark.addColorStop(0.0, 'rgba(255, 255, 255, 0.8)');
             const d = document.createElement("div");
             d.style.width = width + 'px';
             d.style.height = 100 + 'px';

@@ -97,7 +97,7 @@ class Runner {
                 });
             }
             if (this.runner.stderr) {
-                this.runner.stderr.on("data", (data: Buffer) => {
+                this.runner.stderr.on("data", (/*data: Buffer*/) => {
                     //if (isDev) console.log(`[${this.type} - runner] stderr: `, data);
                 });
             }
@@ -273,12 +273,12 @@ class MusicAnalysis {
 
     isAnalysisInProgress = () => this.isAutoAnalysisRunning;
 
-    analysePrompt = (toAnalyse: AnalysisType[]): Promise<boolean> => new Promise((resolve, reject) => {
+    analysePrompt = (toAnalyse: AnalysisType[]): Promise<boolean> => new Promise((resolve) => {
         const action = {
             text: "Start",
             onClick: () => resolve(true),
         }
-        const dismiss = (didTimeoutExpire: boolean) => {
+        const dismiss = () => {
             resolve(false);
         }
         successToaster(`[ meend-intelligence ] analysis pending for ${toAnalyse.join(", ")}.`,

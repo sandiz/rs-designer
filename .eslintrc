@@ -57,7 +57,8 @@
         "no-nested-ternary": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         "no-console": "off",
-        "@typescript-eslint/no-empty-function": "off"
+        "@typescript-eslint/no-empty-function": "off",
+        "jsx-a11y/mouse-events-have-key-events": "off"
     },
     "parser": "@typescript-eslint/parser",
     "extends": [

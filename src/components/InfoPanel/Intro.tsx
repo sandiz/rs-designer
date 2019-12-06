@@ -41,7 +41,7 @@ function openProject() {
     DispatcherService.dispatch(DispatchEvents.ProjectOpen);
 }
 
-export const IntroPanel: FunctionComponent<{}> = (props: {}) => {
+export const IntroPanel: FunctionComponent<{}> = () => {
     const title = (
         <React.Fragment>
             <div className="number version">v{app.getVersion()}</div>

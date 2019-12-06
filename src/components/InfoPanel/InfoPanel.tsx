@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import {
-    Card, Text, Tooltip, Button,
+    Card, Text, Tooltip,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails, ZOOM } from '../../types';

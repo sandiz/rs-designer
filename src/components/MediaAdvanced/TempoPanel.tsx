@@ -41,7 +41,7 @@ export class TempoPanel extends React.Component<MixerProps, TempoPanelState> {
         this.setState({ tempoChange: MediaPlayerService.getPlaybackRate() * 100 });
     }
 
-    handleRelease = (v: number) => {
+    handleRelease = () => {
         //this.setState({ tempoChange: v });
         //MediaPlayerService.changeTempo(v);
     }
