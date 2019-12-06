@@ -177,6 +177,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             className="tabs-beats-timeline"
                             ref={this.beatsRef}
                             style={{
+                                willChange: 'scroll-position',
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />
@@ -184,6 +185,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             className="tabs-timeline"
                             ref={this.timelineRef}
                             style={{
+                                willChange: 'scroll-position',
                                 width: PX_PER_SEC * this.state.duration + 'px',
                             }}
                         />
