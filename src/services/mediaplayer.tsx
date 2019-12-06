@@ -714,6 +714,10 @@ class MediaPlayer {
 
     public exportImage = async (width: number): Promise<string> => {
         if (this.wavesurfer) {
+            const ctx = document.createElement('canvas').getContext('2d');
+            if (!ctx) return "";
+            const linGradDark = ctx.createLinearGradient(0, 155, 0, 200);
+            linGradDark.addColorStop(0.0, 'rgba(255, 255, 255, 0.35)');
             const d = document.createElement("div");
             d.style.width = width + 'px';
             d.style.height = 100 + 'px';
@@ -723,8 +727,8 @@ class MediaPlayer {
                 pixelRatio: 1,
                 heght: 180,
                 maxCanvasWidth: width,
-                waveColor: '#fff',
-                progressColor: '#fff',
+                waveColor: linGradDark,
+                progressColor: linGradDark,
                 barWidth: 3,
                 barRadius: 3,
                 barGap: 2,

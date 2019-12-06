@@ -57,7 +57,6 @@
         "no-nested-ternary": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         "no-console": "off",
-        "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-empty-function": "off"
     },
     "parser": "@typescript-eslint/parser",

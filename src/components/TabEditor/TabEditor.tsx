@@ -1,15 +1,14 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Text, Elevation, Callout,
+    Card, Text, Elevation,
 } from '@blueprintjs/core';
 import { CardExtended } from '../Extended/FadeoutSlider';
 import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import { ZOOM } from '../../types';
-import { sec2time } from '../../lib/utils';
+import NoteEditor from './NoteEditor';
 
 interface TabEditorState {
     duration: number;
@@ -42,6 +41,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
         }
@@ -63,7 +63,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         cancelAnimationFrame(this.progressRAF);
+    }
+
+    mediaReset = async () => {
+        if (MediaPlayerService.wavesurfer) {
+            MediaPlayerService.wavesurfer.off('seek', this.onSeek);
+        }
     }
 
     mediaReady = async () => {
@@ -149,20 +156,34 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
         this.updateImage();
         this.updateProgress();
+        if (MediaPlayerService.wavesurfer) {
+            MediaPlayerService.wavesurfer.on('seek', this.onSeek);
+        }
+    }
+
+    onSeek = () => {
+        const time = MediaPlayerService.getCurrentTime();
+        const per = (time / MediaPlayerService.getDuration()) * 100;
+
+        if (this.overflowRef.current && this.neckContainerRef.current) {
+            const width = this.neckContainerRef.current.clientWidth;
+            const pos = (per / 100) * width;
+            const times = Math.floor(pos / this.overflowRef.current.clientWidth);
+            this.overflowRef.current.scrollLeft = times * this.overflowRef.current.clientWidth;
+        }
     }
 
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
         const time = MediaPlayerService.getCurrentTime();
         const per = (time / MediaPlayerService.getDuration()) * 100;
-        const perat10 = (10 / MediaPlayerService.getDuration()) * 100;
         if (this.neckContainerRef.current && this.progressRef.current) {
             const width = this.neckContainerRef.current.clientWidth;
             this.progressRef.current.style.transform = `translateX(${(per / 100) * width}px)`;
 
-            if (this.overflowRef.current) {
+            if (this.overflowRef.current && MediaPlayerService.isPlaying()) {
                 const sl = this.overflowRef.current.scrollLeft + this.overflowRef.current.clientWidth;
-                const pos = (per / 100) * width
+                const pos = (per / 100) * width;
                 if (pos > sl) {
                     this.overflowRef.current.scrollLeft += this.overflowRef.current.clientWidth;
                 }
@@ -204,13 +225,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         >
                             <div className="neck-container" ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
-                                <div className="neck">
-                                    <div className="strings strings-first" />
-                                    <div className="strings" />
-                                    <div className="strings" />
-                                    <div className="strings" />
-                                    <div className="strings" />
-                                </div>
+                                <NoteEditor />
                             </div>
                         </div>
                         <div
@@ -236,7 +251,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 }
 
-const InfoPanel: React.FunctionComponent<{}> = (props: {}) => {
+const InfoPanel: React.FunctionComponent<{}> = () => {
     return (
         <div className="tabeditor-panel">
             <div style={{
