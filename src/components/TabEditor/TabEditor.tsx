@@ -1,20 +1,27 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Text, Elevation,
+    Card, Text, Elevation, Slider,
 } from '@blueprintjs/core';
-import { CardExtended } from '../Extended/FadeoutSlider';
+import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
+import { IconNames } from '@blueprintjs/icons';
+import { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 import NoteEditor from './NoteEditor';
 
+const { nativeTheme } = window.require("electron").remote;
+
 interface TabEditorState {
     duration: number;
-    //image: string | undefined;
+    zoom: number;
 }
 const PX_PER_SEC = 40;
+const ZOOM_MIN = PX_PER_SEC;
+const ZOOM_MAX = PX_PER_SEC * 10
+const ZOOM_DEFAULT = PX_PER_SEC;
 class TabEditor extends React.Component<{}, TabEditorState> {
     private beatsRef: RefObject<HTMLDivElement>;
     private timelineRef: RefObject<HTMLDivElement>;
@@ -28,7 +35,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     constructor(props: {}) {
         super(props);
-        this.state = { duration: 0 };
+        this.state = { duration: 0, zoom: ZOOM_DEFAULT };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
         this.imageRef = React.createRef();
@@ -42,15 +49,23 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     componentDidMount = () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        nativeTheme.on('updated', this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
         }
     }
 
+    componentWillUnmount = () => {
+        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
+        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        nativeTheme.on('updated', this.updateImage);
+        cancelAnimationFrame(this.progressRAF);
+    }
+
     updateImage = async () => {
         if (!MediaPlayerService.wavesurfer) return;
         try {
-            const image = await MediaPlayerService.exportImage(PX_PER_SEC * this.state.duration);
+            const image = await MediaPlayerService.exportImage(this.state.zoom * this.state.duration);
             if (this.imageRef.current) {
                 this.imageRef.current.src = image;
                 this.imageRef.current.style.visibility = ""
@@ -59,12 +74,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         catch (e) {
             console.log("update-image exception", e);
         }
-    }
-
-    componentWillUnmount = () => {
-        DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
-        DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
-        cancelAnimationFrame(this.progressRAF);
     }
 
     mediaReset = async () => {
@@ -99,7 +108,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     onecounter += 1;
                     const sp = document.createElement('span');
                     c.appendChild(sp);
-                    sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 });
+                    sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
                     sp.textContent = onecounter.toString();
                 }
                 else {
@@ -191,10 +200,25 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    zoomIn = () => {
+        const cur = this.state.zoom;
+        if (cur < ZOOM_MAX) {
+            this.setState({ zoom: cur + 1 });
+        }
+    }
+    zoomOut = () => {
+        const cur = this.state.zoom;
+        if (cur > ZOOM_MIN) {
+            this.setState({ zoom: cur - 1 });
+        }
+    }
+
+    zoom = (v: number) => this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) })
+
     render = () => {
         return (
             <div className="tabeditor-root">
-                <InfoPanel />
+                <InfoPanel zoomIn={this.zoomIn} zoomOut={this.zoomOut} zoomValue={this.state.zoom} zoom={this.zoom} />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
                         ref={this.overflowRef}
@@ -204,9 +228,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             ref={this.tabImgRef}
                             className="tab-wv-img"
                             style={{
-                                width: PX_PER_SEC * this.state.duration + 'px',
+                                width: this.state.zoom * this.state.duration + 'px',
                                 willChange: 'transform',
-                                imageRendering: 'pixelated',
                             }}>
                             <img
                                 ref={this.imageRef}
@@ -218,7 +241,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         <div
                             ref={this.tabNoteRef}
                             style={{
-                                width: PX_PER_SEC * this.state.duration + 'px',
+                                width: this.state.zoom * this.state.duration + 'px',
                                 willChange: 'transform',
                             }}
                             className="tab-note-edit"
@@ -233,7 +256,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             ref={this.beatsRef}
                             style={{
                                 willChange: 'transform',
-                                width: PX_PER_SEC * this.state.duration + 'px',
+                                width: this.state.zoom * this.state.duration + 'px',
                             }}
                         />
                         <div
@@ -241,7 +264,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             ref={this.timelineRef}
                             style={{
                                 willChange: 'transform',
-                                width: PX_PER_SEC * this.state.duration + 'px',
+                                width: this.state.zoom * this.state.duration + 'px',
                             }}
                         />
                     </div>
@@ -251,7 +274,15 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 }
 
-const InfoPanel: React.FunctionComponent<{}> = () => {
+interface InfoPanelProps {
+    zoomIn: () => void;
+    zoomOut: () => void;
+    zoom: (v: number) => void;
+    zoomValue: number;
+
+}
+
+const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProps) => {
     return (
         <div className="tabeditor-panel">
             <div style={{
@@ -273,6 +304,33 @@ const InfoPanel: React.FunctionComponent<{}> = () => {
                     <Text ellipsize>
                         <span>Lead - Guitar</span>
                     </Text>
+                </Card>
+                <Card elevation={0} id="" className={classNames("info-item", "number", "zoomer")}>
+                    <ButtonExtended
+                        small
+                        minimal
+                        icon={IconNames.ZOOM_OUT}
+                        className={classNames("zoom-item", "zoom-item-button")}
+                        onClick={props.zoomOut} />
+                    <div className="zoom-item">
+                        <Slider
+                            min={ZOOM_MIN}
+                            max={ZOOM_MAX}
+                            value={props.zoomValue}
+                            stepSize={1}
+                            labelRenderer={false}
+                            className="zoom-item"
+                            onChange={props.zoom}
+                            onRelease={props.zoom}
+                        />
+                    </div>
+                    <ButtonExtended
+                        small
+                        minimal
+                        className={classNames("zoom-item-button")}
+                        icon={IconNames.ZOOM_IN}
+                        onClick={props.zoomIn}
+                    />
                 </Card>
             </div>
         </div>

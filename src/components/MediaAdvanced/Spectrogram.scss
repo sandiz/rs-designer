@@ -61,7 +61,7 @@
 .piano-key {
     display: inline-block;
     position: relative;
-    z-index: 1;
+    z-index: 5;
 }
 
 .piano-key>div {
@@ -88,7 +88,7 @@
 }
 
 .piano-key-sharp {
-    z-index: 2;
+    z-index: 6;
     width: 0;
     overflow: visible;
     vertical-align: top;

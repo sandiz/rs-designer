@@ -1,3 +1,5 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
 .tabeditor-root {
     height: 44vh;
     padding-top: 10px;
@@ -39,48 +41,44 @@
 
 
 .beats-start {
-    border-right: 1px solid #CED9E0;
-    text-align: right;
+    border-left: 1px solid #CED9E0;
+    text-align: left;
 }
 
 .bp3-dark .beats-start {
-    border-right: 1px solid #5C7080;
-    text-align: right;
+    border-left: 1px solid #5C7080;
+    text-align: left;
 }
 
 .beats-other {
-    border-right: 1px solid #CED9E0;
+    border-left: 1px solid #CED9E0;
     height: 15px;
 }
 
 .bp3-dark .beats-other {
-    border-right: 1px solid #5C7080;
-    text-align: right;
+    border-left: 1px solid #5C7080;
+    text-align: left;
 }
 
-
-.beats-num-span-0 {
-    margin-left: 55px !important;
-}
 
 .beats-num-span {
-    font-family: Inconsolata, monospace;
-    text-align: right;
     color: #10161A;
-    font-size: 12px;
+    font-family: Inconsolata, monospace;
+    text-align: left;
+    font-size: 15px;
     position: relative;
-    top: 14px;
-    margin-left: 26px;
+    margin-left: 5px;
+    top: 27px;
 }
 
 .bp3-dark .beats-num-span {
     font-family: Inconsolata, monospace;
-    text-align: right;
+    text-align: left;
     color: #fff;
-    font-size: 12px;
+    font-size: 15px;
     position: relative;
-    top: 14px;
-    margin-left: 26px;
+    margin-left: 5px;
+    top: 27px;
 }
 
 .time-notch {
@@ -97,7 +95,7 @@
     font-family: Inconsolata, monospace;
     text-align: right;
     color: #10161A;
-    font-size: 12px;
+    font-size: 15px;
     margin-left: 4px;
     position: relative;
     top: 5px;
@@ -107,7 +105,7 @@
     font-family: Inconsolata, monospace;
     text-align: right;
     color: #fff;
-    font-size: 12px;
+    font-size: 15px;
     margin-left: 4px;
     position: relative;
     top: 5px;
@@ -121,19 +119,10 @@
 
 .strings-first {
     border-top: 1px solid gray;
+    height: 100%;
+    //padding-top: 0px !important;
 }
 
-.strings {
-    height: 2%;
-    border-bottom: 1px dotted gray;
-    border-top: 1px dotted gray;
-    background-color: black;
-}
-
-.strings:hover {
-    background-color: red;
-    cursor: pointer;
-}
 
 .neck {
     display: flex;
@@ -141,17 +130,19 @@
     height: 100%;
     background-color: rgba(1, 1, 1, 0.2);
     justify-content: space-between;
+    cursor: pointer;
 }
 
 .hover-note {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     position: absolute;
-    background-color: green;
+    background-color: rgb(244, 67, 71);
     visibility: hidden;
     cursor: pointer;
     pointer-events: none;
-    border-radius: 25px;
+    border-radius: 20px;
+    transition: 100ms !important;
 }
 
 .neck-container {
@@ -164,7 +155,7 @@
     position: absolute;
     height: 100%;
     margin-top: 36px;
-    z-index: 100 !important;
+    z-index: 3 !important;
 }
 
 .tab-wv-img {
@@ -182,10 +173,57 @@
 }
 
 .tab-progress {
-    border-right: 1px solid white;
+    border-right: 1px solid #10161A;
     position: absolute;
-    height: 76.4%;
+    height: 76%;
     width: 0%;
     transform: translateX(0px);
     will-change: transform;
+}
+
+.bp3-dark .tab-progress {
+    border-right: 1px solid white;
+    position: absolute;
+    height: 76%;
+    width: 0%;
+    transform: translateX(0px);
+    will-change: transform;
+}
+
+
+.strings-hitbox {
+    height: 20%;
+    //background-color: red;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.strings-hitbox-first {
+    //background-color: red;
+    margin-top: -68px;
+}
+
+.strings {
+    height: 7.5%;
+    box-shadow: inset 0 0 4px;
+    background-color: blanchedalmond;
+    transition: 0.3s;
+    width: 100%;
+    //padding-top: 10px;
+}
+
+.bp3-dark .strings {
+    height: 7.5%;
+    box-shadow: inset 0 0 4px;
+    background-color: #455e77;
+    transition: 0.3s;
+    width: 100%;
+    //padding-top: 10px;
+}
+
+.strings:hover {
+    //background-color: rgb(236, 189, 139);
+    cursor: pointer;
 }
