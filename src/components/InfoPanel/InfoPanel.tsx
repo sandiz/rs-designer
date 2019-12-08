@@ -56,14 +56,19 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
 
     render = () => {
         let keymsg = "";
-        let tempomsg = "";
+        let tempomsg = null;
         if (this.props.project.metadata) {
             const [key, type, _ignored] = this.props.project.metadata.key;
             if (key === "-") keymsg = "-";
             else {
                 keymsg = `${getTransposedKey(key, this.state.keyChange)} ${type}`;
             }
-            tempomsg = (this.props.project.metadata.tempo === 0 ? "-" : `${Math.round(this.props.project.metadata.tempo * this.state.tempoChange)} bpm`);
+            tempomsg = (
+                <span className="number">
+                    {this.props.project.metadata.tempo === 0 ? "-" : `${Math.round(this.props.project.metadata.tempo * this.state.tempoChange)}`}
+                    <span className="dark-toast">&nbsp;bpm</span>
+                </span>
+            );
         }
         return (
             <div className="info-panel">
@@ -76,7 +81,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         interactive
                         onClick={() => shell.showItemInFolder(this.props.project.metadata ? this.props.project.metadata.path : "")}
                         elevation={0}
-                        className={classNames("info-item", "info-item-large", "number")}>
+                        className={classNames("info-item")}>
                         <Text ellipsize>
                             <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
                         </Text>
@@ -97,7 +102,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         <Card
                             elevation={0}
                             id=""
-                            className={classNames("info-item", "number")}>
+                            className={classNames("info-item")}>
                             {keymsg}
                         </Card>
                     </Tooltip>
@@ -114,10 +119,8 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                                     </span>
                                 )
                         )}>
-                        <Card elevation={0} id="" className={classNames("info-item", "number")}>
-                            <span>
-                                {tempomsg}
-                            </span>
+                        <Card elevation={0} id="" className={classNames("info-item")}>
+                            {tempomsg}
                         </Card>
                     </Tooltip>
                     <Card elevation={0} id="" className={classNames("info-item", "number", "zoomer")}>
@@ -183,7 +186,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                                 Total amount of memory used / total allocated by JS objects.
                             </span>
                         )}>
-                        <Card elevation={0} id="memory" className={classNames("memory-meter", "number", "info-item")}>0 / 0 mb</Card>
+                        <Card elevation={0} id="memory" className={classNames("memory-meter", "number", "info-item")}>0 / 0<span className="dark-toast">&nbsp;mb</span></Card>
                     </Tooltip>
                     <Tooltip
                         hoverOpenDelay={1000}
@@ -194,7 +197,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                                 Frames per second.
                             </span>
                         )}>
-                        <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 fps</Card>
+                        <Card elevation={0} id="fps" className={classNames("fps-meter", "number")}>0 <span className="dark-toast">&nbsp;fps</span></Card>
                     </Tooltip>
                 </div>
             </div>

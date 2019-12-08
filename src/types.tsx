@@ -36,6 +36,27 @@ export interface MediaInfo {
    Update version number to add new field to the project and optionally modify Project::loadProject
    to migrate the serialized version to new version
   */
+export interface InstrumentNotes {
+    file: string;
+    tags: string[];
+}
+export interface InstrumentNotesInMem {
+    notes: NoteTime[];
+    tags: string[];
+}
+export enum Instrument { leadGuitar = "leadGuitar", rhythmGuitar = "rhythmGuitar", bassGuitar = "bassGuitar", ukulele = "ukulele" }
+export class Instruments {
+    public [Instrument.leadGuitar]: InstrumentNotes[] = [];
+    public [Instrument.rhythmGuitar]: InstrumentNotes[] = [];
+    public [Instrument.bassGuitar]: InstrumentNotes[] = [];
+    public [Instrument.ukulele]: InstrumentNotes[] = [];
+}
+export class InstrumentsInMem {
+    public [Instrument.leadGuitar]: InstrumentNotesInMem[] = [];
+    public [Instrument.rhythmGuitar]: InstrumentNotesInMem[] = [];
+    public [Instrument.bassGuitar]: InstrumentNotesInMem[] = [];
+    public [Instrument.ukulele]: InstrumentNotesInMem[] = [];
+}
 export class ProjectInfo {
     public media: string;
     public original: string;
@@ -47,8 +68,9 @@ export class ProjectInfo {
     public metadata: string;
     public version: number;
     public projectPath: string;
+    public instruments: Instruments;
 
-    static currentVersion = 1;
+    static currentVersion = 2;
     constructor() {
         this.media = "";
         this.original = "";
@@ -60,6 +82,7 @@ export class ProjectInfo {
         this.metadata = "";
         this.version = ProjectInfo.currentVersion;
         this.projectPath = "";
+        this.instruments = new Instruments();
     }
 }
 /* Classes maintaining an history of projects */

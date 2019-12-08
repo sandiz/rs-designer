@@ -8,7 +8,7 @@ import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { IAudioMetadata } from 'music-metadata';
 import {
-    copyFile, writeFile, copyDir, readFile, readTags, removeDir,
+    copyFile, writeFile, copyDir, readFile, readTags, removeDir, UUID, exists,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
@@ -16,6 +16,7 @@ import ForageService, { SettingsForageKeys } from './forage';
 import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
     ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
+    Instruments, Instrument, InstrumentNotes, InstrumentsInMem, InstrumentNotesInMem,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
 import MusicAnalysisService from '../lib/musicanalysis';
@@ -39,6 +40,7 @@ export enum ProjectUpdateType {
     ProjectInfoCreated = "project-info-created",
     ExternalFilesUpdate = "external-files-update",
     MediaInfoUpdated = "media-info-updated",
+    InstrumentNotesUpdated = "instrument-notes-updated"
 }
 export class Project {
     public projectDirectory: string;
@@ -50,6 +52,7 @@ export class Project {
     public projectInfo: ProjectInfo | null;
     public tmpHandle: TMP.DirResult | null;
     public projectSettings: ProjectSettingsModel | null;
+    public inMemoryInstruments: InstrumentsInMem;
     static MAX_RECENTS = 10;
 
     private static instance: Project;
@@ -72,6 +75,7 @@ export class Project {
         this.projectInfo = null;
         this.projectSettings = null;
         this.isLoading = false;
+        this.inMemoryInstruments = new InstrumentsInMem();
 
         DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
         DispatcherService.on(DispatchEvents.ImportMedia, (data: DispatchData) => this.importMedia(data as string | null));
@@ -277,6 +281,9 @@ export class Project {
                         default:
                         case 1:
                             json.projectPath = jsonPath;
+                        // falls through
+                        case 2:
+                            json.instruments = new Instruments();
                             break;
                     }
                     json.version = ProjectInfo.currentVersion;
@@ -297,7 +304,10 @@ export class Project {
                     await this.saveProjectSettings();
                 }
                 await this.updateExternalFiles();
-
+                await this.loadInstruments();
+                if (!this.getFirstValidInstrument()) {
+                    this.createInstrument(Instrument.leadGuitar);
+                }
                 return this.projectInfo;
             }
         }
@@ -355,6 +365,7 @@ export class Project {
                 DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             }
             this.saveProjectSettings();
+            this.saveInstruments();
             successToaster("Project Saved")
             return true;
         }
@@ -656,6 +667,98 @@ export class Project {
         }
         else {
             this.isLoading = false;
+        }
+    }
+
+    /* loads the notes from file to memory */
+    public loadInstruments = async () => {
+        if (this.projectInfo) {
+            //eslint-disable-next-line
+            for (const key in Instrument) {
+                const source = this.projectInfo.instruments[key as keyof typeof Instrument]
+                const dest = this.inMemoryInstruments[key as keyof typeof Instrument];
+                for (let i = 0; i < source.length; i += 1) {
+                    const item = source[i] as InstrumentNotes;
+                    try {
+                        // eslint-disable-next-line
+                        const data = await readFile(item.file);
+                        const itemDest = { notes: JSON.parse(data.toString()), tags: item.tags };
+                        dest[i] = itemDest;
+                    }
+                    catch (e) {
+                        console.warn("error reading note data from ", item.file, e);
+                    }
+                }
+            }
+        }
+    }
+
+    /* creates an instrument in memory */
+    public createInstrument = (instrument: Instrument) => {
+        this.inMemoryInstruments[instrument].push({ notes: [], tags: [] });
+    }
+
+    /* get first valid instrument from memory */
+    public getFirstValidInstrument = (): [keyof typeof Instrument, InstrumentNotesInMem] | null => {
+        // eslint-disable-next-line
+        for (const key in Instrument) {
+            const inst = key as keyof typeof Instrument;
+            const source = this.inMemoryInstruments[inst];
+            if (source.length > 0) return [inst, source[0]];
+        }
+        return null;
+    }
+
+    public getInstrument = (instrument: Instrument, index: number): InstrumentNotesInMem | null => {
+        if (index < this.inMemoryInstruments[instrument].length) return this.inMemoryInstruments[instrument][index];
+        return null;
+    }
+
+    /* save instruments to file */
+    public saveInstruments = async () => {
+        if (this.projectInfo) {
+            //eslint-disable-next-line
+            for (const key in Instrument) {
+                const dest = this.projectInfo.instruments[key as keyof typeof Instrument]
+                const source = this.inMemoryInstruments[key as keyof typeof Instrument];
+                for (let i = 0; i < source.length; i += 1) {
+                    if (!dest[i]) {
+                        const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
+                        dest[i] = { file: destFile, tags: source[i].tags };
+                        try {
+                            // eslint-disable-next-line
+                            await writeFile(destFile, JSON.stringify(source[i].notes));
+                        }
+                        catch (e) {
+                            console.warn("error saving note data to ", destFile, e);
+                        }
+                    } else {
+                        // eslint-disable-next-line
+                        const destFile = await exists(dest[i].file) ? dest[i].file : path.join(this.projectDirectory, `${key}_${UUID()}.json`);
+                        try {
+                            // eslint-disable-next-line
+                            await writeFile(destFile, JSON.stringify(source[i].notes));
+                            dest[i].file = destFile;
+                            dest[i].tags = source[i].tags;
+                        }
+                        catch (e) {
+                            console.warn("error saving note data to ", destFile, e);
+                        }
+                    }
+                }
+            }
+            //serialize
+            await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.InstrumentNotesUpdated);
+        }
+    }
+
+    /* save notes in memory */
+    public saveInstrument = async (instrument: Instrument, instNotes: InstrumentNotesInMem, index: number) => {
+        const inst = this.getInstrument(instrument, index);
+        if (inst) {
+            inst.notes = instNotes.notes;
+            inst.tags = instNotes.tags;
         }
     }
 }

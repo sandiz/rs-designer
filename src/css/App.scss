@@ -165,11 +165,13 @@ input,
 .info-item {
     text-align: center;
     height: 2.5vh;
-    padding-top: 0.5vh;
+    padding-top: 0.4vh;
     margin-right: 1vh;
 }
 
-.info-item-large {}
+.info-item-large {
+    height: 3.5vh;
+}
 
 .dialog-header {
     padding-top: 1vh;

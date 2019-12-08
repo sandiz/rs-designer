@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Text, Elevation, Slider,
+    Card, Text, Elevation, Slider, TagInput,
 } from '@blueprintjs/core';
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import { IconNames } from '@blueprintjs/icons';
@@ -285,54 +285,47 @@ interface InfoPanelProps {
 const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProps) => {
     return (
         <div className="tabeditor-panel">
-            <div style={{
-                width: 100 + '%',
-                display: 'flex',
-            }}>
-                <Card
-                    interactive
-                    elevation={Elevation.ONE}
-                    className={classNames("info-item", "info-item-large", "number")}>
-                    <Text ellipsize>
-                        <span>untitled.rstab*</span>
-                    </Text>
-                </Card>
-                <Card
-                    interactive
-                    elevation={Elevation.ONE}
-                    className={classNames("info-item", "info-item-large", "number")}>
-                    <Text ellipsize>
-                        <span>Lead - Guitar</span>
-                    </Text>
-                </Card>
-                <Card elevation={0} id="" className={classNames("info-item", "number", "zoomer")}>
-                    <ButtonExtended
-                        small
-                        minimal
-                        icon={IconNames.ZOOM_OUT}
-                        className={classNames("zoom-item", "zoom-item-button")}
-                        onClick={props.zoomOut} />
-                    <div className="zoom-item">
-                        <Slider
-                            min={ZOOM_MIN}
-                            max={ZOOM_MAX}
-                            value={props.zoomValue}
-                            stepSize={1}
-                            labelRenderer={false}
-                            className="zoom-item"
-                            onChange={props.zoom}
-                            onRelease={props.zoom}
-                        />
-                    </div>
-                    <ButtonExtended
-                        small
-                        minimal
-                        className={classNames("zoom-item-button")}
-                        icon={IconNames.ZOOM_IN}
-                        onClick={props.zoomIn}
+            <Card
+                interactive
+                elevation={Elevation.ONE}
+                className={classNames("info-item")}>
+                <Text ellipsize>
+                    <span>Lead - Guitar</span>
+                </Text>
+            </Card>
+            <Card
+                interactive
+                elevation={Elevation.ONE}
+                className={classNames("info-item", "info-item-large", "tag-input")}>
+                <TagInput addOnPaste tagProps={{ minimal: true }} values={[]} placeholder="Tags.." />
+            </Card>
+            <Card elevation={0} id="" className={classNames("info-item", "zoomer")}>
+                <ButtonExtended
+                    small
+                    minimal
+                    icon={IconNames.ZOOM_OUT}
+                    className={classNames("zoom-item", "zoom-item-button")}
+                    onClick={props.zoomOut} />
+                <div className="zoom-item">
+                    <Slider
+                        min={ZOOM_MIN}
+                        max={ZOOM_MAX}
+                        value={props.zoomValue}
+                        stepSize={1}
+                        labelRenderer={false}
+                        className="zoom-item"
+                        onChange={props.zoom}
+                        onRelease={props.zoom}
                     />
-                </Card>
-            </div>
+                </div>
+                <ButtonExtended
+                    small
+                    minimal
+                    className={classNames("zoom-item-button")}
+                    icon={IconNames.ZOOM_IN}
+                    onClick={props.zoomIn}
+                />
+            </Card>
         </div>
     )
 }

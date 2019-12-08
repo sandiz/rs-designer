@@ -9,7 +9,7 @@
 .tabeditor-panel {
     display: flex;
     justify-content: left;
-    align-items: center;
+    align-items: flex-end;
     width: 96%;
 }
 
@@ -65,7 +65,7 @@
     text-align: left;
     font-size: 15px;
     position: relative;
-    top: 27px;
+    top: 14px;
     width: 100%;
     margin-left: 130%;
 }
@@ -76,7 +76,7 @@
     color: #fff;
     font-size: 15px;
     position: relative;
-    top: 27px;
+    top: 14px;
     width: 100%;
     margin-left: 130%;
 }
@@ -234,6 +234,7 @@
     padding-top: 6px;
     font-size: 22px;
     color: #fff;
+    z-index: 10;
 }
 
 
@@ -250,4 +251,9 @@
     padding-top: 6px;
     font-size: 22px;
     color: #30404E;
+    z-index: 10;
+}
+
+.tag-input {
+    width: 20%;
 }

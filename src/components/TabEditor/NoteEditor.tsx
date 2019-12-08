@@ -1,9 +1,11 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
-import { Classes } from '@blueprintjs/core';
+import { Classes, ResizeSensor } from '@blueprintjs/core';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
-import { BeatTime, NoteTime } from '../../types';
+import {
+    BeatTime, NoteTime, Instrument, InstrumentNotesInMem,
+} from '../../types';
 import './TabEditor.scss';
 
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
@@ -23,7 +25,9 @@ interface NoteEditorProps {
 }
 interface NoteEditorState {
     beats: BeatTime[];
-    notes: NoteTime[];
+    instrumentNoteIndex: number;
+    instrument: Instrument;
+    instrumentNotes: InstrumentNotesInMem;
 }
 const STRING_COLORS: string[] = [
     "#C137D3",
@@ -41,12 +45,19 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private neckRef: RefObject<HTMLDivElement>;
     private currentString: HTMLElement | null;
     private strings: HTMLDivElement[];
+
     constructor(props: NoteEditorProps) {
         super(props);
         this.hoverRef = React.createRef();
         this.notesRef = React.createRef();
         this.neckRef = React.createRef();
-        this.state = { beats: [], notes: [] };
+        const inst = ProjectService.getFirstValidInstrument();
+        this.state = {
+            beats: [],
+            instrumentNoteIndex: 0,
+            instrument: inst ? inst[0] as Instrument : Instrument.leadGuitar,
+            instrumentNotes: inst ? inst[1] : { notes: [], tags: [] },
+        };
         this.currentString = null;
         this.strings = [];
     }
@@ -83,7 +94,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const x = event.clientX - (rect.left) - (hr.width / 2);
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
             if (this.currentString) {
-                const { notes } = this.state;
+                const {
+                    instrumentNotes, instrument, instrumentNoteIndex,
+                } = this.state;
+                const { notes } = instrumentNotes;
                 const string = parseInt(this.currentString.getAttribute("data-idx") as string, 10);
                 const startTime = parseFloat(closest[1].start);
                 const endTime = parseFloat(closest[1].start);
@@ -95,7 +109,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     startTime,
                     endTime,
                 })
-                this.setState({ notes });
+                instrumentNotes.notes = notes;
+                this.setState({ instrumentNotes });
+                ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIndex);
             }
         }
     }
@@ -137,88 +153,90 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
 
     render = () => {
         return (
-            <div
-                onMouseEnter={this.onNeckMouseEnter}
-                onMouseMove={this.onNeckMouseMove}
-                onMouseLeave={this.onNeckMouseLeave}
-                className="neck"
-                ref={this.neckRef}
-            >
-                <div ref={this.notesRef} className="notes-container">
-                    {
-                        this.state.notes.map((note: NoteTime) => {
-                            if (!this.neckRef.current) return null;
-                            const string = this.strings[note.string];
-                            const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
-                            return (
-                                <div
-                                    onClick={console.log}
-                                    key={note.string + "_" + note.fret + "_" + note.startTime}
-                                    className={classNames("note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE, "number")}
-                                    style={{
-                                        //position
-                                        textAlign: "center",
-                                        backgroundColor: STRING_COLORS[note.string],
-                                        position: "absolute",
-                                        transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
-                                    }}
-                                >
-                                    0
-                                </div>
-                            )
-                        })
-                    }
-                </div>
-                <div ref={this.hoverRef} className={classNames("hover-note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE)} />
+            <ResizeSensor onResize={() => this.forceUpdate()}>
                 <div
-                    className="strings-hitbox strings-hitbox-first"
-                    onMouseMove={this.onMouseMove}
-                    onMouseEnter={this.onMouseEnter}
-                    onMouseLeave={this.onMouseLeave}
-                    onClick={this.onMouseClick}>
-                    <div className="strings" data-idx="0" data-string="E" ref={this.addString} />
+                    onMouseEnter={this.onNeckMouseEnter}
+                    onMouseMove={this.onNeckMouseMove}
+                    onMouseLeave={this.onNeckMouseLeave}
+                    className="neck"
+                    ref={this.neckRef}
+                >
+                    <div ref={this.notesRef} className="notes-container">
+                        {
+                            this.state.instrumentNotes.notes.map((note: NoteTime) => {
+                                if (!this.neckRef.current) return null;
+                                const string = this.strings[note.string];
+                                const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
+                                return (
+                                    <div
+                                        onClick={console.log}
+                                        key={note.string + "_" + note.fret + "_" + note.startTime}
+                                        className={classNames("note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE, "number")}
+                                        style={{
+                                            //position
+                                            textAlign: "center",
+                                            backgroundColor: STRING_COLORS[note.string],
+                                            position: "absolute",
+                                            transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
+                                        }}
+                                    >
+                                        {note.fret}
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                    <div ref={this.hoverRef} className={classNames("hover-note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE)} />
+                    <div
+                        className="strings-hitbox strings-hitbox-first"
+                        onMouseMove={this.onMouseMove}
+                        onMouseEnter={this.onMouseEnter}
+                        onMouseLeave={this.onMouseLeave}
+                        onClick={this.onMouseClick}>
+                        <div className="strings" data-idx="0" data-string="E" ref={this.addString} />
+                    </div>
+                    <div
+                        className="strings-hitbox"
+                        onMouseMove={this.onMouseMove}
+                        onMouseEnter={this.onMouseEnter}
+                        onMouseLeave={this.onMouseLeave}
+                        onClick={this.onMouseClick}>
+                        <div className="strings" data-idx="1" data-string="B" ref={this.addString} />
+                    </div>
+                    <div
+                        className="strings-hitbox"
+                        onMouseMove={this.onMouseMove}
+                        onMouseEnter={this.onMouseEnter}
+                        onMouseLeave={this.onMouseLeave}
+                        onClick={this.onMouseClick}>
+                        <div className="strings" data-idx="2" data-string="G" ref={this.addString} />
+                    </div>
+                    <div
+                        className="strings-hitbox"
+                        onMouseMove={this.onMouseMove}
+                        onMouseEnter={this.onMouseEnter}
+                        onMouseLeave={this.onMouseLeave}
+                        onClick={this.onMouseClick}>
+                        <div className="strings" data-idx="3" data-string="D" ref={this.addString} />
+                    </div>
+                    <div
+                        className="strings-hitbox"
+                        onMouseMove={this.onMouseMove}
+                        onMouseEnter={this.onMouseEnter}
+                        onMouseLeave={this.onMouseLeave}
+                        onClick={this.onMouseClick}>
+                        <div className="strings" data-idx="4" data-string="A" ref={this.addString} />
+                    </div>
+                    <div
+                        className="strings-hitbox"
+                        onMouseMove={this.onMouseMove}
+                        onMouseOver={this.onMouseEnter}
+                        onMouseOut={this.onMouseLeave}
+                        onMouseDown={this.onMouseClick}>
+                        <div className="strings" data-idx="5" data-string="E" ref={this.addString} />
+                    </div>
                 </div>
-                <div
-                    className="strings-hitbox"
-                    onMouseMove={this.onMouseMove}
-                    onMouseEnter={this.onMouseEnter}
-                    onMouseLeave={this.onMouseLeave}
-                    onClick={this.onMouseClick}>
-                    <div className="strings" data-idx="1" data-string="B" ref={this.addString} />
-                </div>
-                <div
-                    className="strings-hitbox"
-                    onMouseMove={this.onMouseMove}
-                    onMouseEnter={this.onMouseEnter}
-                    onMouseLeave={this.onMouseLeave}
-                    onClick={this.onMouseClick}>
-                    <div className="strings" data-idx="2" data-string="G" ref={this.addString} />
-                </div>
-                <div
-                    className="strings-hitbox"
-                    onMouseMove={this.onMouseMove}
-                    onMouseEnter={this.onMouseEnter}
-                    onMouseLeave={this.onMouseLeave}
-                    onClick={this.onMouseClick}>
-                    <div className="strings" data-idx="3" data-string="D" ref={this.addString} />
-                </div>
-                <div
-                    className="strings-hitbox"
-                    onMouseMove={this.onMouseMove}
-                    onMouseEnter={this.onMouseEnter}
-                    onMouseLeave={this.onMouseLeave}
-                    onClick={this.onMouseClick}>
-                    <div className="strings" data-idx="4" data-string="A" ref={this.addString} />
-                </div>
-                <div
-                    className="strings-hitbox"
-                    onMouseMove={this.onMouseMove}
-                    onMouseOver={this.onMouseEnter}
-                    onMouseOut={this.onMouseLeave}
-                    onMouseDown={this.onMouseClick}>
-                    <div className="strings" data-idx="5" data-string="E" ref={this.addString} />
-                </div>
-            </div>
+            </ResizeSensor>
         );
     }
 }
