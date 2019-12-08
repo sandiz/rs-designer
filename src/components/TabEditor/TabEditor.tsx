@@ -106,7 +106,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 if (bn === 1) {
                     c.className = "beats-start";
                     onecounter += 1;
-                    const sp = document.createElement('span');
+                    const sp = document.createElement('div');
                     c.appendChild(sp);
                     sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
                     sp.textContent = onecounter.toString();
@@ -248,7 +248,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         >
                             <div className="neck-container" ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
-                                <NoteEditor />
+                                <NoteEditor width={this.state.zoom * this.state.duration} />
                             </div>
                         </div>
                         <div

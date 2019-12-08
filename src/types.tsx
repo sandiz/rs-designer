@@ -140,6 +140,13 @@ export interface BeatTime {
     beatNum: string;
 }
 
+export interface NoteTime {
+    string: number;
+    fret: number;
+    type: "note" | "chord";
+    startTime: number;
+    endTime: number;
+}
 /* Represents a minor or major scale */
 export interface ScaleInfo {
     steps: string[];

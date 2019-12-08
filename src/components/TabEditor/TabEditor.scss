@@ -39,27 +39,25 @@
     height: 8%;
 }
 
-
 .beats-start {
-    border-left: 1px solid #CED9E0;
+    border-right: 1px solid #CED9E0;
     text-align: left;
 }
 
 .bp3-dark .beats-start {
-    border-left: 1px solid #5C7080;
+    border-right: 1px solid #5C7080;
     text-align: left;
 }
 
 .beats-other {
-    border-left: 1px solid #CED9E0;
+    border-right: 1px solid #CED9E0;
     height: 15px;
 }
 
 .bp3-dark .beats-other {
-    border-left: 1px solid #5C7080;
+    border-right: 1px solid #5C7080;
     text-align: left;
 }
-
 
 .beats-num-span {
     color: #10161A;
@@ -67,8 +65,9 @@
     text-align: left;
     font-size: 15px;
     position: relative;
-    margin-left: 5px;
     top: 27px;
+    width: 100%;
+    margin-left: 130%;
 }
 
 .bp3-dark .beats-num-span {
@@ -77,8 +76,9 @@
     color: #fff;
     font-size: 15px;
     position: relative;
-    margin-left: 5px;
     top: 27px;
+    width: 100%;
+    margin-left: 130%;
 }
 
 .time-notch {
@@ -120,9 +120,7 @@
 .strings-first {
     border-top: 1px solid gray;
     height: 100%;
-    //padding-top: 0px !important;
 }
-
 
 .neck {
     display: flex;
@@ -193,7 +191,6 @@
 
 .strings-hitbox {
     height: 20%;
-    //background-color: red;
     display: flex;
     justify-content: flex-end;
     flex-direction: column;
@@ -201,7 +198,6 @@
 }
 
 .strings-hitbox-first {
-    //background-color: red;
     margin-top: -68px;
 }
 
@@ -211,7 +207,6 @@
     background-color: blanchedalmond;
     transition: 0.3s;
     width: 100%;
-    //padding-top: 10px;
 }
 
 .bp3-dark .strings {
@@ -220,10 +215,39 @@
     background-color: #455e77;
     transition: 0.3s;
     width: 100%;
-    //padding-top: 10px;
 }
 
-.strings:hover {
-    //background-color: rgb(236, 189, 139);
+.notes-container {
+    position: absolute;
+}
+
+.note {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-color: rgb(244, 67, 71);
     cursor: pointer;
+    border-radius: 20px;
+    transition: 0ms;
+    margin: 0;
+    padding: 0;
+    padding-top: 6px;
+    font-size: 22px;
+    color: #fff;
+}
+
+
+.bp3-dark .note {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-color: rgb(244, 67, 71);
+    cursor: pointer;
+    border-radius: 20px;
+    transition: 0ms;
+    margin: 0;
+    padding: 0;
+    padding-top: 6px;
+    font-size: 22px;
+    color: #30404E;
 }
