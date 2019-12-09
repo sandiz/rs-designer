@@ -174,7 +174,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                                 the audio graph — into the audio subsystem ready for playing.
                  </span>
                         )}>
-                        <Card elevation={0} id="latency" className={classNames("latency-meter", "number", "info-item")}>- ms</Card>
+                        <Card elevation={0} id="latency" className={classNames("latency-meter", "number", "info-item")}>-<span className="dark-toast">&nbsp;ms</span></Card>
                     </Tooltip>
                     <Tooltip
                         hoverOpenDelay={1000}

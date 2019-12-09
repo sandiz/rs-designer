@@ -190,6 +190,51 @@ export interface ChordInfo {
     notes: string;
 }
 
+export const baseTuning = ["E", "B", "G", "D", "A", "E"];
+export const allTunings = {
+    EStandard: [0, 0, 0, 0, 0, 0],
+    EbStandard: [-1, -1, -1, -1, -1, -1],
+    DropD: [-2, 0, 0, 0, 0, 0],
+    FStandard: [1, 1, 1, 1, 1, 1],
+    EbDropDb: [-3, -1, -1, -1, -1, -1],
+    DStandard: [-2, -2, -2, -2, -2, -2],
+    DDropC: [-4, -2, -2, -2, -2, -2],
+    DbStandard: [-3, -3, -3, -3, -3, -3],
+    DbDropB: [-5, -3, -3, -3, -3, -3],
+    CStandard: [-4, -4, -4, -4, -4, -4],
+    CDropBb: [-6, -4, -4, -4, -4, -4],
+    BStandard: [-5, -5, -5, -5, -5, -5],
+    BDropA: [-7, -5, -5, -5, -5, -5],
+    OpenA: [0, 0, 2, 2, 2, 0],
+    OpenD: [-2, 0, 0, -1, -2, -2],
+    OpenG: [-2, -2, 0, 0, 0, -2],
+    OpenE: [0, 2, 2, 1, 0, 0],
+    DADGAD: [-2, 0, 0, 0, -2, -2],
+}
+export const InstrumentOptions = {
+    [Instrument.leadGuitar]: {
+        title: "Lead Guitar",
+        strings: 6,
+        defaultTuning: allTunings.EStandard,
+    },
+    [Instrument.rhythmGuitar]: {
+        title: "Rhythm Guitar",
+        strings: 6,
+        defaultTuning: allTunings.EStandard,
+    },
+    [Instrument.bassGuitar]: {
+        title: "Bass Guitar",
+        strings: 4,
+        defaultTuning: allTunings.EStandard,
+    },
+    [Instrument.ukulele]: {
+        title: "Ukulele",
+        strings: 4,
+        defaultTuning: allTunings.EStandard,
+    },
+}
+
+
 /* extended bp3 classes */
 export class ExtClasses {
     public static TEXT_LARGER = "bp3-text-larger";

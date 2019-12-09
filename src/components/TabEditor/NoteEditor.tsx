@@ -22,11 +22,12 @@ export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: Beat
 }
 interface NoteEditorProps {
     width: number;
+    instrument?: Instrument;
+    instrumentNotes?: InstrumentNotesInMem;
+    instrumentNoteIdx?: number;
 }
 interface NoteEditorState {
     beats: BeatTime[];
-    instrumentNoteIndex: number;
-    instrument: Instrument;
     instrumentNotes: InstrumentNotesInMem;
 }
 const STRING_COLORS: string[] = [
@@ -51,12 +52,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         this.hoverRef = React.createRef();
         this.notesRef = React.createRef();
         this.neckRef = React.createRef();
-        const inst = ProjectService.getFirstValidInstrument();
         this.state = {
             beats: [],
-            instrumentNoteIndex: 0,
-            instrument: inst ? inst[0] as Instrument : Instrument.leadGuitar,
-            instrumentNotes: inst ? inst[1] : { notes: [], tags: [] },
+            instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
         };
         this.currentString = null;
         this.strings = [];
@@ -67,6 +65,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (metadata) {
             this.setState({ beats: metadata.beats });
         }
+    }
+
+    static getDerivedStateFromProps(props: NoteEditorProps, state: NoteEditorState) {
+        if (JSON.stringify(state.instrumentNotes) !== JSON.stringify(props.instrumentNotes)) {
+            return {
+                instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
+            }
+        }
+        return null;
     }
 
     onMouseEnter = (event: React.MouseEvent) => {
@@ -95,24 +102,55 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
             if (this.currentString) {
                 const {
-                    instrumentNotes, instrument, instrumentNoteIndex,
-                } = this.state;
-                const { notes } = instrumentNotes;
-                const string = parseInt(this.currentString.getAttribute("data-idx") as string, 10);
-                const startTime = parseFloat(closest[1].start);
-                const endTime = parseFloat(closest[1].start);
-                if (notes.findIndex(i => i.startTime === startTime && i.string === string) !== -1) return;
-                notes.push({
-                    string,
-                    fret: 0,
-                    type: "note",
-                    startTime,
-                    endTime,
-                })
-                instrumentNotes.notes = notes;
-                this.setState({ instrumentNotes });
-                ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIndex);
+                    instrument, instrumentNoteIdx,
+                } = this.props;
+                const {
+                    instrumentNotes,
+                } = this.state
+                if (instrumentNotes && instrument && instrumentNoteIdx !== undefined) {
+                    const { notes } = instrumentNotes;
+                    const string = parseInt(this.currentString.getAttribute("data-idx") as string, 10);
+                    const startTime = parseFloat(closest[1].start);
+                    const endTime = parseFloat(closest[1].start);
+                    // if a note is already there
+                    const idx = notes.findIndex(i => i.startTime === startTime && i.string === string)
+                    if (idx !== -1) {
+                        return;
+                    }
+                    else {
+                        notes.push({
+                            string,
+                            fret: 0,
+                            type: "note",
+                            startTime,
+                            endTime,
+                        })
+                    }
+                    instrumentNotes.notes = notes;
+                    this.setState({ instrumentNotes });
+                    ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
+                }
             }
+        }
+    }
+
+    onMouseClickNote = (event: React.MouseEvent, idx: number) => {
+        const {
+            instrumentNotes,
+        } = this.state;
+        const {
+            instrument, instrumentNoteIdx,
+        } = this.props;
+
+        const { notes } = instrumentNotes;
+        if (notes && instrument && instrumentNoteIdx !== undefined) {
+            if (event.button === 2) {
+                // delete
+                notes.splice(idx, 1);
+            }
+            instrumentNotes.notes = notes;
+            this.setState({ instrumentNotes });
+            ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
         }
     }
 
@@ -163,13 +201,14 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 >
                     <div ref={this.notesRef} className="notes-container">
                         {
-                            this.state.instrumentNotes.notes.map((note: NoteTime) => {
+                            this.state.instrumentNotes.notes.map((note: NoteTime, idx: number) => {
+                                const i = idx;
                                 if (!this.neckRef.current) return null;
                                 const string = this.strings[note.string];
                                 const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
                                 return (
                                     <div
-                                        onClick={console.log}
+                                        onMouseUp={e => this.onMouseClickNote(e, i)}
                                         key={note.string + "_" + note.fret + "_" + note.startTime}
                                         className={classNames("note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE, "number")}
                                         style={{

@@ -1,8 +1,9 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Text, Elevation, Slider, TagInput,
+    Card, Text, Elevation, Slider, TagInput, MenuItem, Button, Classes,
 } from '@blueprintjs/core';
+import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import { IconNames } from '@blueprintjs/icons';
 import { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
@@ -11,12 +12,20 @@ import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 import NoteEditor from './NoteEditor';
+import {
+    InstrumentFile, filterIFile, renderFile, isInstrumentFileDisabled, areFilesEqual, getAllFiles, getIndexFromDivider,
+} from './InstrumentFile';
+import { Instrument } from '../../types';
 
 const { nativeTheme } = window.require("electron").remote;
+const InstrumentalFileSelect = Select.ofType<InstrumentFile>();
 
 interface TabEditorState {
     duration: number;
     zoom: number;
+    files: InstrumentFile[];
+    currentFile: InstrumentFile | null;
+    currentFileIdx: number;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -35,7 +44,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     constructor(props: {}) {
         super(props);
-        this.state = { duration: 0, zoom: ZOOM_DEFAULT };
+        this.state = {
+            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0,
+        };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
         this.imageRef = React.createRef();
@@ -46,13 +57,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.overflowRef = React.createRef();
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         nativeTheme.on('updated', this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
         }
+        this.updateFiles();
+    }
+
+    updateFiles = () => {
+        const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
+        this.setState({ files: getAllFiles(), currentFile: file });
     }
 
     componentWillUnmount = () => {
@@ -215,10 +232,43 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     zoom = (v: number) => this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) })
 
+    handleFileChange = (item: InstrumentFile) => {
+        if (item.isDivider) {
+            ProjectService.createInstrument(item.key as Instrument);
+            this.updateFiles();
+        }
+        else {
+            const idx = getAllFiles().filter(p => !p.isDivider).findIndex(p => p.hash === item.hash)
+            this.setState({ currentFile: item, currentFileIdx: idx });
+        }
+    }
+
+    handleTagChange = (values: React.ReactNode[]) => {
+        const v = values as string[];
+        const { currentFile } = this.state;
+        if (currentFile) {
+            const obj = { ...currentFile }
+            obj.instrumentNotes.tags = v;
+            this.setState({ currentFile: obj }, () => {
+                ProjectService.saveInstrument(currentFile.key as Instrument, currentFile.instrumentNotes, this.state.currentFileIdx);
+                this.updateFiles();
+            });
+        }
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
-                <InfoPanel zoomIn={this.zoomIn} zoomOut={this.zoomOut} zoomValue={this.state.zoom} zoom={this.zoom} />
+                <InfoPanel
+                    zoomIn={this.zoomIn}
+                    zoomOut={this.zoomOut}
+                    zoomValue={this.state.zoom}
+                    zoom={this.zoom}
+                    files={this.state.files}
+                    file={this.state.currentFile}
+                    handleFileChange={this.handleFileChange}
+                    handleTagChange={this.handleTagChange}
+                />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
                         ref={this.overflowRef}
@@ -248,7 +298,12 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         >
                             <div className="neck-container" ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
-                                <NoteEditor width={this.state.zoom * this.state.duration} />
+                                <NoteEditor
+                                    width={this.state.zoom * this.state.duration}
+                                    instrument={this.state.currentFile?.key as Instrument}
+                                    instrumentNotes={this.state.currentFile?.instrumentNotes}
+                                    instrumentNoteIdx={this.state.currentFileIdx}
+                                />
                             </div>
                         </div>
                         <div
@@ -280,24 +335,50 @@ interface InfoPanelProps {
     zoom: (v: number) => void;
     zoomValue: number;
 
+    files: InstrumentFile[];
+    file: InstrumentFile | null;
+    handleFileChange: (item: InstrumentFile, event?: React.SyntheticEvent<HTMLElement>) => void;
+
+    handleTagChange: (values: React.ReactNode[]) => boolean | void;
 }
 
 const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProps) => {
+    if (props.files.length === 0 || props.file === null) return null;
+    const idxDiv = getIndexFromDivider(props.file, props.files);
     return (
         <div className="tabeditor-panel">
+            <InstrumentalFileSelect
+                activeItem={props.file}
+                filterable
+                resetOnClose
+                className={classNames("info-item-control", Classes.ELEVATION_1)}
+                itemPredicate={filterIFile}
+                itemRenderer={(item, ps) => renderFile(item, ps, props.file, props.files)}
+                itemDisabled={isInstrumentFileDisabled}
+                itemsEqual={areFilesEqual}
+                items={props.files}
+                noResults={<MenuItem disabled text="No files." />}
+                onItemSelect={props.handleFileChange}
+            >
+                {/* children become the popover target; render value here */}
+                <Button text={props.file ? <span>{props.file.title} - Chart #<span className="number">{idxDiv[0] - idxDiv[1]}</span></span> : ""} rightIcon="double-caret-vertical" />
+            </InstrumentalFileSelect>
+            <TagInput
+                className={classNames("info-item-control", "tag-input", Classes.ELEVATION_1)}
+                leftIcon={IconNames.TAG}
+                addOnPaste
+                tagProps={{ minimal: true }}
+                values={props.file?.instrumentNotes.tags}
+                placeholder="Tags.."
+                onChange={props.handleTagChange}
+            />
             <Card
                 interactive
                 elevation={Elevation.ONE}
                 className={classNames("info-item")}>
                 <Text ellipsize>
-                    <span>Lead - Guitar</span>
+                    <span>Tuning</span>
                 </Text>
-            </Card>
-            <Card
-                interactive
-                elevation={Elevation.ONE}
-                className={classNames("info-item", "info-item-large", "tag-input")}>
-                <TagInput addOnPaste tagProps={{ minimal: true }} values={[]} placeholder="Tags.." />
             </Card>
             <Card elevation={0} id="" className={classNames("info-item", "zoomer")}>
                 <ButtonExtended

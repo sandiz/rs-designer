@@ -709,6 +709,10 @@ export class Project {
         return null;
     }
 
+    public getInstruments = () => {
+        return this.inMemoryInstruments;
+    }
+
     public getInstrument = (instrument: Instrument, index: number): InstrumentNotesInMem | null => {
         if (index < this.inMemoryInstruments[instrument].length) return this.inMemoryInstruments[instrument][index];
         return null;
