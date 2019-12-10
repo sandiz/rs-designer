@@ -64,6 +64,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
         nativeTheme.on('updated', this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
@@ -74,8 +76,18 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
+        DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
         nativeTheme.on('updated', this.updateImage);
         cancelAnimationFrame(this.progressRAF);
+    }
+
+    projectOpened = () => {
+        this.setState({
+            currentFile: null, currentFileIdx: 0, files: [],
+        });
+    }
+    projectClosed = () => {
     }
 
     updateImage = async () => {
@@ -359,7 +371,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             }}>
                             <img
                                 ref={this.imageRef}
-                                className="tab-img"
+                                className={classNames("tab-img")}
                                 alt="waveform"
                                 style={{ visibility: "hidden" }}
                             />
@@ -372,7 +384,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             }}
                             className="tab-note-edit"
                         >
-                            <div className="neck-container" ref={this.neckContainerRef}>
+                            <div className={classNames("neck-container")} ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
                                 <NoteEditor
                                     width={this.state.zoom * this.state.duration}

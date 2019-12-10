@@ -163,6 +163,7 @@ export class Project {
         }
         this.projectInfo = null;
         this.projectFileName = '';
+        this.inMemoryInstruments = new InstrumentsInMem();
         MediaPlayerService.empty();
         MediaPlayerService.unload();
     }
@@ -673,6 +674,7 @@ export class Project {
     /* loads the notes from file to memory */
     public loadInstruments = async () => {
         if (this.projectInfo) {
+            this.inMemoryInstruments = new InstrumentsInMem();
             //eslint-disable-next-line
             for (const key in Instrument) {
                 const source = this.projectInfo.instruments[key as keyof typeof Instrument]
