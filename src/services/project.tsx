@@ -732,6 +732,7 @@ export class Project {
             for (const key in Instrument) {
                 const dest = this.projectInfo.instruments[key as keyof typeof Instrument]
                 const source = this.inMemoryInstruments[key as keyof typeof Instrument];
+                dest.length = source.length;
                 for (let i = 0; i < source.length; i += 1) {
                     if (!dest[i]) {
                         const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
