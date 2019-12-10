@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover, NumericInput, TagInputAddMethod,
+    Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover, NumericInput, TagInputAddMethod, Position,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -15,7 +15,8 @@ import NoteEditor from './NoteEditor';
 import {
     InstrumentFile, filterIFile, renderFile, isInstrumentFileDisabled, areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
-import { Instrument, allTunings } from '../../types';
+import { Instrument, allTunings, baseTuning } from '../../types';
+import { getTransposedKey } from '../../lib/music-utils';
 
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentFile>();
@@ -400,11 +401,11 @@ const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
         [TagItem.CAPO as string]: {
             icon: IconNames.FLOW_END, text: "Capo", min: 0, max: 11, placeHolder: "Fret Number",
         },
-        [TagItem.DD as string]: {
-            icon: IconNames.TIMELINE_BAR_CHART, text: "Difficulty", min: 1, max: 5, placeHolder: "1-Min 5-Max",
-        },
         [TagItem.CENT as string]: {
             icon: IconNames.FLOW_REVIEW, text: "Cent Offset", min: -10, max: 100, placeHolder: "Offset in Hz",
+        },
+        [TagItem.DD as string]: {
+            icon: IconNames.TIMELINE_BAR_CHART, text: "Difficulty", min: 1, max: 5, placeHolder: "1-Min 5-Max",
         },
     }
     const currentTags = props.file ? props.file.instrumentNotes.tags : [];
@@ -430,7 +431,26 @@ const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
                                 isItem && v.items
                                     ? v.items.map((vi: string) => {
                                         switch (k) {
-                                            case TagItem.TUNING: return <MenuItem key={vi} text={vi} onClick={() => props.changeTag(key, vi)} />
+                                            case TagItem.TUNING: {
+                                                const tuning = vi.replace(/_/g, " ");
+                                                const indices = allTunings[vi as keyof typeof allTunings];
+                                                const notes = indices.map((i, idx) => getTransposedKey(baseTuning[idx], i)).join(" ");
+                                                return (
+                                                    <MenuItem
+                                                        key={vi}
+                                                        text={
+                                                            (
+                                                                <div style={{ display: 'flex', justifyContent: "space-between" }}>
+                                                                    <span className="info-item-control">{tuning}</span>
+                                                                    <span className={Classes.TEXT_MUTED}>
+                                                                        [ {notes} ]
+                                                                    </span>
+                                                                </div>
+                                                            )
+                                                        }
+                                                        onClick={() => props.changeTag(key, vi)} />
+                                                );
+                                            }
                                             default: return null;
                                         }
                                     })
@@ -478,7 +498,7 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 onRemove={props.removeTag}
                 rightElement={
                     (
-                        <Popover content={renderTagMenu(props)}>
+                        <Popover content={renderTagMenu(props)} inheritDarkTheme position={Position.BOTTOM_RIGHT}>
                             <Button minimal icon={IconNames.CHEVRON_DOWN} />
                         </Popover>
                     )

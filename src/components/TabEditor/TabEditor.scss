@@ -255,7 +255,8 @@
 }
 
 .tag-input {
-    width: 20%;
+    min-width: 20%;
+    max-width: 50%;
 }
 
 .tag-select-popover {

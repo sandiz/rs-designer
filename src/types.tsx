@@ -189,48 +189,48 @@ export interface ChordInfo {
     chord_charts: ChordChart[];
     notes: string;
 }
-
-export const baseTuning = ["E", "B", "G", "D", "A", "E"];
+/* eslint-disable @typescript-eslint/camelcase */
+export const baseTuning = ["E", "A", "D", "G", "B", "E"];
 export const allTunings = {
-    EStandard: [0, 0, 0, 0, 0, 0],
-    EbStandard: [-1, -1, -1, -1, -1, -1],
-    DropD: [-2, 0, 0, 0, 0, 0],
-    FStandard: [1, 1, 1, 1, 1, 1],
-    EbDropDb: [-3, -1, -1, -1, -1, -1],
-    DStandard: [-2, -2, -2, -2, -2, -2],
-    DDropC: [-4, -2, -2, -2, -2, -2],
-    DbStandard: [-3, -3, -3, -3, -3, -3],
-    DbDropB: [-5, -3, -3, -3, -3, -3],
-    CStandard: [-4, -4, -4, -4, -4, -4],
-    CDropBb: [-6, -4, -4, -4, -4, -4],
-    BStandard: [-5, -5, -5, -5, -5, -5],
-    BDropA: [-7, -5, -5, -5, -5, -5],
-    OpenA: [0, 0, 2, 2, 2, 0],
-    OpenD: [-2, 0, 0, -1, -2, -2],
-    OpenG: [-2, -2, 0, 0, 0, -2],
-    OpenE: [0, 2, 2, 1, 0, 0],
+    E_Standard: [0, 0, 0, 0, 0, 0],
+    Eb_Standard: [-1, -1, -1, -1, -1, -1],
+    Drop_D: [-2, 0, 0, 0, 0, 0],
+    F_Standard: [1, 1, 1, 1, 1, 1],
+    Eb_Drop_Db: [-3, -1, -1, -1, -1, -1],
+    D_Standard: [-2, -2, -2, -2, -2, -2],
+    D_Drop_C: [-4, -2, -2, -2, -2, -2],
+    Db_Standard: [-3, -3, -3, -3, -3, -3],
+    Db_Drop_B: [-5, -3, -3, -3, -3, -3],
+    C_Standard: [-4, -4, -4, -4, -4, -4],
+    C_Drop_Bb: [-6, -4, -4, -4, -4, -4],
+    B_Standard: [-5, -5, -5, -5, -5, -5],
+    B_Drop_A: [-7, -5, -5, -5, -5, -5],
+    Open_A: [0, 0, 2, 2, 2, 0],
+    Open_D: [-2, 0, 0, -1, -2, -2],
+    Open_G: [-2, -2, 0, 0, 0, -2],
+    Open_E: [0, 2, 2, 1, 0, 0],
     DADGAD: [-2, 0, 0, 0, -2, -2],
 }
 export const InstrumentOptions = {
     [Instrument.leadGuitar]: {
         title: "Lead Guitar",
         strings: 6,
-        defaultTuning: allTunings.EStandard,
+        defaultTuning: allTunings.E_Standard,
     },
     [Instrument.rhythmGuitar]: {
         title: "Rhythm Guitar",
         strings: 6,
-        defaultTuning: allTunings.EStandard,
+        defaultTuning: allTunings.E_Standard,
     },
     [Instrument.bassGuitar]: {
         title: "Bass Guitar",
         strings: 4,
-        defaultTuning: allTunings.EStandard,
+        defaultTuning: allTunings.E_Standard,
     },
     [Instrument.ukulele]: {
         title: "Ukulele",
         strings: 4,
-        defaultTuning: allTunings.EStandard,
+        defaultTuning: allTunings.E_Standard,
     },
 }
 
