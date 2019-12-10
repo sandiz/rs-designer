@@ -234,6 +234,10 @@ export const InstrumentOptions = {
     },
 }
 
+export interface ChartTag {
+    key: string;
+    value: string;
+}
 
 /* extended bp3 classes */
 export class ExtClasses {

@@ -1,7 +1,7 @@
 import React from 'react';
 //import classNames from 'classnames';
 import {
-    MenuItem, Tag, Button, //Classes,
+    MenuItem, Tag, Button, OverflowList, Boundary, Menu, Popover, Icon, PopoverInteractionKind, //Classes,
 } from "@blueprintjs/core";
 import { ItemPredicate, IItemRendererProps } from "@blueprintjs/select";
 import { IconNames } from '@blueprintjs/icons';
@@ -9,7 +9,7 @@ import ProjectService from "../../services/project";
 import {
     Instrument, InstrumentOptions, InstrumentNotesInMem,
 } from "../../types";
-import { hashCode } from '../../lib/utils';
+import { hashCode, UUID } from '../../lib/utils';
 
 export interface InstrumentFile {
     isDivider: boolean;
@@ -56,10 +56,32 @@ export const renderFile = (
             <div style={{ width: 140 + 'px' }}>
                 Chart #<span className="number">{indexDiv[0] - indexDiv[1]}</span>
             </div>
-            <div>
-                {
-                    file.instrumentNotes.tags.map(j => <Tag minimal className="info-item-control" key={j}>{j}</Tag>)
-                }
+            <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                width: 100 + '%',
+            }}>
+                <OverflowList
+                    collapseFrom={Boundary.END}
+                    minVisibleItems={3}
+                    overflowRenderer={items => (
+                        <Popover
+                            interactionKind={PopoverInteractionKind.HOVER}
+                            content={(
+                                <Menu>
+                                    {
+                                        items.map(i => <MenuItem key={i} text={(<Tag>{i}</Tag>)} />)
+                                    }
+                                </Menu>
+
+                            )}>
+                            <Icon icon={IconNames.MORE} />
+                        </Popover>
+                    )}
+                    visibleItemRenderer={i => <Tag className="info-item-control" key={i + UUID()}>{i}</Tag>}
+                    items={file.instrumentNotes.tags}
+                />
             </div>
         </div>
     );

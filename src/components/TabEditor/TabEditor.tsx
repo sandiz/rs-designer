@@ -1,11 +1,11 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Text, Elevation, Slider, TagInput, MenuItem, Button, Classes,
+    Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover, NumericInput, TagInputAddMethod,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
-import { IconNames } from '@blueprintjs/icons';
+import { IconNames, IconName } from '@blueprintjs/icons';
 import { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
@@ -15,11 +15,12 @@ import NoteEditor from './NoteEditor';
 import {
     InstrumentFile, filterIFile, renderFile, isInstrumentFileDisabled, areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
-import { Instrument } from '../../types';
+import { Instrument, allTunings } from '../../types';
 
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentFile>();
 
+enum TagItem { DD = "dd", TUNING = "tuning", CENT = "centoffset", CAPO = "capo" }
 interface TabEditorState {
     duration: number;
     zoom: number;
@@ -256,6 +257,52 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    changeTag = (tagType: string, value: string) => {
+        console.log(tagType, value);
+        if (this.state.currentFile) {
+            const tags = this.state.currentFile.instrumentNotes.tags;
+            const currentPairIdx = tags.findIndex(i => i.includes(`${tagType}=`));
+            if (currentPairIdx === -1) {
+                tags.push(`${tagType}=${value}`);
+            }
+            else {
+                tags[currentPairIdx] = `${tagType}=${value}`;
+            }
+            this.handleTagChange(tags);
+        }
+    }
+
+    addTag = (values: string[]) => {
+        const { currentFile } = this.state;
+        if (currentFile) {
+            const { tags } = currentFile.instrumentNotes;
+            for (let i = 0; i < values.length; i += 1) {
+                const value = values[i];
+                if (value.startsWith(TagItem.CAPO)
+                    || value.startsWith(TagItem.TUNING)
+                    || value.startsWith(TagItem.CENT)
+                    || value.startsWith(TagItem.DD)
+                ) {
+                    console.log("protected word");
+                }
+                else {
+                    tags.push(value);
+                }
+            }
+            this.handleTagChange(tags);
+        }
+    }
+
+    removeTag = (v: string, index: number) => {
+        console.log("remove-tag", v, index)
+        const { currentFile } = this.state;
+        if (currentFile) {
+            const { tags } = currentFile.instrumentNotes;
+            tags.splice(index, 1);
+            this.handleTagChange(tags);
+        }
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -267,7 +314,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     files={this.state.files}
                     file={this.state.currentFile}
                     handleFileChange={this.handleFileChange}
-                    handleTagChange={this.handleTagChange}
+                    changeTag={this.changeTag}
+                    addTag={this.addTag}
+                    removeTag={this.removeTag}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -339,7 +388,62 @@ interface InfoPanelProps {
     file: InstrumentFile | null;
     handleFileChange: (item: InstrumentFile, event?: React.SyntheticEvent<HTMLElement>) => void;
 
-    handleTagChange: (values: React.ReactNode[]) => boolean | void;
+    changeTag: (tagType: string, v: string) => void;
+    addTag: (v: string[], m: TagInputAddMethod) => void;
+    removeTag: (v: string, i: number) => void;
+}
+
+const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
+    type TagMenuOptions = { [key: string]: { icon: IconName; text: string; items?: string[]; min?: number; max?: number; placeHolder?: string } };
+    const items: TagMenuOptions = {
+        [TagItem.TUNING as string]: { icon: IconNames.WRENCH, text: "Tuning", items: Object.keys(allTunings) },
+        [TagItem.CAPO as string]: {
+            icon: IconNames.FLOW_END, text: "Capo", min: 0, max: 11, placeHolder: "Fret Number",
+        },
+        [TagItem.DD as string]: {
+            icon: IconNames.TIMELINE_BAR_CHART, text: "Difficulty", min: 1, max: 5, placeHolder: "1-Min 5-Max",
+        },
+        [TagItem.CENT as string]: {
+            icon: IconNames.FLOW_REVIEW, text: "Cent Offset", min: -10, max: 100, placeHolder: "Offset in Hz",
+        },
+    }
+    const currentTags = props.file ? props.file.instrumentNotes.tags : [];
+    const menu = (
+        <Menu>
+            {
+                Object.keys(items).map(key => {
+                    const k = key;
+                    const v = items[k]
+                    const isItem = Array.isArray(v.items);
+                    const currentPair = currentTags.find(i => i.includes(`${key}=`));
+                    let currentValue: string | number = key === TagItem.TUNING ? "" : 0;
+                    const split = currentPair?.split("=")[1].trim();
+                    if (split) currentValue = key === TagItem.TUNING ? split : parseInt(split, 10);
+                    return (
+                        <MenuItem
+                            popoverProps={{ openOnTargetFocus: false }}
+                            icon={v.icon as IconName}
+                            key={k}
+                            text={v.text}
+                        >
+                            {
+                                isItem && v.items
+                                    ? v.items.map((vi: string) => {
+                                        switch (k) {
+                                            case TagItem.TUNING: return <MenuItem key={vi} text={vi} onClick={() => props.changeTag(key, vi)} />
+                                            default: return null;
+                                        }
+                                    })
+                                    : <NumericInput value={currentValue} min={v.min} max={v.max} className="number" allowNumericCharactersOnly fill placeholder={v.placeHolder} onValueChange={newv => props.changeTag(key, newv.toString())} />
+                            }
+                        </MenuItem>
+                    )
+                })
+            }
+
+        </Menu>
+    );
+    return menu;
 }
 
 const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProps) => {
@@ -370,16 +474,16 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 tagProps={{ minimal: true }}
                 values={props.file?.instrumentNotes.tags}
                 placeholder="Tags.."
-                onChange={props.handleTagChange}
+                onAdd={props.addTag}
+                onRemove={props.removeTag}
+                rightElement={
+                    (
+                        <Popover content={renderTagMenu(props)}>
+                            <Button minimal icon={IconNames.CHEVRON_DOWN} />
+                        </Popover>
+                    )
+                }
             />
-            <Card
-                interactive
-                elevation={Elevation.ONE}
-                className={classNames("info-item")}>
-                <Text ellipsize>
-                    <span>Tuning</span>
-                </Text>
-            </Card>
             <Card elevation={0} id="" className={classNames("info-item", "zoomer")}>
                 <ButtonExtended
                     small
