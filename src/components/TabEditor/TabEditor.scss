@@ -128,7 +128,6 @@
     height: 100%;
     background-color: rgba(1, 1, 1, 0.2);
     justify-content: space-between;
-    cursor: pointer;
 }
 
 .hover-note {
@@ -137,7 +136,6 @@
     position: absolute;
     background-color: rgb(244, 67, 71);
     visibility: hidden;
-    cursor: pointer;
     pointer-events: none;
     border-radius: 20px;
     transition: 100ms !important;
@@ -237,6 +235,16 @@
     z-index: 10;
 }
 
+.note-selected {
+    border: 5px solid $pt-app-background-color;
+    padding: 1px !important;
+}
+
+.bp3-dark .note-selected {
+    border: 5px solid $pt-text-color;
+    padding: 1px !important;
+}
+
 
 .bp3-dark .note {
     width: 40px;
@@ -261,4 +269,12 @@
 
 .tag-select-popover {
     display: flex;
+}
+
+.selection {
+    background: rgba($pt-intent-primary, 0.75);
+    border-radius: 0.1em;
+    border: 0.05em solid rgba(0, 0, 255, 0.2);
+    z-index: 50;
+    position: absolute;
 }

@@ -2158,6 +2158,11 @@
     eventemitter3 "^3.1.0"
     url "^0.11.0"
 
+"@simonwep/selection-js@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@simonwep/selection-js/-/selection-js-1.4.1.tgz#77f6de881193ec5d9e40045ecf78c275777a430a"
+  integrity sha512-1dbDi2KDg0rNvp0LI77mapkZqOjeloHtOukGdt53jjqyaDRawhBly9oKOE9grtKGI7L7c+2d1X59juTQo00VTQ==
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -2482,6 +2487,11 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/simonwep__selection-js@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/simonwep__selection-js/-/simonwep__selection-js-1.2.0.tgz#96d835855f924cca5159a4a5b0f7f73a5cbb3aef"
+  integrity sha512-5zu5m8hSpJFZaZIM3nX/flt0UGN+XIj8h9LkrlYVpO3wpqYlcXNXxwETjoqxqbHdVByMsEL1mHlWXpUKokGLcA==
 
 "@types/stack-utils@^1.0.1":
   version "1.0.1"

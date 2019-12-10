@@ -207,3 +207,7 @@ export function hashCode(str: string): string {
     }
     return hash.toString();
 };
+
+export function jsonStringifyCompare(a: object, b: object) {
+    return JSON.stringify(a) === JSON.stringify(b);
+}

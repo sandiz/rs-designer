@@ -1,12 +1,14 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import { Classes, ResizeSensor } from '@blueprintjs/core';
+import Selection from '@simonwep/selection-js';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
     BeatTime, NoteTime, Instrument, InstrumentNotesInMem,
 } from '../../types';
 import './TabEditor.scss';
+import { jsonStringifyCompare } from '../../lib/utils';
 
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
     const duration = MediaPlayerService.getDuration();
@@ -29,14 +31,15 @@ interface NoteEditorProps {
 interface NoteEditorState {
     beats: BeatTime[];
     instrumentNotes: InstrumentNotesInMem;
+    selectedNotes: NoteTime[];
 }
 const STRING_COLORS: string[] = [
-    "#C137D3",
-    "#5BE42A",
-    "#E49534",
-    "#3093C3",
-    "#D0B524",
-    "#DB4251",
+    "linear-gradient(0deg, rgba(193,55,211,1) 12%, rgba(237,101,255,1) 100%)", //"#C137D3",
+    "linear-gradient(0deg, rgba(91,228,42,1) 12%, rgba(134,255,91,1) 100%)", //"#5BE42A",
+    "linear-gradient(0deg, rgba(228,149,52,1) 12%, rgba(255,184,96,1) 100%)", //"#E49534",
+    "linear-gradient(0deg, rgba(48,147,195,1) 12%, rgba(98,204,255,1) 100%)", //"#3093C3",
+    "linear-gradient(0deg, rgba(208,181,36,1) 12%, rgba(255,232,106,1) 100%)", //"#D0B524",
+    "linear-gradient(0deg, rgba(213,22,41,1) 12%, rgba(255,117,131,1) 100%)", //"#DB4251",
 ]
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
@@ -46,7 +49,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private neckRef: RefObject<HTMLDivElement>;
     private currentString: HTMLElement | null;
     private strings: HTMLDivElement[];
-
+    private selection: Selection | null = null;;
     constructor(props: NoteEditorProps) {
         super(props);
         this.hoverRef = React.createRef();
@@ -55,6 +58,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         this.state = {
             beats: [],
             instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
+            selectedNotes: [],
         };
         this.currentString = null;
         this.strings = [];
@@ -64,7 +68,45 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         const metadata = await ProjectService.getProjectMetadata();
         if (metadata) {
             this.setState({ beats: metadata.beats });
+            this.selection = Selection.create({
+                class: 'selection',
+                // All elements in this container can be selected
+                selectables: ['.neck > .notes-container > div'],
+                // The container is also the boundary in this case
+                boundaries: ['.neck'],
+                singleClick: false,
+            });
+            this.selection.on('start', ({ inst, selected }) => {
+                if (this.hoverRef.current) this.hoverRef.current.style.visibility = "hidden";
+
+                for (let i = 0; i < selected.length; i += 1) {
+                    const el = selected[i];
+                    el.classList.remove('note-selected');
+                    inst.removeFromSelection(el);
+                }
+                inst.clearSelection();
+            });
+            this.selection.on('move', ({ changed: { removed, added } }) => {
+                if (this.hoverRef.current) this.hoverRef.current.style.visibility = "hidden";
+                for (let i = 0; i < added.length; i += 1) {
+                    const el = added[i];
+                    el.classList.add('note-selected');
+                }
+
+                for (let i = 0; i < removed.length; i += 1) {
+                    const el = removed[i];
+                    el.classList.remove('note-selected');
+                }
+            });
+            this.selection.on('stop', ({ inst }) => {
+                if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
+                inst.keepSelection();
+            });
         }
+    }
+
+    componentWillUnmount = () => {
+        if (this.selection) this.selection.destroy();
     }
 
     static getDerivedStateFromProps(props: NoteEditorProps, state: NoteEditorState) {
@@ -82,7 +124,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         const idx = this.currentString.getAttribute("data-idx");
         if (idx) {
             const color = STRING_COLORS[parseInt(idx, 10)];
-            if (this.hoverRef.current) this.hoverRef.current.style.backgroundColor = color;
+            if (this.hoverRef.current) this.hoverRef.current.style.background = color;
         }
     }
 
@@ -138,6 +180,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         const {
             instrumentNotes,
         } = this.state;
+        let {
+            selectedNotes,
+        } = this.state;
         const {
             instrument, instrumentNoteIdx,
         } = this.props;
@@ -147,9 +192,18 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             if (event.button === 2) {
                 // delete
                 notes.splice(idx, 1);
+                selectedNotes = [];
+            }
+            else {
+                const sidx = this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, notes[idx]));
+                if (sidx !== -1) selectedNotes.splice(sidx, 1);
+                else {
+                    if (event.shiftKey) selectedNotes.push(notes[idx]);
+                    else selectedNotes = [notes[idx]];
+                }
             }
             instrumentNotes.notes = notes;
-            this.setState({ instrumentNotes });
+            this.setState({ instrumentNotes, selectedNotes });
             ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
         }
     }
@@ -208,13 +262,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                 const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
                                 return (
                                     <div
+                                        data-idx={idx}
                                         onMouseUp={e => this.onMouseClickNote(e, i)}
                                         key={note.string + "_" + note.fret + "_" + note.startTime}
-                                        className={classNames("note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE, "number")}
+                                        className={classNames("note", Classes.CARD, Classes.ELEVATION_3, "number",
+                                            { "note-selected": this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, note)) !== -1 })}
                                         style={{
                                             //position
                                             textAlign: "center",
-                                            backgroundColor: STRING_COLORS[note.string],
+                                            background: STRING_COLORS[note.string],
                                             position: "absolute",
                                             transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
                                         }}
