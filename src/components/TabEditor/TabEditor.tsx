@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
-    Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover, NumericInput, TagInputAddMethod, Position,
+    Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover, NumericInput, TagInputAddMethod, Position, Intent,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -17,6 +17,7 @@ import {
 } from './InstrumentFile';
 import { Instrument, allTunings, baseTuning } from '../../types';
 import { getTransposedKey } from '../../lib/music-utils';
+import { deletePopover } from '../../dialogs';
 
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentFile>();
@@ -304,6 +305,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    deleteFile = () => {
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -318,6 +322,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     changeTag={this.changeTag}
                     addTag={this.addTag}
                     removeTag={this.removeTag}
+                    deleteFile={this.deleteFile}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -392,6 +397,8 @@ interface InfoPanelProps {
     changeTag: (tagType: string, v: string) => void;
     addTag: (v: string[], m: TagInputAddMethod) => void;
     removeTag: (v: string, i: number) => void;
+
+    deleteFile: () => void;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -531,6 +538,11 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     onClick={props.zoomIn}
                 />
             </Card>
+            <div className="tab-button-group">
+                <Popover content={deletePopover(props.deleteFile)}>
+                    <ButtonExtended small icon={IconNames.TRASH} intent={Intent.DANGER} />
+                </Popover>
+            </div>
         </div>
     )
 }

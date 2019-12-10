@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import {
-    Card, Text, Tooltip,
+    Card, Text, Tooltip, Classes,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails, ZOOM } from '../../types';
@@ -81,7 +81,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         interactive
                         onClick={() => shell.showItemInFolder(this.props.project.metadata ? this.props.project.metadata.path : "")}
                         elevation={0}
-                        className={classNames("info-item")}>
+                        className={classNames("info-item", Classes.INTENT_PRIMARY)}>
                         <Text ellipsize>
                             <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
                         </Text>

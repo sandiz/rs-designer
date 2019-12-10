@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import { IconNames } from '@blueprintjs/icons';
 import { getApplicationKeyMap, ApplicationKeyMap, KeyMapDisplayOptions } from 'react-hotkeys';
 import {
-    Text, Classes, KeyCombo, Tabs, Tab,
+    Text, Classes, KeyCombo, Tabs, Tab, H5, Button, Intent, Card,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 
@@ -213,6 +213,23 @@ export const getMetadataEditorDialog = (): DialogContent => {
             if (ref.current) ref.current.close();
         },
     }
+}
+
+export const deletePopover = (del: () => void) => {
+    return (
+        <Card key="text">
+            <H5 className="font-weight-unset">Confirm deletion</H5>
+            <p>Are you sure you want to delete this chart? <br /> You won&apos;t be able to recover them.</p>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
+                <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                    Cancel
+                </Button>
+                <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS} onClick={del}>
+                    Delete
+                </Button>
+            </div>
+        </Card>
+    )
 }
 
 export default {};

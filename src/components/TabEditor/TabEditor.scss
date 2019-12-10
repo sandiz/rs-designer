@@ -10,7 +10,7 @@
     display: flex;
     justify-content: left;
     align-items: flex-end;
-    width: 96%;
+    width: 100%;
 }
 
 .tabeditor-body {
@@ -277,4 +277,11 @@
     border: 0.05em solid rgba(0, 0, 255, 0.2);
     z-index: 50;
     position: absolute;
+}
+
+.tab-button-group {
+    position: absolute;
+    right: 2vw;
+    display: flex;
+    justify-content: flex-end;
 }
