@@ -215,11 +215,13 @@ export const getMetadataEditorDialog = (): DialogContent => {
     }
 }
 
-export const deletePopover = (del: () => void) => {
+export const deletePopover = (del: () => void, msg: JSX.Element | null = null) => {
     return (
         <Card key="text">
             <H5 className="font-weight-unset">Confirm deletion</H5>
-            <p>Are you sure you want to delete this chart? <br /> You won&apos;t be able to recover them.</p>
+            {
+                msg || <p>Are you sure you want to delete this chart? <br /> You won&apos;t be able to recover them.</p>
+            }
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
                 <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                     Cancel

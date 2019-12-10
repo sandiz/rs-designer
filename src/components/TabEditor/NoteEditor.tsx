@@ -81,22 +81,36 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
 
                 for (let i = 0; i < selected.length; i += 1) {
                     const el = selected[i];
-                    el.classList.remove('note-selected');
                     inst.removeFromSelection(el);
                 }
+                this.setState({ selectedNotes: [] });
                 inst.clearSelection();
             });
             this.selection.on('move', ({ changed: { removed, added } }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "hidden";
+                const { selectedNotes } = this.state;
+
                 for (let i = 0; i < added.length; i += 1) {
                     const el = added[i];
-                    el.classList.add('note-selected');
+                    const attrib = el.getAttribute("data-note-idx");
+                    if (attrib) {
+                        const idx = parseInt(attrib, 10);
+                        const note = this.state.instrumentNotes.notes[idx];
+                        selectedNotes.push(note);
+                    }
                 }
 
                 for (let i = 0; i < removed.length; i += 1) {
                     const el = removed[i];
-                    el.classList.remove('note-selected');
+                    const attrib = el.getAttribute("data-note-idx");
+                    if (attrib) {
+                        const idx = parseInt(attrib, 10);
+                        const note = this.state.instrumentNotes.notes[idx];
+                        const idx2 = selectedNotes.indexOf(note);
+                        if (idx2 !== -1) selectedNotes.splice(idx2, 1);
+                    }
                 }
+                this.setState({ selectedNotes });
             });
             this.selection.on('stop', ({ inst }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
@@ -121,7 +135,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onMouseEnter = (event: React.MouseEvent) => {
         this.currentString = event.currentTarget.children[0] as HTMLElement
         if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
-        const idx = this.currentString.getAttribute("data-idx");
+        const idx = this.currentString.getAttribute("data-string-idx");
         if (idx) {
             const color = STRING_COLORS[parseInt(idx, 10)];
             if (this.hoverRef.current) this.hoverRef.current.style.background = color;
@@ -151,7 +165,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 } = this.state
                 if (instrumentNotes && instrument && instrumentNoteIdx !== undefined) {
                     const { notes } = instrumentNotes;
-                    const string = parseInt(this.currentString.getAttribute("data-idx") as string, 10);
+                    const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
                     const startTime = parseFloat(closest[1].start);
                     const endTime = parseFloat(closest[1].start);
                     // if a note is already there
@@ -262,7 +276,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                 const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
                                 return (
                                     <div
-                                        data-idx={idx}
+                                        data-note-idx={idx}
                                         onMouseUp={e => this.onMouseClickNote(e, i)}
                                         key={note.string + "_" + note.fret + "_" + note.startTime}
                                         className={classNames("note", Classes.CARD, Classes.ELEVATION_3, "number",
@@ -288,7 +302,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseEnter={this.onMouseEnter}
                         onMouseLeave={this.onMouseLeave}
                         onClick={this.onMouseClick}>
-                        <div className="strings" data-idx="0" data-string="E" ref={this.addString} />
+                        <div className="strings" data-string-idx="0" data-string="E" ref={this.addString} />
                     </div>
                     <div
                         className="strings-hitbox"
@@ -296,7 +310,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseEnter={this.onMouseEnter}
                         onMouseLeave={this.onMouseLeave}
                         onClick={this.onMouseClick}>
-                        <div className="strings" data-idx="1" data-string="B" ref={this.addString} />
+                        <div className="strings" data-string-idx="1" data-string="B" ref={this.addString} />
                     </div>
                     <div
                         className="strings-hitbox"
@@ -304,7 +318,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseEnter={this.onMouseEnter}
                         onMouseLeave={this.onMouseLeave}
                         onClick={this.onMouseClick}>
-                        <div className="strings" data-idx="2" data-string="G" ref={this.addString} />
+                        <div className="strings" data-string-idx="2" data-string="G" ref={this.addString} />
                     </div>
                     <div
                         className="strings-hitbox"
@@ -312,7 +326,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseEnter={this.onMouseEnter}
                         onMouseLeave={this.onMouseLeave}
                         onClick={this.onMouseClick}>
-                        <div className="strings" data-idx="3" data-string="D" ref={this.addString} />
+                        <div className="strings" data-string-idx="3" data-string="D" ref={this.addString} />
                     </div>
                     <div
                         className="strings-hitbox"
@@ -320,7 +334,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseEnter={this.onMouseEnter}
                         onMouseLeave={this.onMouseLeave}
                         onClick={this.onMouseClick}>
-                        <div className="strings" data-idx="4" data-string="A" ref={this.addString} />
+                        <div className="strings" data-string-idx="4" data-string="A" ref={this.addString} />
                     </div>
                     <div
                         className="strings-hitbox"
@@ -328,7 +342,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseOver={this.onMouseEnter}
                         onMouseOut={this.onMouseLeave}
                         onMouseDown={this.onMouseClick}>
-                        <div className="strings" data-idx="5" data-string="E" ref={this.addString} />
+                        <div className="strings" data-string-idx="5" data-string="E" ref={this.addString} />
                     </div>
                 </div>
             </ResizeSensor>

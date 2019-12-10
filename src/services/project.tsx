@@ -713,10 +713,17 @@ export class Project {
         return this.inMemoryInstruments;
     }
 
-    public getInstrument = (instrument: Instrument, index: number): InstrumentNotesInMem | null => {
+    public getInstrumentNotes = (instrument: Instrument, index: number): InstrumentNotesInMem | null => {
         if (index < this.inMemoryInstruments[instrument].length) return this.inMemoryInstruments[instrument][index];
         return null;
     }
+
+    public removeInstrumentNotes = (instrument: Instrument, index: number): void => {
+        if (index < this.inMemoryInstruments[instrument].length) {
+            this.inMemoryInstruments[instrument].splice(index, 1);
+        }
+    }
+
 
     /* save instruments to file */
     public saveInstruments = async () => {
@@ -759,7 +766,7 @@ export class Project {
 
     /* save notes in memory */
     public saveInstrument = async (instrument: Instrument, instNotes: InstrumentNotesInMem, index: number) => {
-        const inst = this.getInstrument(instrument, index);
+        const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
             inst.notes = instNotes.notes;
             inst.tags = instNotes.tags;

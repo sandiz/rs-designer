@@ -11,7 +11,7 @@ import {
 } from "../../types";
 import { hashCode, UUID } from '../../lib/utils';
 
-export interface InstrumentFile {
+export interface InstrumentListItem {
     isDivider: boolean;
     title: string;
     instrumentNotes: InstrumentNotesInMem;
@@ -19,14 +19,14 @@ export interface InstrumentFile {
     hash: string;
 }
 
-export const filterIFile: ItemPredicate<InstrumentFile> = (query, file) => {
+export const filterIFile: ItemPredicate<InstrumentListItem> = (query, file) => {
     if (query.length === 0) return true;
     else {
         if (file) return file.instrumentNotes.tags.findIndex(item => item.includes(query.toLowerCase())) !== -1 || file.isDivider
     }
     return true;
 }
-export const getIndexFromDivider = (file: InstrumentFile, files: InstrumentFile[]) => {
+export const getIndexFromDivider = (file: InstrumentListItem, files: InstrumentListItem[]) => {
     let lastDivider = 0;
     let instIndex = 0;
     for (let i = 0; i < files.length; i += 1) {
@@ -42,10 +42,10 @@ export const getIndexFromDivider = (file: InstrumentFile, files: InstrumentFile[
     return [instIndex, lastDivider];
 }
 export const renderFile = (
-    file: InstrumentFile,
+    file: InstrumentListItem,
     { handleClick, modifiers }: IItemRendererProps,
-    current: InstrumentFile | null,
-    files: InstrumentFile[],
+    current: InstrumentListItem | null,
+    files: InstrumentListItem[],
 ) => {
     if (!modifiers.matchesPredicate) {
         return null;
@@ -119,32 +119,32 @@ export const renderFile = (
     );
 }
 
-export function addFileToArray(files: InstrumentFile[], fileToAdd: InstrumentFile) {
+export function addFileToArray(files: InstrumentListItem[], fileToAdd: InstrumentListItem) {
     return [...files, fileToAdd];
 }
 
-export function arrayContainsFile(files: InstrumentFile[], fileToFind: InstrumentFile): boolean {
-    return files.some((file: InstrumentFile) => file.hash === fileToFind.hash);
+export function arrayContainsFile(files: InstrumentListItem[], fileToFind: InstrumentListItem): boolean {
+    return files.some((file: InstrumentListItem) => file.hash === fileToFind.hash);
 }
 
-export function deleteFileFromArray(films: InstrumentFile[], filmToDelete: InstrumentFile) {
+export function deleteFileFromArray(films: InstrumentListItem[], filmToDelete: InstrumentListItem) {
     return films.filter(film => film !== filmToDelete);
 }
 
-export function isInstrumentFileDisabled(item: InstrumentFile) {
+export function isInstrumentFileDisabled(item: InstrumentListItem) {
     return item.isDivider;
 }
 
-export function areFilesEqual(fileA: InstrumentFile, fileB: InstrumentFile) {
+export function areFilesEqual(fileA: InstrumentListItem, fileB: InstrumentListItem) {
     // Compare only the titles (ignoring case) just for simplicity.
     return fileA.hash === fileB.hash;
 }
 
 export function maybeAddCreatedFileToArrays(
-    items: InstrumentFile[],
-    createdItems: InstrumentFile[],
-    film: InstrumentFile,
-): { createdItems: InstrumentFile[]; items: InstrumentFile[] } {
+    items: InstrumentListItem[],
+    createdItems: InstrumentListItem[],
+    film: InstrumentListItem,
+): { createdItems: InstrumentListItem[]; items: InstrumentListItem[] } {
     const isNewlyCreatedItem = !arrayContainsFile(items, film);
     return {
         createdItems: isNewlyCreatedItem ? addFileToArray(createdItems, film) : createdItems,
@@ -154,10 +154,10 @@ export function maybeAddCreatedFileToArrays(
 }
 
 export function maybeDeleteCreatedFilmFromArrays(
-    items: InstrumentFile[],
-    createdItems: InstrumentFile[],
-    film: InstrumentFile,
-): { createdItems: InstrumentFile[]; items: InstrumentFile[] } {
+    items: InstrumentListItem[],
+    createdItems: InstrumentListItem[],
+    film: InstrumentListItem,
+): { createdItems: InstrumentListItem[]; items: InstrumentListItem[] } {
     const wasItemCreatedByUser = arrayContainsFile(createdItems, film);
 
     // Delete the item if the user manually created it.
@@ -168,7 +168,7 @@ export function maybeDeleteCreatedFilmFromArrays(
 }
 
 export function getAllFiles() {
-    const files: InstrumentFile[] = [];
+    const files: InstrumentListItem[] = [];
     const info = ProjectService.getInstruments();
     if (info) {
         //eslint-disable-next-line
