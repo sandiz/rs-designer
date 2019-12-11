@@ -379,14 +379,14 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             const diff = c.startTime - minStart;
                             c.startTime = beatStart + (diff);
                             c.endTime = beatStart + diff;
-                            const idx = instrumentNotes.findIndex(item => JSON.stringify(item) === JSON.stringify(c));
+                            const idx = instrumentNotes.findIndex(item => item.startTime === c.startTime && item.string === c.string);
                             if (idx !== -1) {
                                 instrumentNotes.splice(idx, 1);
                             }
                             newItems.push(c);
                         });
                         const new1 = [...instrumentNotes, ...newItems]
-                        this.setState({ instrumentNotes: new1 });
+                        this.setState({ instrumentNotes: new1, selectedNotes: newItems });
                         ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
                     }
                 }

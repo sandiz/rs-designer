@@ -12,7 +12,7 @@ import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import NoteEditor, { keyShortcuts } from './NoteEditor';
+import NoteEditor, { keyShortcuts, snapToGrid } from './NoteEditor';
 import {
     InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled,
     areFilesEqual, getAllFiles, getIndexFromDivider,
@@ -405,6 +405,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    clickTimeline = (event: React.MouseEvent) => {
+        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+        const x = event.clientX - (rect.left);
+        const closest = snapToGrid(x, rect, 0, this.state.beats);
+        const beat: BeatTime = closest[1];
+        this.setState({ insertHeadBeatIdx: this.state.beats.findIndex(i => JSON.stringify(i) === JSON.stringify(beat)) });
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -482,7 +490,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         <div
                             className="tabs-timeline"
                             ref={this.timelineRef}
+                            onClick={this.clickTimeline}
                             style={{
+                                cursor: 'pointer',
                                 willChange: 'transform',
                                 width: this.state.zoom * this.state.duration + 'px',
                             }}
