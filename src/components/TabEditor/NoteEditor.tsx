@@ -33,7 +33,6 @@ interface NoteEditorState {
     beats: BeatTime[];
     instrumentNotes: InstrumentNotesInMem;
     selectedNotes: NoteTime[];
-    isDragging: boolean;
 }
 const STRING_COLORS: string[] = [
     "linear-gradient(0deg, rgba(193,55,211,1) 12%, rgba(237,101,255,1) 100%)", //"#C137D3",
@@ -79,7 +78,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             beats: [],
             instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
             selectedNotes: [],
-            isDragging: false,
         };
         this.currentString = null;
         this.strings = [];
@@ -104,7 +102,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const el = selected[i];
                     inst.removeFromSelection(el);
                 }
-                this.setState({ selectedNotes: [], isDragging: true });
+                this.setState({ selectedNotes: [] });
                 inst.clearSelection();
             });
             this.selection.on('move', ({ changed: { removed, added } }) => {
@@ -135,7 +133,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             });
             this.selection.on('stop', ({ inst }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
-                this.setState({ isDragging: false });
                 inst.keepSelection();
             });
         }
@@ -174,6 +171,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
 
     onMouseClick = (event: React.MouseEvent) => {
         if (this.hoverRef.current) {
+            if (this.state.selectedNotes.length > 0) {
+                this.setState({ selectedNotes: [] });
+                return;
+            }
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
             const x = event.clientX - (rect.left) - (hr.width / 2);
@@ -210,6 +211,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 }
             }
         }
+        event.stopPropagation();
+        event.preventDefault();
     }
 
     onMouseClickNote = (event: React.MouseEvent, idx: number) => {
@@ -293,10 +296,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onNeckMouseLeave = () => {
     }
 
-    clearSelectedNotes = () => {
-        if (!this.state.isDragging) this.setState({ selectedNotes: [] });
-    }
-
     addString = (ref: HTMLDivElement | null) => {
         if (ref) {
             this.strings.push(ref);
@@ -348,7 +347,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseMove={this.onNeckMouseMove}
                         onMouseLeave={this.onNeckMouseLeave}
                         onWheel={this.onNeckMouseWheel}
-                        onMouseUp={this.clearSelectedNotes}
                         className="neck"
                         ref={this.neckRef}
                     >
