@@ -14,7 +14,8 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 import NoteEditor, { keyShortcuts } from './NoteEditor';
 import {
-    InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled, areFilesEqual, getAllFiles, getIndexFromDivider,
+    InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled,
+    areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
 import { Instrument, allTunings, baseTuning } from '../../types';
 import { getTransposedKey } from '../../lib/music-utils';
