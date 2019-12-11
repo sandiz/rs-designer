@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Callout,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -34,6 +34,7 @@ interface TabEditorState {
     currentFile: InstrumentListItem | null;
     currentFileIdx: number;
     beats: BeatTime[];
+    insertHeadBeatIdx: number;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -50,15 +51,15 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private overflowRef: RefObject<HTMLDivElement>;
     private noteEditorRef: RefObject<NoteEditor>;
     private insertHeadRef: RefObject<HTMLDivElement>;
+    private noteCountRef: RefObject<HTMLSpanElement>;
     private progressRAF = 0;
     private prevX = 0;
     private insertHeadDragging = false;
-    private insertHeadBeatIdx = 0;
 
     constructor(props: {}) {
         super(props);
         this.state = {
-            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0, beats: [],
+            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0, beats: [], insertHeadBeatIdx: 0,
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -70,35 +71,24 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.overflowRef = React.createRef();
         this.noteEditorRef = React.createRef();
         this.insertHeadRef = React.createRef();
+        this.noteCountRef = React.createRef();
     }
 
     componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
-        DispatcherService.on(DispatchEvents.ProjectOpened, this.projectOpened);
-        DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
         nativeTheme.on('updated', this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
         }
-        this.updateFiles();
+        this.updateFiles()
     }
 
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
-        DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
-        DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
         nativeTheme.on('updated', this.updateImage);
         cancelAnimationFrame(this.progressRAF);
-    }
-
-    projectOpened = () => {
-        this.setState({
-            currentFile: null, currentFileIdx: 0, files: [],
-        });
-    }
-    projectClosed = () => {
     }
 
     updateImage = async () => {
@@ -119,6 +109,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.off('seek', this.onSeek);
         }
+        this.setState({
+            currentFile: null, currentFileIdx: 0, files: [],
+        });
     }
 
     mediaReady = async () => {
@@ -226,7 +219,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
-        const beatStart = parseFloat(this.state.beats[this.insertHeadBeatIdx].start);
+        const beatStart = parseFloat(this.state.beats[this.state.insertHeadBeatIdx].start);
         const time = MediaPlayerService.getCurrentTime();
         const per = (time / MediaPlayerService.getDuration()) * 100;
         const beatPer = (beatStart / MediaPlayerService.getDuration()) * 100;
@@ -248,6 +241,12 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 }
             }
         }
+
+        if (this.noteEditorRef.current && this.noteCountRef.current) {
+            const total = this.noteEditorRef.current.state.instrumentNotes.length;
+            const selected = this.noteEditorRef.current.state.selectedNotes.length;
+            this.noteCountRef.current.textContent = `s: ${selected} n: ${total}`;
+        }
     }
 
     zoomIn = () => {
@@ -256,6 +255,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             this.setState({ zoom: cur + 1 });
         }
     }
+
     zoomOut = () => {
         const cur = this.state.zoom;
         if (cur > ZOOM_MIN) {
@@ -266,6 +266,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     zoom = (v: number) => this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) })
 
     updateFiles = () => {
+        console.trace("update-files", this.state.currentFileIdx)
         const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
         this.setState({ files: getAllFiles(), currentFile: file });
     }
@@ -367,17 +368,17 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             this.prevX = e.pageX;
             return;
         }
-        const { insertHeadBeatIdx } = this;
+        const { insertHeadBeatIdx } = this.state;
         // dragged left
         if (this.prevX - 20 > (e.pageX)) {
             if (insertHeadBeatIdx > 0) {
-                this.insertHeadBeatIdx -= 1;
+                this.setState({ insertHeadBeatIdx: insertHeadBeatIdx - 1 });
             }
             this.prevX = e.pageX;
         }
         else if (this.prevX + 20 < (e.pageX)) { // dragged right
             if (insertHeadBeatIdx < this.state.beats.length - 1) {
-                this.insertHeadBeatIdx += 1;
+                this.setState({ insertHeadBeatIdx: insertHeadBeatIdx + 1 });
             }
             this.prevX = e.pageX;
         }
@@ -400,7 +401,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         const dnb = this.state.beats.filter(i => i.beatNum === "1");
         if (downBeat < dnb.length) {
             const d = dnb[downBeat];
-            this.insertHeadBeatIdx = this.state.beats.findIndex(i => JSON.stringify(i) === JSON.stringify(d));
+            this.setState({ insertHeadBeatIdx: this.state.beats.findIndex(i => JSON.stringify(i) === JSON.stringify(d)) });
         }
     }
 
@@ -421,6 +422,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     deleteFile={this.deleteFile}
                     deleteNotes={this.deleteNotes}
                     noteEditorRef={this.noteEditorRef}
+                    notesCountRef={this.noteCountRef}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -465,6 +467,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                     instrument={this.state.currentFile?.key as Instrument}
                                     instrumentNotes={this.state.currentFile?.instrumentNotes}
                                     instrumentNoteIdx={this.state.currentFileIdx}
+                                    insertHeadBeatIdx={this.state.insertHeadBeatIdx}
                                 />
                             </div>
                         </div>
@@ -509,6 +512,7 @@ interface InfoPanelProps {
     deleteNotes: () => void;
 
     noteEditorRef: RefObject<NoteEditor>;
+    notesCountRef: RefObject<HTMLSpanElement>;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -650,6 +654,9 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 />
             </Card>
             <div className="tab-button-group">
+                <Callout className={classNames("info-item", Classes.ELEVATION_2, "number")}>
+                    <span ref={props.notesCountRef}> s:0 n:0</span>
+                </Callout>
                 <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
                 <ButtonExtended
                     small

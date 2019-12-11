@@ -211,3 +211,10 @@ export function hashCode(str: string): string {
 export function jsonStringifyCompare(a: object, b: object) {
     return JSON.stringify(a) === JSON.stringify(b);
 }
+
+export function clone(obj: object, method: "json" | "lodash" = "json") {
+    if (method === "json") {
+        return JSON.parse(JSON.stringify(obj)); // possible data loss on some objects
+    }
+    return obj;
+}

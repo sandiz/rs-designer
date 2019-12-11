@@ -9,7 +9,7 @@ import {
     BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo,
 } from '../../types';
 import './TabEditor.scss';
-import { jsonStringifyCompare } from '../../lib/utils';
+import { jsonStringifyCompare, clone } from '../../lib/utils';
 
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
     const duration = MediaPlayerService.getDuration();
@@ -28,10 +28,12 @@ interface NoteEditorProps {
     instrument?: Instrument;
     instrumentNotes?: InstrumentNotesInMem;
     instrumentNoteIdx?: number;
+    insertHeadBeatIdx?: number;
 }
 interface NoteEditorState {
     beats: BeatTime[];
-    instrumentNotes: InstrumentNotesInMem;
+    instrumentNotes: NoteTime[];
+    instrumentTags: string[];
     selectedNotes: NoteTime[];
 }
 const STRING_COLORS: string[] = [
@@ -73,6 +75,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private currentString: HTMLElement | null;
     private strings: HTMLDivElement[];
     private selection: Selection | null = null;;
+    private clipboard: NoteTime[] = [];
     constructor(props: NoteEditorProps) {
         super(props);
         this.hoverRef = React.createRef();
@@ -80,7 +83,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         this.neckRef = React.createRef();
         this.state = {
             beats: [],
-            instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
+            instrumentNotes: props.instrumentNotes ? props.instrumentNotes.notes : [],
+            instrumentTags: props.instrumentNotes ? props.instrumentNotes.tags : [],
             selectedNotes: [],
         };
         this.currentString = null;
@@ -118,7 +122,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const attrib = el.getAttribute("data-note-idx");
                     if (attrib) {
                         const idx = parseInt(attrib, 10);
-                        const note = this.state.instrumentNotes.notes[idx];
+                        const note = this.state.instrumentNotes[idx];
                         selectedNotes.push(note);
                     }
                 }
@@ -128,7 +132,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const attrib = el.getAttribute("data-note-idx");
                     if (attrib) {
                         const idx = parseInt(attrib, 10);
-                        const note = this.state.instrumentNotes.notes[idx];
+                        const note = this.state.instrumentNotes[idx];
                         const idx2 = selectedNotes.indexOf(note);
                         if (idx2 !== -1) selectedNotes.splice(idx2, 1);
                     }
@@ -146,13 +150,22 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (this.selection) this.selection.destroy();
     }
 
-    static getDerivedStateFromProps(props: NoteEditorProps, state: NoteEditorState) {
-        if (JSON.stringify(state.instrumentNotes) !== JSON.stringify(props.instrumentNotes)) {
-            return {
-                instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
+    componentDidUpdate = (prevProps: NoteEditorProps) => {
+        if (this.props.instrumentNotes) {
+            if (JSON.stringify(prevProps.instrumentNotes?.notes) !== JSON.stringify(this.props.instrumentNotes.notes)) {
+                /*https://github.com/yannickcr/eslint-plugin-react/issues/1707*/
+                //eslint-disable-next-line 
+                this.setState({
+                    instrumentNotes: this.props.instrumentNotes.notes,
+                })
+            }
+            else if (JSON.stringify(prevProps.instrumentNotes?.tags) !== JSON.stringify(this.props.instrumentNotes.tags)) {
+                //eslint-disable-next-line 
+                this.setState({
+                    instrumentTags: this.props.instrumentNotes.tags,
+                })
             }
         }
-        return null;
     }
 
     onMouseEnter = (event: React.MouseEvent) => {
@@ -191,27 +204,31 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     instrumentNotes,
                 } = this.state
                 if (instrumentNotes && instrument && instrumentNoteIdx !== undefined) {
-                    const { notes } = instrumentNotes;
                     const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
                     const startTime = parseFloat(closest[1].start);
                     const endTime = parseFloat(closest[1].start);
                     // if a note is already there
-                    const idx = notes.findIndex(i => i.startTime === startTime && i.string === string)
+                    const idx = instrumentNotes.findIndex(i => i.startTime === startTime && i.string === string)
                     if (idx !== -1) {
                         return;
                     }
                     else {
-                        notes.push({
+                        const newNote: NoteTime = {
                             string,
                             fret: 0,
                             type: "note",
                             startTime,
                             endTime,
-                        })
+                        };
+                        this.setState(state => {
+                            const list = [...state.instrumentNotes, newNote];
+                            return {
+                                instrumentNotes: list,
+                            }
+                        }, () => {
+                            ProjectService.saveInstrument(instrument, { notes: this.state.instrumentNotes, tags: this.state.instrumentTags }, instrumentNoteIdx);
+                        });
                     }
-                    instrumentNotes.notes = notes;
-                    this.setState({ instrumentNotes });
-                    ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
                 }
             }
         }
@@ -222,6 +239,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onMouseClickNote = (event: React.MouseEvent, idx: number) => {
         const {
             instrumentNotes,
+            instrumentTags,
         } = this.state;
         let {
             selectedNotes,
@@ -230,24 +248,22 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             instrument, instrumentNoteIdx,
         } = this.props;
 
-        const { notes } = instrumentNotes;
-        if (notes && instrument && instrumentNoteIdx !== undefined) {
+        if (instrument && instrumentNoteIdx !== undefined) {
             if (event.button === 2) {
                 // delete
-                notes.splice(idx, 1);
+                instrumentNotes.splice(idx, 1);
                 selectedNotes = [];
             }
             else {
-                const sidx = this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, notes[idx]));
+                const sidx = this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, instrumentNotes[idx]));
                 if (sidx !== -1) selectedNotes.splice(sidx, 1);
                 else {
-                    if (event.shiftKey) selectedNotes.push(notes[idx]);
-                    else selectedNotes = [notes[idx]];
+                    if (event.shiftKey) selectedNotes.push(instrumentNotes[idx]);
+                    else selectedNotes = [instrumentNotes[idx]];
                 }
             }
-            instrumentNotes.notes = notes;
             this.setState({ instrumentNotes, selectedNotes });
-            ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
+            ProjectService.saveInstrument(instrument, { notes: instrumentNotes, tags: instrumentTags }, instrumentNoteIdx);
         }
         event.stopPropagation();
         event.preventDefault();
@@ -312,7 +328,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 {
                     let n: NoteTime[] = [];
                     if (this.state.instrumentNotes) {
-                        n = this.state.instrumentNotes.notes;
+                        n = this.state.instrumentNotes;
                     }
                     this.setState({ selectedNotes: n });
                 }
@@ -322,9 +338,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const { instrumentNotes } = this.state;
                     if (instrumentNotes) {
                         this.state.selectedNotes.forEach((item) => {
-                            const idx = instrumentNotes.notes.findIndex(p => jsonStringifyCompare(p, item));
+                            const idx = instrumentNotes.findIndex(p => jsonStringifyCompare(p, item));
                             if (idx !== -1) {
-                                instrumentNotes.notes.splice(idx, 1);
+                                instrumentNotes.splice(idx, 1);
                             }
                         })
                         this.setState({ selectedNotes: [], instrumentNotes });
@@ -332,10 +348,48 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 }
                 break;
             case keyShortcuts.CUT:
+                {
+                    const { selectedNotes } = this.state;
+                    this.clipboard = [...selectedNotes];
+                    this.setState({ selectedNotes });
+                }
                 break;
             case keyShortcuts.COPY:
+                {
+                    const { selectedNotes } = this.state;
+                    this.clipboard = [...selectedNotes];
+                }
                 break;
             case keyShortcuts.PASTE:
+                {
+                    const items = this.clipboard;
+                    const newItems: NoteTime[] = [];
+                    const {
+                        instrument, instrumentNoteIdx, insertHeadBeatIdx,
+                    } = this.props;
+                    if (instrument && insertHeadBeatIdx && instrumentNoteIdx !== undefined && this.clipboard.length > 0) {
+                        const minStart = items.reduce((min, p) => (p.startTime < min ? p.startTime : min), items[0].startTime);
+                        const {
+                            instrumentNotes,
+                            instrumentTags,
+                        } = this.state
+                        const beatStart = parseFloat(this.state.beats[insertHeadBeatIdx].start);
+                        items.forEach(i => {
+                            const c: NoteTime = clone(i);
+                            const diff = c.startTime - minStart;
+                            c.startTime = beatStart + (diff);
+                            c.endTime = beatStart + diff;
+                            const idx = instrumentNotes.findIndex(item => JSON.stringify(item) === JSON.stringify(c));
+                            if (idx !== -1) {
+                                instrumentNotes.splice(idx, 1);
+                            }
+                            newItems.push(c);
+                        });
+                        const new1 = [...instrumentNotes, ...newItems]
+                        this.setState({ instrumentNotes: new1 });
+                        ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
+                    }
+                }
                 break;
             case keyShortcuts.MOVE_LEFT:
                 {
@@ -343,15 +397,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     for (let i = 0; i < selectedNotes.length; i += 1) {
                         const { startTime, string } = selectedNotes[i];
                         const startIdx = this.state.beats.findIndex(item => item.start === startTime.toString());
-                        const isntIdx = this.state.instrumentNotes.notes.findIndex(item => item.startTime === startTime && item.string === string);
+                        const isntIdx = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
                         if (startIdx !== -1 && startIdx > 0) {
                             const prevBeat = parseFloat(this.state.beats[startIdx - 1].start);
-                            const prevNoteIdx = this.state.instrumentNotes.notes.findIndex(p => p.startTime === prevBeat && p.string === string);
+                            const prevNoteIdx = instrumentNotes.findIndex(p => p.startTime === prevBeat && p.string === string);
                             if (prevNoteIdx === -1) {
                                 selectedNotes[i].startTime = prevBeat;
                                 selectedNotes[i].endTime = prevBeat;
-                                instrumentNotes.notes[isntIdx].startTime = prevBeat;
-                                instrumentNotes.notes[isntIdx].endTime = prevBeat;
+                                instrumentNotes[isntIdx].startTime = prevBeat;
+                                instrumentNotes[isntIdx].endTime = prevBeat;
                             }
                         }
                     }
@@ -364,15 +418,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     for (let i = 0; i < selectedNotes.length; i += 1) {
                         const { startTime, string } = selectedNotes[i];
                         const startIdx = this.state.beats.findIndex(item => item.start === startTime.toString());
-                        const isntIdx = this.state.instrumentNotes.notes.findIndex(item => item.startTime === startTime && item.string === string);
+                        const isntIdx = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
                         if (startIdx !== -1 && startIdx < this.state.beats.length - 1) {
                             const nextBeat = parseFloat(this.state.beats[startIdx + 1].start);
-                            const nextNoteIdx = this.state.instrumentNotes.notes.findIndex(p => p.startTime === nextBeat && p.string === string);
+                            const nextNoteIdx = instrumentNotes.findIndex(p => p.startTime === nextBeat && p.string === string);
                             if (nextNoteIdx === -1) {
                                 selectedNotes[i].startTime = nextBeat;
                                 selectedNotes[i].endTime = nextBeat;
-                                instrumentNotes.notes[isntIdx].startTime = nextBeat;
-                                instrumentNotes.notes[isntIdx].endTime = nextBeat;
+                                instrumentNotes[isntIdx].startTime = nextBeat;
+                                instrumentNotes[isntIdx].endTime = nextBeat;
                             }
                         }
                     }
@@ -398,7 +452,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     >
                         <div ref={this.notesRef} className="notes-container">
                             {
-                                this.state.instrumentNotes.notes.map((note: NoteTime, idx: number) => {
+                                this.state.instrumentNotes.map((note: NoteTime, idx: number) => {
                                     const i = idx;
                                     if (!this.neckRef.current) return null;
                                     const string = this.strings[note.string];
