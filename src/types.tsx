@@ -301,6 +301,12 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     PASTE_NOTES: {
         info: "Paste note(s) that were saved in the buffer", hotkey: ["command+v", "ctrl+v"], group: "Note Editor", idx: 5,
     },
+    MOVE_NOTES_LEFT: {
+        info: "Move note(s) backwards by one beat", hotkey: ["shift+left"], group: "Note Editor", idx: 6,
+    },
+    MOVE_NOTES_RIGHT: {
+        info: "Move note(s) forwards by one beat", hotkey: ["shift+right"], group: "Note Editor", idx: 7,
+    },
 }
 
 export const getHotkey = (h: Hotkey) => {

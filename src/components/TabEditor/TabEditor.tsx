@@ -12,7 +12,7 @@ import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
-import NoteEditor from './NoteEditor';
+import NoteEditor, { keyShortcuts } from './NoteEditor';
 import {
     InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled, areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
@@ -44,6 +44,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private tabImgRef: RefObject<HTMLDivElement>;
     private tabNoteRef: RefObject<HTMLDivElement>;
     private overflowRef: RefObject<HTMLDivElement>;
+    private noteEditorRef: RefObject<NoteEditor>;
     private progressRAF = 0;
 
     constructor(props: {}) {
@@ -59,6 +60,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.tabImgRef = React.createRef();
         this.tabNoteRef = React.createRef();
         this.overflowRef = React.createRef();
+        this.noteEditorRef = React.createRef();
     }
 
     componentDidMount = async () => {
@@ -356,6 +358,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     removeTag={this.removeTag}
                     deleteFile={this.deleteFile}
                     deleteNotes={this.deleteNotes}
+                    noteEditorRef={this.noteEditorRef}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -387,6 +390,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             <div className={classNames("neck-container")} ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
                                 <NoteEditor
+                                    ref={this.noteEditorRef}
                                     width={this.state.zoom * this.state.duration}
                                     instrument={this.state.currentFile?.key as Instrument}
                                     instrumentNotes={this.state.currentFile?.instrumentNotes}
@@ -433,6 +437,8 @@ interface InfoPanelProps {
 
     deleteFile: () => void;
     deleteNotes: () => void;
+
+    noteEditorRef: RefObject<NoteEditor>;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -575,6 +581,21 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
             </Card>
             <div className="tab-button-group">
                 <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
+                <ButtonExtended
+                    small
+                    icon={IconNames.CHEVRON_LEFT}
+                    className="info-item-control"
+                    intent={Intent.NONE}
+                    onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_LEFT)}
+                />
+                <ButtonExtended
+                    small
+                    icon={IconNames.CHEVRON_RIGHT}
+                    intent={Intent.NONE}
+                    onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_RIGHT)}
+                />
+                <NavbarDivider className="tab-button-divider" />
+                <ButtonExtended small icon={IconNames.TIMELINE_BAR_CHART} className="info-item-control" intent={Intent.NONE} />
                 <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} />
 
                 <NavbarDivider className="tab-button-divider" />

@@ -45,7 +45,7 @@ const STRING_COLORS: string[] = [
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
 enum FRET { MAX = 24, MIN = 0 }
-enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE }
+export enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE, MOVE_LEFT, MOVE_RIGHT }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
         SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
@@ -53,6 +53,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         CUT_NOTES: HotkeyInfo.CUT_NOTES.hotkey,
         COPY_NOTES: HotkeyInfo.COPY_NOTES.hotkey,
         PASTE_NOTES: HotkeyInfo.PASTE_NOTES.hotkey,
+        MOVE_NOTES_LEFT: HotkeyInfo.MOVE_NOTES_LEFT.hotkey,
+        MOVE_NOTES_RIGHT: HotkeyInfo.MOVE_NOTES_RIGHT.hotkey,
     }
 
     public handlers = {
@@ -61,6 +63,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         CUT_NOTES: () => this.kbdHandler(keyShortcuts.CUT),
         COPY_NOTES: () => this.kbdHandler(keyShortcuts.COPY),
         PASTE_NOTES: () => this.kbdHandler(keyShortcuts.PASTE),
+        MOVE_NOTES_LEFT: () => this.kbdHandler(keyShortcuts.MOVE_LEFT),
+        MOVE_NOTES_RIGHT: () => this.kbdHandler(keyShortcuts.MOVE_RIGHT),
     }
 
     private hoverRef: RefObject<HTMLDivElement>;
@@ -332,6 +336,48 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             case keyShortcuts.COPY:
                 break;
             case keyShortcuts.PASTE:
+                break;
+            case keyShortcuts.MOVE_LEFT:
+                {
+                    const { selectedNotes, instrumentNotes } = this.state;
+                    for (let i = 0; i < selectedNotes.length; i += 1) {
+                        const { startTime, string } = selectedNotes[i];
+                        const startIdx = this.state.beats.findIndex(item => item.start === startTime.toString());
+                        const isntIdx = this.state.instrumentNotes.notes.findIndex(item => item.startTime === startTime && item.string === string);
+                        if (startIdx !== -1 && startIdx > 0) {
+                            const prevBeat = parseFloat(this.state.beats[startIdx - 1].start);
+                            const prevNoteIdx = this.state.instrumentNotes.notes.findIndex(p => p.startTime === prevBeat && p.string === string);
+                            if (prevNoteIdx === -1) {
+                                selectedNotes[i].startTime = prevBeat;
+                                selectedNotes[i].endTime = prevBeat;
+                                instrumentNotes.notes[isntIdx].startTime = prevBeat;
+                                instrumentNotes.notes[isntIdx].endTime = prevBeat;
+                            }
+                        }
+                    }
+                    this.setState({ instrumentNotes, selectedNotes })
+                }
+                break;
+            case keyShortcuts.MOVE_RIGHT:
+                {
+                    const { selectedNotes, instrumentNotes } = this.state;
+                    for (let i = 0; i < selectedNotes.length; i += 1) {
+                        const { startTime, string } = selectedNotes[i];
+                        const startIdx = this.state.beats.findIndex(item => item.start === startTime.toString());
+                        const isntIdx = this.state.instrumentNotes.notes.findIndex(item => item.startTime === startTime && item.string === string);
+                        if (startIdx !== -1 && startIdx < this.state.beats.length - 1) {
+                            const nextBeat = parseFloat(this.state.beats[startIdx + 1].start);
+                            const nextNoteIdx = this.state.instrumentNotes.notes.findIndex(p => p.startTime === nextBeat && p.string === string);
+                            if (nextNoteIdx === -1) {
+                                selectedNotes[i].startTime = nextBeat;
+                                selectedNotes[i].endTime = nextBeat;
+                                instrumentNotes.notes[isntIdx].startTime = nextBeat;
+                                instrumentNotes.notes[isntIdx].endTime = nextBeat;
+                            }
+                        }
+                    }
+                    this.setState({ instrumentNotes, selectedNotes })
+                }
                 break;
             default:
                 break;
