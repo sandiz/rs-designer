@@ -184,6 +184,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                     instrumentNotes.notes = notes;
                     this.setState({ instrumentNotes });
+                    console.log(startTime, closest);
                     ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
                 }
             }

@@ -7,7 +7,6 @@ import {
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import { IconNames, IconName } from '@blueprintjs/icons';
-import nextFrame from 'next-frame';
 import { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 import './TabEditor.scss'
 import MediaPlayerService from '../../services/mediaplayer';
@@ -120,79 +119,75 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         let onecounter = 0;
         if (metadata) {
             const beats = metadata.beats;
-            beats.forEach((beatData, i) => {
-                nextFrame().then(() => {
-                    const start = parseFloat(beatData.start);
-                    const bn = parseInt(beatData.beatNum, 10);
+            await beats.forEach((beatData, i) => {
+                const start = parseFloat(beatData.start);
+                const bn = parseInt(beatData.beatNum, 10);
 
-                    let diff = 0;
-                    if (i === 0) diff = start;
-                    else diff = start - prev;
+                let diff = 0;
+                if (i === 0) diff = start;
+                else diff = start - prev;
 
-                    const c = document.createElement('div');
-                    let j = i + 1;
-                    c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+                const c = document.createElement('div');
+                let j = i + 1;
+                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
 
-                    if (bn === 1) {
-                        c.className = "beats-start";
-                        onecounter += 1;
-                        const sp = document.createElement('div');
-                        c.appendChild(sp);
-                        sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
-                        sp.textContent = onecounter.toString();
-                    }
-                    else {
-                        c.className = "beats-other";
-                    }
-                    c.setAttribute('data-bn', bn.toString());
-                    const per = (diff / duration) * 100;
-                    if (this.beatsRef.current) {
-                        this.beatsRef.current.appendChild(c);
-                    }
-                    gridColumns += `${per}% `;
+                if (bn === 1) {
+                    c.className = "beats-start";
+                    onecounter += 1;
+                    const sp = document.createElement('div');
+                    c.appendChild(sp);
+                    sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
+                    sp.textContent = onecounter.toString();
+                }
+                else {
+                    c.className = "beats-other";
+                }
+                c.setAttribute('data-bn', bn.toString());
+                const per = (diff / duration) * 100;
+                if (this.beatsRef.current) {
+                    this.beatsRef.current.appendChild(c);
+                }
+                gridColumns += `${per}% `;
 
-                    prev = start;
-                });
+                prev = start;
             });
             let timelinegridColumns = "";
             //for (let i = 0; i < Math.round(duration); i += 1) {
-            [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
-                nextFrame().then(() => {
-                    const diff = 1
+            await [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
+                const diff = 1
 
-                    const c = document.createElement('div');
-                    let j = i + 1;
-                    c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+                const c = document.createElement('div');
+                let j = i + 1;
+                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
 
-                    c.className = classNames(
-                        //{ "time-notch-left": i === 0 },
-                        { "time-notch": true },
-                        { "time-notch-half": i % 5 !== 0 },
-                    )
+                c.className = classNames(
+                    //{ "time-notch-left": i === 0 },
+                    { "time-notch": true },
+                    { "time-notch-half": i % 5 !== 0 },
+                )
 
-                    const sp = document.createElement('span');
-                    c.appendChild(sp);
-                    sp.className = "time-num-span";
-                    let seconds = i;
-                    let output = ""
-                    if (seconds / 60 > 1) {
-                        const minutes = parseInt((seconds / 60).toString(), 10);
-                        seconds = parseInt((seconds % 60).toString(), 10);
-                        const tseconds = seconds < 10 ? '0' + seconds : seconds;
-                        output = `${minutes}:${tseconds}`;
-                    }
-                    else {
-                        output = "" + Math.round(seconds * 1000) / 1000;
-                    }
+                const sp = document.createElement('span');
+                c.appendChild(sp);
+                sp.className = "time-num-span";
+                let seconds = i;
+                let output = ""
+                if (seconds / 60 > 1) {
+                    const minutes = parseInt((seconds / 60).toString(), 10);
+                    seconds = parseInt((seconds % 60).toString(), 10);
+                    const tseconds = seconds < 10 ? '0' + seconds : seconds;
+                    output = `${minutes}:${tseconds}`;
+                }
+                else {
+                    output = "" + Math.round(seconds * 1000) / 1000;
+                }
 
-                    if (i % 5 === 0) sp.textContent = output;
+                if (i % 5 === 0) sp.textContent = output;
 
-                    const per = (diff / duration) * 100;
-                    if (this.timelineRef.current) {
-                        this.timelineRef.current.appendChild(c);
-                    }
-                    timelinegridColumns += `${per}% `;
-                });
+                const per = (diff / duration) * 100;
+                if (this.timelineRef.current) {
+                    this.timelineRef.current.appendChild(c);
+                }
+                timelinegridColumns += `${per}% `;
             });
             if (this.beatsRef.current) this.beatsRef.current.style.gridTemplateColumns = gridColumns;
             if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
@@ -538,12 +533,12 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
             <TagInput
                 className={classNames("info-item-control", "tag-input", Classes.ELEVATION_1)}
                 leftIcon={IconNames.TAG}
-                addOnPaste
+                addOnPaste={false}
                 tagProps={{ minimal: true }}
                 values={props.file?.instrumentNotes.tags}
                 placeholder="Tags.."
                 onAdd={props.addTag}
-                onRemove={props.removeTag}
+                onRemove={(v, i) => { props.removeTag(v, i) }}
                 rightElement={
                     (
                         <Popover content={renderTagMenu(props)} inheritDarkTheme position={Position.BOTTOM_RIGHT}>
