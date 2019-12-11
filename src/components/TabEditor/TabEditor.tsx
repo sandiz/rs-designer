@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -17,7 +17,9 @@ import {
     InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled,
     areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
-import { Instrument, allTunings, baseTuning } from '../../types';
+import {
+    Instrument, allTunings, baseTuning, BeatTime,
+} from '../../types';
 import { getTransposedKey } from '../../lib/music-utils';
 import { deletePopover } from '../../dialogs';
 
@@ -31,6 +33,7 @@ interface TabEditorState {
     files: InstrumentListItem[];
     currentFile: InstrumentListItem | null;
     currentFileIdx: number;
+    beats: BeatTime[];
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -46,12 +49,16 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private tabNoteRef: RefObject<HTMLDivElement>;
     private overflowRef: RefObject<HTMLDivElement>;
     private noteEditorRef: RefObject<NoteEditor>;
+    private insertHeadRef: RefObject<HTMLDivElement>;
     private progressRAF = 0;
+    private prevX = 0;
+    private insertHeadDragging = false;
+    private insertHeadBeatIdx = 0;
 
     constructor(props: {}) {
         super(props);
         this.state = {
-            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0,
+            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0, beats: [],
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -62,6 +69,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.tabNoteRef = React.createRef();
         this.overflowRef = React.createRef();
         this.noteEditorRef = React.createRef();
+        this.insertHeadRef = React.createRef();
     }
 
     componentDidMount = async () => {
@@ -122,6 +130,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         let onecounter = 0;
         if (metadata) {
             const beats = metadata.beats;
+            this.setState({ beats });
             await beats.forEach((beatData, i) => {
                 const start = parseFloat(beatData.start);
                 const bn = parseInt(beatData.beatNum, 10);
@@ -195,6 +204,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
         }
         this.updateImage();
+        this.moveInsertHeadToBeat(2);
         this.updateProgress();
         this.updateFiles();
         if (MediaPlayerService.wavesurfer) {
@@ -216,11 +226,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
+        const beatStart = parseFloat(this.state.beats[this.insertHeadBeatIdx].start);
         const time = MediaPlayerService.getCurrentTime();
         const per = (time / MediaPlayerService.getDuration()) * 100;
-        if (this.neckContainerRef.current && this.progressRef.current) {
+        const beatPer = (beatStart / MediaPlayerService.getDuration()) * 100;
+        if (this.neckContainerRef.current && this.progressRef.current && this.insertHeadRef.current) {
             const width = this.neckContainerRef.current.clientWidth;
             this.progressRef.current.style.transform = `translateX(${(per / 100) * width}px)`;
+            if (this.insertHeadDragging) {
+                this.insertHeadRef.current.style.transform = `translateX(${(beatPer / 100) * width}px)`;
+            }
+            else {
+                this.insertHeadRef.current.style.transform = `translateX(${(beatPer / 100) * width}px)`;
+            }
 
             if (this.overflowRef.current && MediaPlayerService.isPlaying()) {
                 const sl = this.overflowRef.current.scrollLeft + this.overflowRef.current.clientWidth;
@@ -343,6 +361,49 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    moveInsertHead = (e: MouseEvent) => {
+        if (!this.insertHeadDragging) return;
+        if (this.prevX === -1) {
+            this.prevX = e.pageX;
+            return;
+        }
+        const { insertHeadBeatIdx } = this;
+        // dragged left
+        if (this.prevX - 20 > (e.pageX)) {
+            if (insertHeadBeatIdx > 0) {
+                this.insertHeadBeatIdx -= 1;
+            }
+            this.prevX = e.pageX;
+        }
+        else if (this.prevX + 20 < (e.pageX)) { // dragged right
+            if (insertHeadBeatIdx < this.state.beats.length - 1) {
+                this.insertHeadBeatIdx += 1;
+            }
+            this.prevX = e.pageX;
+        }
+    }
+
+    startInsertHead = () => {
+        this.insertHeadDragging = true;
+        document.addEventListener('mousemove', this.moveInsertHead);
+        document.addEventListener('mouseup', this.stopInsertHead);
+    }
+
+    stopInsertHead = () => {
+        this.insertHeadDragging = false;
+        document.removeEventListener('mousemove', this.moveInsertHead);
+        document.removeEventListener('mouseup', this.stopInsertHead);
+    }
+
+    moveInsertHeadToBeat = (downBeat: number) => {
+        downBeat -= 1;
+        const dnb = this.state.beats.filter(i => i.beatNum === "1");
+        if (downBeat < dnb.length) {
+            const d = dnb[downBeat];
+            this.insertHeadBeatIdx = this.state.beats.findIndex(i => JSON.stringify(i) === JSON.stringify(d));
+        }
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -390,6 +451,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                         >
                             <div className={classNames("neck-container")} ref={this.neckContainerRef}>
                                 <div className="tab-progress" ref={this.progressRef} />
+                                <div className="tab-insertHead" ref={this.insertHeadRef}>
+                                    <Card
+                                        interactive
+                                        className="tab-insertHeadSlider"
+                                        elevation={Elevation.TWO}
+                                        onMouseDown={this.startInsertHead}
+                                    />
+                                </div>
                                 <NoteEditor
                                     ref={this.noteEditorRef}
                                     width={this.state.zoom * this.state.duration}
