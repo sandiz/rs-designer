@@ -152,7 +152,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 prev = start;
             });
             let timelinegridColumns = "";
-            //for (let i = 0; i < Math.round(duration); i += 1) {
             await [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
                 const diff = 1
 

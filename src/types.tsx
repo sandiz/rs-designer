@@ -284,7 +284,22 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
     },
     MEDIA_ADVANCED: {
-        info: "Open [ meend-intelligence ] panel", hotkey: ["a"],
+        info: "Open [ meend-intelligence ] panel", hotkey: ["m"],
+    },
+    SELECT_ALL_NOTES: {
+        info: "Select all notes", hotkey: ["command+a", "ctrl+a"], group: "Note Editor", idx: 1,
+    },
+    DELETE_NOTES: {
+        info: "Delete selected note(s)", hotkey: ["del", "backspace"], group: "Note Editor", idx: 2,
+    },
+    CUT_NOTES: {
+        info: "Remove note(s) and save it in a buffer", hotkey: ["command+x", "ctrl+x"], group: "Note Editor", idx: 3,
+    },
+    COPY_NOTES: {
+        info: "Copy note(s) and save it in a buffer", hotkey: ["command+c", "ctrl+c"], group: "Note Editor", idx: 4,
+    },
+    PASTE_NOTES: {
+        info: "Paste note(s) that were saved in the buffer", hotkey: ["command+v", "ctrl+v"], group: "Note Editor", idx: 5,
     },
 }
 

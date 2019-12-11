@@ -2,10 +2,11 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import { Classes, ResizeSensor } from '@blueprintjs/core';
 import Selection from '@simonwep/selection-js';
+import { GlobalHotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
-    BeatTime, NoteTime, Instrument, InstrumentNotesInMem,
+    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo,
 } from '../../types';
 import './TabEditor.scss';
 import { jsonStringifyCompare } from '../../lib/utils';
@@ -32,6 +33,7 @@ interface NoteEditorState {
     beats: BeatTime[];
     instrumentNotes: InstrumentNotesInMem;
     selectedNotes: NoteTime[];
+    isDragging: boolean;
 }
 const STRING_COLORS: string[] = [
     "linear-gradient(0deg, rgba(193,55,211,1) 12%, rgba(237,101,255,1) 100%)", //"#C137D3",
@@ -43,7 +45,25 @@ const STRING_COLORS: string[] = [
 ]
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
+enum FRET { MAX = 24, MIN = 0 }
+enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
+    public keyMap = {
+        SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
+        DELETE_NOTES: HotkeyInfo.DELETE_NOTES.hotkey,
+        CUT_NOTES: HotkeyInfo.CUT_NOTES.hotkey,
+        COPY_NOTES: HotkeyInfo.COPY_NOTES.hotkey,
+        PASTE_NOTES: HotkeyInfo.PASTE_NOTES.hotkey,
+    }
+
+    public handlers = {
+        SELECT_ALL_NOTES: () => this.kbdHandler(keyShortcuts.SELECT_ALL),
+        DELETE_NOTES: () => this.kbdHandler(keyShortcuts.DELETE),
+        CUT_NOTES: () => this.kbdHandler(keyShortcuts.CUT),
+        COPY_NOTES: () => this.kbdHandler(keyShortcuts.COPY),
+        PASTE_NOTES: () => this.kbdHandler(keyShortcuts.PASTE),
+    }
+
     private hoverRef: RefObject<HTMLDivElement>;
     private notesRef: RefObject<HTMLDivElement>;
     private neckRef: RefObject<HTMLDivElement>;
@@ -59,6 +79,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             beats: [],
             instrumentNotes: props.instrumentNotes ? props.instrumentNotes : { notes: [], tags: [] },
             selectedNotes: [],
+            isDragging: false,
         };
         this.currentString = null;
         this.strings = [];
@@ -83,7 +104,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const el = selected[i];
                     inst.removeFromSelection(el);
                 }
-                this.setState({ selectedNotes: [] });
+                this.setState({ selectedNotes: [], isDragging: true });
                 inst.clearSelection();
             });
             this.selection.on('move', ({ changed: { removed, added } }) => {
@@ -114,6 +135,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             });
             this.selection.on('stop', ({ inst }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
+                this.setState({ isDragging: false });
                 inst.keepSelection();
             });
         }
@@ -184,7 +206,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                     instrumentNotes.notes = notes;
                     this.setState({ instrumentNotes });
-                    console.log(startTime, closest);
                     ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
                 }
             }
@@ -221,6 +242,26 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             this.setState({ instrumentNotes, selectedNotes });
             ProjectService.saveInstrument(instrument, instrumentNotes, instrumentNoteIdx);
         }
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    onNeckMouseWheel = (event: React.WheelEvent) => {
+        const { selectedNotes } = this.state;
+        selectedNotes.forEach((item) => {
+            const diff = event.shiftKey ? 5 : 1;
+            const downDirection = event.deltaY > 0;
+            const upDirection = event.deltaY < 0;
+            if (downDirection) {
+                if (item.fret - diff < FRET.MIN) return;
+                item.fret -= diff;
+            }
+            else if (upDirection) {
+                if (item.fret + diff > FRET.MAX) return;
+                item.fret += diff;
+            }
+        });
+        this.setState({ selectedNotes });
     }
 
     onNeckMouseMove = (event: React.MouseEvent) => {
@@ -252,101 +293,145 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onNeckMouseLeave = () => {
     }
 
+    clearSelectedNotes = () => {
+        if (!this.state.isDragging) this.setState({ selectedNotes: [] });
+    }
+
     addString = (ref: HTMLDivElement | null) => {
         if (ref) {
             this.strings.push(ref);
         }
     }
 
+    kbdHandler = (h: keyShortcuts) => {
+        switch (h) {
+            case keyShortcuts.SELECT_ALL:
+                {
+                    let n: NoteTime[] = [];
+                    if (this.state.instrumentNotes) {
+                        n = this.state.instrumentNotes.notes;
+                    }
+                    this.setState({ selectedNotes: n });
+                }
+                break;
+            case keyShortcuts.DELETE:
+                {
+                    const { instrumentNotes } = this.state;
+                    if (instrumentNotes) {
+                        this.state.selectedNotes.forEach((item) => {
+                            const idx = instrumentNotes.notes.findIndex(p => jsonStringifyCompare(p, item));
+                            if (idx !== -1) {
+                                instrumentNotes.notes.splice(idx, 1);
+                            }
+                        })
+                        this.setState({ selectedNotes: [], instrumentNotes });
+                    }
+                }
+                break;
+            case keyShortcuts.CUT:
+                break;
+            case keyShortcuts.COPY:
+                break;
+            case keyShortcuts.PASTE:
+                break;
+            default:
+                break;
+        }
+    }
+
     render = () => {
         return (
-            <ResizeSensor onResize={() => this.forceUpdate()}>
-                <div
-                    onMouseEnter={this.onNeckMouseEnter}
-                    onMouseMove={this.onNeckMouseMove}
-                    onMouseLeave={this.onNeckMouseLeave}
-                    className="neck"
-                    ref={this.neckRef}
-                >
-                    <div ref={this.notesRef} className="notes-container">
-                        {
-                            this.state.instrumentNotes.notes.map((note: NoteTime, idx: number) => {
-                                const i = idx;
-                                if (!this.neckRef.current) return null;
-                                const string = this.strings[note.string];
-                                const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
-                                return (
-                                    <div
-                                        data-note-idx={idx}
-                                        onMouseUp={e => this.onMouseClickNote(e, i)}
-                                        key={note.string + "_" + note.fret + "_" + note.startTime}
-                                        className={classNames("note", Classes.CARD, Classes.ELEVATION_3, "number",
-                                            { "note-selected": this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, note)) !== -1 })}
-                                        style={{
-                                            //position
-                                            textAlign: "center",
-                                            background: STRING_COLORS[note.string],
-                                            position: "absolute",
-                                            transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
-                                        }}
-                                    >
-                                        {note.fret}
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                    <div ref={this.hoverRef} className={classNames("hover-note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE)} />
+            <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+                <ResizeSensor onResize={() => this.forceUpdate()}>
                     <div
-                        className="strings-hitbox strings-hitbox-first"
-                        onMouseMove={this.onMouseMove}
-                        onMouseEnter={this.onMouseEnter}
-                        onMouseLeave={this.onMouseLeave}
-                        onClick={this.onMouseClick}>
-                        <div className="strings" data-string-idx="0" data-string="E" ref={this.addString} />
+                        onMouseEnter={this.onNeckMouseEnter}
+                        onMouseMove={this.onNeckMouseMove}
+                        onMouseLeave={this.onNeckMouseLeave}
+                        onWheel={this.onNeckMouseWheel}
+                        onMouseUp={this.clearSelectedNotes}
+                        className="neck"
+                        ref={this.neckRef}
+                    >
+                        <div ref={this.notesRef} className="notes-container">
+                            {
+                                this.state.instrumentNotes.notes.map((note: NoteTime, idx: number) => {
+                                    const i = idx;
+                                    if (!this.neckRef.current) return null;
+                                    const string = this.strings[note.string];
+                                    const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
+                                    return (
+                                        <div
+                                            data-note-idx={idx}
+                                            onMouseUp={e => this.onMouseClickNote(e, i)}
+                                            key={note.string + "_" + note.fret + "_" + note.startTime}
+                                            className={classNames("note", Classes.CARD, Classes.ELEVATION_3, "number",
+                                                { "note-selected": this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, note)) !== -1 })}
+                                            style={{
+                                                //position
+                                                textAlign: "center",
+                                                background: STRING_COLORS[note.string],
+                                                position: "absolute",
+                                                transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
+                                            }}
+                                        >
+                                            {note.fret}
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div ref={this.hoverRef} className={classNames("hover-note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE)} />
+                        <div
+                            className="strings-hitbox strings-hitbox-first"
+                            onMouseMove={this.onMouseMove}
+                            onMouseEnter={this.onMouseEnter}
+                            onMouseLeave={this.onMouseLeave}
+                            onClick={this.onMouseClick}>
+                            <div className="strings" data-string-idx="0" data-string="E" ref={this.addString} />
+                        </div>
+                        <div
+                            className="strings-hitbox"
+                            onMouseMove={this.onMouseMove}
+                            onMouseEnter={this.onMouseEnter}
+                            onMouseLeave={this.onMouseLeave}
+                            onClick={this.onMouseClick}>
+                            <div className="strings" data-string-idx="1" data-string="B" ref={this.addString} />
+                        </div>
+                        <div
+                            className="strings-hitbox"
+                            onMouseMove={this.onMouseMove}
+                            onMouseEnter={this.onMouseEnter}
+                            onMouseLeave={this.onMouseLeave}
+                            onClick={this.onMouseClick}>
+                            <div className="strings" data-string-idx="2" data-string="G" ref={this.addString} />
+                        </div>
+                        <div
+                            className="strings-hitbox"
+                            onMouseMove={this.onMouseMove}
+                            onMouseEnter={this.onMouseEnter}
+                            onMouseLeave={this.onMouseLeave}
+                            onClick={this.onMouseClick}>
+                            <div className="strings" data-string-idx="3" data-string="D" ref={this.addString} />
+                        </div>
+                        <div
+                            className="strings-hitbox"
+                            onMouseMove={this.onMouseMove}
+                            onMouseEnter={this.onMouseEnter}
+                            onMouseLeave={this.onMouseLeave}
+                            onClick={this.onMouseClick}>
+                            <div className="strings" data-string-idx="4" data-string="A" ref={this.addString} />
+                        </div>
+                        <div
+                            className="strings-hitbox"
+                            onMouseMove={this.onMouseMove}
+                            onMouseOver={this.onMouseEnter}
+                            onMouseOut={this.onMouseLeave}
+                            onMouseDown={this.onMouseClick}>
+                            <div className="strings" data-string-idx="5" data-string="E" ref={this.addString} />
+                        </div>
                     </div>
-                    <div
-                        className="strings-hitbox"
-                        onMouseMove={this.onMouseMove}
-                        onMouseEnter={this.onMouseEnter}
-                        onMouseLeave={this.onMouseLeave}
-                        onClick={this.onMouseClick}>
-                        <div className="strings" data-string-idx="1" data-string="B" ref={this.addString} />
-                    </div>
-                    <div
-                        className="strings-hitbox"
-                        onMouseMove={this.onMouseMove}
-                        onMouseEnter={this.onMouseEnter}
-                        onMouseLeave={this.onMouseLeave}
-                        onClick={this.onMouseClick}>
-                        <div className="strings" data-string-idx="2" data-string="G" ref={this.addString} />
-                    </div>
-                    <div
-                        className="strings-hitbox"
-                        onMouseMove={this.onMouseMove}
-                        onMouseEnter={this.onMouseEnter}
-                        onMouseLeave={this.onMouseLeave}
-                        onClick={this.onMouseClick}>
-                        <div className="strings" data-string-idx="3" data-string="D" ref={this.addString} />
-                    </div>
-                    <div
-                        className="strings-hitbox"
-                        onMouseMove={this.onMouseMove}
-                        onMouseEnter={this.onMouseEnter}
-                        onMouseLeave={this.onMouseLeave}
-                        onClick={this.onMouseClick}>
-                        <div className="strings" data-string-idx="4" data-string="A" ref={this.addString} />
-                    </div>
-                    <div
-                        className="strings-hitbox"
-                        onMouseMove={this.onMouseMove}
-                        onMouseOver={this.onMouseEnter}
-                        onMouseOut={this.onMouseLeave}
-                        onMouseDown={this.onMouseClick}>
-                        <div className="strings" data-string-idx="5" data-string="E" ref={this.addString} />
-                    </div>
-                </div>
-            </ResizeSensor>
+                </ResizeSensor>
+            </GlobalHotKeys>
         );
     }
 }
