@@ -128,7 +128,7 @@
     height: 100%;
     background-color: rgba(1, 1, 1, 0.2);
     justify-content: space-between;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .hover-note {
@@ -139,7 +139,7 @@
     visibility: hidden;
     pointer-events: none;
     border-radius: 20px;
-    transition: 0.1s !important;
+    transition: 150ms !important;
     filter: brightness(0.5);
 }
 
@@ -254,7 +254,7 @@
     height: 7.5%;
     box-shadow: inset 0 0 4px;
     background-color: blanchedalmond;
-    transition: 0.3s;
+    //transition: 0.3s;
     width: 100%;
 }
 
@@ -262,7 +262,7 @@
     height: 7.5%;
     box-shadow: inset 0 0 4px;
     background-color: #455e77;
-    transition: 0.3s;
+    //transition: 0.3s;
     width: 100%;
 }
 
@@ -275,15 +275,14 @@
     height: 40px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    cursor: pointer;
     border-radius: 20px;
-    transition: 0ms;
     margin: 0;
     padding: 0;
     padding-top: 6px;
     font-size: 22px;
     color: #fff;
     z-index: 10;
+    cursor: pointer;
 }
 
 .note-selected {
@@ -302,9 +301,7 @@
     height: 40px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    cursor: pointer;
     border-radius: 20px;
-    transition: 0ms;
     margin: 0;
     padding: 0;
     padding-top: 6px;

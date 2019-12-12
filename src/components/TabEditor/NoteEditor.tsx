@@ -11,18 +11,25 @@ import {
 import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
 
+const beatCache: { [key: string]: [number, BeatTime] } = {}; //TODO: clear on beat change
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
     const duration = MediaPlayerService.getDuration();
     const time = ((x + offset) / rect.width) * duration;
+    if (beatCache[time]) {
+        return beatCache[time];
+    }
     if (beats.length > 0) {
         const closest = beats.reduce((prev: BeatTime, curr: BeatTime) => {
             return (Math.abs(parseFloat(curr.start) - time) < Math.abs(parseFloat(prev.start) - time) ? curr : prev);
         });
-        return [((parseFloat(closest.start) / duration) * rect.width) - offset, closest];
+        const result: [number, BeatTime] = [((parseFloat(closest.start) / duration) * rect.width) - offset, closest];
+        beatCache[time.toString()] = result;
+        return result;
     }
     const beat: BeatTime = { start: "0", beatNum: "0" };
     return [x, beat];
 }
+//const _snapToGrid = snapToGrid;_.memoize(snapToGrid, (...args) => args.join("_"));
 interface NoteEditorProps {
     width: number;
     instrument?: Instrument;
@@ -288,12 +295,14 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onNeckMouseMove = (event: React.MouseEvent) => {
+        //console.time('start');
         if (this.hoverRef.current) {
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
             let x = event.clientX - (rect.left) - (hr.width / 2);
             const y = event.clientY - (rect.top) - (hr.height / 2);
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
+
             if (this.state.beats.length <= 0) {
                 this.hoverRef.current.style.transition = "0ms";
             }
@@ -303,6 +312,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             }
             else this.hoverRef.current.style.transform = `translate(${x}px,${y}px)`;
         }
+        //console.timeEnd("start");
     }
 
     onNeckMouseEnter = (event: React.MouseEvent) => {
