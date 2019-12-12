@@ -19,8 +19,9 @@ const rotateMode = (obj: ScaleInfo, times: number) => {
     return copy;
 }
 
-export const pitches = ['Ab', 'A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G'];
-export const pitchesFromC = rotate(pitches, 4); // starts with C
+export const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+export const enharmonicPitches = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
+export const pitchesFromC = rotate(pitches, 3); // starts with C
 const cof: CircleOfFifths = {
     majors: [...pitches],
     minors: [...rotate(pitches, 9)],
@@ -116,7 +117,7 @@ export const getParalleKey = (key: string, type: string): [string, string] => {
     }
 }
 
-export const getTransposedKey = (key: string, value: number): string => {
+export const getTransposedKey = (key: string, value: number, enharmonic = false): string => {
     const index = pitches.indexOf(key);
     if (index !== -1) {
         let diff = index + value;
@@ -126,7 +127,7 @@ export const getTransposedKey = (key: string, value: number): string => {
         else if (diff > pitches.length - 1) {
             diff -= (pitches.length)
         }
-        return pitches[diff];
+        return enharmonic ? enharmonicPitches[diff] : pitches[diff];
     }
     return '';
 }

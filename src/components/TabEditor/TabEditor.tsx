@@ -77,6 +77,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     componentDidMount = async () => {
         DispatcherService.on(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         nativeTheme.on('updated', this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
@@ -87,22 +88,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     componentWillUnmount = () => {
         DispatcherService.off(DispatchEvents.MediaReady, this.mediaReady);
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
+        DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
         nativeTheme.on('updated', this.updateImage);
         cancelAnimationFrame(this.progressRAF);
-    }
-
-    updateImage = async () => {
-        if (!MediaPlayerService.wavesurfer) return;
-        try {
-            const image = await MediaPlayerService.exportImage(this.state.zoom * this.state.duration);
-            if (this.imageRef.current) {
-                this.imageRef.current.src = image;
-                this.imageRef.current.style.visibility = ""
-            }
-        }
-        catch (e) {
-            console.log("update-image exception", e);
-        }
     }
 
     mediaReset = async () => {
@@ -115,104 +103,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     mediaReady = async () => {
-        const duration = MediaPlayerService.getDuration();
-        this.setState({ duration })
-        const metadata = await ProjectService.getProjectMetadata();
-        let gridColumns = "";
-        let prev = 0;
-        let onecounter = 0;
-        if (metadata) {
-            const beats = metadata.beats;
-            this.setState({ beats });
-            if (beats.length > 0) {
-                await beats.forEach((beatData, i) => {
-                    const start = parseFloat(beatData.start);
-                    const bn = parseInt(beatData.beatNum, 10);
-
-                    let diff = 0;
-                    if (i === 0) diff = start;
-                    else diff = start - prev;
-
-                    const c = document.createElement('div');
-                    let j = i + 1;
-                    c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
-
-                    if (bn === 1) {
-                        c.className = "beats-start";
-                        onecounter += 1;
-                        const sp = document.createElement('div');
-                        c.appendChild(sp);
-                        sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
-                        sp.textContent = onecounter.toString();
-                    }
-                    else {
-                        c.className = "beats-other";
-                    }
-                    c.setAttribute('data-bn', bn.toString());
-                    const per = (diff / duration) * 100;
-                    if (this.beatsRef.current) {
-                        this.beatsRef.current.appendChild(c);
-                    }
-                    gridColumns += `${per}% `;
-
-                    prev = start;
-                });
-            }
-            else {
-                const c = document.createElement('div');
-                c.className = "number";
-                c.innerHTML = "Beats unavailable";
-                if (this.beatsRef.current) {
-                    this.beatsRef.current.appendChild(c);
-                }
-            }
-            let timelinegridColumns = "";
-            await [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
-                const diff = 1
-
-                const c = document.createElement('div');
-                let j = i + 1;
-                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
-
-                c.className = classNames(
-                    //{ "time-notch-left": i === 0 },
-                    { "time-notch": true },
-                    { "time-notch-half": i % 5 !== 0 },
-                )
-
-                const sp = document.createElement('span');
-                c.appendChild(sp);
-                sp.className = "time-num-span";
-                let seconds = i;
-                let output = ""
-                if (seconds / 60 > 1) {
-                    const minutes = parseInt((seconds / 60).toString(), 10);
-                    seconds = parseInt((seconds % 60).toString(), 10);
-                    const tseconds = seconds < 10 ? '0' + seconds : seconds;
-                    output = `${minutes}:${tseconds}`;
-                }
-                else {
-                    output = "" + Math.round(seconds * 1000) / 1000;
-                }
-
-                if (i % 5 === 0) sp.textContent = output;
-
-                const per = (diff / duration) * 100;
-                if (this.timelineRef.current) {
-                    this.timelineRef.current.appendChild(c);
-                }
-                timelinegridColumns += `${per}% `;
-            });
-            if (this.beatsRef.current) this.beatsRef.current.style.gridTemplateColumns = gridColumns;
-            if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
-        }
-        this.updateImage();
+        await this.updateBeatMap();
         this.moveInsertHeadToBeat(2);
+        this.updateTimeline();
+        this.updateImage();
         this.updateProgress();
         this.updateFiles();
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.on('seek', this.onSeek);
         }
+    }
+
+    projectUpdated = () => {
+        this.updateBeatMap();
     }
 
     onSeek = () => {
@@ -257,6 +160,134 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    updateImage = async () => {
+        if (!MediaPlayerService.wavesurfer) return;
+        try {
+            const image = await MediaPlayerService.exportImage(this.state.zoom * this.state.duration);
+            if (this.imageRef.current) {
+                this.imageRef.current.src = image;
+                this.imageRef.current.style.visibility = ""
+            }
+        }
+        catch (e) {
+            console.log("update-image exception", e);
+        }
+    }
+
+    updateFiles = () => {
+        console.trace("update-files", this.state.currentFileIdx)
+        const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
+        this.setState({ files: getAllFiles(), currentFile: file });
+    }
+
+    updateBeatMap = async () => {
+        const duration = MediaPlayerService.getDuration();
+        this.setState({ duration })
+        const metadata = await ProjectService.getProjectMetadata();
+        let gridColumns = "";
+        let prev = 0;
+        let onecounter = 0;
+        if (metadata) {
+            const beats = metadata.beats;
+            this.setState({ beats });
+            if (this.beatsRef.current) {
+                while (this.beatsRef.current.firstChild) {
+                    this.beatsRef.current.removeChild(this.beatsRef.current.firstChild);
+                }
+            }
+            if (beats.length > 0) {
+                await beats.forEach((beatData, i) => {
+                    const start = parseFloat(beatData.start);
+                    const bn = parseInt(beatData.beatNum, 10);
+
+                    let diff = 0;
+                    if (i === 0) diff = start;
+                    else diff = start - prev;
+
+                    const c = document.createElement('div');
+                    let j = i + 1;
+                    c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+
+                    if (bn === 1) {
+                        c.className = "beats-start";
+                        onecounter += 1;
+                        const sp = document.createElement('div');
+                        c.appendChild(sp);
+                        sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
+                        sp.textContent = onecounter.toString();
+                    }
+                    else {
+                        c.className = "beats-other";
+                    }
+                    c.setAttribute('data-bn', bn.toString());
+                    const per = (diff / duration) * 100;
+                    if (this.beatsRef.current) {
+                        this.beatsRef.current.appendChild(c);
+                    }
+                    gridColumns += `${per}% `;
+
+                    prev = start;
+                });
+                if (this.beatsRef.current) {
+                    this.beatsRef.current.style.gridTemplateColumns = gridColumns;
+                    this.beatsRef.current.style.display = "grid";
+                    this.moveInsertHeadToBeat(2);
+                }
+            }
+            else {
+                const c = document.createElement('div');
+                c.className = "number";
+                c.innerHTML = "Beats unavailable";
+                if (this.beatsRef.current) {
+                    this.beatsRef.current.appendChild(c);
+                    this.beatsRef.current.style.display = "inline-block";
+                }
+            }
+        }
+    }
+
+    updateTimeline = async () => {
+        const duration = MediaPlayerService.getDuration();
+        let timelinegridColumns = "";
+        await [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
+            const diff = 1
+
+            const c = document.createElement('div');
+            let j = i + 1;
+            c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+
+            c.className = classNames(
+                //{ "time-notch-left": i === 0 },
+                { "time-notch": true },
+                { "time-notch-half": i % 5 !== 0 },
+            )
+
+            const sp = document.createElement('span');
+            c.appendChild(sp);
+            sp.className = "time-num-span";
+            let seconds = i;
+            let output = ""
+            if (seconds / 60 > 1) {
+                const minutes = parseInt((seconds / 60).toString(), 10);
+                seconds = parseInt((seconds % 60).toString(), 10);
+                const tseconds = seconds < 10 ? '0' + seconds : seconds;
+                output = `${minutes}:${tseconds}`;
+            }
+            else {
+                output = "" + Math.round(seconds * 1000) / 1000;
+            }
+
+            if (i % 5 === 0) sp.textContent = output;
+
+            const per = (diff / duration) * 100;
+            if (this.timelineRef.current) {
+                this.timelineRef.current.appendChild(c);
+            }
+            timelinegridColumns += `${per}% `;
+        });
+        if (this.timelineRef.current) this.timelineRef.current.style.gridTemplateColumns = timelinegridColumns;
+    }
+
     zoomIn = () => {
         const cur = this.state.zoom;
         if (cur < ZOOM_MAX) {
@@ -272,12 +303,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     zoom = (v: number) => this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) })
-
-    updateFiles = () => {
-        console.trace("update-files", this.state.currentFileIdx)
-        const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
-        this.setState({ files: getAllFiles(), currentFile: file });
-    }
 
     handleFileChange = (item: InstrumentListItem) => {
         if (item.isDivider) {
@@ -574,7 +599,7 @@ const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
                                             case TagItem.TUNING: {
                                                 const tuning = vi.replace(/_/g, " ");
                                                 const indices = allTunings[vi as keyof typeof allTunings];
-                                                const notes = indices.map((i, idx) => getTransposedKey(baseTuning[idx], i)).join(" ");
+                                                const notes = indices.map((i, idx) => getTransposedKey(baseTuning[idx], i, true)).join(" ");
                                                 return (
                                                     <MenuItem
                                                         key={vi}
