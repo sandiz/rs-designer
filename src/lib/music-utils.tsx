@@ -1,8 +1,10 @@
 
 import * as teoria from 'teoria';
+import WebAudioScheduler from './web-audio-scheduler'
 import {
-    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo,
+    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime,
 } from '../types';
+import MediaPlayerService from '../services/mediaplayer';
 
 const rotate = (array: string[], times: number): string[] => {
     const copy = array.slice(0)
@@ -400,3 +402,79 @@ export const colorMaps = [
     "jet", "picnic", "plasma", "portland", "rainbow",
     "rainbow-soft", "rdbu", "viridis", "yignbu", "yiorrd",
 ] as const;
+
+
+export class Metronome {
+    static sched: unknown = null;
+    static ac: AudioContext | null = null;
+    static beats: BeatTime[] = [];
+    static start(beats: BeatTime[]) {
+        Metronome.stop();
+        Metronome.beats = beats;
+        Metronome.ac = MediaPlayerService.getAudioContext();
+        if (Metronome.ac) {
+            //eslint-disable-next-line
+            Metronome.sched = new (WebAudioScheduler as any)({ context: Metronome.ac });
+            //eslint-disable-next-line
+            const sc = (Metronome.sched as any);
+
+            sc.start(Metronome.schedule);
+        }
+    }
+
+    static schedule(e: { playbackTime: number }) {
+        let t0 = e.playbackTime;
+        const cur = MediaPlayerService.getCurrentTime();
+        const nextBeat = Metronome.beats.find(i => parseFloat(i.start) > cur);
+        if (nextBeat) {
+            const nbTime = parseFloat(nextBeat.start);
+            const bn = nextBeat.beatNum;
+            t0 += nbTime - cur;
+            //eslint-disable-next-line
+            const sc = (Metronome.sched as any);
+            sc.insert(t0, Metronome.ticktack, { frequency: bn === "1" ? 880 : 440, duration: bn === "1" ? 1.0 : 0.1 })
+            sc.insert(t0 + 0.1, Metronome.schedule);
+        }
+    }
+
+
+    static ticktack(e: { playbackTime: number; args: { frequency: number; duration: number } }) {
+        const t0 = e.playbackTime;
+        const t1 = t0 + e.args.duration;
+        if (Metronome.ac) {
+            const osc = Metronome.ac.createOscillator();
+            const amp = Metronome.ac.createGain();
+            if (amp) {
+                osc.frequency.value = e.args.frequency;
+                osc.start(t0);
+                osc.stop(t1);
+                osc.connect(amp as AudioNode);
+
+                amp.gain.setValueAtTime(0.5, t0);
+                amp.gain.exponentialRampToValueAtTime(1e-6, t1);
+
+                const g = MediaPlayerService.getGainNode();
+                if (g) amp.connect(g);
+
+                //eslint-disable-next-line
+                const sc = (Metronome.sched as any);
+                sc.nextTick(t1, () => {
+                    osc.disconnect();
+                    amp.disconnect();
+                });
+            }
+        }
+    }
+
+    static stop() {
+        //eslint-disable-next-line
+        const sc = (Metronome.sched as any);
+        if (sc) {
+            sc.stop();
+            sc.removeAll();
+        }
+        Metronome.ac = null;
+        Metronome.sched = null;
+        Metronome.beats = [];
+    }
+}

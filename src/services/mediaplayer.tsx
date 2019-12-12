@@ -484,6 +484,13 @@ class MediaPlayer {
         return null;
     }
 
+    public getGainNode = (): GainNode | null => {
+        if (this.wavesurfer) {
+            return this.wavesurfer.backend.gainNode;
+        }
+        return null;
+    }
+
     public addEQFilters = (tags: EQTag[]) => {
         if (this.wavesurfer && this.audioContext) {
             const filters: EQFilter[] = [];

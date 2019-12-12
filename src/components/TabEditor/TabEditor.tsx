@@ -20,9 +20,15 @@ import {
 import {
     Instrument, allTunings, baseTuning, BeatTime,
 } from '../../types';
-import { getTransposedKey } from '../../lib/music-utils';
+import { getTransposedKey, Metronome } from '../../lib/music-utils';
 import { deletePopover } from '../../dialogs';
 
+
+const mi = () => (
+    <span className={Classes.ICON}>
+        <svg id="Capa_1" height="16" viewBox="0 0 512 512" width="16" xmlns="http://www.w3.org/2000/svg"><g><path d="m383.884 178.896 46.09-69.135c6.127-9.191 3.644-21.608-5.547-27.735s-21.608-3.643-27.735 5.547l-23.11 34.664-19.238-105.815c-1.729-9.509-10.012-16.422-19.678-16.422h-157.333c-9.666 0-17.948 6.913-19.677 16.422l-78.667 432.667c-2.23 12.261 7.199 23.578 19.677 23.578h19.334v19.333c0 11.046 8.954 20 20 20s20-8.954 20-20v-19.333h196v19.333c0 11.046 8.954 20 20 20s20-8.954 20-20v-19.333h19.333c12.461 0 21.91-11.298 19.677-23.578zm-261.253 253.771 14.182-78h238.375l14.182 78zm245.283-118h-74.544l58.57-87.855zm-173.889-274.667h123.95l23.664 130.152-65.639 98.459v-169.944c0-11.046-8.954-20-20-20s-20 8.954-20 20v58.667h-10c-11.046 0-20 8.954-20 20s8.954 20 20 20h10v38.666h-10c-11.046 0-20 8.954-20 20s8.954 20 20 20h10v38.667h-91.915z" /></g></svg>
+    </span>
+)
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentListItem>();
 
@@ -35,6 +41,7 @@ interface TabEditorState {
     currentFileIdx: number;
     beats: BeatTime[];
     insertHeadBeatIdx: number;
+    metronome: boolean;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -59,7 +66,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            duration: 0, zoom: ZOOM_DEFAULT, files: [], currentFile: null, currentFileIdx: 0, beats: [], insertHeadBeatIdx: 0,
+            duration: 0,
+            zoom: ZOOM_DEFAULT,
+            files: [],
+            currentFile: null,
+            currentFileIdx: 0,
+            beats: [],
+            insertHeadBeatIdx: 0,
+            metronome: false,
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -96,6 +110,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     mediaReset = async () => {
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.off('seek', this.onSeek);
+            MediaPlayerService.wavesurfer.off('play', this.onPlay);
+            MediaPlayerService.wavesurfer.off('pause', this.onStop);
+            MediaPlayerService.wavesurfer.off('stop', this.onStop);
         }
         this.setState({
             currentFile: null, currentFileIdx: 0, files: [],
@@ -111,6 +128,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.updateFiles();
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.on('seek', this.onSeek);
+            MediaPlayerService.wavesurfer.on('play', this.onPlay);
+            MediaPlayerService.wavesurfer.on('pause', this.onStop);
+            MediaPlayerService.wavesurfer.on('stop', this.onStop);
         }
     }
 
@@ -127,6 +147,18 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             const pos = (per / 100) * width;
             const times = Math.floor(pos / this.overflowRef.current.clientWidth);
             this.overflowRef.current.scrollLeft = times * this.overflowRef.current.clientWidth;
+        }
+    }
+
+    onPlay = () => {
+        if (this.state.metronome) {
+            Metronome.start(this.state.beats);
+        }
+    }
+
+    onStop = () => {
+        if (this.state.metronome) {
+            Metronome.stop();
         }
     }
 
@@ -447,6 +479,20 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.setState({ insertHeadBeatIdx: this.state.beats.findIndex(i => JSON.stringify(i) === JSON.stringify(beat)) });
     }
 
+    toggleMetronome = () => {
+        this.setState((ps) => {
+            return {
+                metronome: !ps.metronome,
+            }
+        }, () => {
+            if (this.state.metronome) {
+                this.onPlay();
+            } else {
+                Metronome.stop();
+            }
+        })
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -465,6 +511,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     deleteNotes={this.deleteNotes}
                     noteEditorRef={this.noteEditorRef}
                     notesCountRef={this.noteCountRef}
+                    metronome={this.state.metronome}
+                    toggleMetronome={this.toggleMetronome}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -557,6 +605,9 @@ interface InfoPanelProps {
 
     noteEditorRef: RefObject<NoteEditor>;
     notesCountRef: RefObject<HTMLSpanElement>;
+
+    metronome: boolean;
+    toggleMetronome: () => void;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -701,6 +752,13 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 <Callout className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
                     <span ref={props.notesCountRef}> s:0 n:0</span>
                 </Callout>
+                <NavbarDivider className="tab-button-divider" />
+                <ButtonExtended
+                    onClick={props.toggleMetronome}
+                    active={props.metronome}
+                    small
+                    icon={mi()}
+                    intent={Intent.NONE} />
                 <NavbarDivider className="tab-button-divider" />
                 <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
                 <ButtonExtended
