@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Callout,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Callout, Tooltip,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -749,41 +749,94 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 />
             </Card>
             <div className="tab-button-group">
-                <Callout className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
-                    <span ref={props.notesCountRef}> s:0 n:0</span>
-                </Callout>
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Selected/Total notes in the chart">
+                    <Callout className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
+                        <span ref={props.notesCountRef}> s:0 n:0</span>
+                    </Callout>
+                </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
-                <ButtonExtended
-                    onClick={props.toggleMetronome}
-                    active={props.metronome}
-                    small
-                    icon={mi()}
-                    intent={Intent.NONE} />
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Tooggle Metronome synced with the current beatmap">
+                    <ButtonExtended
+                        onClick={props.toggleMetronome}
+                        active={props.metronome}
+                        small
+                        icon={mi()}
+                        intent={Intent.NONE} />
+                </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
-                <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
-                <ButtonExtended
-                    small
-                    icon={IconNames.CHEVRON_LEFT}
-                    className="info-item-control"
-                    intent={Intent.NONE}
-                    onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_LEFT)}
-                />
-                <ButtonExtended
-                    small
-                    icon={IconNames.CHEVRON_RIGHT}
-                    intent={Intent.NONE}
-                    onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_RIGHT)}
-                />
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="TODO: Add a note(s)">
+                    <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
+                </Tooltip>
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Shifts all selected note(s) to the previous beat">
+                    <ButtonExtended
+                        small
+                        icon={IconNames.CHEVRON_LEFT}
+                        className="info-item-control"
+                        intent={Intent.NONE}
+                        onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_LEFT)}
+                    />
+                </Tooltip>
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Shifts all selected note(s) to the next beat">
+                    <ButtonExtended
+                        small
+                        icon={IconNames.CHEVRON_RIGHT}
+                        intent={Intent.NONE}
+                        onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_RIGHT)}
+                    />
+                </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
-                <ButtonExtended small icon={IconNames.TIMELINE_BAR_CHART} className="info-item-control" intent={Intent.NONE} key="dd" />
-                <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} key="melody tracking" />
-
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="TODO: ddc generation">
+                    <ButtonExtended small icon={IconNames.TIMELINE_BAR_CHART} className="info-item-control" intent={Intent.NONE} key="dd" />
+                </Tooltip>
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="TODO: melody traking">
+                    <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} key="melody tracking" />
+                </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
                 <Popover content={deletePopover(props.deleteNotes, delChartMsg)} position={Position.BOTTOM_RIGHT}>
-                    <ButtonExtended className="info-item-control" small icon={IconNames.CROSS} intent={Intent.NONE} />
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content="Clears all notes from the chart">
+                        <ButtonExtended className="info-item-control" small icon={IconNames.CROSS} intent={Intent.NONE} />
+                    </Tooltip>
                 </Popover>
                 <Popover content={deletePopover(props.deleteFile)} position={Position.BOTTOM_RIGHT}>
-                    <ButtonExtended small icon={IconNames.TRASH} intent={Intent.NONE} />
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content="Deletes the chart from the project">
+                        <ButtonExtended small icon={IconNames.TRASH} intent={Intent.NONE} />
+                    </Tooltip>
                 </Popover>
             </div>
         </div>
