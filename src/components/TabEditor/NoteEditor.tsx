@@ -187,7 +187,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onMouseClick = (event: React.MouseEvent) => {
-        if (this.hoverRef.current) {
+        if (this.hoverRef.current && this.state.beats.length > 0) {
             if (this.state.selectedNotes.length > 0) {
                 this.setState({ selectedNotes: [] });
                 return;
@@ -294,6 +294,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             let x = event.clientX - (rect.left) - (hr.width / 2);
             const y = event.clientY - (rect.top) - (hr.height / 2);
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
+            if (this.state.beats.length <= 0) {
+                this.hoverRef.current.style.transition = "0ms";
+            }
             x = closest[0]
             if (this.currentString) {
                 this.hoverRef.current.style.transform = `translate(${x}px,${this.currentString.offsetTop - (hr.height - HOVER_NOTE_TOP_OFFSET)}px)`;

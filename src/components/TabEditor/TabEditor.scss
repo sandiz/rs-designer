@@ -139,7 +139,7 @@
     visibility: hidden;
     pointer-events: none;
     border-radius: 20px;
-    transition: 100ms !important;
+    transition: 0.1s !important;
     filter: brightness(0.5);
 }
 
@@ -224,6 +224,7 @@
     width: 20px;
     height: 20px;
     margin-left: -10px;
+    border: 1px solid #ff69b4a9;
     background-color: #ffffff88 !important;
     border-radius: 5px;
     padding: 0px;

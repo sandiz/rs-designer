@@ -124,38 +124,48 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         if (metadata) {
             const beats = metadata.beats;
             this.setState({ beats });
-            await beats.forEach((beatData, i) => {
-                const start = parseFloat(beatData.start);
-                const bn = parseInt(beatData.beatNum, 10);
+            if (beats.length > 0) {
+                await beats.forEach((beatData, i) => {
+                    const start = parseFloat(beatData.start);
+                    const bn = parseInt(beatData.beatNum, 10);
 
-                let diff = 0;
-                if (i === 0) diff = start;
-                else diff = start - prev;
+                    let diff = 0;
+                    if (i === 0) diff = start;
+                    else diff = start - prev;
 
+                    const c = document.createElement('div');
+                    let j = i + 1;
+                    c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
+
+                    if (bn === 1) {
+                        c.className = "beats-start";
+                        onecounter += 1;
+                        const sp = document.createElement('div');
+                        c.appendChild(sp);
+                        sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
+                        sp.textContent = onecounter.toString();
+                    }
+                    else {
+                        c.className = "beats-other";
+                    }
+                    c.setAttribute('data-bn', bn.toString());
+                    const per = (diff / duration) * 100;
+                    if (this.beatsRef.current) {
+                        this.beatsRef.current.appendChild(c);
+                    }
+                    gridColumns += `${per}% `;
+
+                    prev = start;
+                });
+            }
+            else {
                 const c = document.createElement('div');
-                let j = i + 1;
-                c.style.gridArea = `1 / ${j} / 2 / ${j += 1}`;
-
-                if (bn === 1) {
-                    c.className = "beats-start";
-                    onecounter += 1;
-                    const sp = document.createElement('div');
-                    c.appendChild(sp);
-                    sp.className = classNames("beats-num-span", { "beats-num-span-0": onecounter === 1 && i === 0 });
-                    sp.textContent = onecounter.toString();
-                }
-                else {
-                    c.className = "beats-other";
-                }
-                c.setAttribute('data-bn', bn.toString());
-                const per = (diff / duration) * 100;
+                c.className = "number";
+                c.innerHTML = "Beats unavailable";
                 if (this.beatsRef.current) {
                     this.beatsRef.current.appendChild(c);
                 }
-                gridColumns += `${per}% `;
-
-                prev = start;
-            });
+            }
             let timelinegridColumns = "";
             await [...new Array(Math.round(duration)).keys()].forEach((item, i) => {
                 const diff = 1
@@ -219,17 +229,15 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
-        const beatStart = parseFloat(this.state.beats[this.state.insertHeadBeatIdx].start);
         const time = MediaPlayerService.getCurrentTime();
         const per = (time / MediaPlayerService.getDuration()) * 100;
-        const beatPer = (beatStart / MediaPlayerService.getDuration()) * 100;
         if (this.neckContainerRef.current && this.progressRef.current && this.insertHeadRef.current) {
             const width = this.neckContainerRef.current.clientWidth;
             this.progressRef.current.style.transform = `translateX(${(per / 100) * width}px)`;
-            if (this.insertHeadDragging) {
-                this.insertHeadRef.current.style.transform = `translateX(${(beatPer / 100) * width}px)`;
-            }
-            else {
+
+            if (this.state.insertHeadBeatIdx < this.state.beats.length) {
+                const beatStart = parseFloat(this.state.beats[this.state.insertHeadBeatIdx].start);
+                const beatPer = (beatStart / MediaPlayerService.getDuration()) * 100;
                 this.insertHeadRef.current.style.transform = `translateX(${(beatPer / 100) * width}px)`;
             }
 
@@ -385,6 +393,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     startInsertHead = () => {
+        if (this.state.beats.length <= 0) return;
         this.insertHeadDragging = true;
         document.addEventListener('mousemove', this.moveInsertHead);
         document.addEventListener('mouseup', this.stopInsertHead);
@@ -664,9 +673,10 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 />
             </Card>
             <div className="tab-button-group">
-                <Callout className={classNames("info-item", Classes.ELEVATION_2, "number")}>
+                <Callout className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
                     <span ref={props.notesCountRef}> s:0 n:0</span>
                 </Callout>
+                <NavbarDivider className="tab-button-divider" />
                 <ButtonExtended small icon={IconNames.PLUS} className="info-item-control" intent={Intent.NONE} />
                 <ButtonExtended
                     small
@@ -682,8 +692,8 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     onClick={() => props.noteEditorRef.current?.kbdHandler(keyShortcuts.MOVE_RIGHT)}
                 />
                 <NavbarDivider className="tab-button-divider" />
-                <ButtonExtended small icon={IconNames.TIMELINE_BAR_CHART} className="info-item-control" intent={Intent.NONE} />
-                <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} />
+                <ButtonExtended small icon={IconNames.TIMELINE_BAR_CHART} className="info-item-control" intent={Intent.NONE} key="dd" />
+                <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} key="melody tracking" />
 
                 <NavbarDivider className="tab-button-divider" />
                 <Popover content={deletePopover(props.deleteNotes, delChartMsg)} position={Position.BOTTOM_RIGHT}>
