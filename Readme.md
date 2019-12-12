@@ -66,6 +66,9 @@ Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/m
 
 
 
+- alternatives
+    - analysis - capo, transcribe
+    - transcription - sound slice, editor on fire
 # dev instructions
 - clone forked wavesurfer
     - git clone https://github.com/sandiz/wavesurfer.js 
