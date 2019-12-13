@@ -303,7 +303,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
     },
     MEDIA_ADVANCED: {
-        info: "Open [ meend-intelligence ] panel", hotkey: ["m"],
+        info: "Open [ meend-intelligence ] panel", hotkey: ["command+p", "ctrl+space"],
     },
     SELECT_ALL_NOTES: {
         info: "Select all notes", hotkey: ["command+a", "ctrl+a"], group: "Note Editor", idx: 1,
@@ -325,6 +325,12 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     },
     MOVE_NOTES_RIGHT: {
         info: "Move note(s) forwards by one beat", hotkey: ["shift+right"], group: "Note Editor", idx: 7,
+    },
+    TOGGLE_METRONOME: {
+        info: "Toggle Metronome", hotkey: ["m"], group: "Note Editor", idx: 8,
+    },
+    TOGGLE_CLAPS: {
+        info: "Toggle Claps", hotkey: ["c"], group: "Note Editor", idx: 8,
     },
 }
 

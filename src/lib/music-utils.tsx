@@ -444,7 +444,6 @@ export class Metronome {
         const cur = MediaPlayerService.getCurrentTime();
         const nextNote = Metronome.notes.find(i => i.startTime >= cur);
         if (nextNote) {
-            console.log(nextNote.startTime, nextNote.string)
             const nbTime = nextNote.startTime;
             t0 += (nbTime - cur);
             //eslint-disable-next-line

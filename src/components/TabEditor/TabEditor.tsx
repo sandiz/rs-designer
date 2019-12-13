@@ -588,6 +588,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                     instrumentNotes={this.state.currentFile?.instrumentNotes}
                                     instrumentNoteIdx={this.state.currentFileIdx}
                                     insertHeadBeatIdx={this.state.insertHeadBeatIdx}
+                                    toggleMetronome={this.toggleMetronome}
+                                    toggleClap={this.toggleClap}
                                 />
                             </div>
                         </div>
