@@ -2,7 +2,7 @@
 import * as teoria from 'teoria';
 import WebAudioScheduler from './web-audio-scheduler'
 import {
-    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime,
+    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime, NoteTime,
 } from '../types';
 import MediaPlayerService from '../services/mediaplayer';
 
@@ -408,6 +408,7 @@ export class Metronome {
     static sched: unknown = null;
     static ac: AudioContext | null = null;
     static beats: BeatTime[] = [];
+    static notes: NoteTime[] = [];
     static start(beats: BeatTime[]) {
         Metronome.stop();
         Metronome.beats = beats;
@@ -422,6 +423,33 @@ export class Metronome {
         }
     }
 
+    static startClapping(notes: NoteTime[]) {
+        Metronome.stopClapping();
+        Metronome.notes = notes;
+        Metronome.ac = MediaPlayerService.getAudioContext();
+        if (Metronome.ac) {
+            //eslint-disable-next-line
+            Metronome.sched = new (WebAudioScheduler as any)({ context: Metronome.ac });
+            //eslint-disable-next-line
+            const sc = (Metronome.sched as any);
+            sc.start(Metronome.scheduleClap);
+        }
+    }
+
+    static scheduleClap(e: { playbackTime: number }) {
+        let t0 = e.playbackTime;
+        const cur = MediaPlayerService.getCurrentTime();
+        const nextNote = Metronome.notes.find(i => i.startTime > cur);
+        if (nextNote) {
+            const nbTime = nextNote.startTime;
+            t0 += nbTime - cur;
+            //eslint-disable-next-line
+            const sc = (Metronome.sched as any);
+            sc.insert(t0, Metronome.clapTrack);
+            sc.insert(t0 + 0.1, Metronome.scheduleClap);
+        }
+    }
+
     static schedule(e: { playbackTime: number }) {
         let t0 = e.playbackTime;
         const cur = MediaPlayerService.getCurrentTime();
@@ -432,11 +460,23 @@ export class Metronome {
             t0 += nbTime - cur;
             //eslint-disable-next-line
             const sc = (Metronome.sched as any);
-            sc.insert(t0, Metronome.ticktack, { frequency: bn === "1" ? 880 : 440, duration: bn === "1" ? 1.0 : 0.1 })
+            sc.insert(t0, Metronome.ticktack, { frequency: bn === "1" ? 880 : 440, duration: bn === "1" ? 0.5 : 0.1 })
             sc.insert(t0 + 0.1, Metronome.schedule);
         }
     }
 
+    static clapTrack(e: { playbackTime: number }) {
+        if (Metronome.ac) {
+            const t0 = e.playbackTime;
+            const source = Metronome.ac.createBufferSource();
+            source.buffer = MediaPlayerService.getClapBuffer();
+            const g = MediaPlayerService.getGainNode();
+            if (g) {
+                source.connect(g);
+                source.start(t0);
+            }
+        }
+    }
 
     static ticktack(e: { playbackTime: number; args: { frequency: number; duration: number } }) {
         const t0 = e.playbackTime;
@@ -476,5 +516,17 @@ export class Metronome {
         Metronome.ac = null;
         Metronome.sched = null;
         Metronome.beats = [];
+    }
+
+    static stopClapping() {
+        //eslint-disable-next-line
+        const sc = (Metronome.sched as any);
+        if (sc) {
+            sc.stop();
+            sc.removeAll();
+        }
+        Metronome.ac = null;
+        Metronome.sched = null;
+        Metronome.notes = [];
     }
 }

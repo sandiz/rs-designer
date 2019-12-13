@@ -14,6 +14,7 @@ import {
 } from '../types';
 import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
+import CLAP from '../assets/claps.wav';
 
 const { nativeTheme, app } = window.require("electron").remote;
 const path: typeof PATH = window.require('path');
@@ -62,6 +63,7 @@ class MediaPlayer {
     private stNode: AudioNode | null;
     private pitchSemitonesDiff = 0;
     private wasm = WasmTypes;
+    private clapBuffer: AudioBuffer | null = null;
 
     static getInstance() {
         if (!MediaPlayer.instance) {
@@ -105,6 +107,17 @@ class MediaPlayer {
         }
     }
 
+    private initAudioBuffer = async () => {
+        if (this.audioContext) {
+            //TODO: not sure if this will work in release
+            this.clapBuffer = await this.audioContext.decodeAudioData((await (await fetch(CLAP)).arrayBuffer()));
+        }
+    }
+
+    public getClapBuffer = () => {
+        return this.clapBuffer;
+    }
+
     public getCQTProvider = (func: string): Function | null => {
         if (this.wasm) {
             if (this.wasm.cqt) {
@@ -124,6 +137,7 @@ class MediaPlayer {
             latencyHint: 'interactive',
             sampleRate: 44100,
         });
+        this.initAudioBuffer();
         const params = {
             audioContext: this.audioContext,
             backgroundColor: nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR,

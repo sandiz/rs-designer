@@ -28,5 +28,16 @@ module.exports = override(
                 }
             ],
         },
+        {
+            test: /\.wav$/,
+            use: [
+                {
+                    loader: require.resolve('file-loader'),
+                    options: {
+                        name: '[path][name].[ext]'
+                    }
+                }
+            ],
+        },
     )
 );

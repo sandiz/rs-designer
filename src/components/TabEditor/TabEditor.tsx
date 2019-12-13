@@ -22,13 +22,8 @@ import {
 } from '../../types';
 import { getTransposedKey, Metronome } from '../../lib/music-utils';
 import { deletePopover } from '../../dialogs';
+import { metronomeSVG, clapSVG } from '../../svgIcons';
 
-
-const mi = () => (
-    <span className={Classes.ICON}>
-        <svg id="Capa_1" height="16" viewBox="0 0 512 512" width="16" xmlns="http://www.w3.org/2000/svg"><g><path d="m383.884 178.896 46.09-69.135c6.127-9.191 3.644-21.608-5.547-27.735s-21.608-3.643-27.735 5.547l-23.11 34.664-19.238-105.815c-1.729-9.509-10.012-16.422-19.678-16.422h-157.333c-9.666 0-17.948 6.913-19.677 16.422l-78.667 432.667c-2.23 12.261 7.199 23.578 19.677 23.578h19.334v19.333c0 11.046 8.954 20 20 20s20-8.954 20-20v-19.333h196v19.333c0 11.046 8.954 20 20 20s20-8.954 20-20v-19.333h19.333c12.461 0 21.91-11.298 19.677-23.578zm-261.253 253.771 14.182-78h238.375l14.182 78zm245.283-118h-74.544l58.57-87.855zm-173.889-274.667h123.95l23.664 130.152-65.639 98.459v-169.944c0-11.046-8.954-20-20-20s-20 8.954-20 20v58.667h-10c-11.046 0-20 8.954-20 20s8.954 20 20 20h10v38.666h-10c-11.046 0-20 8.954-20 20s8.954 20 20 20h10v38.667h-91.915z" /></g></svg>
-    </span>
-)
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentListItem>();
 
@@ -42,6 +37,7 @@ interface TabEditorState {
     beats: BeatTime[];
     insertHeadBeatIdx: number;
     metronome: boolean;
+    clap: boolean;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -74,6 +70,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             beats: [],
             insertHeadBeatIdx: 0,
             metronome: false,
+            clap: false,
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -154,12 +151,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         if (this.state.metronome) {
             Metronome.start(this.state.beats);
         }
+        if (this.state.clap && this.noteEditorRef.current) {
+            Metronome.startClapping(this.noteEditorRef.current.state.instrumentNotes);
+        }
     }
 
     onStop = () => {
         if (this.state.metronome) {
             Metronome.stop();
         }
+        if (this.state.clap) {
+            Metronome.stopClapping();
+        }
+        this.setState({ metronome: false, clap: false });
     }
 
     updateProgress = () => {
@@ -480,15 +484,35 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     toggleMetronome = () => {
+        if (!MediaPlayerService.isPlaying()) return;
         this.setState((ps) => {
             return {
                 metronome: !ps.metronome,
+                clap: false,
             }
         }, () => {
             if (this.state.metronome) {
-                this.onPlay();
+                Metronome.start(this.state.beats);
             } else {
                 Metronome.stop();
+            }
+        })
+    }
+
+    toggleClap = () => {
+        if (!MediaPlayerService.isPlaying()) return;
+        this.setState((ps) => {
+            return {
+                clap: !ps.clap,
+                metronome: false,
+            }
+        }, () => {
+            if (this.noteEditorRef.current) {
+                if (this.state.clap) {
+                    Metronome.startClapping(this.noteEditorRef.current.state.instrumentNotes);
+                } else {
+                    Metronome.stopClapping();
+                }
             }
         })
     }
@@ -513,6 +537,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     notesCountRef={this.noteCountRef}
                     metronome={this.state.metronome}
                     toggleMetronome={this.toggleMetronome}
+                    clap={this.state.clap}
+                    toggleClap={this.toggleClap}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -608,6 +634,8 @@ interface InfoPanelProps {
 
     metronome: boolean;
     toggleMetronome: () => void;
+    clap: boolean;
+    toggleClap: () => void;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -763,12 +791,25 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     hoverOpenDelay={1000}
                     lazy
                     inheritDarkTheme
-                    content="Tooggle Metronome synced with the current beatmap">
+                    content="Play a clap on every note is played">
+                    <ButtonExtended
+                        onClick={props.toggleClap}
+                        active={props.clap}
+                        className="info-item-control"
+                        small
+                        icon={clapSVG()}
+                        intent={Intent.NONE} />
+                </Tooltip>
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Play a metronome (click-track) synced with the current beatmap">
                     <ButtonExtended
                         onClick={props.toggleMetronome}
                         active={props.metronome}
                         small
-                        icon={mi()}
+                        icon={metronomeSVG()}
                         intent={Intent.NONE} />
                 </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
