@@ -1,8 +1,9 @@
 
 import * as teoria from 'teoria';
+import Tone from 'tone';
 import WebAudioScheduler from './web-audio-scheduler'
 import {
-    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime, NoteTime,
+    ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime, NoteTime, baseTuning, allTunings,
 } from '../types';
 import MediaPlayerService from '../services/mediaplayer';
 
@@ -20,6 +21,9 @@ const rotateMode = (obj: ScaleInfo, times: number) => {
     const copy: ScaleInfo = { steps: rotate(obj.steps, times), chordType: rotate(obj.chordType, times) }
     return copy;
 }
+
+export const STRING_OCTAVE = [2, 2, 3, 3, 3, 4]; /* octave range */
+
 
 export const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
 export const enharmonicPitches = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
@@ -396,6 +400,15 @@ export const getNoteFrom = (freq: number): [number, string] => {
 }
 
 
+export const getNoteFromString = (string: number, fret: number, tuning: number[]) => {
+    const invIdx = (tuning.length - 1) - string;
+    const baseNoteDiff = tuning[invIdx];
+    const baseNote = getTransposedKey(baseTuning[invIdx], baseNoteDiff);
+    const guitarNote = getTransposedKey(baseNote, fret);
+    return [guitarNote, STRING_OCTAVE[invIdx]];
+}
+
+
 export const colorMaps = [
     "alpha", "bathymetry", "blackbody", "bone",
     "cubehelix", "earth", "greys", "hot", "hsv",
@@ -410,6 +423,9 @@ export class Metronome {
     static beats: BeatTime[] = [];
     static notes: NoteTime[] = [];
     static noteHitCallback: ((e: unknown) => void) | null = null;
+    static synth: unknown;
+    static playNote: boolean;
+    static tuning: number[];
     static start(beats: BeatTime[]) {
         Metronome.stop();
         Metronome.beats = beats;
@@ -424,11 +440,14 @@ export class Metronome {
         }
     }
 
-    static startClapping(notes: NoteTime[], hitCB: typeof Metronome.noteHitCallback) {
+    static startClapping(notes: NoteTime[], hitCB: typeof Metronome.noteHitCallback, playNote = true, tuning = allTunings.E_Standard) {
         Metronome.stopClapping();
         Metronome.notes = notes;
         Metronome.noteHitCallback = hitCB;
         Metronome.ac = MediaPlayerService.getAudioContext();
+        Metronome.synth = new Tone.Synth().toMaster();
+        Metronome.playNote = playNote;
+        Metronome.tuning = tuning;
         if (Metronome.ac) {
             //eslint-disable-next-line
             Metronome.sched = new (WebAudioScheduler as any)({ context: Metronome.ac });
@@ -448,7 +467,7 @@ export class Metronome {
             t0 += (nbTime - cur);
             //eslint-disable-next-line
             const sc = (Metronome.sched as any);
-            sc.insert(t0 - 0.1, Metronome.clapTrack);
+            sc.insert(t0 - 0.1, Metronome.clapTrack, { note: nextNote });
             if (Metronome.noteHitCallback) sc.insert(t0 - 0.1, Metronome.noteHitCallback, { startTime: nbTime });
             sc.insert(t0 + 0.1, Metronome.scheduleClap);
         }
@@ -469,8 +488,17 @@ export class Metronome {
         }
     }
 
-    static clapTrack(e: { playbackTime: number }) {
+    static clapTrack(e: { playbackTime: number; args: { note: NoteTime } }) {
         if (Metronome.ac) {
+            if (Metronome.playNote) {
+                const note = e.args.note;
+                if (note) {
+                    const noteToPlay: (string | number)[] = getNoteFromString(note.string, note.fret, Metronome.tuning);
+                    //eslint-disable-next-line
+                    (Metronome.synth as any).triggerAttackRelease(`${noteToPlay[0]}${noteToPlay[1]}`, '8n');
+                }
+                return;
+            }
             const t0 = e.playbackTime;
             const source = Metronome.ac.createBufferSource();
             source.buffer = MediaPlayerService.getClapBuffer();
@@ -533,5 +561,12 @@ export class Metronome {
         Metronome.sched = null;
         Metronome.notes = [];
         Metronome.noteHitCallback = null;
+        if (Metronome.synth) {
+            //eslint-disable-next-line
+            (Metronome.synth as any).disconnect();
+            //eslint-disable-next-line
+            (Metronome.synth as any).dispose();
+        }
+        Metronome.synth = null;
     }
 }

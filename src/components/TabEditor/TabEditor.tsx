@@ -18,9 +18,11 @@ import {
     areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
 import {
-    Instrument, allTunings, baseTuning, BeatTime,
+    Instrument, BeatTime, allTunings, baseTuning,
 } from '../../types';
-import { getTransposedKey, Metronome } from '../../lib/music-utils';
+import {
+    getTransposedKey, Metronome,
+} from '../../lib/music-utils';
 import { deletePopover } from '../../dialogs';
 import { metronomeSVG, clapSVG } from '../../svgIcons';
 

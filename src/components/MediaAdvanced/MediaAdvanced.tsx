@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import {
-    Navbar, Tabs, Tab, Alignment, Icon, TabId, Button, Drawer, Position,
+    Navbar, Tabs, Tab, Alignment, Icon, Button, Drawer, Position,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 import classNames from 'classnames';
@@ -14,7 +14,7 @@ const MixerTab = React.lazy(() => import('./MixerTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
 const EqualizerTab = React.lazy(() => import("./EQPanel"));
 interface MediaAdvancedState {
-    currentTab: TabId | undefined;
+    currentTab: TABID | undefined;
     metadata: ProjectMetadata;
 }
 
@@ -24,22 +24,12 @@ interface MediaAdvancedProps {
     isOpen: boolean;
 }
 
-const TABID_HOME = "home" as TabId;
-const TABID_ANALYSIS = "analysis" as TabId;
-const TABID_EQUALIZER = "equalizer" as TabId;
-const TABID_CLOUDANALYSIS = "cloud" as TabId;
-const TABID_SPEC = "spectrogram" as TabId;
-const TABID_ISOLATION = "isolation" as TabId;
-const TABID_PITCH_TRACKING = "pitch-tracking" as TabId;
-const TABID_REGIONS = "regions" as TabId;
-const TABID_CDLC = "cdlc" as TabId;
-const TABID_LYRICS = "lyrics" as TabId;
-const TABID_NOTES = "video-ref" as TabId;
+enum TABID { HOME, ANALYSIS, EQUALIZER, CLOUDANALYSIS, SPEC, ISOLATION, PITCH_TRACKING, REGIONS, EXPORT, LYRICS, NOTES }
 
 class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
-        this.state = { currentTab: TABID_HOME, metadata: new ProjectMetadata() }
+        this.state = { currentTab: TABID.HOME, metadata: new ProjectMetadata() }
     }
 
     componentDidMount = async () => {
@@ -76,23 +66,23 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
     }
 
     handleTabChange = (newTab: React.ReactText) => {
-        this.setState({ currentTab: newTab });
+        this.setState({ currentTab: newTab as TABID });
     }
 
-    getTab = (tabid: TabId | undefined): React.ReactElement | null => {
+    getTab = (tabid: TABID | undefined): React.ReactElement | null => {
         let elem: React.ReactElement | null = null;
         switch (tabid) {
-            case TABID_ANALYSIS:
-                elem = <MixerTab key={TABID_ANALYSIS} metadata={this.state.metadata} />
+            case TABID.ANALYSIS:
+                elem = <MixerTab key={TABID.ANALYSIS} metadata={this.state.metadata} />
                 break;
-            case TABID_HOME:
-                elem = <HomeTab key={TABID_HOME} metadata={this.state.metadata} />
+            case TABID.HOME:
+                elem = <HomeTab key={TABID.HOME} metadata={this.state.metadata} />
                 break;
-            case TABID_EQUALIZER:
-                elem = <EqualizerTab key={TABID_EQUALIZER} metadata={this.state.metadata} />
+            case TABID.EQUALIZER:
+                elem = <EqualizerTab key={TABID.EQUALIZER} metadata={this.state.metadata} />
                 break;
-            case TABID_SPEC:
-                elem = <SpectrogramTab key={TABID_SPEC} />
+            case TABID.SPEC:
+                elem = <SpectrogramTab key={TABID.SPEC} />
                 break;
             default:
                 elem = null;
@@ -129,7 +119,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                     <Navbar.Group className="mi-header-group">
                         <Navbar.Heading className="mi-heading">
                             {
-                                this.state.currentTab
+                                this.state.currentTab !== undefined
                                     ? [
                                         <Icon key="layout_auto" iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />,
                                         <span key="title">[ meend-intelligence ]</span>,
@@ -147,17 +137,17 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                             onChange={this.handleTabChange}
                             selectedTabId={this.state.currentTab}
                         >
-                            <Tab id={TABID_HOME} title="Home" />
-                            <Tab id={TABID_ANALYSIS} title="Analysis" />
-                            <Tab id={TABID_EQUALIZER} title="Equalizer" />
-                            <Tab id={TABID_SPEC} title="Chromagram" />
-                            <Tab id={TABID_CLOUDANALYSIS} title="Cloud Analysis" />
-                            <Tab id={TABID_ISOLATION} title="Track Isolation" />
-                            <Tab id={TABID_PITCH_TRACKING} title="Pitch Tracking" />
-                            <Tab id={TABID_REGIONS} title="Regions" />
-                            <Tab id={TABID_CDLC} title="CDLC" />
-                            <Tab id={TABID_LYRICS} title="Lyrics" />
-                            <Tab id={TABID_NOTES} title="Notes" />
+                            <Tab id={TABID.HOME} title="Home" />
+                            <Tab id={TABID.ANALYSIS} title="Analysis" />
+                            <Tab id={TABID.EQUALIZER} title="Equalizer" />
+                            <Tab id={TABID.SPEC} title="Chromagram" />
+                            <Tab id={TABID.CLOUDANALYSIS} title="Cloud Analysis" />
+                            <Tab id={TABID.ISOLATION} title="Track Isolation" />
+                            <Tab id={TABID.PITCH_TRACKING} title="Pitch Tracking" />
+                            <Tab id={TABID.REGIONS} title="Regions" />
+                            <Tab id={TABID.LYRICS} title="Lyrics" />
+                            <Tab id={TABID.NOTES} title="Notes" />
+                            <Tab id={TABID.EXPORT} title="Export" />
                         </Tabs>
                     </Navbar.Group>
                 </Navbar>

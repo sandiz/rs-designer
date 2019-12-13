@@ -284,18 +284,8 @@
     color: #fff;
     z-index: 10;
     cursor: pointer;
+    transition: 0ms !important;
 }
-
-.note-selected {
-    border: 5px solid $pt-app-background-color;
-    padding: 1px !important;
-}
-
-.bp3-dark .note-selected {
-    border: 5px solid $pt-text-color;
-    padding: 1px !important;
-}
-
 
 .bp3-dark .note {
     width: 40px;
@@ -309,6 +299,17 @@
     font-size: 22px;
     color: #30404E;
     z-index: 10;
+    transition: 0ms !important;
+}
+
+.note-selected {
+    border: 5px solid $pt-app-background-color;
+    padding: 1px !important;
+}
+
+.bp3-dark .note-selected {
+    border: 5px solid $pt-text-color;
+    padding: 1px !important;
 }
 
 .tag-input {

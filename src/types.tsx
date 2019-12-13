@@ -208,6 +208,7 @@ export interface ChordInfo {
     chord_charts: ChordChart[];
     notes: string;
 }
+
 /* eslint-disable @typescript-eslint/camelcase */
 export const baseTuning = ["E", "A", "D", "G", "B", "E"];
 export const allTunings = {
@@ -230,6 +231,7 @@ export const allTunings = {
     Open_E: [0, 2, 2, 1, 0, 0],
     DADGAD: [-2, 0, 0, 0, -2, -2],
 }
+
 export const InstrumentOptions = {
     [Instrument.leadGuitar]: {
         title: "Lead Guitar",
@@ -325,6 +327,12 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     },
     MOVE_NOTES_RIGHT: {
         info: "Move note(s) forwards by one beat", hotkey: ["shift+right"], group: "Note Editor", idx: 7,
+    },
+    MOVE_NOTES_UP: {
+        info: "Move note(s) to the next higher string", hotkey: ["shift+up"], group: "Note Editor", idx: 6,
+    },
+    MOVE_NOTES_DOWN: {
+        info: "Move note(s) to the next lower string", hotkey: ["shift+down"], group: "Note Editor", idx: 7,
     },
     TOGGLE_METRONOME: {
         info: "Toggle Metronome", hotkey: ["m"], group: "Note Editor", idx: 8,
