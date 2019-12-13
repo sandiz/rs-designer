@@ -216,7 +216,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     updateFiles = () => {
-        console.trace("update-files", this.state.currentFileIdx)
         const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
         this.setState({ files: getAllFiles(), currentFile: file });
     }
@@ -363,7 +362,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             const obj = { ...currentFile }
             obj.instrumentNotes.tags = v;
             this.setState({ currentFile: obj }, () => {
-                ProjectService.saveInstrument(currentFile.key as Instrument, currentFile.instrumentNotes, this.state.currentFileIdx);
+                ProjectService.saveTags(currentFile.key as Instrument, currentFile.instrumentNotes, this.state.currentFileIdx);
                 this.updateFiles();
             });
         }
@@ -795,6 +794,19 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     </Callout>
                 </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
+                <Tooltip
+                    hoverOpenDelay={1000}
+                    lazy
+                    inheritDarkTheme
+                    content="Play a clap on every note that's played">
+                    <ButtonExtended
+                        onClick={props.toggleClap}
+                        active={props.clap}
+                        className="info-item-control"
+                        small
+                        icon={IconNames.MUSIC}
+                        intent={Intent.NONE} />
+                </Tooltip>
                 <Tooltip
                     hoverOpenDelay={1000}
                     lazy

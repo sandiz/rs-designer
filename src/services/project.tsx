@@ -758,12 +758,14 @@ export class Project {
                 for (let i = 0; i < source.length; i += 1) {
                     const notes = source[i].notes;
                     notes.sort((a, b) => a.startTime - b.startTime)
+                    const data = new NoteFile(notes)
+                    console.log(data);
                     if (!dest[i]) {
                         const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         dest[i] = { file: destFile, tags: source[i].tags };
                         try {
                             // eslint-disable-next-line
-                            await writeFile(destFile, JSON.stringify(new NoteFile(notes)));
+                            await writeFile(destFile, JSON.stringify(data));
                         }
                         catch (e) {
                             console.warn("error saving note data to ", destFile, e);
@@ -773,7 +775,7 @@ export class Project {
                         const destFile = await exists(dest[i].file) ? dest[i].file : path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         try {
                             // eslint-disable-next-line
-                            await writeFile(destFile, JSON.stringify(new NoteFile(notes)));
+                            await writeFile(destFile, JSON.stringify(data));
                             dest[i].file = destFile;
                             dest[i].tags = source[i].tags;
                         }
@@ -794,6 +796,14 @@ export class Project {
         const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
             inst.notes = instNotes.notes;
+            inst.tags = instNotes.tags;
+        }
+    }
+
+    /* save tags in memory */
+    public saveTags = async (instrument: Instrument, instNotes: InstrumentNotesInMem, index: number) => {
+        const inst = this.getInstrumentNotes(instrument, index);
+        if (inst) {
             inst.tags = instNotes.tags;
         }
     }

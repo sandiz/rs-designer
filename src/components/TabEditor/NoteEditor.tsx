@@ -6,7 +6,7 @@ import { GlobalHotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
-    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo, NoteType,
+    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo, NoteType, InstrumentOptions,
 } from '../../types';
 import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
@@ -56,7 +56,7 @@ const STRING_COLORS: string[] = [
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
 enum FRET { MAX = 24, MIN = 0 }
-export enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE, MOVE_LEFT, MOVE_RIGHT }
+export enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE, MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
         SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
@@ -66,6 +66,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         PASTE_NOTES: HotkeyInfo.PASTE_NOTES.hotkey,
         MOVE_NOTES_LEFT: HotkeyInfo.MOVE_NOTES_LEFT.hotkey,
         MOVE_NOTES_RIGHT: HotkeyInfo.MOVE_NOTES_RIGHT.hotkey,
+        MOVE_NOTES_UP: HotkeyInfo.MOVE_NOTES_UP.hotkey,
+        MOVE_NOTES_DOWN: HotkeyInfo.MOVE_NOTES_DOWN.hotkey,
         TOGGLE_METRONOME: HotkeyInfo.TOGGLE_METRONOME.hotkey,
         TOGGLE_CLAPS: HotkeyInfo.TOGGLE_CLAPS.hotkey,
     }
@@ -78,6 +80,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         PASTE_NOTES: () => this.kbdHandler(keyShortcuts.PASTE),
         MOVE_NOTES_LEFT: () => this.kbdHandler(keyShortcuts.MOVE_LEFT),
         MOVE_NOTES_RIGHT: () => this.kbdHandler(keyShortcuts.MOVE_RIGHT),
+        MOVE_NOTES_UP: () => this.kbdHandler(keyShortcuts.MOVE_UP),
+        MOVE_NOTES_DOWN: () => this.kbdHandler(keyShortcuts.MOVE_DOWN),
         TOGGLE_METRONOME: this.props.toggleMetronome,
         TOGGLE_CLAPS: this.props.toggleClap,
     }
@@ -363,14 +367,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                 instrumentNotes.splice(idx, 1);
                             }
                         })
-                        this.setState({ selectedNotes: [], instrumentNotes: [...instrumentNotes] });
+                        const new1 = [...instrumentNotes];
+                        this.setState({ selectedNotes: [], instrumentNotes: new1 });
                         const {
                             instrument, instrumentNoteIdx, insertHeadBeatIdx,
                         } = this.props;
                         const { instrumentTags } = this.state;
 
                         if (instrument && instrumentNoteIdx !== undefined && insertHeadBeatIdx !== undefined) {
-                            ProjectService.saveInstrument(instrument, { notes: [], tags: instrumentTags }, instrumentNoteIdx);
+                            ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
                         }
                     }
                 }
@@ -469,6 +474,41 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         }
                     }
                     this.setState({ instrumentNotes, selectedNotes })
+                }
+                break;
+            case keyShortcuts.MOVE_UP:
+            case keyShortcuts.MOVE_DOWN:
+                {
+                    const {
+                        instrument, instrumentNoteIdx, insertHeadBeatIdx,
+                    } = this.props;
+                    const { selectedNotes, instrumentNotes, instrumentTags } = this.state;
+                    for (let i = 0; i < selectedNotes.length; i += 1) {
+                        const { startTime, string } = selectedNotes[i];
+                        if (string === 0 && h === keyShortcuts.MOVE_UP) return;
+                        if (instrument && string === InstrumentOptions[instrument].strings - 1 && h === keyShortcuts.MOVE_DOWN) return;
+                        const isntIdx = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
+                        if (isntIdx !== -1) {
+                            const newString = h === keyShortcuts.MOVE_UP ? string - 1 : string + 1;
+                            const newIdx = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === newString);
+                            if (newIdx === -1) {
+                                selectedNotes[i].string = newString;
+                                instrumentNotes[isntIdx].string = newString;
+                            }
+                            else {
+                                console.warn("note exists in spot not moving", newIdx);
+                            }
+                        }
+                        else {
+                            console.warn("Selected note not found in note store", selectedNotes[i], instrumentNotes);
+                        }
+                    }
+                    const new1 = [...instrumentNotes];
+                    const new2 = [...selectedNotes]
+                    this.setState({ instrumentNotes: new1, selectedNotes: new2 });
+                    if (instrument && instrumentNoteIdx !== undefined && insertHeadBeatIdx !== undefined) {
+                        ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
+                    }
                 }
                 break;
             default:

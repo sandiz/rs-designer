@@ -236,22 +236,22 @@ export const InstrumentOptions = {
     [Instrument.leadGuitar]: {
         title: "Lead Guitar",
         strings: 6,
-        defaultTuning: allTunings.E_Standard,
+        tuning: allTunings.E_Standard,
     },
     [Instrument.rhythmGuitar]: {
         title: "Rhythm Guitar",
         strings: 6,
-        defaultTuning: allTunings.E_Standard,
+        tuning: allTunings.E_Standard,
     },
     [Instrument.bassGuitar]: {
         title: "Bass Guitar",
         strings: 4,
-        defaultTuning: allTunings.E_Standard,
+        tuning: allTunings.E_Standard,
     },
     [Instrument.ukulele]: {
         title: "Ukulele",
         strings: 4,
-        defaultTuning: allTunings.E_Standard,
+        tuning: allTunings.E_Standard,
     },
 }
 
