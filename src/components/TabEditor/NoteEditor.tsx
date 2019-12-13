@@ -343,7 +343,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     if (this.state.instrumentNotes) {
                         n = this.state.instrumentNotes;
                     }
-                    this.setState({ selectedNotes: n });
+                    this.setState({ selectedNotes: [...n] });
                 }
                 break;
             case keyShortcuts.DELETE:
@@ -351,12 +351,20 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const { instrumentNotes } = this.state;
                     if (instrumentNotes) {
                         this.state.selectedNotes.forEach((item) => {
-                            const idx = instrumentNotes.findIndex(p => jsonStringifyCompare(p, item));
+                            const idx = instrumentNotes.findIndex(p => p.startTime === item.startTime && p.string === item.string);
                             if (idx !== -1) {
                                 instrumentNotes.splice(idx, 1);
                             }
                         })
-                        this.setState({ selectedNotes: [], instrumentNotes });
+                        this.setState({ selectedNotes: [], instrumentNotes: [...instrumentNotes] });
+                        const {
+                            instrument, instrumentNoteIdx, insertHeadBeatIdx,
+                        } = this.props;
+                        const { instrumentTags } = this.state;
+
+                        if (instrument && instrumentNoteIdx !== undefined && insertHeadBeatIdx !== undefined) {
+                            ProjectService.saveInstrument(instrument, { notes: [], tags: instrumentTags }, instrumentNoteIdx);
+                        }
                     }
                 }
                 break;
@@ -380,7 +388,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const {
                         instrument, instrumentNoteIdx, insertHeadBeatIdx,
                     } = this.props;
-                    if (instrument && insertHeadBeatIdx && instrumentNoteIdx !== undefined && this.clipboard.length > 0) {
+                    if (instrument && insertHeadBeatIdx !== undefined && instrumentNoteIdx !== undefined && this.clipboard.length > 0) {
                         const minStart = items.reduce((min, p) => (p.startTime < min ? p.startTime : min), items[0].startTime);
                         const {
                             instrumentNotes,
@@ -406,10 +414,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 break;
             case keyShortcuts.MOVE_LEFT:
                 {
-                    const { selectedNotes, instrumentNotes } = this.state;
+                    const { selectedNotes, instrumentNotes, instrumentTags } = this.state;
                     for (let i = 0; i < selectedNotes.length; i += 1) {
                         const { startTime, string } = selectedNotes[i];
-                        const startIdx = this.state.beats.findIndex(item => item.start === startTime.toString());
+                        const startIdx = this.state.beats.findIndex(item => {
+                            return item.start === startTime.toString()
+                        });
                         const isntIdx = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
                         if (startIdx !== -1 && startIdx > 0) {
                             const prevBeat = parseFloat(this.state.beats[startIdx - 1].start);
@@ -422,7 +432,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             }
                         }
                     }
-                    this.setState({ instrumentNotes, selectedNotes })
+                    const new1 = [...instrumentNotes];
+                    const new2 = [...selectedNotes]
+                    this.setState({ instrumentNotes: new1, selectedNotes: new2 });
+                    const {
+                        instrument, instrumentNoteIdx, insertHeadBeatIdx,
+                    } = this.props;
+                    if (instrument && instrumentNoteIdx !== undefined && insertHeadBeatIdx !== undefined) {
+                        ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
+                    }
                 }
                 break;
             case keyShortcuts.MOVE_RIGHT:
@@ -449,6 +467,17 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             default:
                 break;
         }
+    }
+
+    deleteNotes = () => {
+        this.setState({ instrumentNotes: [], selectedNotes: [] }, () => {
+            const {
+                instrument, instrumentNoteIdx,
+            } = this.props;
+            if (instrument && instrumentNoteIdx !== undefined) {
+                ProjectService.saveInstrument(instrument, { notes: [], tags: this.state.instrumentTags }, instrumentNoteIdx);
+            }
+        });
     }
 
     render = () => {

@@ -424,10 +424,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     deleteNotes = () => {
-        const { currentFile } = this.state;
-        if (currentFile) {
-            currentFile.instrumentNotes.notes = []
-            this.setState({ currentFile });
+        if (this.noteEditorRef.current) {
+            this.noteEditorRef.current.deleteNotes();
         }
     }
 
