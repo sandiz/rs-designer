@@ -409,6 +409,7 @@ export class Metronome {
     static ac: AudioContext | null = null;
     static beats: BeatTime[] = [];
     static notes: NoteTime[] = [];
+    static noteHitCallback: ((e: unknown) => void) | null = null;
     static start(beats: BeatTime[]) {
         Metronome.stop();
         Metronome.beats = beats;
@@ -423,9 +424,10 @@ export class Metronome {
         }
     }
 
-    static startClapping(notes: NoteTime[]) {
+    static startClapping(notes: NoteTime[], hitCB: typeof Metronome.noteHitCallback) {
         Metronome.stopClapping();
         Metronome.notes = notes;
+        Metronome.noteHitCallback = hitCB;
         Metronome.ac = MediaPlayerService.getAudioContext();
         if (Metronome.ac) {
             //eslint-disable-next-line
@@ -446,6 +448,7 @@ export class Metronome {
             //eslint-disable-next-line
             const sc = (Metronome.sched as any);
             sc.insert(t0, Metronome.clapTrack);
+            if (Metronome.noteHitCallback) sc.insert(t0, Metronome.noteHitCallback, { startTime: nbTime });
             sc.insert(t0 + 0.1, Metronome.scheduleClap);
         }
     }
@@ -528,5 +531,6 @@ export class Metronome {
         Metronome.ac = null;
         Metronome.sched = null;
         Metronome.notes = [];
+        Metronome.noteHitCallback = null;
     }
 }

@@ -152,7 +152,10 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             Metronome.start(this.state.beats);
         }
         if (this.state.clap && this.noteEditorRef.current) {
-            Metronome.startClapping(this.noteEditorRef.current.state.instrumentNotes);
+            Metronome.startClapping(
+                this.noteEditorRef.current.state.instrumentNotes,
+                this.noteEditorRef.current.highlightNotes,
+            );
         }
     }
 
@@ -507,7 +510,10 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }, () => {
             if (this.noteEditorRef.current) {
                 if (this.state.clap) {
-                    Metronome.startClapping(this.noteEditorRef.current.state.instrumentNotes);
+                    Metronome.startClapping(
+                        this.noteEditorRef.current.state.instrumentNotes,
+                        this.noteEditorRef.current.highlightNotes,
+                    );
                 } else {
                     Metronome.stopClapping();
                 }
@@ -789,7 +795,7 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     hoverOpenDelay={1000}
                     lazy
                     inheritDarkTheme
-                    content="Play a clap on every note is played">
+                    content="Play a clap on every note that's played">
                     <ButtonExtended
                         onClick={props.toggleClap}
                         active={props.clap}

@@ -83,6 +83,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private strings: HTMLDivElement[];
     private selection: Selection | null = null;;
     private clipboard: NoteTime[] = [];
+    private noteDivRefs: HTMLDivElement[] = [];
     constructor(props: NoteEditorProps) {
         super(props);
         this.hoverRef = React.createRef();
@@ -480,7 +481,32 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         });
     }
 
+    highlightNotes = (e: unknown) => {
+        //TODO: leave loop if startTime is too far
+        const b = e as { args: { startTime: number } };
+        const items: HTMLDivElement[] = []
+        for (let i = 0; i < this.state.instrumentNotes.length; i += 1) {
+            const item = this.state.instrumentNotes[i];
+            if (item.startTime === b.args.startTime) {
+                const div = this.noteDivRefs[i];
+                div.style.filter = "grayscale(1)";
+                div.style.transition = "filter 0.1s"
+                //div.style.transitionTimingFunction = "ease-out"
+                items.push(div);
+            }
+        }
+        if (items.length > 0) {
+            setTimeout(() => {
+                items.forEach((div) => {
+                    div.style.filter = "unset";
+                    div.style.transition = "0s"
+                })
+            }, 200);
+        }
+    }
+
     render = () => {
+        this.noteDivRefs = [];
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <ResizeSensor onResize={() => this.forceUpdate()}>
@@ -501,11 +527,21 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                     const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
                                     return (
                                         <div
+                                            ref={ref => {
+                                                if (ref) this.noteDivRefs.push(ref);
+                                            }}
                                             data-note-idx={idx}
                                             onMouseUp={e => this.onMouseClickNote(e, i)}
                                             key={note.string + "_" + note.fret + "_" + note.startTime}
-                                            className={classNames("note", Classes.CARD, Classes.ELEVATION_3, "number",
-                                                { "note-selected": this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, note)) !== -1 })}
+                                            className={
+                                                classNames(
+                                                    "note",
+                                                    Classes.CARD,
+                                                    Classes.ELEVATION_3,
+                                                    "number",
+                                                    { "note-selected": this.state.selectedNotes.findIndex(p => jsonStringifyCompare(p, note)) !== -1 },
+                                                )
+                                            }
                                             style={{
                                                 //position
                                                 textAlign: "center",
