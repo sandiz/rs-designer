@@ -22,9 +22,6 @@ const rotateMode = (obj: ScaleInfo, times: number) => {
     return copy;
 }
 
-export const STRING_OCTAVE = [2, 2, 3, 3, 3, 4]; /* octave range */
-
-
 export const pitches = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
 export const enharmonicPitches = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
 export const pitchesFromC = rotate(pitches, 3); // starts with C
@@ -399,13 +396,35 @@ export const getNoteFrom = (freq: number): [number, string] => {
     return [keys.indexOf(note), note];
 }
 
+export const STRING_OCTAVE = [2, 2, 3, 3, 3, 4];
+
+export interface OctaveData {
+    min: number;
+    max: number;
+    octave: number;
+}
+//TODO: handle other instruments
+export const STRING_OCTAVE_2: { [key: string]: [OctaveData, OctaveData, OctaveData] } = {
+    0: [{ min: 0, max: 7, octave: 2 }, { min: 8, max: 19, octave: 3 }, { min: 20, max: 24, octave: 4 }],
+    1: [{ min: 0, max: 2, octave: 2 }, { min: 3, max: 14, octave: 3 }, { min: 15, max: 24, octave: 4 }],
+    2: [{ min: 0, max: 9, octave: 3 }, { min: 10, max: 21, octave: 4 }, { min: 22, max: 24, octave: 5 }],
+    3: [{ min: 0, max: 4, octave: 3 }, { min: 5, max: 16, octave: 4 }, { min: 17, max: 24, octave: 5 }],
+    4: [{ min: 0, max: 0, octave: 3 }, { min: 1, max: 12, octave: 4 }, { min: 12, max: 24, octave: 5 }],
+    5: [{ min: 0, max: 7, octave: 4 }, { min: 8, max: 19, octave: 5 }, { min: 20, max: 24, octave: 6 }],
+}
 
 export const getNoteFromString = (string: number, fret: number, tuning: number[]) => {
     const invIdx = (tuning.length - 1) - string;
     const baseNoteDiff = tuning[invIdx];
     const baseNote = getTransposedKey(baseTuning[invIdx], baseNoteDiff);
     const guitarNote = getTransposedKey(baseNote, fret);
-    return [guitarNote, STRING_OCTAVE[invIdx]];
+    const stringData = STRING_OCTAVE_2[invIdx.toString()];
+    for (let i = 0; i < stringData.length; i += 1) {
+        if (fret >= stringData[i].min && fret <= stringData[i].max) {
+            return [guitarNote, stringData[i].octave];
+        }
+    }
+    return [guitarNote, -1];
 }
 
 
@@ -445,7 +464,7 @@ export class Metronome {
         Metronome.notes = notes;
         Metronome.noteHitCallback = hitCB;
         Metronome.ac = MediaPlayerService.getAudioContext();
-        Metronome.synth = new Tone.Synth().toMaster();
+        Metronome.synth = new Tone.PolySynth(6, Tone.Synth).toMaster();
         Metronome.playNote = playNote;
         Metronome.tuning = tuning;
         if (Metronome.ac) {
@@ -461,16 +480,17 @@ export class Metronome {
         if (!MediaPlayerService.isPlaying()) return;
         let t0 = e.playbackTime;
         const cur = MediaPlayerService.getCurrentTime();
+        //eslint-disable-next-line
+        const sc = (Metronome.sched as any);
         const nextNote = Metronome.notes.find(i => i.startTime >= cur);
         if (nextNote) {
             const nbTime = nextNote.startTime;
+            const nextNotes = Metronome.notes.filter(i => i.startTime === nextNote.startTime);
             t0 += (nbTime - cur);
-            //eslint-disable-next-line
-            const sc = (Metronome.sched as any);
-            sc.insert(t0 - 0.1, Metronome.clapTrack, { note: nextNote });
+            sc.insert(t0 - 0.1, Metronome.clapTrack, { notes: nextNotes });
             if (Metronome.noteHitCallback) sc.insert(t0 - 0.1, Metronome.noteHitCallback, { startTime: nbTime });
-            sc.insert(t0 + 0.1, Metronome.scheduleClap);
         }
+        sc.insert(t0 + 0.1, Metronome.scheduleClap);
     }
 
     static schedule(e: { playbackTime: number }) {
@@ -488,15 +508,18 @@ export class Metronome {
         }
     }
 
-    static clapTrack(e: { playbackTime: number; args: { note: NoteTime } }) {
+    static clapTrack(e: { playbackTime: number; args: { notes: NoteTime[] } }) {
         if (Metronome.ac) {
             if (Metronome.playNote) {
-                const note = e.args.note;
-                if (note) {
-                    const noteToPlay: (string | number)[] = getNoteFromString(note.string, note.fret, Metronome.tuning);
-                    //eslint-disable-next-line
-                    (Metronome.synth as any).triggerAttackRelease(`${noteToPlay[0]}${noteToPlay[1]}`, '8n');
-                }
+                const notes = e.args.notes;
+                const noteProper = notes.map(n => {
+                    const ns = getNoteFromString(n.string, n.fret, Metronome.tuning);
+                    return `${ns[0]}${ns[1]}`;
+                });
+                //const noteToPlay: (string | number)[] = getNoteFromString(note.string, note.fret, Metronome.tuning);
+                //const n = `${noteToPlay[0]}${noteToPlay[1]}`;
+                //eslint-disable-next-line
+                (Metronome.synth as any).triggerAttackRelease(noteProper, '8n');
                 return;
             }
             const t0 = e.playbackTime;

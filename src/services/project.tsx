@@ -759,7 +759,6 @@ export class Project {
                     const notes = source[i].notes;
                     notes.sort((a, b) => a.startTime - b.startTime)
                     const data = new NoteFile(notes)
-                    console.log(data);
                     if (!dest[i]) {
                         const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         dest[i] = { file: destFile, tags: source[i].tags };
@@ -796,7 +795,6 @@ export class Project {
         const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
             inst.notes = instNotes.notes;
-            inst.tags = instNotes.tags;
         }
     }
 

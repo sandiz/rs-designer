@@ -287,6 +287,18 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         event.preventDefault();
     }
 
+    onNeckKeyUp = (event: React.KeyboardEvent) => {
+        const { selectedNotes } = this.state;
+        const key = event.key;
+        selectedNotes.forEach((item) => {
+            const k = parseInt(key, 10);
+            if (k >= 0 && k <= 24) {
+                item.fret = k;
+            }
+        });
+        this.setState({ selectedNotes });
+    }
+
     onNeckMouseWheel = (event: React.WheelEvent) => {
         const { selectedNotes } = this.state;
         selectedNotes.forEach((item) => {
@@ -557,10 +569,13 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <ResizeSensor onResize={() => this.forceUpdate()}>
                     <div
+                        //eslint-disable-next-line
+                        tabIndex={0}
                         onMouseEnter={this.onNeckMouseEnter}
                         onMouseMove={this.onNeckMouseMove}
                         onMouseLeave={this.onNeckMouseLeave}
                         onWheel={this.onNeckMouseWheel}
+                        onKeyDown={this.onNeckKeyUp}
                         className="neck"
                         ref={this.neckRef}
                     >

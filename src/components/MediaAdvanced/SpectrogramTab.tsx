@@ -414,7 +414,10 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                                             className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
                                             <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
                                                 <div className="piano-key-text">
-                                                    <span className="piano-key-note">{note.includes("#") ? "" : note}</span>
+                                                    <span className="piano-key-note">
+                                                        {note.includes("#") ? "" : note}
+                                                        <sub className="number">{note === 'C' ? idx : ""}</sub>
+                                                    </span>
                                                     <br />
                                                 </div>
                                             </div>
