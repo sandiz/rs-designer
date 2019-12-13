@@ -4,6 +4,7 @@ import * as PATH from 'path';
 import * as READLINE from 'readline';
 import * as OS from 'os';
 
+import Tone from 'tone';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { IAudioMetadata } from 'music-metadata';
@@ -481,6 +482,8 @@ export class Project {
                 const tempoFile = this.projectInfo.tempo;
                 const data = await readFile(tempoFile)
                 const tempo = parseFloat(data.toString());
+                Tone.Transport.bpm.value = tempo;
+                //console.info("[project-loader] Tone.js tempo set to ", tempo, "bpm");
                 return tempo;
             }
         } catch (e) {
