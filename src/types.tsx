@@ -163,12 +163,31 @@ export interface BeatTime {
     beatNum: string;
 }
 
-export interface NoteTime {
-    string: number;
-    fret: number;
-    type: "note" | "chord";
-    startTime: number;
-    endTime: number;
+export enum NoteType { NOTE, CHORD }
+export class NoteFile {
+    public notes: NoteTime[];
+    public version: number;
+    static currentVersion = 1;
+
+    constructor(n: NoteTime[] = []) {
+        this.notes = n;
+        this.version = NoteFile.currentVersion;
+    }
+}
+export class NoteTime {
+    public string: number;
+    public fret: number;
+    public type: NoteType;
+    public startTime: number;
+    public endTime: number;
+
+    constructor(s = -1, f = -1, t: NoteType = NoteType.NOTE, st = -1, et = -1) {
+        this.string = s;
+        this.fret = f;
+        this.type = t;
+        this.startTime = st;
+        this.endTime = et;
+    }
 }
 /* Represents a minor or major scale */
 export interface ScaleInfo {

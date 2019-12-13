@@ -485,7 +485,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     toggleMetronome = () => {
-        if (!MediaPlayerService.isPlaying()) return;
+        //if (!MediaPlayerService.isPlaying()) return;
         this.setState((ps) => {
             return {
                 metronome: !ps.metronome,
@@ -501,7 +501,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     toggleClap = () => {
-        if (!MediaPlayerService.isPlaying()) return;
+        //if (!MediaPlayerService.isPlaying()) return;
         this.setState((ps) => {
             return {
                 clap: !ps.clap,

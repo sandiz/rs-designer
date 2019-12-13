@@ -16,7 +16,7 @@ import ForageService, { SettingsForageKeys } from './forage';
 import {
     ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
     ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
-    Instruments, Instrument, InstrumentNotes, InstrumentsInMem, InstrumentNotesInMem,
+    Instruments, Instrument, InstrumentNotes, InstrumentsInMem, InstrumentNotesInMem, NoteTime, NoteFile,
 } from '../types'
 import MediaPlayerService from './mediaplayer';
 import MusicAnalysisService from '../lib/musicanalysis';
@@ -683,8 +683,28 @@ export class Project {
                     const item = source[i] as InstrumentNotes;
                     try {
                         // eslint-disable-next-line
-                        const data = await readFile(item.file);
-                        const itemDest = { notes: JSON.parse(data.toString()), tags: item.tags };
+                        const data: NoteFile = JSON.parse((await readFile(item.file)).toString());
+                        const itemDest = { notes: data.notes, tags: item.tags };
+                        /* migrate notes file to current version */
+                        if (data.version !== NoteFile.currentVersion) {
+                            switch (data.version) {
+                                default:
+                                    itemDest.notes = [];
+                                    if (Array.isArray(data)) {
+                                        for (let j = 0; j < data.length; j += 1) {
+                                            const note = data[j];
+                                            itemDest.notes.push(new NoteTime(
+                                                note.string,
+                                                note.fret,
+                                                note.type,
+                                                note.startTime,
+                                                note.endTime,
+                                            ))
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
                         dest[i] = itemDest;
                     }
                     catch (e) {
@@ -736,12 +756,14 @@ export class Project {
                 const source = this.inMemoryInstruments[key as keyof typeof Instrument];
                 dest.length = source.length;
                 for (let i = 0; i < source.length; i += 1) {
+                    const notes = source[i].notes;
+                    notes.sort((a, b) => a.startTime - b.startTime)
                     if (!dest[i]) {
                         const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         dest[i] = { file: destFile, tags: source[i].tags };
                         try {
                             // eslint-disable-next-line
-                            await writeFile(destFile, JSON.stringify(source[i].notes));
+                            await writeFile(destFile, JSON.stringify(new NoteFile(notes)));
                         }
                         catch (e) {
                             console.warn("error saving note data to ", destFile, e);
@@ -751,7 +773,7 @@ export class Project {
                         const destFile = await exists(dest[i].file) ? dest[i].file : path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         try {
                             // eslint-disable-next-line
-                            await writeFile(destFile, JSON.stringify(source[i].notes));
+                            await writeFile(destFile, JSON.stringify(new NoteFile(notes)));
                             dest[i].file = destFile;
                             dest[i].tags = source[i].tags;
                         }

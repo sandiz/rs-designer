@@ -6,7 +6,7 @@ import { GlobalHotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
-    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo,
+    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo, NoteType,
 } from '../../types';
 import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
@@ -221,13 +221,13 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         return;
                     }
                     else {
-                        const newNote: NoteTime = {
+                        const newNote: NoteTime = new NoteTime(
                             string,
-                            fret: 0,
-                            type: "note",
+                            0,
+                            NoteType.NOTE,
                             startTime,
                             endTime,
-                        };
+                        );
                         this.setState(state => {
                             const list = [...state.instrumentNotes, newNote];
                             return {

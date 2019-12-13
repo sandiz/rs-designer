@@ -439,16 +439,18 @@ export class Metronome {
     }
 
     static scheduleClap(e: { playbackTime: number }) {
+        if (!MediaPlayerService.isPlaying()) return;
         let t0 = e.playbackTime;
         const cur = MediaPlayerService.getCurrentTime();
-        const nextNote = Metronome.notes.find(i => i.startTime > cur);
+        const nextNote = Metronome.notes.find(i => i.startTime >= cur);
         if (nextNote) {
+            console.log(nextNote.startTime, nextNote.string)
             const nbTime = nextNote.startTime;
-            t0 += nbTime - cur;
+            t0 += (nbTime - cur);
             //eslint-disable-next-line
             const sc = (Metronome.sched as any);
-            sc.insert(t0, Metronome.clapTrack);
-            if (Metronome.noteHitCallback) sc.insert(t0, Metronome.noteHitCallback, { startTime: nbTime });
+            sc.insert(t0 - 0.1, Metronome.clapTrack);
+            if (Metronome.noteHitCallback) sc.insert(t0 - 0.1, Metronome.noteHitCallback, { startTime: nbTime });
             sc.insert(t0 + 0.1, Metronome.scheduleClap);
         }
     }
