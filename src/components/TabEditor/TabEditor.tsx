@@ -18,7 +18,7 @@ import {
     areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
 import {
-    Instrument, BeatTime, allTunings, baseTuning,
+    Instrument, BeatTime, allTunings, baseTuning, InstrumentOptions,
 } from '../../types';
 import {
     getTransposedKey, Metronome,
@@ -40,6 +40,7 @@ interface TabEditorState {
     insertHeadBeatIdx: number;
     metronome: boolean;
     clap: boolean;
+    notePlay: boolean;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -73,6 +74,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             insertHeadBeatIdx: 0,
             metronome: false,
             clap: false,
+            notePlay: false,
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -159,13 +161,21 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 this.noteEditorRef.current.highlightNotes,
             );
         }
+        else if (this.state.notePlay && this.noteEditorRef.current && this.state.currentFile) {
+            Metronome.startClapping(
+                this.noteEditorRef.current.state.instrumentNotes,
+                this.noteEditorRef.current.highlightNotes,
+                true,
+                InstrumentOptions[this.state.currentFile.key as Instrument].tuning,
+            );
+        }
     }
 
     onStop = () => {
         if (this.state.metronome) {
             Metronome.stop();
         }
-        if (this.state.clap) {
+        if (this.state.clap || this.state.notePlay) {
             Metronome.stopClapping();
         }
         this.setState({ metronome: false, clap: false });
@@ -491,6 +501,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             return {
                 metronome: !ps.metronome,
                 clap: false,
+                notePlay: false,
             }
         }, () => {
             if (this.state.metronome) {
@@ -507,6 +518,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             return {
                 clap: !ps.clap,
                 metronome: false,
+                notePlay: false,
             }
         }, () => {
             if (this.noteEditorRef.current) {
@@ -514,6 +526,30 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     Metronome.startClapping(
                         this.noteEditorRef.current.state.instrumentNotes,
                         this.noteEditorRef.current.highlightNotes,
+                    );
+                } else {
+                    Metronome.stopClapping();
+                }
+            }
+        })
+    }
+
+    toggleNotePlay = () => {
+        //if (!MediaPlayerService.isPlaying()) return;
+        this.setState((ps) => {
+            return {
+                notePlay: !ps.notePlay,
+                metronome: false,
+                clap: false,
+            }
+        }, () => {
+            if (this.noteEditorRef.current && this.state.currentFile) {
+                if (this.state.notePlay) {
+                    Metronome.startClapping(
+                        this.noteEditorRef.current.state.instrumentNotes,
+                        this.noteEditorRef.current.highlightNotes,
+                        true,
+                        InstrumentOptions[this.state.currentFile.key as Instrument].tuning,
                     );
                 } else {
                     Metronome.stopClapping();
@@ -544,6 +580,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     toggleMetronome={this.toggleMetronome}
                     clap={this.state.clap}
                     toggleClap={this.toggleClap}
+                    notePlay={this.state.notePlay}
+                    toggleNotePlay={this.toggleNotePlay}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -591,6 +629,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                     insertHeadBeatIdx={this.state.insertHeadBeatIdx}
                                     toggleMetronome={this.toggleMetronome}
                                     toggleClap={this.toggleClap}
+                                    toggleNotePlay={this.toggleNotePlay}
                                 />
                             </div>
                         </div>
@@ -643,6 +682,8 @@ interface InfoPanelProps {
     toggleMetronome: () => void;
     clap: boolean;
     toggleClap: () => void;
+    notePlay: boolean;
+    toggleNotePlay: () => void;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -800,8 +841,8 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     inheritDarkTheme
                     content="Play a clap on every note that's played">
                     <ButtonExtended
-                        onClick={props.toggleClap}
-                        active={props.clap}
+                        onClick={props.toggleNotePlay}
+                        active={props.notePlay}
                         className="info-item-control"
                         small
                         icon={IconNames.MUSIC}

@@ -329,28 +329,31 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Move note(s) forwards by one beat", hotkey: ["shift+right"], group: "Note Editor", idx: 7,
     },
     MOVE_NOTES_UP: {
-        info: "Move note(s) to the next higher string", hotkey: ["shift+up"], group: "Note Editor", idx: 6,
+        info: "Move note(s) to the next higher string", hotkey: ["shift+up"], group: "Note Editor", idx: 8,
     },
     MOVE_NOTES_DOWN: {
-        info: "Move note(s) to the next lower string", hotkey: ["shift+down"], group: "Note Editor", idx: 7,
+        info: "Move note(s) to the next lower string", hotkey: ["shift+down"], group: "Note Editor", idx: 9,
     },
     TOGGLE_METRONOME: {
-        info: "Toggle Metronome", hotkey: ["m"], group: "Note Editor", idx: 8,
+        info: "Toggle Metronome", hotkey: ["m"], group: "Note Editor", idx: 10,
     },
     TOGGLE_CLAPS: {
-        info: "Toggle Claps", hotkey: ["c"], group: "Note Editor", idx: 8,
+        info: "Toggle Claps", hotkey: ["c"], group: "Note Editor", idx: 11,
+    },
+    TOGGLE_NOTE_PLAY: {
+        info: "Toggle Note Play", hotkey: ["n"], group: "Note Editor", idx: 12,
     },
     SELECT_NEXT_NOTE: {
-        info: "Select next note", hotkey: ["tab", "l"], group: "Note Editor", idx: 9,
+        info: "Select next note", hotkey: ["tab", "l"], group: "Note Editor", idx: 13,
     },
     SELECT_PREV_NOTE: {
-        info: "Select previous note", hotkey: ["shift+tab", "j"], group: "Note Editor", idx: 9,
+        info: "Select previous note", hotkey: ["shift+tab", "j"], group: "Note Editor", idx: 14,
     },
     SELECT_NOTE_ABOVE: {
-        info: "Select note above", hotkey: ["i"], group: "Note Editor", idx: 9,
+        info: "Select note above", hotkey: ["i"], group: "Note Editor", idx: 15,
     },
     SELECT_NOTE_BELOW: {
-        info: "Select note below", hotkey: ["k"], group: "Note Editor", idx: 9,
+        info: "Select note below", hotkey: ["k"], group: "Note Editor", idx: 16,
     },
 }
 

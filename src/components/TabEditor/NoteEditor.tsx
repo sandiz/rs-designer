@@ -38,6 +38,7 @@ interface NoteEditorProps {
     insertHeadBeatIdx?: number;
     toggleMetronome: () => void;
     toggleClap: () => void;
+    toggleNotePlay: () => void;
 }
 interface NoteEditorState {
     beats: BeatTime[];
@@ -88,6 +89,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_NOTES_DOWN: HotkeyInfo.MOVE_NOTES_DOWN.hotkey,
         TOGGLE_METRONOME: HotkeyInfo.TOGGLE_METRONOME.hotkey,
         TOGGLE_CLAPS: HotkeyInfo.TOGGLE_CLAPS.hotkey,
+        TOGGLE_NOTE_PLAY: HotkeyInfo.TOGGLE_NOTE_PLAY.hotkey,
     }
 
     public handlers = {
@@ -106,6 +108,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_NOTES_DOWN: () => this.kbdHandler(keyShortcuts.MOVE_DOWN),
         TOGGLE_METRONOME: this.props.toggleMetronome,
         TOGGLE_CLAPS: this.props.toggleClap,
+        TOGGLE_NOTE_PLAY: this.props.toggleNotePlay,
     }
 
     private hoverRef: RefObject<HTMLDivElement>;
