@@ -281,7 +281,7 @@ export class Project {
 
                 /* migrate project file to current version */
                 if (json.version !== ProjectInfo.currentVersion) {
-                    switch (json.version) {
+                    switch (json.version + 1) {
                         default:
                         case 1:
                             json.projectPath = jsonPath;
@@ -695,7 +695,7 @@ export class Project {
                         const itemDest = { notes: data.notes, tags: item.tags };
                         /* migrate notes file to current version */
                         if (data.version !== NoteFile.currentVersion) {
-                            switch (data.version) {
+                            switch (data.version + 1) {
                                 default:
                                     itemDest.notes = [];
                                     if (Array.isArray(data)) {
@@ -810,7 +810,8 @@ export class Project {
     public saveInstrument = async (instrument: Instrument, instNotes: InstrumentNotesInMem, index: number) => {
         const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
-            inst.notes = instNotes.notes;
+            inst.notes = instNotes.notes.sort((a, b) => a.startTime - b.startTime);
+
         }
     }
 
