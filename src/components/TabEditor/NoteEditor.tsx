@@ -56,9 +56,27 @@ const STRING_COLORS: string[] = [
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
 enum FRET { MAX = 24, MIN = 0 }
-export enum keyShortcuts { SELECT_ALL, DELETE, CUT, COPY, PASTE, MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN }
+export enum keyShortcuts {
+    SELECT_ALL,
+    DELETE,
+    CUT,
+    COPY,
+    PASTE,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    MOVE_UP,
+    MOVE_DOWN,
+    SELECT_NEXT_NOTE,
+    SELECT_PREV_NOTE,
+    SELECT_NOTE_BELOW,
+    SELECT_NOTE_ABOVE
+}
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
+        SELECT_NOTE_ABOVE: HotkeyInfo.SELECT_NOTE_ABOVE.hotkey,
+        SELECT_NOTE_BELOW: HotkeyInfo.SELECT_NOTE_BELOW.hotkey,
+        SELECT_PREV_NOTE: HotkeyInfo.SELECT_PREV_NOTE.hotkey,
+        SELECT_NEXT_NOTE: HotkeyInfo.SELECT_NEXT_NOTE.hotkey,
         SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
         DELETE_NOTES: HotkeyInfo.DELETE_NOTES.hotkey,
         CUT_NOTES: HotkeyInfo.CUT_NOTES.hotkey,
@@ -73,6 +91,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     public handlers = {
+        SELECT_PREV_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_PREV_NOTE); },
+        SELECT_NEXT_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NEXT_NOTE); },
+        SELECT_NOTE_ABOVE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_ABOVE); },
+        SELECT_NOTE_BELOW: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_BELOW); },
         SELECT_ALL_NOTES: () => this.kbdHandler(keyShortcuts.SELECT_ALL),
         DELETE_NOTES: () => this.kbdHandler(keyShortcuts.DELETE),
         CUT_NOTES: () => this.kbdHandler(keyShortcuts.CUT),
@@ -290,12 +312,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onNeckKeyUp = (event: React.KeyboardEvent) => {
         const { selectedNotes } = this.state;
         const key = event.key;
-        selectedNotes.forEach((item) => {
-            const k = parseInt(key, 10);
-            if (k >= 0 && k <= 24) {
+        const k = parseInt(key, 10);
+        if (k >= 0 && k <= 24) {
+            selectedNotes.forEach((item) => {
                 item.fret = k;
-            }
-        });
+            });
+        }
         this.setState({ selectedNotes });
     }
 
@@ -520,6 +542,60 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     this.setState({ instrumentNotes: new1, selectedNotes: new2 });
                     if (instrument && instrumentNoteIdx !== undefined && insertHeadBeatIdx !== undefined) {
                         ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
+                    }
+                }
+                break;
+            case keyShortcuts.SELECT_PREV_NOTE:
+            case keyShortcuts.SELECT_NEXT_NOTE:
+            case keyShortcuts.SELECT_NOTE_ABOVE:
+            case keyShortcuts.SELECT_NOTE_BELOW:
+                {
+                    const { selectedNotes, instrumentNotes } = this.state;
+                    const newNotes = [];
+                    if (selectedNotes.length === 0) return;
+                    for (let i = 0; i < 1; i += 1) {
+                        const { startTime, string } = selectedNotes[i];
+                        let next: NoteTime | undefined;
+                        if (h === keyShortcuts.SELECT_PREV_NOTE) {
+                            const cur = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
+                            for (let j = cur - 1; j >= 0; j -= 1) {
+                                if (instrumentNotes[j].string === string) {
+                                    next = instrumentNotes[j];
+                                    break;
+                                }
+                            }
+                        }
+                        else if (h === keyShortcuts.SELECT_NOTE_ABOVE) {
+                            //const cur = instrumentNotes.findIndex(item => item.startTime === startTime && item.string === string);
+                            if (string === 0) return;
+                            const closest = instrumentNotes.filter(ino => ino.string === string - 1).reduce((prev: NoteTime, curr: NoteTime) => {
+                                return (Math.abs(curr.startTime - startTime) < Math.abs(prev.startTime - startTime) ? curr : prev);
+                            });
+                            //next = instrumentNotes.find(item => item.startTime > startTime && item.string === string - 1);
+                            next = closest;
+                        }
+                        else if (h === keyShortcuts.SELECT_NOTE_BELOW) {
+                            const {
+                                instrument,
+                            } = this.props;
+                            if (instrument) {
+                                if (string === InstrumentOptions[instrument].strings - 1) return;
+                                const closest = instrumentNotes.filter(ino => ino.string === string + 1).reduce((prev: NoteTime, curr: NoteTime) => {
+                                    return (Math.abs(curr.startTime - startTime) < Math.abs(prev.startTime - startTime) ? curr : prev);
+                                });
+                                //next = instrumentNotes.find(item => item.startTime > startTime && item.string === string + 1);
+                                next = closest;
+                            }
+                        }
+                        else {
+                            next = instrumentNotes.find(item => item.startTime > startTime && item.string === string);
+                        }
+                        if (next) {
+                            selectedNotes.splice(i, 1);
+                            newNotes.push(next);
+                            const new2 = [...newNotes]
+                            this.setState({ selectedNotes: new2 });
+                        }
                     }
                 }
                 break;

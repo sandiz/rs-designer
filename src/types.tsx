@@ -340,6 +340,18 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     TOGGLE_CLAPS: {
         info: "Toggle Claps", hotkey: ["c"], group: "Note Editor", idx: 8,
     },
+    SELECT_NEXT_NOTE: {
+        info: "Select next note", hotkey: ["tab", "l"], group: "Note Editor", idx: 9,
+    },
+    SELECT_PREV_NOTE: {
+        info: "Select previous note", hotkey: ["shift+tab", "j"], group: "Note Editor", idx: 9,
+    },
+    SELECT_NOTE_ABOVE: {
+        info: "Select note above", hotkey: ["i"], group: "Note Editor", idx: 9,
+    },
+    SELECT_NOTE_BELOW: {
+        info: "Select note below", hotkey: ["k"], group: "Note Editor", idx: 9,
+    },
 }
 
 export const getHotkey = (h: Hotkey) => {
