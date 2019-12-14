@@ -30,6 +30,7 @@ import MusicAnalysisService from '../lib/musicanalysis';
 import {
     successToaster, progressToaster, errorToaster, dismissToaster,
 } from '../components/Extended/Toasters';
+import GitService from './git';
 
 const { app, dialog } = window.require('electron').remote;
 
@@ -42,7 +43,6 @@ const fs: typeof FS = window.require("fs");
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
 const isWin = os.platform() === "win32";
-console.log(os);
 
 export enum ProjectUpdateType {
     ProjectInfoCreated = "project-info-created",
@@ -315,6 +315,7 @@ export class Project {
                     app.addRecentDocument(dir);
                     await this.saveAppSettings();
                 }
+                await GitService.init(this.projectDirectory);
                 await this.updateExternalFiles();
                 await this.loadInstruments();
                 if (!this.getFirstValidInstrument()) {
@@ -376,6 +377,7 @@ export class Project {
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
                 DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             }
+            GitService.addFilesFromAndCommit(this.projectDirectory);
             this.saveAppSettings();
             this.saveInstruments();
             successToaster("Project Saved")
