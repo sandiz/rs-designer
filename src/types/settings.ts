@@ -1,5 +1,5 @@
-import { ZOOM_DEFAULT } from './components/TabEditor/TabEditor';
-import { ZOOM } from './types';
+import { ZOOM_DEFAULT } from '../components/TabEditor/TabEditor';
+import { ZOOM } from './base';
 
 export enum COLOR_SCHEME { DEFAULT = "default" }
 export class TabEditorSettings {

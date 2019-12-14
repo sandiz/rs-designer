@@ -18,8 +18,11 @@ import {
     areFilesEqual, getAllFiles, getIndexFromDivider,
 } from './InstrumentFile';
 import {
-    Instrument, BeatTime, allTunings, baseTuning, InstrumentOptions,
-} from '../../types';
+    Instrument, InstrumentOptions,
+} from '../../types/project';
+import {
+    BeatTime, allTunings, baseTuning,
+} from '../../types/musictheory'
 import {
     getTransposedKey, Metronome,
 } from '../../lib/music-utils';

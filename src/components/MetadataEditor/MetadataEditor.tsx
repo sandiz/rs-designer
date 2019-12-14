@@ -5,7 +5,8 @@ import {
 import { IconNames } from '@blueprintjs/icons';
 import classNames from 'classnames';
 
-import { MediaInfo, OnChangeHandler } from '../../types';
+import { OnChangeHandler } from '../../types/base';
+import { MediaInfo } from '../../types/media'
 import ProjectService from '../../services/project';
 import { AlbumArt } from '../MediaController/MediaController';
 import { base64ImageData, fetchCover, readFile } from '../../lib/utils';

@@ -16,8 +16,14 @@ import 'typeface-inconsolata'
 
 import { getHotkeyDialog, getMetadataEditorDialog, getImportUrlDialog } from './dialogs';
 import {
-  HotkeyInfo, ProjectDetails, DialogContent, HotKeyComponent, HotKeyState,
-} from './types'
+  DialogContent,
+} from './types/base'
+import {
+  HotkeyInfo, HotKeyComponent, HotKeyState,
+} from './types/hotkey';
+import {
+  ProjectDetails,
+} from './types/project';
 import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 import ProjectService, { ProjectUpdateType } from './services/project';

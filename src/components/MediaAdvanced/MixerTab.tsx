@@ -5,7 +5,7 @@ import {
 import { IconNames } from '@blueprintjs/icons';
 import {
     ProjectMetadata,
-} from '../../types';
+} from '../../types/project';
 import MusicAnalysisService from '../../lib/musicanalysis';
 import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
 

@@ -1,14 +1,13 @@
 import React from 'react';
-//import classNames from 'classnames';
 import {
     MenuItem, Tag, Button, OverflowList, Boundary, Menu, Popover, Icon, PopoverInteractionKind, //Classes,
 } from "@blueprintjs/core";
 import { ItemPredicate, IItemRendererProps } from "@blueprintjs/select";
 import { IconNames } from '@blueprintjs/icons';
-import ProjectService from "../../services/project";
 import {
     Instrument, InstrumentOptions, InstrumentNotesInMem,
-} from "../../types";
+} from "../../types/project";
+import ProjectService from "../../services/project";
 import { hashCode, UUID } from '../../lib/utils';
 
 export interface InstrumentListItem {

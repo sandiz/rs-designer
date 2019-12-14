@@ -4,7 +4,7 @@ import Tone from 'tone';
 import WebAudioScheduler from './web-audio-scheduler'
 import {
     ScaleInfo, CircleOfFifths, ChordTime, ChordInfo, BeatTime, NoteTime, baseTuning, allTunings,
-} from '../types';
+} from '../types/musictheory';
 import MediaPlayerService from '../services/mediaplayer';
 
 const rotate = (array: string[], times: number): string[] => {

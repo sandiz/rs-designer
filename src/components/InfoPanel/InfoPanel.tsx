@@ -4,7 +4,8 @@ import {
     Card, Text, Tooltip, Classes,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
-import { ProjectDetails, ZOOM } from '../../types';
+import { ZOOM } from '../../types/base';
+import { ProjectDetails } from '../../types/project'
 import SliderExtended, { ButtonExtended } from '../Extended/FadeoutSlider';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';

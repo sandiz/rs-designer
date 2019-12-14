@@ -9,9 +9,14 @@ import classNames from 'classnames';
 
 import * as PATH from 'path'
 import {
-    ExtClasses, MediaInfo, HotkeyInfo,
-    MEDIA_STATE, VOLUME, HotKeyState, HotKeyComponent,
-} from '../../types';
+    ExtClasses, MEDIA_STATE, VOLUME,
+} from '../../types/base';
+import {
+    HotkeyInfo, HotKeyState, HotKeyComponent,
+} from '../../types/hotkey';
+import {
+    MediaInfo,
+} from '../../types/media';
 import SliderExtended, { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
 
 import './MediaController.scss';

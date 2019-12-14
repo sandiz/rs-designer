@@ -10,8 +10,14 @@ import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, ChordTime, BeatTime, EQFilter, EQTag, EQPreset, TEMPO, KEY, WasmTypes,
-} from '../types';
+    VOLUME, ExtClasses, ZOOM, TEMPO, KEY, WasmTypes,
+} from '../types/base';
+import {
+    ChordTime, BeatTime,
+} from '../types/musictheory';
+import {
+    EQFilter, EQTag, EQPreset,
+} from '../types/eq'
 import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
 import CLAP from '../assets/claps.wav';

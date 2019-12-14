@@ -1,4 +1,4 @@
-import { EQFilter } from "../../types";
+import { EQFilter } from "../../types/eq";
 
 //eslint-disable-next-line
 export function displayCanvasMsg(instance: any) {

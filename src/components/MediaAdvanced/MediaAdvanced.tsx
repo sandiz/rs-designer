@@ -5,7 +5,7 @@ import {
 import { IconNames } from '@blueprintjs/icons'
 import classNames from 'classnames';
 import './MediaAdvanced.scss'
-import { ProjectMetadata } from '../../types'
+import { ProjectMetadata } from '../../types/project'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
 import HomeTab from './HomeTab';

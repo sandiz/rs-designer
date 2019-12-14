@@ -2,8 +2,11 @@ import { ChildProcess } from 'child_process';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import {
-    spawn, path, RunnerResult, SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet,
-} from '../types'
+    spawn, path,
+} from '../types/base'
+import {
+    SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult,
+} from '../types/musictheory'
 import ProjectService from '../services/project';
 import { successToaster, progressToaster } from '../components/Extended/Toasters';
 import { DispatcherService, DispatchEvents } from '../services/dispatcher';

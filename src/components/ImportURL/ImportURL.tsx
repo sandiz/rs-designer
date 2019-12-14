@@ -11,7 +11,7 @@ import * as YTDL from 'youtube-dl';
 
 import {
     youtube, path, spawn, OnChangeHandler,
-} from '../../types'
+} from '../../types/base'
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
 const { shell, app } = window.require("electron").remote;

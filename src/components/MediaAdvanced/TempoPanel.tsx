@@ -7,7 +7,7 @@ import {
     findTempoMarkings,
 } from '../../lib/music-utils';
 import { MixerProps } from './MixerTab';
-import { TEMPO } from '../../types';
+import { TEMPO } from '../../types/base';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 

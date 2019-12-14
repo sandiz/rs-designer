@@ -7,8 +7,11 @@ import {
 import classNames from 'classnames';
 
 import {
-    HotkeyInfo, ExtClasses, DialogContent, os, Hotkey,
-} from './types';
+    ExtClasses, DialogContent, os,
+} from './types/base';
+import {
+    HotkeyInfo, Hotkey,
+} from './types/hotkey'
 import './dialogs.scss'
 import ImportURLDialog from './components/ImportURL/ImportURL';
 import MetadataEditorDialog from './components/MetadataEditor/MetadataEditor';

@@ -5,7 +5,7 @@ import {
     Button, FormGroup, InputGroup, Checkbox,
 } from '@blueprintjs/core';
 import './HomeTab.scss';
-import { ProjectMetadata } from '../../types';
+import { ProjectMetadata } from '../../types/project';
 import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 

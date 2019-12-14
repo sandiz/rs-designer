@@ -9,7 +9,7 @@ import {
     countChords, getTransposedKey, getTransposedChords,
 } from '../../lib/music-utils';
 import { MixerProps } from './MixerTab';
-import { KEY } from '../../types';
+import { KEY } from '../../types/base';
 import { DispatchEvents, DispatcherService } from '../../services/dispatcher';
 import MediaPlayerService from '../../services/mediaplayer';
 

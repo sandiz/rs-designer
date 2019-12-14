@@ -138,7 +138,7 @@
     background-color: rgb(244, 67, 71);
     visibility: hidden;
     pointer-events: none;
-    border-radius: 20px;
+    border-radius: 20px !important;
     transition: 150ms !important;
     filter: brightness(0.5);
 }

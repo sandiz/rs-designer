@@ -15,11 +15,16 @@ import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, AppSettings, ChordTime, BeatTime, MediaInfo,
-    ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
-    Instruments, Instrument, InstrumentNotes, InstrumentsInMemory, InstrumentNotesInMem, NoteTime, NoteFile,
-} from '../types'
-import { ProjectSettings } from '../settings';
+    AppSettings, ProjectInfo, ProjectMetadata,
+    Instruments, Instrument, InstrumentNotes, InstrumentsInMemory, InstrumentNotesInMem,
+} from '../types/project'
+import {
+    ChordTime, BeatTime, SongKey,
+    ChordTriplet, BeatTriplet, NoteTime, NoteFile,
+} from '../types/musictheory'
+import { EQTag } from '../types/eq';
+import { MediaInfo } from '../types/media'
+import { ProjectSettings } from '../types/settings';
 import MediaPlayerService from './mediaplayer';
 import MusicAnalysisService from '../lib/musicanalysis';
 import {
@@ -55,7 +60,7 @@ export class Project {
     public projectInfo: ProjectInfo | null;
     public tmpHandle: TMP.DirResult | null;
     public appSettings: AppSettings | null;
-    public inMemoryInstruments: InstrumentsInMemory | null;
+    public inMemoryInstruments: InstrumentsInMemory;
     static MAX_RECENTS = 10;
 
     private static instance: Project;
@@ -78,7 +83,7 @@ export class Project {
         this.projectInfo = null;
         this.appSettings = null;
         this.isLoading = false;
-        this.inMemoryInstruments = null;
+        this.inMemoryInstruments = new InstrumentsInMemory();
 
         DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
         DispatcherService.on(DispatchEvents.ImportMedia, (data: DispatchData) => this.importMedia(data as string | null));
@@ -810,8 +815,7 @@ export class Project {
     public saveInstrument = async (instrument: Instrument, instNotes: InstrumentNotesInMem, index: number) => {
         const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
-            inst.notes = instNotes.notes.sort((a, b) => a.startTime - b.startTime);
-
+            inst.notes = instNotes.notes.sort((a: NoteTime, b: NoteTime) => a.startTime - b.startTime);
         }
     }
 

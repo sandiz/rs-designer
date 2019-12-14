@@ -9,7 +9,7 @@ import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { IconNames } from '@blueprintjs/icons';
 import {
     EQTag, EQPreset, ExtendedBiquadFilterType,
-} from '../../types';
+} from '../../types/eq';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
 import { UUID } from '../../lib/utils';

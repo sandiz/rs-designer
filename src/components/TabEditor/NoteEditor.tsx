@@ -6,8 +6,14 @@ import { GlobalHotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
-    BeatTime, NoteTime, Instrument, InstrumentNotesInMem, HotkeyInfo, NoteType, InstrumentOptions,
-} from '../../types';
+    BeatTime, NoteTime, NoteType,
+} from '../../types/musictheory'
+import {
+    Instrument, InstrumentNotesInMem, InstrumentOptions,
+} from '../../types/project'
+import {
+    HotkeyInfo,
+} from '../../types/hotkey'
 import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
 
