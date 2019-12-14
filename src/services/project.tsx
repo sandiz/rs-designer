@@ -15,10 +15,11 @@ import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
-    ProjectInfo, ProjectSettingsModel, ChordTime, BeatTime, MediaInfo,
+    ProjectInfo, AppSettings, ChordTime, BeatTime, MediaInfo,
     ProjectMetadata, SongKey, ChordTriplet, BeatTriplet, EQTag,
-    Instruments, Instrument, InstrumentNotes, InstrumentsInMem, InstrumentNotesInMem, NoteTime, NoteFile,
+    Instruments, Instrument, InstrumentNotes, InstrumentsInMemory, InstrumentNotesInMem, NoteTime, NoteFile,
 } from '../types'
+import { ProjectSettings } from '../settings';
 import MediaPlayerService from './mediaplayer';
 import MusicAnalysisService from '../lib/musicanalysis';
 import {
@@ -36,6 +37,7 @@ const fs: typeof FS = window.require("fs");
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
 const isWin = os.platform() === "win32";
+console.log(os);
 
 export enum ProjectUpdateType {
     ProjectInfoCreated = "project-info-created",
@@ -52,8 +54,8 @@ export class Project {
     public isDirty: boolean;
     public projectInfo: ProjectInfo | null;
     public tmpHandle: TMP.DirResult | null;
-    public projectSettings: ProjectSettingsModel | null;
-    public inMemoryInstruments: InstrumentsInMem;
+    public appSettings: AppSettings | null;
+    public inMemoryInstruments: InstrumentsInMemory | null;
     static MAX_RECENTS = 10;
 
     private static instance: Project;
@@ -74,9 +76,9 @@ export class Project {
         this.isDirty = false;
         this.projectFileName = '';
         this.projectInfo = null;
-        this.projectSettings = null;
+        this.appSettings = null;
         this.isLoading = false;
-        this.inMemoryInstruments = new InstrumentsInMem();
+        this.inMemoryInstruments = null;
 
         DispatcherService.on(DispatchEvents.ProjectOpen, (data: DispatchData) => this.openProject(data as string | null));
         DispatcherService.on(DispatchEvents.ImportMedia, (data: DispatchData) => this.importMedia(data as string | null));
@@ -84,7 +86,7 @@ export class Project {
         DispatcherService.on(DispatchEvents.ProjectClose, this.closeProject);
 
         app.on('before-quit', this.unload);
-        this.loadProjectSettings();
+        this.loadAppSettings();
     }
 
     public destructor() {
@@ -92,59 +94,59 @@ export class Project {
     }
 
     public clearRecents = async () => {
-        if (this.projectSettings) {
-            this.projectSettings.recents = [];
-            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
+        if (this.appSettings) {
+            this.appSettings.recents = [];
+            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.appSettings);
         }
     }
 
     public getRecents = async (): Promise<ProjectInfo[]> => {
-        await this.loadProjectSettings();
-        if (this.projectSettings) {
-            return this.projectSettings.recents;
+        await this.loadAppSettings();
+        if (this.appSettings) {
+            return this.appSettings.recents;
         }
         return [];
     }
 
-    private loadProjectSettings = async () => {
+    private loadAppSettings = async () => {
         const ser = await ForageService.get(SettingsForageKeys.PROJECT_SETTINGS);
-        if (ser) this.projectSettings = new ProjectSettingsModel(ser);
-        else this.projectSettings = new ProjectSettingsModel(null);
+        if (ser) this.appSettings = new AppSettings(ser);
+        else this.appSettings = new AppSettings(null);
     }
 
-    private saveProjectSettings = async () => {
+    private saveAppSettings = async () => {
         // dont save temp projects to recents/last opened 
         if (this.isTemporary) return;
-        if (this.projectSettings && this.projectInfo) {
-            this.projectSettings.lastOpenedProject = this.projectInfo;
+        if (this.appSettings && this.projectInfo) {
+            this.appSettings.lastOpenedProject = this.projectInfo;
 
             let dupIdx = 0;
             let dupItem: ProjectInfo | null = null;
-            this.projectSettings.recents.forEach((i, idx) => {
+            this.appSettings.recents.forEach((i, idx) => {
                 if (this.projectInfo && i.media === this.projectInfo.media) {
                     dupIdx = idx;
                     dupItem = i;
                 }
             });
-            if (this.projectSettings.recents.length >= Project.MAX_RECENTS) {
-                this.projectSettings.recents = this.projectSettings.recents.slice(0, Project.MAX_RECENTS);
+            if (this.appSettings.recents.length >= Project.MAX_RECENTS) {
+                this.appSettings.recents = this.appSettings.recents.slice(0, Project.MAX_RECENTS);
             }
             if (dupItem) {
-                this.projectSettings.recents.splice(dupIdx, 1);
-                this.projectSettings.recents.unshift(dupItem);
+                this.appSettings.recents.splice(dupIdx, 1);
+                this.appSettings.recents.unshift(dupItem);
             }
             else {
-                this.projectSettings.recents.push(this.projectInfo);
+                this.appSettings.recents.push(this.projectInfo);
             }
-            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.projectSettings);
+            await ForageService.set(SettingsForageKeys.PROJECT_SETTINGS, this.appSettings);
         }
     }
 
     public saveLastEQTags(tags: EQTag[]) {
-        if (this.projectSettings) {
+        if (this.appSettings) {
             if (tags.length > 0) {
-                this.projectSettings.lastUsedEQTags = tags.filter((tag: EQTag) => tag.type !== 'edit');
-                this.saveProjectSettings();
+                this.appSettings.lastUsedEQTags = tags.filter((tag: EQTag) => tag.type !== 'edit');
+                this.saveAppSettings();
             }
         }
     }
@@ -164,7 +166,7 @@ export class Project {
         }
         this.projectInfo = null;
         this.projectFileName = '';
-        this.inMemoryInstruments = new InstrumentsInMem();
+        this.inMemoryInstruments = new InstrumentsInMemory();
         MediaPlayerService.empty();
         MediaPlayerService.unload();
     }
@@ -183,7 +185,7 @@ export class Project {
     }
 
     public openLastProject = async () => {
-        await this.loadProjectSettings();
+        await this.loadAppSettings();
         const lp = this.getLastOpenedProject();
         if (lp && lp.projectPath) {
             const stat = await fs.promises.stat(lp.projectPath);
@@ -286,6 +288,9 @@ export class Project {
                         // falls through
                         case 2:
                             json.instruments = new Instruments();
+                        // falls through
+                        case 3:
+                            json.settings = new ProjectSettings(null, null);
                             break;
                     }
                     json.version = ProjectInfo.currentVersion;
@@ -303,7 +308,7 @@ export class Project {
                 this.projectInfo = json;
                 if (!this.isTemporary) {
                     app.addRecentDocument(dir);
-                    await this.saveProjectSettings();
+                    await this.saveAppSettings();
                 }
                 await this.updateExternalFiles();
                 await this.loadInstruments();
@@ -366,7 +371,7 @@ export class Project {
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
                 DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             }
-            this.saveProjectSettings();
+            this.saveAppSettings();
             this.saveInstruments();
             successToaster("Project Saved")
             return true;
@@ -582,8 +587,8 @@ export class Project {
     });
 
     public getLastOpenedProject = (): ProjectInfo | null => {
-        if (this.projectSettings == null) return null;
-        return this.projectSettings.lastOpenedProject;
+        if (this.appSettings == null) return null;
+        return this.appSettings.lastOpenedProject;
     }
 
     public getProjectMetadata = async (): Promise<ProjectMetadata | null> => {
@@ -677,7 +682,7 @@ export class Project {
     /* loads the notes from file to memory */
     public loadInstruments = async () => {
         if (this.projectInfo) {
-            this.inMemoryInstruments = new InstrumentsInMem();
+            this.inMemoryInstruments = new InstrumentsInMemory();
             //eslint-disable-next-line
             for (const key in Instrument) {
                 const source = this.projectInfo.instruments[key as keyof typeof Instrument]
@@ -720,7 +725,9 @@ export class Project {
 
     /* creates an instrument in memory */
     public createInstrument = (instrument: Instrument) => {
-        this.inMemoryInstruments[instrument].push({ notes: [], tags: [] });
+        if (this.inMemoryInstruments) {
+            this.inMemoryInstruments[instrument].push({ notes: [], tags: [] });
+        }
     }
 
     /* get first valid instrument from memory */
@@ -728,8 +735,10 @@ export class Project {
         // eslint-disable-next-line
         for (const key in Instrument) {
             const inst = key as keyof typeof Instrument;
-            const source = this.inMemoryInstruments[inst];
-            if (source.length > 0) return [inst, source[0]];
+            if (this.inMemoryInstruments) {
+                const source = this.inMemoryInstruments[inst];
+                if (source.length > 0) return [inst, source[0]];
+            }
         }
         return null;
     }
@@ -739,20 +748,24 @@ export class Project {
     }
 
     public getInstrumentNotes = (instrument: Instrument, index: number): InstrumentNotesInMem | null => {
-        if (index < this.inMemoryInstruments[instrument].length) return this.inMemoryInstruments[instrument][index];
+        if (this.inMemoryInstruments) {
+            if (index < this.inMemoryInstruments[instrument].length) return this.inMemoryInstruments[instrument][index];
+        }
         return null;
     }
 
     public removeInstrumentNotes = (instrument: Instrument, index: number): void => {
-        if (index < this.inMemoryInstruments[instrument].length) {
-            this.inMemoryInstruments[instrument].splice(index, 1);
+        if (this.inMemoryInstruments) {
+            if (index < this.inMemoryInstruments[instrument].length) {
+                this.inMemoryInstruments[instrument].splice(index, 1);
+            }
         }
     }
 
 
     /* save instruments to file */
     public saveInstruments = async () => {
-        if (this.projectInfo) {
+        if (this.projectInfo && this.inMemoryInstruments) {
             //eslint-disable-next-line
             for (const key in Instrument) {
                 const dest = this.projectInfo.instruments[key as keyof typeof Instrument]

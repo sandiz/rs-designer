@@ -460,7 +460,6 @@ export class Metronome {
     }
 
     static startClapping(notes: NoteTime[], hitCB: typeof Metronome.noteHitCallback, playNote = false, tuning = allTunings.E_Standard) {
-        console.log("startclapping");
         Metronome.stopClapping();
         Metronome.notes = notes;
         Metronome.noteHitCallback = hitCB;

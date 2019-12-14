@@ -7,6 +7,7 @@ import * as FS from 'fs';
 import * as OS from 'os';
 import * as SPAWN from 'cross-spawn';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
+import { ProjectSettings } from './settings';
 
 export const path: typeof PATH = window.require("path");
 export const youtube: typeof YTDL = window.require("youtube-dl");
@@ -51,7 +52,7 @@ export class Instruments {
     public [Instrument.bassGuitar]: InstrumentNotes[] = [];
     public [Instrument.ukulele]: InstrumentNotes[] = [];
 }
-export class InstrumentsInMem {
+export class InstrumentsInMemory {
     public [Instrument.leadGuitar]: InstrumentNotesInMem[] = [];
     public [Instrument.rhythmGuitar]: InstrumentNotesInMem[] = [];
     public [Instrument.bassGuitar]: InstrumentNotesInMem[] = [];
@@ -69,8 +70,9 @@ export class ProjectInfo {
     public version: number;
     public projectPath: string;
     public instruments: Instruments;
+    public settings: ProjectSettings;
+    static currentVersion = 3;
 
-    static currentVersion = 2;
     constructor() {
         this.media = "";
         this.original = "";
@@ -83,10 +85,12 @@ export class ProjectInfo {
         this.version = ProjectInfo.currentVersion;
         this.projectPath = "";
         this.instruments = new Instruments();
+        this.settings = new ProjectSettings(null, null);
     }
 }
 /* Classes maintaining an history of projects */
-export class ProjectSettingsModel {
+
+export class AppSettings {
     public lastOpenedProject: ProjectInfo | null;
     public recents: ProjectInfo[];
     public lastUsedEQTags: EQTag[];

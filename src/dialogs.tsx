@@ -13,10 +13,6 @@ import './dialogs.scss'
 import ImportURLDialog from './components/ImportURL/ImportURL';
 import MetadataEditorDialog from './components/MetadataEditor/MetadataEditor';
 
-const isWin = os.platform() === "win32";
-const isMac = os.platform() === "darwin";
-
-
 type keyMapType = {
     [key: string]: KeyMapDisplayOptions;
 }
@@ -64,6 +60,8 @@ const getKeymapGroups = (keyMap: ApplicationKeyMap) => {
 }
 
 const getKeyMapForGroup = (group: string, km: keyMapType) => {
+    const isWin = os.platform() === "win32";
+    const isMac = os.platform() === "darwin"
     const keyNode = (s: string, idx: number, len: number) => (
         <div key={s} style={{ display: 'flex' }}>
             <KeyCombo key={s} combo={s} />
