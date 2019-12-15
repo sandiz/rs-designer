@@ -161,6 +161,7 @@ input,
     position: absolute;
     left: 3vh;
     top: 3vh;
+    height: 3vh;
 }
 
 .info-item {
@@ -258,4 +259,12 @@ pre {
 .width-100 {
     width: 100%;
     ;
+}
+
+.no-pad-2 {
+    padding: 0px;
+}
+
+.history-list {
+    margin-bottom: 7px;
 }

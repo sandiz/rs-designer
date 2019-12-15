@@ -130,6 +130,11 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.updateImage();
         this.updateProgress();
         this.updateFiles();
+        const info = ProjectService.getProjectInfo();
+        if (info) {
+            const zoom = info.settings.tabEditor.getZL();
+            if (zoom) this.setState({ zoom });
+        }
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.on('seek', this.onSeek);
             MediaPlayerService.wavesurfer.on('play', this.onPlay);
@@ -344,18 +349,30 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     zoomIn = () => {
         const cur = this.state.zoom;
         if (cur < ZOOM_MAX) {
-            this.setState({ zoom: cur + 1 });
+            this.setState({ zoom: cur + 1 }, () => {
+                const info = ProjectService.getProjectInfo();
+                console.log(info);
+                if (info) info.settings.tabEditor.ZL(this.state.zoom)
+            });
         }
     }
 
     zoomOut = () => {
         const cur = this.state.zoom;
         if (cur > ZOOM_MIN) {
-            this.setState({ zoom: cur - 1 });
+            this.setState({ zoom: cur - 1 }, () => {
+                const info = ProjectService.getProjectInfo();
+                if (info) info.settings.tabEditor.ZL(this.state.zoom)
+            });
         }
     }
 
-    zoom = (v: number) => this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) })
+    zoom = (v: number) => {
+        this.setState({ zoom: clamp(v, ZOOM_MIN, ZOOM_MAX) }, () => {
+            const info = ProjectService.getProjectInfo();
+            if (info) info.settings.tabEditor.ZL(this.state.zoom)
+        });
+    }
 
     handleFileChange = (item: InstrumentListItem) => {
         if (item.isDivider) {

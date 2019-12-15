@@ -282,7 +282,7 @@ export class Project {
             }
             if (jsonPath.length > 0) {
                 const data = await readFile(jsonPath);
-                const json: ProjectInfo = JSON.parse(data.toString());
+                const json: ProjectInfo = new ProjectInfo(JSON.parse(data.toString()));
 
                 /* migrate project file to current version */
                 if (json.version !== ProjectInfo.currentVersion) {
@@ -295,7 +295,7 @@ export class Project {
                             json.instruments = new Instruments();
                         // falls through
                         case 3:
-                            json.settings = new ProjectSettings(null, null);
+                            json.settings = new ProjectSettings();
                             break;
                     }
                     json.version = ProjectInfo.currentVersion;
@@ -375,11 +375,11 @@ export class Project {
             else {
                 //serialize
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
-                DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             }
             GitService.addFilesFromAndCommit(this.projectDirectory);
             this.saveAppSettings();
             this.saveInstruments();
+            DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
             successToaster("Project Saved")
             return true;
         }

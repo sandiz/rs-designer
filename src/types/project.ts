@@ -23,6 +23,13 @@ export class Instruments {
     public [Instrument.rhythmGuitar]: InstrumentNotes[] = [];
     public [Instrument.bassGuitar]: InstrumentNotes[] = [];
     public [Instrument.ukulele]: InstrumentNotes[] = [];
+
+    constructor(params: Instruments = {} as Instruments) {
+        this[Instrument.leadGuitar] = params[Instrument.leadGuitar];
+        this[Instrument.rhythmGuitar] = params[Instrument.rhythmGuitar];
+        this[Instrument.bassGuitar] = params[Instrument.bassGuitar];
+        this[Instrument.ukulele] = params[Instrument.ukulele];
+    }
 }
 export class InstrumentsInMemory {
     public [Instrument.leadGuitar]: InstrumentNotesInMem[] = [];
@@ -31,33 +38,48 @@ export class InstrumentsInMemory {
     public [Instrument.ukulele]: InstrumentNotesInMem[] = [];
 }
 export class ProjectInfo {
-    public media: string;
-    public original: string;
-    public cqt: string;
-    public tempo: string;
-    public beats: string;
-    public key: string;
-    public chords: string;
-    public metadata: string;
-    public version: number;
-    public projectPath: string;
-    public instruments: Instruments;
-    public settings: ProjectSettings;
+    public media = "";
+    public original = "";
+    public cqt = "";
+    public tempo = "";
+    public beats = "";
+    public key = "";
+    public chords = "";
+    public metadata = "";
+    public version = ProjectInfo.currentVersion;
+    public projectPath = "";
+    public instruments: Instruments = new Instruments();
+    public settings: ProjectSettings = new ProjectSettings();
     static currentVersion = 3;
 
-    constructor() {
-        this.media = "";
-        this.original = "";
-        this.cqt = "";
-        this.tempo = "";
-        this.beats = "";
-        this.key = "";
-        this.chords = "";
-        this.metadata = "";
-        this.version = ProjectInfo.currentVersion;
-        this.projectPath = "";
-        this.instruments = new Instruments();
-        this.settings = new ProjectSettings(null, null);
+    constructor(params: ProjectInfo = {} as ProjectInfo) {
+        const {
+            media = "",
+            original = "",
+            cqt = "",
+            tempo = "",
+            beats = "",
+            key = "",
+            chords = "",
+            metadata = "",
+            version = ProjectInfo.currentVersion,
+            projectPath = "",
+            instruments = {} as Instruments,
+            settings = {} as ProjectSettings,
+        } = params;
+
+        this.media = media;
+        this.original = original;
+        this.cqt = cqt;
+        this.tempo = tempo;
+        this.beats = beats;
+        this.key = key;
+        this.chords = chords;
+        this.metadata = metadata;
+        this.version = version;
+        this.projectPath = projectPath;
+        this.instruments = new Instruments(instruments);
+        this.settings = new ProjectSettings(settings);
     }
 }
 /* Classes maintaining an history of projects */

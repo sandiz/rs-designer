@@ -1,6 +1,6 @@
 
 import {
-    plugins, init, add, commit, statusMatrix,
+    plugins, init, add, commit, statusMatrix, log, CommitDescription,
 } from 'isomorphic-git'
 import * as FS from 'fs';   /* for types */
 import * as OS from 'os';   /* for types */
@@ -18,7 +18,7 @@ class GitService {
     }
 
     static async addFilesFromAndCommit(dir: string) {
-        //const items = await readDir(dir);
+        //console.log(await statusMatrix({ dir }));
         const filenames = (await statusMatrix({ dir }))
             .filter(row => row[GIT_TREE.HEAD] !== row[GIT_TREE.WORKDIR])
             .map(row => row[GIT_TREE.FILE]);
@@ -31,7 +31,7 @@ class GitService {
             await GitService.addFile(dir, file);
         }
         if (filenames.length > 0) {
-            await GitService.commit(dir);
+            await GitService.commit(dir, filenames);
         }
     }
 
@@ -40,7 +40,7 @@ class GitService {
         //console.log("[git-service]", "added file", file);
     }
 
-    static async commit(dir: string) {
+    static async commit(dir: string, files: string[]) {
         const username = os.userInfo().username;
         const sha = await commit({
             dir,
@@ -48,9 +48,19 @@ class GitService {
                 name: username,
                 email: 'user@localhost',
             },
-            message: 'Commit @ ' + (new Date().toLocaleString()),
+            message: "Files Changed: \n" + files.join("\n"),
         })
         console.log("[git-service]", "commit complete", sha);
+    }
+
+    static async listCommits(dir: string, num = 10): Promise<CommitDescription[]> {
+        try {
+            const commits = await log({ dir, depth: num, ref: 'master' })
+            return commits as CommitDescription[];
+        }
+        catch (e) {
+            return [];
+        }
     }
 
     static setRemote() {

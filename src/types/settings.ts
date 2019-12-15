@@ -3,22 +3,53 @@ import { ZOOM } from './base';
 
 export enum COLOR_SCHEME { DEFAULT = "default" }
 export class TabEditorSettings {
-    zoomLevel = ZOOM_DEFAULT;
-    colorScheme: COLOR_SCHEME = COLOR_SCHEME.DEFAULT;
-    instrumentVolume = 1;
+    zoomLevel?= ZOOM_DEFAULT;
+    colorScheme?: COLOR_SCHEME = COLOR_SCHEME.DEFAULT;
+    instrumentVolume?= 1;
+
+    constructor(params: TabEditorSettings = {} as TabEditorSettings) {
+        const {
+            zoomLevel = ZOOM_DEFAULT,
+            colorScheme = COLOR_SCHEME.DEFAULT,
+            instrumentVolume = 1,
+        } = params;
+
+        this.zoomLevel = zoomLevel;
+        this.colorScheme = colorScheme;
+        this.instrumentVolume = instrumentVolume;
+    }
+
+    public ZL(num: number) {
+        this.zoomLevel = num;
+    }
+
+    public getZL() { return this.zoomLevel }
 }
 
 export class WaveformSettings {
     zoomLevel = ZOOM.DEFAULT;
+
+    constructor(params: WaveformSettings = {} as WaveformSettings) {
+        const {
+            zoomLevel = ZOOM_DEFAULT,
+        } = params;
+
+        this.zoomLevel = zoomLevel;
+    }
 }
 
 export class ProjectSettings {
-    public tabEditor: TabEditorSettings;
-    public waveform: WaveformSettings;
+    public tabEditor: TabEditorSettings = new TabEditorSettings();
+    public waveform: WaveformSettings = new WaveformSettings();
 
-    constructor(t: TabEditorSettings | null, w: TabEditorSettings | null) {
-        this.tabEditor = t || new TabEditorSettings();
-        this.waveform = w || new WaveformSettings();
+    constructor(params: ProjectSettings = {} as ProjectSettings) {
+        const {
+            tabEditor = {} as TabEditorSettings,
+            waveform = {} as WaveformSettings,
+        } = params;
+
+        this.tabEditor = new TabEditorSettings(tabEditor);
+        this.waveform = new WaveformSettings(waveform);
     }
 }
 

@@ -1,25 +1,29 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import {
-    Card, Text, Tooltip, Classes,
+    Card, Tooltip, Classes, MenuItem, Button,
 } from '@blueprintjs/core';
+import { Select } from '@blueprintjs/select';
 import { IconNames } from '@blueprintjs/icons';
+import { CommitDescription } from 'isomorphic-git';
 import { ZOOM } from '../../types/base';
 import { ProjectDetails } from '../../types/project'
 import SliderExtended, { ButtonExtended } from '../Extended/FadeoutSlider';
 import MediaPlayerService from '../../services/mediaplayer';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { getTransposedKey } from '../../lib/music-utils';
-
-const { shell } = window.require("electron").remote;
+import { filterCommit, renderCommit, areCommitsEqual } from './CommitItem'
 
 interface InfoPanelProps {
     project: ProjectDetails;
+    lastCommits: CommitDescription[];
 }
 interface InfoPanelState {
     keyChange: number;
     tempoChange: number;
 }
+
+const CommitSelect = Select.ofType<CommitDescription>();
 
 class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
     constructor(props: InfoPanelProps) {
@@ -59,7 +63,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
         let keymsg = "";
         let tempomsg = null;
         if (this.props.project.metadata) {
-            const [key, type, _ignored] = this.props.project.metadata.key;
+            const [key, type] = this.props.project.metadata.key;
             if (key === "-") keymsg = "-";
             else {
                 keymsg = `${getTransposedKey(key, this.state.keyChange)} ${type}`;
@@ -77,16 +81,29 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                     width: 100 + '%',
                     display: 'flex',
                     visibility: (this.props.project && this.props.project.loaded) ? "visible" : "hidden",
+                    height: 100 + '%',
+                    alignItems: "flex-end",
                 }}>
-                    <Card
-                        interactive
-                        onClick={() => shell.showItemInFolder(this.props.project.metadata ? this.props.project.metadata.path : "")}
-                        elevation={0}
-                        className={classNames("info-item", Classes.INTENT_PRIMARY)}>
-                        <Text ellipsize>
-                            <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
-                        </Text>
-                    </Card>
+                    <CommitSelect
+                        //activeItem={props.file}
+                        filterable
+                        resetOnClose
+                        className={classNames("info-item-control", Classes.ELEVATION_1, "info-item", "history-list")}
+                        itemPredicate={filterCommit}
+                        itemRenderer={(item, ps) => renderCommit(item, ps, '')}
+                        //itemDisabled={isInstrumentFileDisabled}
+                        itemsEqual={areCommitsEqual}
+                        items={this.props.lastCommits}
+                        noResults={<MenuItem disabled text="No files." />}
+                        onItemSelect={() => { }}
+                    >
+                        {/* children become the popover target; render value here */}
+                        <Button
+                            text={(
+                                <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
+                            )}
+                            rightIcon="double-caret-vertical" />
+                    </CommitSelect>
                     <Tooltip
                         hoverOpenDelay={1000}
                         lazy
@@ -162,7 +179,15 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         />
                     </Card>
                 </div>
-                <div style={{ width: (this.props.project.loaded ? 50 : 100) + '%', display: 'flex', justifyContent: 'flex-end' }}>
+                <div
+                    style={{
+                        width: (this.props.project.loaded ? 50 : 100) + '%',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        height: 100 + '%',
+                        alignItems: 'flex-end',
+                        marginBottom: -5 + 'px',
+                    }}>
                     <Tooltip
                         hoverOpenDelay={1000}
                         lazy

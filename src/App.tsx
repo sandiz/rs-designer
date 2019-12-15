@@ -4,6 +4,7 @@ import {
 } from "@blueprintjs/core"
 import { IconNames } from '@blueprintjs/icons';
 import { GlobalHotKeys } from 'react-hotkeys';
+import { CommitDescription } from 'isomorphic-git';
 import MediaController from './components/MediaController/MediaController';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -30,6 +31,7 @@ import ProjectService, { ProjectUpdateType } from './services/project';
 import MediaPlayerService from './services/mediaplayer';
 import InfoPanel from './components/InfoPanel/InfoPanel';
 import Waveform from './components/Waveform/Waveform';
+import GitService from './services/git';
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
@@ -39,6 +41,7 @@ interface AppState extends HotKeyState {
   darkMode: boolean;
   dialogContent: DialogContent | null;
   project: ProjectDetails;
+  projectCommits: CommitDescription[];
 }
 
 const AppDestructor = () => {
@@ -65,6 +68,7 @@ class App extends HotKeyComponent<{}, AppState> {
       darkMode: nativeTheme.shouldUseDarkColors,
       dialogContent: null,
       project: { loaded: false, metadata: null },
+      projectCommits: [],
     };
     this.state = { ...super.getInitialState(), ...b };
   }
@@ -96,6 +100,8 @@ class App extends HotKeyComponent<{}, AppState> {
 
   projectUpdated = async (data: DispatchData) => {
     if (this.state.project.loaded) {
+      const commits = await GitService.listCommits(ProjectService.getProjectDir());
+      this.setState({ projectCommits: commits });
       if (typeof data === 'string'
         && (data === ProjectUpdateType.ExternalFilesUpdate
           || data === ProjectUpdateType.MediaInfoUpdated)) {
@@ -109,11 +115,12 @@ class App extends HotKeyComponent<{}, AppState> {
 
   projectOpened = async () => {
     const metadata = await ProjectService.getProjectMetadata();
+    const commits = await GitService.listCommits(ProjectService.getProjectDir());
     const project: ProjectDetails = {
       loaded: true,
       metadata,
     }
-    this.setState({ project });
+    this.setState({ project, projectCommits: commits });
   }
 
   projectClosed = () => {
@@ -121,7 +128,7 @@ class App extends HotKeyComponent<{}, AppState> {
       loaded: false,
       metadata: null,
     }
-    this.setState({ project });
+    this.setState({ project, projectCommits: [] });
   }
 
   openDialog = (data: DispatchData) => {
@@ -146,7 +153,7 @@ class App extends HotKeyComponent<{}, AppState> {
       <React.Fragment>
         <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
           <ErrorBoundary className="info-panel">
-            <InfoPanel project={this.state.project} />
+            <InfoPanel project={this.state.project} lastCommits={this.state.projectCommits} />
           </ErrorBoundary>
           <div id="content">
             <ErrorBoundary className="waveform-root">
