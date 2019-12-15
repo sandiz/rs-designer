@@ -96,8 +96,11 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         DispatcherService.on(DispatchEvents.MediaReset, this.freeCQT);
         if (MediaPlayerService.isActive()) {
             this.initLiveCQT();
+            const analyser = MediaPlayerService.getAnalyzer();
+            if (analyser) {
+                this.synth = new Tone.Synth().connect(analyser);
+            }
         }
-        this.synth = new Tone.Synth().toMaster();
     }
 
     componentWillUnmount = () => {

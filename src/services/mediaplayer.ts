@@ -1,5 +1,6 @@
 
 import WaveSurfer from 'wavesurfer.js';
+import Tone from 'tone';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
@@ -210,6 +211,8 @@ class MediaPlayer {
                 aNode.maxDecibels = -30;
                 aNode.smoothingTimeConstant = 0.0;
             }
+            const context = this.getAudioContext();
+            if (context) Tone.setContext(context);
             this.initShifter();
             this.setWaveformStyle();
             this.loadBeatsTimeline();
@@ -247,7 +250,6 @@ class MediaPlayer {
     }
 
     pitchChanged = () => {
-        console.log(this.pitchSemitonesDiff);
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
             if (activePlugins.chordstimeline === true) {
