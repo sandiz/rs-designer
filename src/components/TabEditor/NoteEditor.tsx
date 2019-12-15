@@ -6,6 +6,9 @@ import { GlobalHotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
+    STRING_COLORS,
+} from '../../types/base'
+import {
     BeatTime, NoteTime, NoteType,
 } from '../../types/musictheory'
 import {
@@ -16,6 +19,7 @@ import {
 } from '../../types/hotkey'
 import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
+import { TabEditorSettings } from '../../types/settings';
 
 const beatCache: { [key: string]: [number, BeatTime] } = {}; //TODO: clear on beat change
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
@@ -45,6 +49,7 @@ interface NoteEditorProps {
     toggleMetronome: () => void;
     toggleClap: () => void;
     toggleNotePlay: () => void;
+    settings: TabEditorSettings;
 }
 interface NoteEditorState {
     beats: BeatTime[];
@@ -52,14 +57,6 @@ interface NoteEditorState {
     instrumentTags: string[];
     selectedNotes: NoteTime[];
 }
-const STRING_COLORS: string[] = [
-    "linear-gradient(0deg, rgba(193,55,211,1) 12%, rgba(237,101,255,1) 100%)", //"#C137D3",
-    "linear-gradient(0deg, rgba(91,228,42,1) 12%, rgba(134,255,91,1) 100%)", //"#5BE42A",
-    "linear-gradient(0deg, rgba(228,149,52,1) 12%, rgba(255,184,96,1) 100%)", //"#E49534",
-    "linear-gradient(0deg, rgba(48,147,195,1) 12%, rgba(98,204,255,1) 100%)", //"#3093C3",
-    "linear-gradient(0deg, rgba(208,181,36,1) 12%, rgba(255,232,106,1) 100%)", //"#D0B524",
-    "linear-gradient(0deg, rgba(213,22,41,1) 12%, rgba(255,117,131,1) 100%)", //"#DB4251",
-]
 const NOTE_WIDTH = 40; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 10;
 enum FRET { MAX = 24, MIN = 0 }
@@ -222,7 +219,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
         const idx = this.currentString.getAttribute("data-string-idx");
         if (idx) {
-            const color = STRING_COLORS[parseInt(idx, 10)];
+            const color = STRING_COLORS[this.props.settings.getCS()][parseInt(idx, 10)];
             if (this.hoverRef.current) this.hoverRef.current.style.background = color;
         }
     }
@@ -691,7 +688,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                             style={{
                                                 //position
                                                 textAlign: "center",
-                                                background: STRING_COLORS[note.string],
+                                                background: STRING_COLORS[this.props.settings.getCS()][note.string],
                                                 position: "absolute",
                                                 transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
                                             }}

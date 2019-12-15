@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Callout, Tooltip,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Tooltip,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -26,8 +26,9 @@ import {
 import {
     getTransposedKey, Metronome,
 } from '../../lib/music-utils';
-import { deletePopover } from '../../dialogs';
+import { deletePopover, settingsPopover } from '../../dialogs';
 import { metronomeSVG, clapSVG } from '../../svgIcons';
+import { TabEditorSettings } from '../../types/settings';
 
 const { nativeTheme } = window.require("electron").remote;
 const InstrumentalFileSelect = Select.ofType<InstrumentListItem>();
@@ -44,6 +45,7 @@ interface TabEditorState {
     metronome: boolean;
     clap: boolean;
     notePlay: boolean;
+    settings: TabEditorSettings;
 }
 const PX_PER_SEC = 40;
 export const ZOOM_MIN = PX_PER_SEC;
@@ -67,9 +69,10 @@ class TabEditor extends React.Component<{}, TabEditorState> {
 
     constructor(props: {}) {
         super(props);
+        const info = ProjectService.getProjectInfo();
         this.state = {
             duration: 0,
-            zoom: ZOOM_DEFAULT,
+            zoom: info ? info.settings.tabEditor.getZL() : ZOOM_DEFAULT,
             files: [],
             currentFile: null,
             currentFileIdx: 0,
@@ -78,6 +81,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             metronome: false,
             clap: false,
             notePlay: false,
+            settings: info ? info.settings.tabEditor : new TabEditorSettings(),
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -130,11 +134,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.updateImage();
         this.updateProgress();
         this.updateFiles();
-        const info = ProjectService.getProjectInfo();
-        if (info) {
-            const zoom = info.settings.tabEditor.getZL();
-            if (zoom) this.setState({ zoom });
-        }
         if (MediaPlayerService.wavesurfer) {
             MediaPlayerService.wavesurfer.on('seek', this.onSeek);
             MediaPlayerService.wavesurfer.on('play', this.onPlay);
@@ -578,6 +577,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         })
     }
 
+    updateSettings = (settings: TabEditorSettings) => {
+        this.setState({ settings });
+        const info = ProjectService.getProjectInfo();
+        if (info) {
+            info.settings.tabEditor = settings;
+        }
+    }
+
     render = () => {
         return (
             <div className="tabeditor-root">
@@ -602,6 +609,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                     toggleClap={this.toggleClap}
                     notePlay={this.state.notePlay}
                     toggleNotePlay={this.toggleNotePlay}
+                    settings={this.state.settings}
+                    settingsUpdate={this.updateSettings}
                 />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
@@ -650,6 +659,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                     toggleMetronome={this.toggleMetronome}
                                     toggleClap={this.toggleClap}
                                     toggleNotePlay={this.toggleNotePlay}
+                                    settings={this.state.settings}
                                 />
                             </div>
                         </div>
@@ -704,6 +714,9 @@ interface InfoPanelProps {
     toggleClap: () => void;
     notePlay: boolean;
     toggleNotePlay: () => void;
+
+    settings: TabEditorSettings;
+    settingsUpdate: (settings: TabEditorSettings) => void;
 }
 
 const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
@@ -850,9 +863,9 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     lazy
                     inheritDarkTheme
                     content="Selected/Total notes in the chart">
-                    <Callout className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
+                    <Card className={classNames("info-item-no-space", Classes.ELEVATION_1, "number")}>
                         <span ref={props.notesCountRef}> s:0 n:0</span>
-                    </Callout>
+                    </Card>
                 </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
                 <Tooltip
@@ -942,6 +955,15 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     <ButtonExtended small icon={IconNames.SOCIAL_MEDIA} intent={Intent.NONE} key="melody tracking" />
                 </Tooltip>
                 <NavbarDivider className="tab-button-divider" />
+                <Popover content={settingsPopover(props.settings, props.settingsUpdate)} position={Position.BOTTOM_RIGHT}>
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content="Tab editor Settings">
+                        <ButtonExtended className="info-item-control" small icon={IconNames.COG} intent={Intent.NONE} />
+                    </Tooltip>
+                </Popover>
                 <Popover content={deletePopover(props.deleteNotes, delChartMsg)} position={Position.BOTTOM_RIGHT}>
                     <Tooltip
                         hoverOpenDelay={1000}

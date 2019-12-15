@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import {
-    Card, Tooltip, Classes, MenuItem,
+    Card, Tooltip, MenuItem,
 } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { IconNames } from '@blueprintjs/icons';
@@ -88,7 +88,7 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         //activeItem={props.file}
                         filterable
                         resetOnClose
-                        className={classNames("info-item-control", Classes.ELEVATION_1, "info-item", "history-list")}
+                        className={classNames("info-item-control", "info-item", "history-list")}
                         itemPredicate={filterCommit}
                         itemRenderer={(item, ps) => renderCommit(item, ps, '')}
                         //itemDisabled={isInstrumentFileDisabled}

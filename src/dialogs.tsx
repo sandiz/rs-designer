@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import { IconNames } from '@blueprintjs/icons';
 import { getApplicationKeyMap, ApplicationKeyMap, KeyMapDisplayOptions } from 'react-hotkeys';
 import {
-    Text, Classes, KeyCombo, Tabs, Tab, H5, Button, Intent, Card,
+    Text, Classes, KeyCombo, Tabs, Tab, H5, Button, Intent, Card, FormGroup, HTMLSelect, Slider,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 
@@ -15,6 +15,7 @@ import {
 import './dialogs.scss'
 import ImportURLDialog from './components/ImportURL/ImportURL';
 import MetadataEditorDialog from './components/MetadataEditor/MetadataEditor';
+import { TabEditorSettings, COLOR_SCHEME } from './types/settings';
 
 type keyMapType = {
     [key: string]: KeyMapDisplayOptions;
@@ -231,6 +232,43 @@ export const deletePopover = (del: () => void, msg: JSX.Element | null = null) =
                     Delete
                 </Button>
             </div>
+        </Card>
+    )
+}
+
+export const settingsPopover = (settings: TabEditorSettings, update: (newSettings: TabEditorSettings) => void) => {
+    const newsettings = new TabEditorSettings(settings);
+    return (
+        <Card key="text">
+            <H5 className="font-weight-unset">Settings</H5>
+            <FormGroup
+                label="Note Color Scheme"
+                labelFor="color-input"
+            >
+                <HTMLSelect
+                    id="color-input"
+                    value={newsettings.colorScheme ? newsettings.colorScheme : COLOR_SCHEME.DEFAULT}
+                    onChange={(e) => {
+                        newsettings.colorScheme = e.target.value as COLOR_SCHEME;
+                        update(newsettings)
+                    }}>
+                    <option value="default">default</option>
+                    <option value="monochrome">monochrome</option>
+                    <option value="bold">bold</option>
+                    <option value="safe">safe</option>
+                </HTMLSelect>
+            </FormGroup>
+            <FormGroup
+                label="Soft Instrument Volume"
+                labelFor="vol-input"
+            >
+                <Slider
+                    value={0}
+                    min={0}
+                    max={1}
+                    stepSize={1}
+                    labelRenderer={false} />
+            </FormGroup>
         </Card>
     )
 }

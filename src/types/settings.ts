@@ -23,7 +23,8 @@ export class TabEditorSettings {
         this.zoomLevel = num;
     }
 
-    public getZL() { return this.zoomLevel }
+    public getZL() { return this.zoomLevel ? this.zoomLevel : ZOOM_DEFAULT }
+    public getCS() { return this.colorScheme ? this.colorScheme : COLOR_SCHEME.DEFAULT }
 }
 
 export class WaveformSettings {

@@ -249,7 +249,7 @@
 }
 
 .strings-hitbox-first {
-    margin-top: -68px;
+    margin-top: -65px;
     border-left: none;
     border-right: none;
 }
@@ -280,12 +280,12 @@
     height: 40px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    border-radius: 20px;
+    border-radius: 20px !important;
     margin: 0;
-    padding: 0;
-    padding-top: 6px;
+    padding: 0 !important;
+    padding-top: 6px !important;
     font-size: 22px;
-    color: #fff;
+    color: #30404E;
     z-index: 10;
     cursor: pointer;
     transition: 0ms !important;
@@ -296,10 +296,10 @@
     height: 40px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    border-radius: 20px;
+    border-radius: 20px !important;
     margin: 0;
-    padding: 0;
-    padding-top: 6px;
+    padding: 0 !important;
+    padding-top: 6px !important;
     font-size: 22px;
     color: #30404E;
     z-index: 10;
@@ -341,5 +341,5 @@
 }
 
 .tab-button-divider {
-    margin-top: 3px;
+    margin-top: 2px !important;
 }
