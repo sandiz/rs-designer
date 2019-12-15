@@ -798,7 +798,7 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                 onItemSelect={props.handleFileChange}
             >
                 {/* children become the popover target; render value here */}
-                <Button text={props.file ? <span>{props.file.title} - Chart #<span className="number">{idxDiv[0] - idxDiv[1]}</span></span> : ""} rightIcon="double-caret-vertical" />
+                <ButtonExtended text={props.file ? <span>{props.file.title} - Chart #<span className="number">{idxDiv[0] - idxDiv[1]}</span></span> : ""} rightIcon="double-caret-vertical" />
             </InstrumentalFileSelect>
             <TagInput
                 className={classNames("info-item-control", "tag-input", Classes.ELEVATION_1)}

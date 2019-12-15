@@ -268,3 +268,9 @@ pre {
 .history-list {
     margin-bottom: 7px;
 }
+
+.commit-list {
+    max-height: 300px;
+    overflow: auto;
+    padding: 5px;
+}

@@ -4,6 +4,8 @@ import {
 } from 'isomorphic-git'
 import * as FS from 'fs';   /* for types */
 import * as OS from 'os';   /* for types */
+import { Instrument } from '../types/project';
+import ProjectService from './project';
 
 const fs: typeof FS = window.require("fs");
 const os: typeof OS = window.require("os");
@@ -31,7 +33,21 @@ class GitService {
             await GitService.addFile(dir, file);
         }
         if (filenames.length > 0) {
-            await GitService.commit(dir, filenames);
+            const info = ProjectService.getProjectInfo();
+            if (info) {
+                const f: string[] = filenames.map((filename: string) => {
+                    const insts = Object.values(Instrument);
+                    for (let k = 0; k < insts.length; k += 1) {
+                        const inst = insts[k] as keyof typeof Instrument;
+                        if (filename.includes(inst)) {
+                            const idx = info.instruments[inst].findIndex(i => i.file.includes(filename));
+                            return `${Instrument.leadGuitar} #${idx + 1}`;
+                        }
+                    }
+                    return filename;
+                })
+                await GitService.commit(dir, f);
+            }
         }
     }
 
@@ -53,7 +69,7 @@ class GitService {
         console.log("[git-service]", "commit complete", sha);
     }
 
-    static async listCommits(dir: string, num = 10): Promise<CommitDescription[]> {
+    static async listCommits(dir: string, num = 20): Promise<CommitDescription[]> {
         try {
             const commits = await log({ dir, depth: num, ref: 'master' })
             return commits as CommitDescription[];

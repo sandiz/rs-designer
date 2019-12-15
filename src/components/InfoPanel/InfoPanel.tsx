@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import {
-    Card, Tooltip, Classes, MenuItem, Button,
+    Card, Tooltip, Classes, MenuItem,
 } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
 import { IconNames } from '@blueprintjs/icons';
@@ -95,10 +95,13 @@ class InfoPanel extends Component<InfoPanelProps, InfoPanelState> {
                         itemsEqual={areCommitsEqual}
                         items={this.props.lastCommits}
                         noResults={<MenuItem disabled text="No files." />}
-                        onItemSelect={() => { }}
+                        onItemSelect={(i, e) => { if (e) e.currentTarget.blur() }}
+                        popoverProps={{
+                            popoverClassName: "commit-list",
+                        }}
                     >
                         {/* children become the popover target; render value here */}
-                        <Button
+                        <ButtonExtended
                             text={(
                                 <span>{this.props.project.metadata ? this.props.project.metadata.name : "-"}</span>
                             )}

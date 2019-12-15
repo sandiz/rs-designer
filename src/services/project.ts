@@ -376,7 +376,7 @@ export class Project {
                 //serialize
                 await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
             }
-            GitService.addFilesFromAndCommit(this.projectDirectory);
+            await GitService.addFilesFromAndCommit(this.projectDirectory);
             this.saveAppSettings();
             this.saveInstruments();
             DispatcherService.dispatch(DispatchEvents.ProjectUpdated, null);
