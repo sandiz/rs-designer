@@ -872,7 +872,7 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
                     hoverOpenDelay={1000}
                     lazy
                     inheritDarkTheme
-                    content="Play a clap on every note that's played">
+                    content="Play the corresponding pitch on every note that's played">
                     <ButtonExtended
                         onClick={props.toggleNotePlay}
                         active={props.notePlay}

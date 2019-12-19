@@ -86,10 +86,10 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Select next note", hotkey: ["tab", "l"], group: "Note Editor", idx: 13,
     },
     SELECT_PREV_NOTE: {
-        info: "Select previous note", hotkey: ["shift+tab", "j"], group: "Note Editor", idx: 14,
+        info: "Select previous note", hotkey: ["shift+tab", "h"], group: "Note Editor", idx: 14,
     },
     SELECT_NOTE_ABOVE: {
-        info: "Select note above", hotkey: ["i"], group: "Note Editor", idx: 15,
+        info: "Select note above", hotkey: ["j"], group: "Note Editor", idx: 15,
     },
     SELECT_NOTE_BELOW: {
         info: "Select note below", hotkey: ["k"], group: "Note Editor", idx: 16,

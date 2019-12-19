@@ -259,13 +259,13 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         return;
                     }
                     else {
-                        const newNote: NoteTime = new NoteTime(
+                        const newNote: NoteTime = new NoteTime({
                             string,
-                            0,
-                            NoteType.NOTE,
+                            fret: 0,
+                            type: NoteType.NOTE,
                             startTime,
                             endTime,
-                        );
+                        });
                         this.setState(state => {
                             const list = [...state.instrumentNotes, newNote];
                             return {

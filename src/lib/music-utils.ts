@@ -516,8 +516,6 @@ export class Metronome {
                     const ns = getNoteFromString(n.string, n.fret, Metronome.tuning);
                     return `${ns[0]}${ns[1]}`;
                 });
-                //const noteToPlay: (string | number)[] = getNoteFromString(note.string, note.fret, Metronome.tuning);
-                //const n = `${noteToPlay[0]}${noteToPlay[1]}`;
                 //eslint-disable-next-line
                 (Metronome.synth as any).triggerAttackRelease(noteProper, '8n');
                 return;

@@ -31,9 +31,13 @@ export class NoteFile {
     public version: number;
     static currentVersion = 1;
 
-    constructor(n: NoteTime[] = []) {
-        this.notes = n;
-        this.version = NoteFile.currentVersion;
+    constructor(n: NoteFile = {} as NoteFile) {
+        const {
+            notes = [],
+            version = NoteFile.currentVersion,
+        } = n;
+        this.notes = notes;
+        this.version = version;
     }
 }
 export class NoteTime {
@@ -43,12 +47,19 @@ export class NoteTime {
     public startTime: number;
     public endTime: number;
 
-    constructor(s = -1, f = -1, t: NoteType = NoteType.NOTE, st = -1, et = -1) {
-        this.string = s;
-        this.fret = f;
-        this.type = t;
-        this.startTime = st;
-        this.endTime = et;
+    constructor(params: NoteTime = {} as NoteTime) {
+        const {
+            string = -1,
+            fret = -1,
+            type = NoteType.NOTE,
+            startTime = -1,
+            endTime = -1,
+        } = params;
+        this.string = string;
+        this.fret = fret;
+        this.type = type;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }
 /* Represents a minor or major scale */

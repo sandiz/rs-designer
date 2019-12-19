@@ -698,7 +698,7 @@ export class Project {
                     const item = source[i] as InstrumentNotes;
                     try {
                         // eslint-disable-next-line
-                        const data: NoteFile = JSON.parse((await readFile(item.file)).toString());
+                        const data: NoteFile = new NoteFile(JSON.parse((await readFile(item.file)).toString()));
                         const itemDest = { notes: data.notes, tags: item.tags };
                         /* migrate notes file to current version */
                         if (data.version !== NoteFile.currentVersion) {
@@ -708,13 +708,7 @@ export class Project {
                                     if (Array.isArray(data)) {
                                         for (let j = 0; j < data.length; j += 1) {
                                             const note = data[j];
-                                            itemDest.notes.push(new NoteTime(
-                                                note.string,
-                                                note.fret,
-                                                note.type,
-                                                note.startTime,
-                                                note.endTime,
-                                            ))
+                                            itemDest.notes.push(new NoteTime(note))
                                         }
                                     }
                                     break;
@@ -781,7 +775,7 @@ export class Project {
                 for (let i = 0; i < source.length; i += 1) {
                     const notes = source[i].notes;
                     notes.sort((a, b) => a.startTime - b.startTime)
-                    const data = new NoteFile(notes)
+                    const data = new NoteFile({ notes } as NoteFile)
                     if (!dest[i]) {
                         const destFile = path.join(this.projectDirectory, `${key}_${UUID()}.json`);
                         dest[i] = { file: destFile, tags: source[i].tags };
