@@ -2,7 +2,7 @@
 <img width="12.5%" src="https://github.com/sandiz/rs-designer/raw/master/src/assets/icons/icon-1024x1024.png">
 </p>
 
-# Meend
+# Bandish
 music transcription app & rocksmith cdlc generator (pre alpha WIP)
 
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)

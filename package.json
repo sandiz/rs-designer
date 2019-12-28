@@ -1,8 +1,8 @@
 {
-  "name": "meend",
-  "description": "Meend: Transcribe and Analyse Music",
+  "name": "bandish",
+  "description": "Bandish: Transcribe and Analyse Music",
   "author": "sandiz",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
@@ -122,7 +122,7 @@
   "homepage": "./",
   "main": "src/electron-starter.js",
   "build": {
-    "productName": "Meend",
+    "productName": "Bandish",
     "appId": "com.sandiz.rsdesigner",
     "files": [
       "src/",

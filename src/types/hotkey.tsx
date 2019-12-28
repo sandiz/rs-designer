@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { KeyCombo } from '@blueprintjs/core';
 import { DispatchEvents, DispatcherService, DispatchData } from '../services/dispatcher';
+import { PRODUCT_ADVANCED } from './base';
 
 const { platform } = window.require('os');
 const isWin = platform() === "win32";
@@ -44,7 +45,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
     },
     MEDIA_ADVANCED: {
-        info: "Open [ meend-intelligence ] panel", hotkey: ["command+p", "ctrl+space"],
+        info: `Open [ ${PRODUCT_ADVANCED} ]panel`, hotkey: ["command+p", "ctrl+space"],
     },
     SELECT_ALL_NOTES: {
         info: "Select all notes", hotkey: ["command+a", "ctrl+a"], group: "Note Editor", idx: 1,

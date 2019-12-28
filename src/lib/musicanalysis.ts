@@ -2,7 +2,7 @@ import { ChildProcess } from 'child_process';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import {
-    spawn, path,
+    spawn, path, PRODUCT_ADVANCED_LOWER,
 } from '../types/base'
 import {
     SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult,
@@ -284,7 +284,7 @@ class MusicAnalysis {
         const dismiss = () => {
             resolve(false);
         }
-        successToaster(`[ meend-intelligence ] analysis pending for ${toAnalyse.join(", ")}.`,
+        successToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis pending for ${toAnalyse.join(", ")}.`,
             Intent.NONE, IconNames.LAYOUT_AUTO, action, 50000, dismiss, "extra-wide-toaster");
     });
 
@@ -293,28 +293,28 @@ class MusicAnalysis {
         if (customAnalysis) toAnalyse = customAnalysis;
         else toAnalyse = await this.isAnalysisReqd();
         if (toAnalyse.length === 0) {
-            successToaster("[ meend-intelligence ] up-to-date!", Intent.SUCCESS, IconNames.LAYOUT_AUTO);
+            successToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] up-to-date!`, Intent.SUCCESS, IconNames.LAYOUT_AUTO);
         }
         else {
-            console.log(" [ meend-intelligence ] analysis pending for " + toAnalyse.join(", "));
+            console.log(` [ ${PRODUCT_ADVANCED_LOWER} ] analysis pending for ` + toAnalyse.join(", "));
             this.cancel();  /* cancel any pending analysis */
             this.isAutoAnalysisRunning = true;
             DispatcherService.dispatch(DispatchEvents.MusicAnalysisStarted, AnalysisType.AUTO);
             const analysePrompt = await this.analysePrompt(toAnalyse);
             if (analysePrompt) {
-                console.log("[ meend-intelligence ] analysis started");
+                console.log(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis started`);
                 this.activeRunners = [];
                 let idx = 0;
                 let failed = 0;
                 const total = toAnalyse.length + 1;
-                const tkey = progressToaster("[ meend-intelligence ] analysis in progress...", 0.5, total, undefined, Intent.SUCCESS, IconNames.LAYOUT_AUTO);
+                const tkey = progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis in progress...`, 0.5, total, undefined, Intent.SUCCESS, IconNames.LAYOUT_AUTO);
                 if (toAnalyse.includes(AnalysisType.KEY)) {
                     const f = KeyRunner();
                     this.activeRunners.push(f);
                     const p = f.fetchAndSave()
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] key detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                        progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] key detection complete`, idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     }, () => {
                         idx += 1;
                         failed += 1;
@@ -327,7 +327,7 @@ class MusicAnalysis {
                     const p = f.fetchAndSave();
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] tempo detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                        progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] tempo detection complete`, idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     }, () => {
                         idx += 1;
                         failed += 1;
@@ -340,7 +340,7 @@ class MusicAnalysis {
                     const p = f.fetchAndSave();
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] chords detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                        progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] chords detection complete`, idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     }, () => {
                         idx += 1;
                         failed += 1;
@@ -353,7 +353,7 @@ class MusicAnalysis {
                     const p = f.fetchAndSave();
                     p.then(() => {
                         idx += 1;
-                        progressToaster("[ meend-intelligence ] beats detection complete", idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                        progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] beats detection complete`, idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                     }, () => {
                         idx += 1;
                         failed += 1;
@@ -363,17 +363,17 @@ class MusicAnalysis {
 
                 try {
                     await Promise.all(this.promises);
-                    if (failed > 0) progressToaster(`[ meend-intelligence ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO)
-                    else progressToaster("[ meend-intelligence ] analysis complete", total, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                    if (failed > 0) progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO)
+                    else progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis complete`, total, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
                 }
                 catch (e) {
                     for (let i = 0; i < this.activeRunners.length; i += 1) {
                         this.activeRunners[i].stop();
                     }
-                    console.log("[ meend-intelligence ] failed error: ", e);
-                    if (failed > 0) progressToaster(`[ meend-intelligence ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO);
+                    console.log(`[ ${PRODUCT_ADVANCED_LOWER} ] failed error: `, e);
+                    if (failed > 0) progressToaster(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis failed`, total, total, tkey, Intent.DANGER, IconNames.LAYOUT_AUTO);
                 }
-                console.log("[ meend-intelligence ] analysis finished, # analysed: ", this.activeRunners.length);
+                console.log(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis finished, # analysed: `, this.activeRunners.length);
                 for (let i = 0; i < this.activeRunners.length; i += 1) {
                     this.activeRunners[i].stop();
                 }
@@ -381,7 +381,7 @@ class MusicAnalysis {
                 this.promises = [];
             }
             else {
-                console.log("[ meend-intelligence ] analysis cancelled");
+                console.log(`[ ${PRODUCT_ADVANCED_LOWER} ] analysis cancelled`);
             }
             this.isAutoAnalysisRunning = false;
             DispatcherService.dispatch(DispatchEvents.MusicAnalysisEnded, AnalysisType.AUTO);

@@ -18,6 +18,11 @@ export const spawn: typeof SPAWN = window.require('cross-spawn');
     }
 }*/
 
+export const PRODUCT_NAME = "Bandish";
+export const PRODUCT_NAME_LOWER = PRODUCT_NAME.toLowerCase();
+export const PRODUCT_ADVANCED = "bandishIQ";
+export const PRODUCT_ADVANCED_LOWER = PRODUCT_ADVANCED.toLowerCase();
+
 /* extended bp3 classes */
 export class ExtClasses {
     public static TEXT_LARGER = "bp3-text-larger";

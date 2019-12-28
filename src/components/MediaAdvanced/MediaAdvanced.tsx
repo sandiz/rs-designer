@@ -9,6 +9,7 @@ import { ProjectMetadata } from '../../types/project'
 import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
 import HomeTab from './HomeTab';
+import { PRODUCT_ADVANCED } from '../../types/base';
 
 const MixerTab = React.lazy(() => import('./MixerTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
@@ -122,7 +123,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                                 this.state.currentTab !== undefined
                                     ? [
                                         <Icon key="layout_auto" iconSize={Icon.SIZE_LARGE} icon={IconNames.LAYOUT_AUTO} className="mi-header-icon" />,
-                                        <span key="title">[ meend-intelligence ]</span>,
+                                        <span key="title">[ {PRODUCT_ADVANCED} ]</span>,
                                         popout,
                                     ]
                                     : null

@@ -11,8 +11,8 @@ var source_files = [];
 
 source_files.push('src/lib/musicanalysis/cqt/cqt.c');
 
-var js_file = 'src/lib/musicanalysis/cqt/meend-core.js';
-var wasm_file = 'src/lib/musicanalysis/cqt/meend-core.wasm';
+var js_file = 'src/lib/musicanalysis/cqt/bandish-core.js';
+var wasm_file = 'src/lib/musicanalysis/cqt/bandish-core.wasm';
 var providers_json = 'src/lib/musicanalysis/providers.json'
 var wasm_dir = "build/static/js"
 
@@ -44,7 +44,7 @@ var flags = [
     '-s', 'EXPORTED_RUNTIME_METHODS=[' + runtime_methods.join(',') + ']',
     '-s', 'ASSERTIONS=0',      // assertions increase runtime size about 100K
     '-s', 'MODULARIZE=1',
-    '-s', 'EXPORT_NAME=MEEND_CORE',
+    '-s', 'EXPORT_NAME=BANDISH_CORE',
     '-Os',
     '-o', wasm_file,
 

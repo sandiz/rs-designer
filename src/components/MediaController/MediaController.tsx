@@ -9,7 +9,7 @@ import classNames from 'classnames';
 
 import * as PATH from 'path'
 import {
-    ExtClasses, MEDIA_STATE, VOLUME,
+    ExtClasses, MEDIA_STATE, VOLUME, PRODUCT_ADVANCED,
 } from '../../types/base';
 import {
     HotkeyInfo, HotKeyState, HotKeyComponent,
@@ -336,7 +336,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                     onClick={this.closeProject} />
                 <Menu.Divider />
                 <MenuItem
-                    text={this.getMenuItemText("[ meend-intelligence ]")}
+                    text={this.getMenuItemText(`[ ${PRODUCT_ADVANCED} ]`)}
                     icon={IconNames.LAYOUT_AUTO}
                     onClick={this.showAdvanced} />
                 <MenuItem

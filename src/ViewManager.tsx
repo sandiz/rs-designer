@@ -15,7 +15,7 @@ class ViewManager extends Component {
     static Views(): ViewHolder {
         return {
             App: <App />,
-            MeendIntelligence: <SideApp><MediaAdvanced isOpen isPopout /></SideApp>,
+            MediaAdvanced: <SideApp><MediaAdvanced isOpen isPopout /></SideApp>,
         }
     }
 

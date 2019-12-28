@@ -186,11 +186,11 @@ async function createMediaWindow() {
         resizable: false,
     });
     sideWindow.setMinimumSize(1700, 500);
-    const purl = `${process.env.ELECTRON_START_URL}?MeendIntelligence`;
+    const purl = `${process.env.ELECTRON_START_URL}?MediaAdvanced`;
     sideWindow.loadURL(
         purl ||
         url.format({
-            pathname: path.join(__dirname, "/../build/index.html?MeendIntelligence"),
+            pathname: path.join(__dirname, "/../build/index.html?MediaAdvanced"),
             protocol: "file:",
             slashes: true
         })

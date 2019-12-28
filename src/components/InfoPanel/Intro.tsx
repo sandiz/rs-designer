@@ -11,6 +11,8 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import '../Waveform/Waveform.scss';
 
+import * as packageInfo from '../../../package.json';
+
 const { app } = window.require('electron').remote;
 
 function importMedia(external: string | null) {
@@ -46,7 +48,7 @@ export const IntroPanel: FunctionComponent<{}> = () => {
         <React.Fragment>
             <div className="number version">v{app.getVersion()}</div>
             <div className="font-weight-unset">
-                Meend: Transcribe and Analyse Music
+                {packageInfo.description}
             </div>
         </React.Fragment>
     )

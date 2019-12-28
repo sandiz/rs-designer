@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import * as YTDL from 'youtube-dl';
 
 import {
-    youtube, path, spawn, OnChangeHandler,
+    youtube, path, spawn, OnChangeHandler, PRODUCT_NAME,
 } from '../../types/base'
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 
@@ -178,7 +178,7 @@ class ImportURLDialog extends React.Component<ImportURLDialogProps, ImportURLDia
         this.setState({
             downloading: false,
             message: {
-                text: this.state.message.text + "[meend] Download finished \n[meend] Starting import",
+                text: this.state.message.text + `[${PRODUCT_NAME.toLowerCase()}] Download finished \n[${PRODUCT_NAME.toLowerCase()}] Starting import`,
                 intent: Intent.SUCCESS,
             },
         });
@@ -200,8 +200,8 @@ class ImportURLDialog extends React.Component<ImportURLDialogProps, ImportURLDia
             },
         });
         const tmp = app.getPath("temp");
-        this.downloadedFile = path.join(tmp, "meend-download-media.mp3")
-        const template = path.join(tmp, "meend-download-media.%(ext)s")
+        this.downloadedFile = path.join(tmp, "bandish-download-media.mp3")
+        const template = path.join(tmp, "bandish-download-media.%(ext)s")
         const options = [
             "--extract-audio", "--audio-format", "mp3",
             "--audio-quality", "0", "--newline",

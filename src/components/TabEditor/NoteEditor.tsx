@@ -346,7 +346,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onNeckMouseMove = (event: React.MouseEvent) => {
-        //console.time('start');
         if (this.hoverRef.current) {
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
@@ -363,7 +362,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             }
             else this.hoverRef.current.style.transform = `translate(${x}px,${y}px)`;
         }
-        //console.timeEnd("start");
     }
 
     onNeckMouseEnter = (event: React.MouseEvent) => {
