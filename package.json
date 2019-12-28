@@ -13,7 +13,7 @@
     "album-art": "^2.0.1",
     "audiomotion-analyzer": "^1.2.0",
     "chord-chart": "^1.1.0",
-    "chords": "../rs-libs/chords/",
+    "chords": "https://github.com/sandiz/chords.git#finger",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
     "colormap": "^2.3.1",
@@ -47,7 +47,7 @@
     "typeface-inconsolata": "^0.0.72",
     "typeface-magra": "^0.0.71",
     "vexchords": "^1.2.0",
-    "wavesurfer.js": "../rs-libs/wavesurfer.js/",
+    "wavesurfer.js": "https://github.com/sandiz/wavesurfer.js#changes-576c0afa",
     "whatwg-fetch": "^3.0.0",
     "youtube-dl": "^2.3.0"
   },

@@ -4261,8 +4261,9 @@ chord-chart@^1.1.0:
   resolved "https://registry.yarnpkg.com/chord-chart/-/chord-chart-1.1.0.tgz#ecb2233eee2668c27f96a969e3dff3a1c075b2b5"
   integrity sha512-VSk0VjVZqLfxqIvRoLhbBwAHaIvWwvLKACXTBN5CjCTRMW2avKiBjlXbTUMlkJD1zIrt85mvz0cgRTYsYuR1NA==
 
-chords@../rs-libs/chords/:
+"chords@https://github.com/sandiz/chords.git#finger":
   version "0.0.1"
+  resolved "https://github.com/sandiz/chords.git#0b0617abfaa63462999dbf23a6216fc0b516e00a"
 
 chownr@^1.1.1, chownr@^1.1.2:
   version "1.1.3"
@@ -14646,8 +14647,9 @@ watchpack@^1.6.0:
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
 
-wavesurfer.js@../rs-libs/wavesurfer.js/:
+"wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-576c0afa":
   version "3.2.0"
+  resolved "https://github.com/sandiz/wavesurfer.js#09c14b8ee9ff2963843faf9a05d7150c57e22f26"
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"

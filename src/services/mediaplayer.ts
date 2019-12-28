@@ -1,12 +1,12 @@
 
-import WaveSurfer from 'wavesurfer.js';
 import Tone from 'tone';
-import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
-import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import { Colors } from "@blueprintjs/core";
 import nextFrame from 'next-frame';
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 import * as PATH from 'path';
+import WaveSurfer from 'wavesurfer.js';
+import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
+import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
