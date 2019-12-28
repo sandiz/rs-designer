@@ -191,7 +191,7 @@
 }
 
 .tab-insertHead {
-    border-right: 1px solid #ff69b4a9;
+    border-right: 1px solid $pt-intent-primary;
     position: absolute;
     height: 118%;
     width: 0%;
@@ -206,7 +206,7 @@
 }
 
 .bp3-dark .tab-insertHead {
-    border-right: 1px solid #ff69b4a9;
+    border-right: 1px solid $pt-intent-primary;
     position: absolute;
     height: 118%;
     width: 0%;
@@ -224,8 +224,8 @@
     width: 20px;
     height: 20px;
     margin-left: -10px;
-    border: 1px solid #ff69b4a9;
-    background-color: #ffffff88 !important;
+    border: 1px solid $pt-intent-primary;
+    background-color: rgba($pt-intent-primary, 0.880) !important;
     border-radius: 5px;
     padding: 0px !important;
     position: relative;
@@ -234,7 +234,7 @@
 
 .tab-insertHeadSlider:hover,
 .tab-insertHeadSlider:active {
-    background-color: #ff69b4 !important;
+    background-color: $pt-intent-primary !important;
     transition: 100ms;
 }
 
