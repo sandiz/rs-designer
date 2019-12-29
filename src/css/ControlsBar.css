@@ -1,0 +1,238 @@
+.controls-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 2vh;
+    width: 95%;
+}
+
+.controls-text-div {
+    border-bottom: 1px solid white;
+}
+
+.controls-container {
+    width: 100%;
+    margin: 0 auto;
+    height: 90%;
+}
+
+.controls-collapse-root {
+    height: 189px;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+}
+
+.volume,
+.tempo {
+    margin-left: 15px;
+    margin-top: 6px;
+}
+
+.controls-root-flex {
+    display: flex;
+    flex-direction: row;
+}
+
+.root-flex1 {
+    width: 30%;
+}
+
+.root-flex2 {
+    width: 70%;
+}
+
+.controls-flex {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.flex1 {
+    width: 35%;
+    border: none;
+}
+
+.flex2,
+.flex3 {
+    width: 35%;
+    border: none;
+}
+
+.canvas-root {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
+    border-radius: 80px;
+    margin: 0 auto;
+    width: 114px;
+    height: 114px;
+    margin-top: 20px;
+    background-color: transparent;
+}
+
+#volume-canvas,
+#tempo-canvas,
+#pitch-canvas {
+    margin-left: -8px;
+    margin-top: -7px;
+}
+
+.volume-text,
+.tempo-text,
+.pitch-text {
+    margin-top: 19px;
+    font-size: 17px;
+    text-align: center;
+}
+
+.volume-inner-text,
+.tempo-inner-text,
+.pitch-inner-text {
+    margin-top: -113px;
+    text-align: center;
+}
+
+.eqflex1 {
+    width: 33%;
+    position: relative;
+    left: 7vh;
+    top: .5vh;
+}
+
+.eqflex2 {
+    width: 100%;
+    position: relative;
+    left: 14vh;
+    top: .25vh;
+}
+
+.eqflex3 {
+    width: 100%;
+    text-align: right;
+    margin-right: 18px;
+    position: relative;
+    top: 8%;
+    font-size: 17px;
+}
+
+.checkbox-right {
+    display: inline !important;
+    position: relative;
+    left: 2%;
+    top: 3px;
+}
+
+.eq-select {
+    margin-top: 14px;
+    width: 42% !important;
+}
+
+.eq-text {
+    position: relative;
+    top: -2.5vh;
+    left: 2vh;
+    font-size: 17px;
+    display: flex;
+    width: 402px;
+}
+
+.eq-subtext10 {
+    width: 10%;
+    text-align: center;
+}
+
+.eq-meter-flex {
+    font-size: 17px;
+}
+
+.eq-meter {
+    position: absolute;
+    left: -1.8vh;
+    top: 1.5vh;
+}
+
+.eq-meter2 {
+    position: absolute;
+    left: 0vh;
+    top: 6.7vh;
+}
+
+.eq-meter3 {
+    position: absolute;
+    left: -1.4vh;
+    top: 11.5vh;
+}
+
+.eq-set {
+    cursor: pointer;
+}
+
+.eq-filter-text {
+    position: absolute;
+    left: 22%;
+    top: 30%;
+}
+
+.eq-filter-text-right {
+    position: absolute;
+    left: 62%;
+    top: 33%;
+    font-size: 15px;
+    width: 6vh;
+    text-align: right;
+}
+
+.eq-filter-text2 {
+    position: absolute;
+    left: 22%;
+    top: 63%;
+}
+
+.eq-filter-text2-right {
+    position: absolute;
+    left: 67%;
+    top: 67%;
+    font-size: 15px;
+    width: 4.2vh;
+    text-align: right;
+}
+
+#passfilter-canvas {
+    margin-top: 5px;
+}
+
+.eq-info {
+    position: absolute;
+    left: 73%;
+    top: 9%;
+    z-index: 9000;
+}
+
+#frequency-canvas {
+    margin-bottom: -3px;
+    box-shadow: 0 0px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
+    width: 95%;
+    height: 90%;
+    position: relative;
+    top: 5%;
+}
+
+.freq-container {
+    width: 113%;
+    margin: 0 auto;
+    height: 178px;
+    /* position: relative; */
+    /* top: -100%; */
+    /* left: 25%; */
+    text-align: center;
+    justify-content: center;
+}
+
+.chord-detect {
+    color: green;
+    font-weight: bold;
+}
+
+
+.controller_bar i {
+    color: #04ABED;
+}

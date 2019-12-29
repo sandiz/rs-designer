@@ -1,0 +1,212 @@
+.controller_bar {
+    width: 100%;
+    box-shadow: 0px 2px 1px lightgrey;
+    padding-top: 5px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 22px 70px 4px rgba(93, 93, 93, 0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(125, 125, 125, 1);
+}
+
+#popover-basic {
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 22px 70px 4px rgba(0,0,0,0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.vertical {
+    border: none;
+    border-left: 1px solid hsla(200, 10%, 50%, 100);
+    height: 60px;
+    width: 12px;
+    flex: 0 0 12px;
+    margin-left: 12px;
+}
+
+.cover_art_div {
+    width: 70px;
+    flex: 0 0 70px;
+}
+
+.cover_img {
+    width: 70px;
+    height: 70px;
+    background-size: contain;
+    margin: 6px;
+    border: 1px solid gray;
+    box-shadow: 1px 1px 0px dimgrey;
+    margin-left: -3px;
+    margin-top: 0px;
+}
+
+.cover_img_lg {
+    width: 150px;
+    height: 150px;
+    background-size: contain;
+    margin: 6px;
+    border: 1px solid gray;
+    box-shadow: 1px 1px 0px dimgrey;
+    margin-left: -3px;
+}
+
+.navbar {
+    padding: 0 1rem !important;
+}
+
+.artist_span {
+    font-size: 12px;
+}
+
+.song_span {
+    font-size: 18px;
+}
+
+.controller_div {
+    width: 100%;
+    height: 85px;
+    align-items: center;
+}
+
+.project_div {
+    width: 420px;
+    flex: 0 0 420px;
+}
+
+.ptop15 {
+    padding-top: 1.5%;
+}
+
+.controls_div {
+    width: 220px;
+    flex: 0 0 220px;
+}
+
+.timer_div {
+    position: relative;
+    right: -5px;
+    width: 330px;
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.kabob_div {
+    position: relative;
+    right: -1vh;
+}
+
+.current_time_span {
+    font-size: 38px;
+}
+
+.total_time_span {
+    font-size: 20px;
+    position: absolute;
+    right: 0px;
+    top: 27px;
+}
+
+.fas {
+    font-size: 22px;
+}
+
+.btn-secondary {
+    box-shadow: 0px 1px 0px dimgray;
+}
+
+.btn-text {}
+
+.icon-center {
+    position: relative;
+    top: 2px;
+}
+
+.spinner {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    right: 20px;
+}
+
+.spinner-grow {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.spinner-grow-noanim {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    background-color: currentColor;
+    border-radius: 50%;
+    opacity: 1;
+}
+
+.info-table {
+    width: 233px;
+    margin-left: 4px;
+    flex: 1 1 233px;
+    margin-bottom: 5px;
+}
+
+.info-table2 {
+    width: 293px;
+    margin-left: -7px;
+    flex: 0 0 293px;
+}
+
+.table2 tr td:nth-child(1) {
+    width: 20%;
+    color: #929292;
+}
+
+.table2 tr td:nth-child(2) {
+    width: 80%;
+    text-align: right;
+}
+
+.table2 {
+    width: 100%;
+    font-size: 13px;
+}
+
+.table-extra-info {
+    max-width: 241px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+
+.artist_div,
+.song_div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.info_table tr {
+    padding: 0px;
+}
+
+.dropdown-toggle::before {
+    display: none !important;
+}
+
+.ig-prepend {
+    width: 60px;
+}
+
+#basic-addon1 {
+    width: 100%;
+}
+
+.cover_art_div img:hover {
+    border: 1px solid #04ABED;
+}
+
+
+.gen-settings-tab {
+    padding-left: 2px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}

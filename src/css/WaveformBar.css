@@ -1,0 +1,63 @@
+.waveform-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 2vh;
+    width: 95%;
+}
+
+.waveform-container {
+    width: 100%;
+    margin: 0 auto;
+    height: 100%;
+}
+
+.waveform-text-div {
+    border-bottom: 1px solid white;
+}
+
+.waveform-a {
+    cursor: pointer;
+}
+
+.waveform-collapse-root {
+    height: 155px;
+    margin-top: 10px;
+    border: 1px solid lightgray;
+    border-radius: 2px;
+}
+
+#timeline,
+#chordstimeline {
+    background-color: azure;
+    padding: 4px;
+}
+
+
+#timeline {
+    padding: 2px !important;
+}
+
+#minimap {
+    background-color: #436a88;
+    padding: 1px;
+}
+
+.waveform-zoom {
+    text-align: right;
+    float: right;
+}
+
+#zoom-slider {
+    display: inline;
+}
+
+#chordstimeline {
+    padding: 0px;
+    background: #436988;
+}
+
+#beatstimeline {
+    padding: 0px;
+    background-color: azure;
+}

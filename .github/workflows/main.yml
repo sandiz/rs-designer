@@ -1,0 +1,83 @@
+name: Github CI
+
+on: 
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  build-mac:
+    name: "MacOS build"
+    env:
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+    runs-on: macOS-10.14    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
+        architecture: 'x64' # (x64 or x86)
+    - name: Run build script (mac)
+      run: |
+        pushd .
+        git clone https://github.com/sandiz/chords.git /tmp/chords
+        cd /tmp/chords; yarn link;
+        git clone https://github.com/sandiz/wavesurfer.js.git /tmp/wavesurfer
+        cd /tmp/wavesurfer; git checkout changes-576c0afa; npm install; npm run build; yarn link;
+        popd
+        yarn link chords
+        yarn link wavesurfer.js
+        yarn install
+        pip install Cython
+        yarn dist-mac
+    - uses: sandiz/upload-release-action@releases/v1
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: 'release-builds/Meend*'
+        file_glob: true
+        tag: 'github-ci-build'
+        overwrite: true
+        draft: true
+  build-win:
+    name: "Windows build"
+    env:
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
+          architecture: 'x64' # (x64 or x86)
+      - name: Run build script (windows)
+        run: |
+          #windows is not supported yet
+          #pushd .
+          #git clone https://github.com/sandiz/chords.git /tmp/chords
+          #cd /tmp/chords; yarn link;
+          #git clone https://github.com/sandiz/wavesurfer.js.git /tmp/wavesurfer
+          #cd /tmp/wavesurfer; git checkout changes-576c0afa; npm install; npm run build; yarn link;
+          #popd
+          #yarn link chords
+          #yarn link wavesurfer.js
+          #yarn install
+          #pip install Cython
+          #yarn dist-mac
+          #yarn install; yarn dist-win
+      #- uses: sandiz/upload-release-action@releases/v1
+      #  with:
+      #    repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #    file: 'release-builds/Meend*'
+      #    file_glob: true
+      #    tag: 'github-ci-build'
+      #    overwrite: true
+      #    draft: true

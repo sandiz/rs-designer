@@ -1,0 +1,171 @@
+.mir-collapse-root {
+    height: 568px;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+}
+
+.mir-header {
+    margin: 0 auto;
+    font-size: 20px;
+    font-variant: small-caps;
+    margin-bottom: 2vh;
+    width: 95%;
+}
+
+.mir-text-div {
+    border-bottom: 1px solid white;
+}
+
+.mir-container {
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#spectrogram {
+    margin: -1px;
+    border: 1px solid lightgray;
+    will-change: transform;
+    transform: translate3d(0px, 0px, 0px);
+    position: relative;
+}
+
+.analysisspinner {
+    width: 15px;
+    height: 15px;
+    float: right;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.notif-item {
+    width: 70%;
+}
+
+.notif-item-2 {
+    width: 30%;
+}
+
+.spin {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.progress-playhead {
+    display: flex;
+    color: #fff;
+    background-color: transparent;
+    transition: width 0.2s ease;
+    height: 565px;
+    border-right: 1px solid white;
+    position: absolute;
+    left: 44px;
+    z-index: 5;
+    width: 0px;
+    will-change: transform;
+    transform: translate3d(0px, 0px, 0px);
+}
+
+.chords-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 26px;
+    border-radius: 3px;
+    border-bottom: 1px solid black;
+}
+
+.chords-grid-div {
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    text-align: center;
+    font-size: 15px;
+    line-height: 26px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-variant: initial;
+    cursor: pointer;
+}
+.chords-grid-div:hover {
+    background-color: azure !important;
+    color: black;
+    border-top: 1px solid black;
+}
+
+.chord-tooltip {
+    background-color: white !important;
+    width: 200px;
+    height: 200px;
+    border: 1px solid black;
+    position: absolute;
+    top: 28px !important;
+    border-radius: .3rem;
+    z-index: 6 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 22px 70px 4px rgba(0,0,0,0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.chord-tooltip>.arrow {
+    left: 92px;
+    margin: 0px !important;
+}
+
+.chord-tooltip>.chord-name {
+    width: 100%;
+    height: 25px;
+    background-color: gray;
+    text-align: center;
+    padding: 2px;
+    font-variant: initial;
+}
+
+.chord-tooltip>svg {
+    top: -11px;
+    position: relative;
+}
+
+.beats-timeline {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 26px;
+    border-radius: 0px;
+    border-top: 1px solid black;
+    background: azure;
+}
+
+.beats-start {
+    border-right: 1px solid black;
+    text-align: right;
+}
+
+.beats-other {
+    border-right: 1px solid lightgray;
+    height: 15px;
+}
+
+.beats-num-span {
+    text-align: right;
+    position: absolute;
+    color: black;
+    font-size: 11px;
+    margin-left: 3px;
+}
+
+.piano-roll {
+   width: 58px; 
+}

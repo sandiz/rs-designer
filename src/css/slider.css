@@ -1,0 +1,23 @@
+#sliderRootSVG circle {
+    fill: none;
+    stroke-width: 10px;
+    overflow: visible;
+}
+
+#sliderRootSVG circle.handle {
+    fill: #fff;
+    stroke: #CFCFD0;
+    stroke-width: 1px;
+}
+
+#sliderRootSVG .dashed-circle {
+    stroke: #D0D0D0;
+}
+
+#sliderRootSVG .top-slider {
+    stroke-opacity: 0.8;
+}
+
+#sliderRootSVG .handle.same-step-error {
+    stroke: #fd3b3f;
+}
