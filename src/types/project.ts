@@ -24,11 +24,16 @@ export class Instruments {
     public [Instrument.bassGuitar]: InstrumentNotes[] = [];
     public [Instrument.ukulele]: InstrumentNotes[] = [];
 
-    constructor(params: Instruments = {} as Instruments) {
-        this[Instrument.leadGuitar] = params[Instrument.leadGuitar];
-        this[Instrument.rhythmGuitar] = params[Instrument.rhythmGuitar];
-        this[Instrument.bassGuitar] = params[Instrument.bassGuitar];
-        this[Instrument.ukulele] = params[Instrument.ukulele];
+    constructor(params: Instruments = {
+        [Instrument.leadGuitar]: [],
+        [Instrument.bassGuitar]: [],
+        [Instrument.rhythmGuitar]: [],
+        [Instrument.ukulele]: [],
+    } as Instruments) {
+        this[Instrument.leadGuitar] = params[Instrument.leadGuitar] ?? [];
+        this[Instrument.rhythmGuitar] = params[Instrument.rhythmGuitar] ?? [];
+        this[Instrument.bassGuitar] = params[Instrument.bassGuitar] ?? [];
+        this[Instrument.ukulele] = params[Instrument.ukulele] ?? [];
     }
 }
 export class InstrumentsInMemory {
