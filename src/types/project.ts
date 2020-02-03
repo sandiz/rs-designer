@@ -4,6 +4,7 @@ import {
 import { EQTag } from "./eq";
 import { ProjectSettings } from "./settings";
 import { fs } from "./base";
+import { MediaInfo } from "./media";
 
 /* class representing the Project that's loaded or saved to disk.
    Update version number to add new field to the project and optionally modify Project::loadProject
@@ -122,14 +123,18 @@ export class ProjectMetadata {
     tempo = 0;
     chords: ChordTime[] = [];
     beats: BeatTime[] = [];
+    mediaInfo: MediaInfo = {
+        song: '', artist: '', album: '', image: '', year: '',
+    };
 
-    constructor(name?: string, path1?: string, key?: SongKey, tempo?: number, chords?: ChordTime[], beats?: BeatTime[]) {
+    constructor(name?: string, path1?: string, key?: SongKey, tempo?: number, chords?: ChordTime[], beats?: BeatTime[], mediaInfo?: MediaInfo) {
         this.name = name || "";
         this.path = path1 || "";
         this.key = key || ["-", "-", -1];
         this.tempo = tempo || 0;
         this.chords = chords || [];
         this.beats = beats || [];
+        this.mediaInfo = mediaInfo || this.mediaInfo;
     }
 
     public isEmpty = () => {

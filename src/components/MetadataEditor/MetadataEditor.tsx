@@ -15,7 +15,7 @@ import { successToaster, errorToaster } from '../Extended/Toasters';
 
 const { dialog } = window.require('electron').remote;
 interface MEState {
-    mediaInfo: MediaInfo | null;
+    mediaInfo: MediaInfo | undefined;
     projectLoaded: boolean;
     imageDownloadInProgress: boolean;
 }
@@ -23,7 +23,7 @@ interface MEState {
 class MetadataEditorDialog extends React.Component<{}, MEState> {
     constructor(props: {}) {
         super(props);
-        this.state = { mediaInfo: null, projectLoaded: false, imageDownloadInProgress: false };
+        this.state = { mediaInfo: undefined, projectLoaded: false, imageDownloadInProgress: false };
     }
 
     componentDidMount = () => {
@@ -60,7 +60,7 @@ class MetadataEditorDialog extends React.Component<{}, MEState> {
             this.setState({ mediaInfo, projectLoaded: true });
         }
         else {
-            this.setState({ mediaInfo: null, projectLoaded: false });
+            this.setState({ mediaInfo: undefined, projectLoaded: false });
         }
     }
 

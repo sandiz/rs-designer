@@ -1,6 +1,6 @@
 const electron = require("electron");
-const { app, BrowserWindow, Menu, ipcMain, TouchBar } = electron;
-const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar
+const { app, BrowserWindow, Menu, ipcMain, TouchBar, nativeImage } = electron;
+const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover, TouchBarSlider, TouchBarScrubber } = TouchBar
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
@@ -15,12 +15,82 @@ let ready = false;
 
 function createDefaultTouchBar() {
     const result = new TouchBarLabel({
-        label: `Welcome to ${app.name}! Open a project or import media to get started.`,
+        label: `Welcome to ${app.name}! Open a project or import any media to get started...`,
     })
     const touchBar = new TouchBar({
         items: [
             result,
             new TouchBarSpacer({ size: 'large' }),
+        ],
+    })
+    return touchBar;
+}
+
+function createProjectTouchBar(projectInfo) {
+    const seek = new TouchBarPopover({
+        icon: nativeImage.createFromPath(path.join(__dirname, "assets/key.png")),
+        showCloseButton: true,
+        items: new TouchBar({
+            items: [
+                new TouchBarSlider({ minValue: -12, maxValue: 12, value: 0 }),
+            ],
+        })
+    })
+    const tempo = new TouchBarPopover({
+        icon: nativeImage.createFromPath(path.join(__dirname, "assets/tempo.png")),
+        showCloseButton: true,
+        items: new TouchBar({
+            items: [
+                new TouchBarSlider({ minValue: 50, maxValue: 200, value: 120 }),
+            ],
+        })
+    })
+    const key = new TouchBarPopover({
+        icon: nativeImage.createFromNamedImage("NSTouchBarFastForwardTemplate", [-1, 0, 1]),
+        showCloseButton: true,
+        items: new TouchBar({
+            items: [
+                new TouchBarSlider({ minValue: 0, maxValue: 100, value: 20 }),
+            ],
+        })
+    })
+    const iq = new TouchBarPopover({
+        icon: nativeImage.createFromPath(path.join(__dirname, "assets/iq.png")),
+        showCloseButton: true,
+        items: new TouchBar({
+            items: [
+                new TouchBarScrubber({
+                    items: [
+                        { label: 'Home' },
+                        { label: 'Analysis' },
+                        { label: 'Chroma' },
+                        { label: 'Equalizer' },
+                        { label: 'Cloud Analysis' },
+                        { label: 'Track Isolation' },
+                        { label: 'Pitch Tracking' },
+                        { label: 'Regions' },
+                        { label: 'Lyrics' },
+                        { label: 'Notes' },
+                        { label: 'Export' },
+                    ],
+                    selectedStyle: 'background',
+                    overlayStyle: 'outline',
+                    continuous: false,
+                })
+            ],
+        })
+    })
+    const label = new TouchBarLabel({
+        label: `${projectInfo.song} by ${projectInfo.artist}`,
+    })
+    const touchBar = new TouchBar({
+        items: [
+            iq,
+            key,
+            tempo,
+            seek,
+            new TouchBarSpacer({ size: 'small' }),
+            label,
         ],
     })
     return touchBar;
@@ -238,6 +308,11 @@ const onReady = () => {
             .catch((err) => console.log('An error occurred: ', err));
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
+    ipcMain.on('project-touch-bar', (event, arg) => {
+        const { projectInfo } = arg;
+        mainWindow.setTouchBar(createProjectTouchBar(projectInfo))
+    });
+    ipcMain.on('reset-touch-bar', (event, arg) => mainWindow.setTouchBar(createDefaultTouchBar()));
     sendOpenFileRequest();
     ready = true;
 }

@@ -475,15 +475,15 @@ export class Project {
         return "";
     }
 
-    public readMetadata = async (): Promise<MediaInfo | null> => {
-        if (this.projectInfo == null || this.projectInfo.metadata == null) return null;
+    public readMetadata = async (): Promise<MediaInfo | undefined> => {
+        if (this.projectInfo == null || this.projectInfo.metadata == null) return undefined;
         const mm = this.projectInfo.metadata;
         try {
             const data = await readFile(mm)
             return JSON.parse(data.toString());
         }
         catch (e) {
-            return null;
+            return undefined;
         }
     }
 
@@ -610,6 +610,7 @@ export class Project {
                 Math.round(await this.readTempo()),
                 chords,
                 beats,
+                await this.readMetadata(),
             );
         }
         return null;
