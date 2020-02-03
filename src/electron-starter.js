@@ -1,5 +1,6 @@
 const electron = require("electron");
-var { app, BrowserWindow, Menu, ipcMain } = electron;
+const { app, BrowserWindow, Menu, ipcMain, TouchBar } = electron;
+const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
@@ -11,6 +12,19 @@ let mainWindow;
 let sideWindow;
 let incomingPath = "";
 let ready = false;
+
+function createDefaultTouchBar() {
+    const result = new TouchBarLabel({
+        label: `Welcome to ${app.name}! Open a project or import media to get started.`,
+    })
+    const touchBar = new TouchBar({
+        items: [
+            result,
+            new TouchBarSpacer({ size: 'large' }),
+        ],
+    })
+    return touchBar;
+}
 
 async function createWindow() {
     // Load the previous state with fallback to defaults
@@ -62,6 +76,7 @@ async function createWindow() {
             slashes: true
         })
     );
+    mainWindow.setTouchBar(createDefaultTouchBar());
     // Create the Application's main menu
     var template = [
         {
