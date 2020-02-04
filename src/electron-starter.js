@@ -349,6 +349,7 @@ const onReady = () => {
             mainWindow.setTouchBar(createDefaultTouchBar());
         else
             mainWindow.setTouchBar(defaultTouchbar);
+        projectTouchbar = null;
     });
     sendOpenFileRequest();
     ready = true;
