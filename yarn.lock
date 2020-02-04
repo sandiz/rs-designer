@@ -2414,6 +2414,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/debounce@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@types/debounce/-/debounce-1.2.0.tgz#9ee99259f41018c640b3929e1bb32c3dcecdb192"
+  integrity sha512-bWG5wapaWgbss9E238T0R6bfo5Fh3OkeoSt245CM7JJwVwpw6MEBCbIxLq5z8KzsE3uJhzcIuQkyiZmzV3M/Dw==
+
 "@types/debug@^4.1.4":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
@@ -15355,10 +15360,10 @@ yauzl@2.4.1:
   dependencies:
     fd-slicer "~1.0.1"
 
-youtube-dl@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/youtube-dl/-/youtube-dl-2.3.0.tgz#193d59164e809b2c619b348b7e98b37e6abcf620"
-  integrity sha512-92oQDJYaSqLbXZI9GWPalq8fuJdlJGsB6mAQ+uEl127kbCpF5HXea5F046kPxUHQ1OnQ3jHqx0wqZ6ELijVMEw==
+youtube-dl@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/youtube-dl/-/youtube-dl-3.0.2.tgz#66236bfbdc93127efe3a7f02894ec544b23e8aa7"
+  integrity sha512-LFFfpsYbRLpqKsnb4gzbnyN7fm190tJw3gJVSvfoEfnb/xYIPNT6i9G3jdzPDp/U5cwB3OSq63nUa7rUwxXAGA==
   dependencies:
     debug "~4.1.1"
     execa "~3.2.0"

@@ -12,6 +12,9 @@ let mainWindow;
 let sideWindow;
 let incomingPath = "";
 let ready = false;
+let projectTouchbar = null;
+let tbKey = null;
+let tbTempo = null;
 
 function createDefaultTouchBar() {
     const result = new TouchBarLabel({
@@ -27,31 +30,42 @@ function createDefaultTouchBar() {
 }
 
 function createProjectTouchBar(args) {
-    const { projectInfo, tabs } = args;
-    const seek = new TouchBarPopover({
-        icon: nativeImage.createFromPath(path.join(__dirname, "assets/key.png")),
-        showCloseButton: true,
-        items: new TouchBar({
-            items: [
-                new TouchBarSlider({ minValue: -12, maxValue: 12, value: 0 }),
-            ],
-        })
-    })
-    const tempo = new TouchBarPopover({
+    const { projectInfo, tabs, key, tempo } = args;
+    tbTempo = new TouchBarPopover({
         icon: nativeImage.createFromPath(path.join(__dirname, "assets/tempo.png")),
         showCloseButton: true,
         items: new TouchBar({
             items: [
-                new TouchBarSlider({ minValue: 50, maxValue: 200, value: 120 }),
+                new TouchBarButton({
+                    icon: nativeImage.createFromNamedImage("NSTouchBarGoBackTemplate", [-1, 0, 1]),
+                    click: () => { mainWindow.webContents.send("change-tempo", -1) }
+                }),
+                new TouchBarLabel({
+                    label: projectInfo.tempo + " bpm",
+                }),
+                new TouchBarButton({
+                    icon: nativeImage.createFromNamedImage("NSTouchBarGoForwardTemplate", [-1, 0, 1]),
+                    click: () => { mainWindow.webContents.send("change-tempo", 1) }
+                }),
             ],
         })
     })
-    const key = new TouchBarPopover({
-        icon: nativeImage.createFromNamedImage("NSTouchBarFastForwardTemplate", [-1, 0, 1]),
+    tbKey = new TouchBarPopover({
+        icon: nativeImage.createFromPath(path.join(__dirname, "assets/key.png")),
         showCloseButton: true,
         items: new TouchBar({
             items: [
-                new TouchBarSlider({ minValue: 0, maxValue: 100, value: 20 }),
+                new TouchBarButton({
+                    icon: nativeImage.createFromNamedImage("NSTouchBarGoBackTemplate", [-1, 0, 1]),
+                    click: () => { mainWindow.webContents.send("change-key", -1) }
+                }),
+                new TouchBarLabel({
+                    label: key.displayName,
+                }),
+                new TouchBarButton({
+                    icon: nativeImage.createFromNamedImage("NSTouchBarGoForwardTemplate", [-1, 0, 1]),
+                    click: () => { mainWindow.webContents.send("change-key", 1) }
+                }),
             ],
         })
     })
@@ -65,7 +79,7 @@ function createProjectTouchBar(args) {
                     selectedStyle: 'background',
                     overlayStyle: 'outline',
                     continuous: false,
-                    highlight: (idx) => mainWindow.webContents.send("open-media-advanced", idx),
+                    select: (idx) => mainWindow.webContents.send("open-media-advanced", idx),
                 })
             ],
         })
@@ -73,17 +87,25 @@ function createProjectTouchBar(args) {
     const label = new TouchBarLabel({
         label: `${projectInfo.song} by ${projectInfo.artist}`,
     })
-    const touchBar = new TouchBar({
+    projectTouchbar = new TouchBar({
         items: [
             iq,
-            key,
-            tempo,
-            seek,
+            tbTempo,
+            tbKey,
             new TouchBarSpacer({ size: 'small' }),
             label,
         ],
     })
-    return touchBar;
+    return projectTouchbar;
+}
+
+function updateTouchBar(args) {
+    const { projectInfo, key, tempo } = args;
+    const tkSlider = (tbKey.child.ordereredItems[1]);
+    tkSlider.label = key.displayName + ` (${key.diff})`;
+
+    const ttSlider = (tbTempo.child.ordereredItems[1]);
+    ttSlider.label = Math.round(tempo.diff * projectInfo.tempo) + " bpm";
 }
 
 async function createWindow() {
@@ -299,7 +321,10 @@ const onReady = () => {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     ipcMain.on('project-touch-bar', (event, arg) => {
-        mainWindow.setTouchBar(createProjectTouchBar(arg))
+        if (projectTouchbar == null)
+            mainWindow.setTouchBar(createProjectTouchBar(arg));
+        else
+            updateTouchBar(arg);
     });
     ipcMain.on('reset-touch-bar', (event, arg) => mainWindow.setTouchBar(createDefaultTouchBar()));
     sendOpenFileRequest();

@@ -32,7 +32,9 @@ import MediaPlayerService from './services/mediaplayer';
 import InfoPanel from './components/InfoPanel/InfoPanel';
 import Waveform from './components/Waveform/Waveform';
 import GitService from './services/git';
-import { UpdateTouchBar, ResetTouchBar } from './lib/touchbar';
+import {
+  UpdateTouchBar, ResetTouchBar, InitTouchBar, CloseTouchBar,
+} from './lib/touchbar';
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
@@ -48,6 +50,7 @@ interface AppState extends HotKeyState {
 const AppDestructor = () => {
   MediaPlayerService.destructor();
   ProjectService.destructor();
+  CloseTouchBar();
 }
 
 class App extends HotKeyComponent<{}, AppState> {
@@ -84,6 +87,7 @@ class App extends HotKeyComponent<{}, AppState> {
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();
     fpsize();
+    InitTouchBar();
   }
 
   componentWillUnmount = (): void => {

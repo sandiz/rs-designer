@@ -162,7 +162,7 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                         >
                             {
                                 Object.values(TABID).map(t => {
-                                    return <Tab id={t} title={toTitleCase(t)} />
+                                    return <Tab key={t} id={t} title={toTitleCase(t)} />
                                 })
                             }
                         </Tabs>
