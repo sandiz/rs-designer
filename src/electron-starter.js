@@ -387,7 +387,7 @@ const onBeforeQuit = () => {
     ipcMain.off('open-mi-window', sideWindow);
 }
 
-
+app.allowRendererProcessReuse = true;
 app.on("activate", onActivate);
 app.on("before-quit", onBeforeQuit);
 app.on('will-finish-launching', onWillFinishLaunching);
