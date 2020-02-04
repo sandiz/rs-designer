@@ -6,6 +6,7 @@ import { KEY, TEMPO } from "../types/base";
 import MediaPlayerService from "../services/mediaplayer";
 import { SongKey } from "../types/musictheory";
 import { getTransposedKey } from "./music-utils";
+import { getImportUrlDialog } from "../dialogs";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -28,6 +29,19 @@ const changeTempo = (event: Event, newTempoDiff: number) => {
 
 const changeKey = (event: Event, newKeyDiff: number) => {
     MediaPlayerService.changePitchSemitones(MediaPlayerService.getPitchSemitones() + newKeyDiff);
+}
+
+const openProject = () => {
+    DispatcherService.dispatch(DispatchEvents.ProjectOpen);
+}
+
+const openLastProject = () => {
+    ProjectService.openLastProject();
+}
+
+const importMedia = (event: Event, type: string) => {
+    if (type === "file") DispatcherService.dispatch(DispatchEvents.ImportMedia, null);
+    else DispatcherService.dispatch(DispatchEvents.OpenDialog, getImportUrlDialog());
 }
 
 export const UpdateTouchBar = async () => {
@@ -65,15 +79,27 @@ export const ResetTouchBar = () => {
     pInfo = null;
 }
 export const InitTouchBar = () => {
+    ResetTouchBar();
     ipcRenderer.on('open-media-advanced', openMediaAdvanced);
     ipcRenderer.on('change-tempo', changeTempo);
     ipcRenderer.on('change-key', changeKey);
+
+    ipcRenderer.on('open-last-project', openLastProject);
+    ipcRenderer.on('open-project', openProject);
+    ipcRenderer.on('import-media', importMedia);
     DispatcherService.on(DispatchEvents.PitchChange, UpdateTouchBar);
     DispatcherService.on(DispatchEvents.TempoChange, UpdateTouchBar);
+    DispatcherService.on(DispatchEvents.ProjectOpened, UpdateTouchBar);
+    DispatcherService.on(DispatchEvents.ProjectClosed, ResetTouchBar);
 }
 
 export const CloseTouchBar = () => {
     ResetTouchBar();
+    ipcRenderer.off('open-last-project', openLastProject);
+    ipcRenderer.off('open-project', openProject);
+    ipcRenderer.off('import-media', importMedia);
     DispatcherService.off(DispatchEvents.PitchChange, UpdateTouchBar);
     DispatcherService.off(DispatchEvents.TempoChange, UpdateTouchBar);
+    DispatcherService.off(DispatchEvents.ProjectOpened, UpdateTouchBar);
+    DispatcherService.off(DispatchEvents.ProjectClosed, ResetTouchBar);
 }

@@ -33,7 +33,7 @@ import InfoPanel from './components/InfoPanel/InfoPanel';
 import Waveform from './components/Waveform/Waveform';
 import GitService from './services/git';
 import {
-  UpdateTouchBar, ResetTouchBar, InitTouchBar, CloseTouchBar,
+  InitTouchBar, CloseTouchBar,
 } from './lib/touchbar';
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
@@ -115,7 +115,6 @@ class App extends HotKeyComponent<{}, AppState> {
         project.metadata = metadata;
         this.setState({ project });
       }
-      UpdateTouchBar();
     }
   }
 
@@ -127,7 +126,6 @@ class App extends HotKeyComponent<{}, AppState> {
       metadata,
     }
     this.setState({ project, projectCommits: commits });
-    UpdateTouchBar()
   }
 
   projectClosed = () => {
@@ -136,7 +134,6 @@ class App extends HotKeyComponent<{}, AppState> {
       metadata: null,
     }
     this.setState({ project, projectCommits: [] });
-    ResetTouchBar();
   }
 
   openDialog = (data: DispatchData) => {

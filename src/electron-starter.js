@@ -13,17 +13,42 @@ let sideWindow;
 let incomingPath = "";
 let ready = false;
 let projectTouchbar = null;
+let defaultTouchbar = null;
 let tbKey = null;
 let tbTempo = null;
 
 function createDefaultTouchBar() {
     const result = new TouchBarLabel({
-        label: `Welcome to ${app.name}! Open a project or import any media to get started...`,
+        label: `Welcome to ${app.name}!`,
     })
     const touchBar = new TouchBar({
         items: [
-            result,
-            new TouchBarSpacer({ size: 'large' }),
+            new TouchBarButton({
+                icon: nativeImage.createFromNamedImage("NSTouchBarFolderTemplate", [-1, 0, 1]),
+                label: "Last Project",
+                iconPosition: "left",
+                click: () => mainWindow.webContents.send("open-last-project")
+            }),
+            new TouchBarSpacer({ size: 'small' }),
+            new TouchBarButton({
+                icon: nativeImage.createFromNamedImage("NSTouchBarFolderTemplate", [-1, 0, 1]),
+                label: "Open Project",
+                iconPosition: "left",
+                click: () => mainWindow.webContents.send("open-project")
+            }),
+            new TouchBarSpacer({ size: 'small' }),
+            new TouchBarButton({
+                label: "Import File",
+                icon: nativeImage.createFromNamedImage("NSTouchBarDownloadTemplate", [-1, 0, 1]),
+                iconPosition: "left",
+                click: () => mainWindow.webContents.send("import-media", "file")
+            }),
+            new TouchBarButton({
+                label: "Import URL",
+                icon: nativeImage.createFromNamedImage("NSTouchBarDownloadTemplate", [-1, 0, 1]),
+                iconPosition: "left",
+                click: () => mainWindow.webContents.send("import-media", "url")
+            })
         ],
     })
     return touchBar;
@@ -185,13 +210,6 @@ async function createWindow() {
                         }
                     ]
                 },
-                {
-                    label: 'Open Last Opened Project',
-                    accelerator: "CmdOrCtrl+1",
-                    click: function () {
-                        mainWindow.webContents.send('open-last-project');
-                    }
-                },
                 { type: "separator" },
                 { label: "Quit", accelerator: "Command+Q", click: function () { app.quit(); } }
             ]
@@ -326,7 +344,12 @@ const onReady = () => {
         else
             updateTouchBar(arg);
     });
-    ipcMain.on('reset-touch-bar', (event, arg) => mainWindow.setTouchBar(createDefaultTouchBar()));
+    ipcMain.on('reset-touch-bar', (event, arg) => {
+        if (defaultTouchbar == null)
+            mainWindow.setTouchBar(createDefaultTouchBar());
+        else
+            mainWindow.setTouchBar(defaultTouchbar);
+    });
     sendOpenFileRequest();
     ready = true;
 }

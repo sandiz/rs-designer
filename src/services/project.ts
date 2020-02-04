@@ -161,6 +161,7 @@ export class Project {
     }
 
     private unload() {
+        this.isLoading = false;
         this.isLoaded = false;
         this.isTemporary = false;
         this.projectDirectory = "";
