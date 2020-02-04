@@ -125,7 +125,7 @@
   "main": "src/electron-starter.js",
   "build": {
     "productName": "Bandish",
-    "appId": "com.sandiz.rsdesigner",
+    "appId": "com.foursevenp.bandish",
     "files": [
       "src/",
       ".",
@@ -191,14 +191,21 @@
     "fileAssociations": [
       {
         "ext": "rsdbundle",
-        "name": "RSDesigner Bundle",
+        "name": "Bandish Bundle",
         "icon": "icon.icns",
         "role": "editor",
         "isPackage": true
       },
       {
         "ext": "rsdproject",
-        "name": "RSDesigner Project",
+        "name": "Bandish Project",
+        "icon": "icon.icns",
+        "role": "editor",
+        "isPackage": false
+      },
+      {
+        "ext": "psarc",
+        "name": "Rocksmith DLC/CDLC",
         "icon": "icon.icns",
         "role": "editor",
         "isPackage": false

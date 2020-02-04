@@ -1,45 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-  <key>CFBundleDocumentTypes</key>
-  <array>
-    <dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>rsdirectory</string>
-			</array>
+   <dict>
+      <key>CFBundleDisplayName</key>
+      <string>Bandish</string>
+      <key>CFBundleDocumentTypes</key>
+      <array>
+         <dict>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+               <string>rsdirectory</string>
+            </array>
             <key>CFBundleTypeOSTypes</key>
             <array>
-                <string>RSDIRECTORY</string>
+               <string>RSDIRECTORY</string>
             </array>
-			<key>CFBundleTypeIconFile</key>
-			<string>mac.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>Rocksmith Designer Project Bundle</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>mac.icns</string>
+            <key>CFBundleTypeName</key>
+            <string>Bandish Project Bundle</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
             <key>LSTypeIsPackage</key>
-            <true/>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>rsproject</string>
-			</array>
+            <true />
+         </dict>
+         <dict>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+               <string>rsproject</string>
+            </array>
             <key>CFBundleTypeOSTypes</key>
             <array>
-                <string>RSPROJECT</string>
+               <string>RSPROJECT</string>
             </array>
-			<key>CFBundleTypeIconFile</key>
-			<string>mac.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>Rocksmith Designer Project</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>mac.icns</string>
+            <key>CFBundleTypeName</key>
+            <string>Bandish Project</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
             <key>LSTypeIsPackage</key>
-            <false/>
-		</dict>
-  </array>
-</dict>
+            <false />
+         </dict>
+         <dict>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+               <string>psarc</string>
+            </array>
+            <key>CFBundleTypeIconFile</key>
+            <string>mac.icns</string>
+            <key>CFBundleTypeName</key>
+            <string>Rocksmith DLC/CDLC</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>NSPersistentStoreTypeKey</key>
+            <string>Binary</string>
+         </dict>
+      </array>
+      <key>CFBundleExecutable</key>
+      <string>Bandish</string>
+      <key>CFBundleIconFile</key>
+      <string>mac.icns</string>
+      <key>CFBundleIdentifier</key>
+      <string>com.foursevenp.bandish</string>
+      <key>CFBundleName</key>
+      <string>Bandish</string>
+      <key>CFBundlePackageType</key>
+      <string>APPL</string>
+      <key>CFBundleShortVersionString</key>
+      <string>0.3.1</string>
+      <key>CFBundleSupportedPlatforms</key>
+      <array>
+         <string>MacOSX</string>
+      </array>
+      <key>CFBundleVersion</key>
+      <string>0.3.1</string>
+      <key>NSHighResolutionCapable</key>
+      <true />
+      <key>NSHumanReadableCopyright</key>
+      <string>(c) 2019-20</string>
+   </dict>
 </plist>
