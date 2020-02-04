@@ -22,12 +22,13 @@ import SliderExtended, { CardExtended, ButtonExtended } from '../Extended/Fadeou
 import './MediaController.scss';
 import * as nothumb from '../../assets/nothumb.jpg'
 import ProjectService, { ProjectUpdateType } from '../../services/project';
-import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
+import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher';
 import {
     readFile, sec2time, base64ImageData, setStateAsync,
 } from '../../lib/utils';
 import MediaPlayerService from '../../services/mediaplayer';
 import { getImportUrlDialog, getMetadataEditorDialog } from '../../dialogs';
+import { TABID } from '../MediaAdvanced/MediaAdvanced';
 
 const MediaAdvanced = React.lazy(() => import('../MediaAdvanced/MediaAdvanced'));
 const { app } = window.require('electron').remote;
@@ -46,6 +47,7 @@ interface MediaBarState extends HotKeyState {
     mediaState: MEDIA_STATE;
     duration: number;
     showAdvanced: boolean;
+    advancedTab: TABID;
 }
 
 class MediaController extends HotKeyComponent<{}, MediaBarState> {
@@ -91,6 +93,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             mediaState: MEDIA_STATE.STOPPED,
             isHKEnabled: true,
             showAdvanced: false,
+            advancedTab: TABID.HOME,
         };
         this.state = { ...super.getInitialState(), ...b };
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
@@ -101,6 +104,8 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         DispatcherService.on(DispatchEvents.MediaFinishedPlaying, this.stop);
         DispatcherService.on(DispatchEvents.MediaStartedPlaying, this._set_media_playing);
         DispatcherService.on(DispatchEvents.MediaWasPaused, this._set_media_paused);
+        DispatcherService.on(DispatchEvents.OpenMediaAdvanced, this.openMediaAdvanced);
+        DispatcherService.on(DispatchEvents.CloseMediaAdvanced, this.closeMediaAdvanced);
     }
 
     componentDidMount = async () => {
@@ -119,6 +124,21 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         DispatcherService.off(DispatchEvents.MediaFinishedPlaying, this.stop);
         DispatcherService.off(DispatchEvents.MediaStartedPlaying, this._set_media_playing);
         DispatcherService.off(DispatchEvents.MediaWasPaused, this._set_media_paused);
+        DispatcherService.off(DispatchEvents.OpenMediaAdvanced, this.openMediaAdvanced);
+        DispatcherService.off(DispatchEvents.CloseMediaAdvanced, this.closeMediaAdvanced);
+    }
+
+    openMediaAdvanced = (data: DispatchData) => {
+        const tabIdx = data as number;
+        const keys = Object.keys(TABID) as (keyof typeof TABID)[]
+        if (tabIdx < keys.length) {
+            const tab = TABID[keys[tabIdx]];
+            this.setState({ showAdvanced: true, advancedTab: tab });
+        }
+    }
+
+    closeMediaAdvanced = () => {
+        this.setState({ showAdvanced: false, advancedTab: TABID.HOME })
     }
 
     stop = (): void => {
@@ -386,7 +406,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <MediaAdvanced isOpen={this.state.showAdvanced} isPopout={false} popoutFunc={this.sideWindow} />
+                    <MediaAdvanced openTab={this.state.advancedTab} isOpen={this.state.showAdvanced} isPopout={false} popoutFunc={this.sideWindow} />
                 </Suspense>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">

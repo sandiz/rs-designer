@@ -26,7 +26,8 @@ function createDefaultTouchBar() {
     return touchBar;
 }
 
-function createProjectTouchBar(projectInfo) {
+function createProjectTouchBar(args) {
+    const { projectInfo, tabs } = args;
     const seek = new TouchBarPopover({
         icon: nativeImage.createFromPath(path.join(__dirname, "assets/key.png")),
         showCloseButton: true,
@@ -60,22 +61,11 @@ function createProjectTouchBar(projectInfo) {
         items: new TouchBar({
             items: [
                 new TouchBarScrubber({
-                    items: [
-                        { label: 'Home' },
-                        { label: 'Analysis' },
-                        { label: 'Chroma' },
-                        { label: 'Equalizer' },
-                        { label: 'Cloud Analysis' },
-                        { label: 'Track Isolation' },
-                        { label: 'Pitch Tracking' },
-                        { label: 'Regions' },
-                        { label: 'Lyrics' },
-                        { label: 'Notes' },
-                        { label: 'Export' },
-                    ],
+                    items: tabs,
                     selectedStyle: 'background',
                     overlayStyle: 'outline',
                     continuous: false,
+                    highlight: (idx) => mainWindow.webContents.send("open-media-advanced", idx),
                 })
             ],
         })
@@ -309,8 +299,7 @@ const onReady = () => {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     ipcMain.on('project-touch-bar', (event, arg) => {
-        const { projectInfo } = arg;
-        mainWindow.setTouchBar(createProjectTouchBar(projectInfo))
+        mainWindow.setTouchBar(createProjectTouchBar(arg))
     });
     ipcMain.on('reset-touch-bar', (event, arg) => mainWindow.setTouchBar(createDefaultTouchBar()));
     sendOpenFileRequest();

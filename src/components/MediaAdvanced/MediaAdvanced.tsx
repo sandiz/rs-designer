@@ -10,12 +10,28 @@ import ProjectService, { ProjectUpdateType } from '../../services/project'
 import { DispatcherService, DispatchEvents, DispatchData } from '../../services/dispatcher'
 import HomeTab from './HomeTab';
 import { PRODUCT_ADVANCED } from '../../types/base';
+import { toTitleCase } from '../../lib/utils';
 
 const MixerTab = React.lazy(() => import('./MixerTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
 const EqualizerTab = React.lazy(() => import("./EQPanel"));
+
+export enum TABID {
+    HOME = "home",
+    ANALYSIS = "analysis",
+    EQUALIZER = "equalizer",
+    SPEC = "chromagram",
+    CLOUDANALYSIS = "cloud analysis",
+    ISOLATION = "track isolation",
+    PITCH_TRACKING = "pitch tracking",
+    REGIONS = "regions",
+    LYRICS = "lyrics",
+    NOTES = "notes",
+    EXPORT = "export",
+}
+
 interface MediaAdvancedState {
-    currentTab: TABID | undefined;
+    currentTab: TABID;
     metadata: ProjectMetadata;
 }
 
@@ -23,14 +39,20 @@ interface MediaAdvancedProps {
     isPopout: boolean;
     popoutFunc?: () => void;
     isOpen: boolean;
+    openTab: TABID;
 }
-
-enum TABID { HOME, ANALYSIS, EQUALIZER, CLOUDANALYSIS, SPEC, ISOLATION, PITCH_TRACKING, REGIONS, EXPORT, LYRICS, NOTES }
 
 class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedState> {
     constructor(props: MediaAdvancedProps) {
         super(props)
-        this.state = { currentTab: TABID.HOME, metadata: new ProjectMetadata() }
+        this.state = { currentTab: props.openTab, metadata: new ProjectMetadata() }
+    }
+
+    componentDidUpdate = (prevProps: MediaAdvancedProps) => {
+        if (prevProps.openTab !== this.props.openTab) {
+            //eslint-disable-next-line
+            this.setState({ currentTab: this.props.openTab });
+        }
     }
 
     componentDidMount = async () => {
@@ -138,17 +160,11 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                             onChange={this.handleTabChange}
                             selectedTabId={this.state.currentTab}
                         >
-                            <Tab id={TABID.HOME} title="Home" />
-                            <Tab id={TABID.ANALYSIS} title="Analysis" />
-                            <Tab id={TABID.EQUALIZER} title="Equalizer" />
-                            <Tab id={TABID.SPEC} title="Chromagram" />
-                            <Tab id={TABID.CLOUDANALYSIS} title="Cloud Analysis" />
-                            <Tab id={TABID.ISOLATION} title="Track Isolation" />
-                            <Tab id={TABID.PITCH_TRACKING} title="Pitch Tracking" />
-                            <Tab id={TABID.REGIONS} title="Regions" />
-                            <Tab id={TABID.LYRICS} title="Lyrics" />
-                            <Tab id={TABID.NOTES} title="Notes" />
-                            <Tab id={TABID.EXPORT} title="Export" />
+                            {
+                                Object.values(TABID).map(t => {
+                                    return <Tab id={t} title={toTitleCase(t)} />
+                                })
+                            }
                         </Tabs>
                     </Navbar.Group>
                 </Navbar>

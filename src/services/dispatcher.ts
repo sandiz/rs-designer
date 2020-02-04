@@ -109,6 +109,10 @@ export enum DispatchEvents {
 
     WaveformImageGenerated = "waveform-image-generated",
     ZoomChanged = "zoom-changed",
+
+    /* Media Advanced */
+    OpenMediaAdvanced = "open-media-advanced",     /* Opens the Media Advanced panel */
+    CloseMediaAdvanced = "close-media-advanced",     /* Closes the Media Advanced panel */
 }
 
 export const DispatcherService = DispatcherBase.getInstance();

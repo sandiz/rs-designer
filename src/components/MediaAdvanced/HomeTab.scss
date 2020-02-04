@@ -4,7 +4,7 @@
     width: 72%;
     margin: auto;
     margin-top: 7px;
-    padding: 0;
+    padding: 0 !important;
     display: flex;
     flex-direction: column;
     height: 85%;
@@ -49,7 +49,7 @@
 
 .home-analysis-panel {
     height: 25%;
-    padding: 0;
+    padding: 0 !important;
 }
 
 .home-key-font {

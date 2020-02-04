@@ -5,7 +5,7 @@ import {
 } from 'react-router-dom';
 import App from './App';
 import SideApp from './SideApp';
-import MediaAdvanced from './components/MediaAdvanced/MediaAdvanced';
+import MediaAdvanced, { TABID } from './components/MediaAdvanced/MediaAdvanced';
 
 type ViewHolder = {
     [key: string]: React.ReactElement;
@@ -15,7 +15,7 @@ class ViewManager extends Component {
     static Views(): ViewHolder {
         return {
             App: <App />,
-            MediaAdvanced: <SideApp><MediaAdvanced isOpen isPopout /></SideApp>,
+            MediaAdvanced: <SideApp><MediaAdvanced isOpen isPopout openTab={TABID.HOME} /></SideApp>,
         }
     }
 
