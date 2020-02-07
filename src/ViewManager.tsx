@@ -30,9 +30,7 @@ class ViewManager extends Component {
     render() {
         return (
             <Router>
-                <div>
-                    <Route path="/" exact component={ViewManager.View} />
-                </div>
+                <Route path="/" exact component={ViewManager.View} />
             </Router>
         );
     }

@@ -25,7 +25,6 @@ import {
 import {
   ProjectDetails,
 } from './types/project';
-import { fpsize } from './lib/utils';
 import { DispatcherService, DispatchEvents, DispatchData } from './services/dispatcher';
 import ProjectService, { ProjectUpdateType } from './services/project';
 import MediaPlayerService from './services/mediaplayer';
@@ -35,6 +34,7 @@ import GitService from './services/git';
 import {
   InitTouchBar, CloseTouchBar,
 } from './lib/touchbar';
+import Sidebar from './components/Sidebar/Sidebar';
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
@@ -86,7 +86,6 @@ class App extends HotKeyComponent<{}, AppState> {
     DispatcherService.on(DispatchEvents.CloseDialog, this.closeDialog);
     nativeTheme.on('updated', this.changeAppColor);
     FocusStyleManager.onlyShowFocusOnTabs();
-    fpsize();
     InitTouchBar();
   }
 
@@ -153,6 +152,39 @@ class App extends HotKeyComponent<{}, AppState> {
   }
 
   render = (): React.ReactNode => {
+    document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
+    return (
+      <div className="sidebar-sticky">
+        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+          <ErrorBoundary className="sidebar-sticky">
+            <Sidebar />
+          </ErrorBoundary>
+
+          <ErrorBoundary className="media-bar-sticky">
+            <MediaController />
+          </ErrorBoundary>
+          <Dialog
+            isOpen={this.state.dialogContent !== null}
+            onClose={this.closeDialog}
+            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+            isCloseButtonShown
+            lazy
+            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+          >
+            {
+              this.state.dialogContent
+                ? this.state.dialogContent.content
+                : null
+            }
+          </Dialog>
+        </GlobalHotKeys>
+      </div>
+    );
+  }
+  render2 = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
       <React.Fragment>

@@ -1,0 +1,82 @@
+.sidebar {
+    height: 90%;
+    width: 300px;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 24px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.app-logo {
+    width: 50px;
+    height: 50px;
+}
+
+.app-name {
+    font-size: 16px;
+}
+
+.sidebar-sticky {
+    height: 100%;
+}
+
+.sidebar-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding:5px;
+    justify-content: flex-start;
+}
+
+.appLogo-sidebar {
+    width:75px;
+    height: 75px;
+}
+
+.sidebar-divider {
+    background-image: linear-gradient(90deg,#10161a00 0,#10161a66 40%);
+    margin-left: -50px;
+    height: 1px;
+    padding: 0;
+}
+
+.sidebar-card {
+    margin-top: 10px;
+    height: 25%;
+}
+
+.sidebar-audio-track {
+    padding: 0 !important;
+}
+
+.sidebar-score-track {
+    padding: 0 !important;
+}
+
+.score-logo {
+    width: 20px;
+    height: 20px;
+}
+
+.card-header {
+    font-size: 16px;
+}
+
+.app-title {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    width: 55%;
+}
+
+.app-info {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+}
+
+#fps, #memory, #latency {
+    float:right;
+}

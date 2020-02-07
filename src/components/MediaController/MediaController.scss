@@ -5,7 +5,7 @@
     position: absolute !important;
     bottom: 0;
     width: 100%;
-    height: calc(10vh * var(--media-bar-zoom)) !important;
+    height: 9.85% !important;
     display: flex;
     align-items: center;
     border-top: 1px solid $pt-divider-black;
@@ -29,13 +29,13 @@
 }
 
 .media-bar-albumart {
-    height: calc(8vh * var(--media-bar-zoom)) !important;
-    width: calc(8vh * var(--media-bar-zoom)) !important;
+    height: calc(8vh ) !important;
+    width: calc(8vh ) !important;
 }
 
 .metadata-albumart {
-    height: calc(12vh * var(--media-bar-zoom)) !important;
-    width: calc(12vh * var(--media-bar-zoom)) !important;
+    height: calc(12vh ) !important;
+    width: calc(12vh ) !important;
     margin-left: 2vw;
 }
 

@@ -150,28 +150,33 @@ export const fpsize = () => {
     var memElement = document.getElementById("memory");
     var latencyElement = document.getElementById("latency");
 
-    var then = Date.now() / 1000;  // get time in seconds
+    var filterStrength = 20;
+    var frameTime = 0;
+    var lastLoop = Date.now();
+    var thisLoop: number;
+
     var render = function () {
         var now = Date.now() / 1000;  // get time in seconds
 
-        // compute time since last frame
-        var elapsedTime = now - then;
-        then = now;
+        thisLoop = Date.now();
+        var thisFrameTime = thisLoop - lastLoop;
+        frameTime += (thisFrameTime - frameTime) / filterStrength;
+        lastLoop = thisLoop;
 
         // compute fps
-        var fps = 1 / elapsedTime;
+        var fps = (1000 / frameTime).toFixed(0);
         const perf = (window.performance as any);
         if (fpsElement && memElement) {
             const used = Math.round((perf.memory.usedJSHeapSize / (1024 * 1024)))
-            const total = Math.round((perf.memory.totalJSHeapSize / (1024 * 1024)))
-            fpsElement.childNodes[0].nodeValue = fps.toFixed(0);
-            memElement.childNodes[0].nodeValue = `${used} / ${total}`
+            //const total = Math.round((perf.memory.totalJSHeapSize / (1024 * 1024)))
+            fpsElement.childNodes[0].nodeValue = fps;
+            memElement.childNodes[0].nodeValue = `${used}m`
         }
         if (latencyElement) {
             if (MediaPlayerService.audioContext) {
                 const { baseLatency } = MediaPlayerService.audioContext;
                 let bl = baseLatency ? Math.round((baseLatency * 1000)) : "-";
-                latencyElement.childNodes[0].nodeValue = `${bl}`
+                latencyElement.childNodes[0].nodeValue = `${bl}ms`
             }
             else {
                 latencyElement.childNodes[0].nodeValue = `-`
