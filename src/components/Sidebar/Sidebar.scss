@@ -1,6 +1,5 @@
 .sidebar {
     height: 90%;
-    width: 300px;
     padding-left: 10px !important;
     padding-right: 10px !important;
     padding-top: 24px !important;
@@ -20,6 +19,7 @@
 
 .sidebar-sticky {
     height: 100%;
+    width: 300px;
 }
 
 .sidebar-title {
@@ -28,6 +28,7 @@
     align-items: center;
     padding:5px;
     justify-content: flex-start;
+    border-radius: 8px;
 }
 
 .appLogo-sidebar {
@@ -45,6 +46,7 @@
 .sidebar-card {
     margin-top: 10px;
     height: 25%;
+    border-radius: 8px;
 }
 
 .sidebar-audio-track {
@@ -62,6 +64,8 @@
 
 .card-header {
     font-size: 16px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .app-title {

@@ -154,34 +154,39 @@ class App extends HotKeyComponent<{}, AppState> {
   render = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
-      <div className="sidebar-sticky">
-        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+      <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+        <div id="content">
           <ErrorBoundary className="sidebar-sticky">
-            <Sidebar />
+            <div className="sidebar-sticky">
+              <Sidebar />
+            </div>
           </ErrorBoundary>
+          <ErrorBoundary className="waveform-root">
+            <Waveform />
+          </ErrorBoundary>
+        </div>
 
-          <ErrorBoundary className="media-bar-sticky">
-            <MediaController />
-          </ErrorBoundary>
-          <Dialog
-            isOpen={this.state.dialogContent !== null}
-            onClose={this.closeDialog}
-            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
-            isCloseButtonShown
-            lazy
-            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
-            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
-            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
-            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
-          >
-            {
-              this.state.dialogContent
-                ? this.state.dialogContent.content
-                : null
-            }
-          </Dialog>
-        </GlobalHotKeys>
-      </div>
+        <ErrorBoundary className="media-bar-sticky">
+          <MediaController />
+        </ErrorBoundary>
+        <Dialog
+          isOpen={this.state.dialogContent !== null}
+          onClose={this.closeDialog}
+          className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+          isCloseButtonShown
+          lazy
+          title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+          icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+          canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+          canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+        >
+          {
+            this.state.dialogContent
+              ? this.state.dialogContent.content
+              : null
+          }
+        </Dialog>
+      </GlobalHotKeys>
     );
   }
   render2 = (): React.ReactNode => {

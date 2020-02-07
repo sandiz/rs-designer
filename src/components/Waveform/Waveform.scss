@@ -1,6 +1,8 @@
 .waveform-root {
-    height: 30vh;
-    padding-top: 10px;
+    height: 316px;
+    margin-top: 15px;
+    width: 81%;
+    margin-left: 10px;
 }
 
 #timeline {
@@ -27,7 +29,7 @@
 
 .description-buttons {
     display: flex;
-    width: 20%;
+    width: 40%;
     justify-content: space-evenly;
 }
 

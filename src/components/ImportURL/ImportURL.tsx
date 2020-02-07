@@ -47,7 +47,7 @@ interface YTDLInfoExtended extends YTDL.Info {
 }
 
 const defaultMsg = {
-    text: "Powered by Youtube-DL",
+    text: "powered by youtube-dl",
     intent: Intent.PRIMARY,
 }
 
