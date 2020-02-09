@@ -158,7 +158,7 @@ class App extends HotKeyComponent<{}, AppState> {
         <div id="content">
           <ErrorBoundary className="sidebar-sticky">
             <div className="sidebar-sticky">
-              <Sidebar />
+              <Sidebar project={this.state.project} />
             </div>
           </ErrorBoundary>
           <ErrorBoundary className="waveform-root">

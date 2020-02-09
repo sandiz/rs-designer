@@ -8,6 +8,6 @@
 		}
 	],
 	"settings": {
-		"typescript.tsdk": "node_modules/typescript/lib"
+		"typescript.tsdk": "rs-designer/node_modules/typescript/lib"
 	}
 }

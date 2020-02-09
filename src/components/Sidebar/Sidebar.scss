@@ -22,22 +22,29 @@
     width: 300px;
 }
 
-.sidebar-title {
+.sidebar-main {
+    justify-content: flex-start;
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding:5px;
-    justify-content: flex-start;
+}
+
+.sidebar-title {
+    padding: 5px;
     border-radius: 8px;
 }
 
+.tooltip-target {
+    width: 100%;
+}
+
 .appLogo-sidebar {
-    width:75px;
+    width: 75px;
     height: 75px;
 }
 
 .sidebar-divider {
-    background-image: linear-gradient(90deg,#10161a00 0,#10161a66 40%);
+    background-image: linear-gradient(90deg, #10161a00 0, #10161a66 40%);
     margin-left: -50px;
     height: 1px;
     padding: 0;
@@ -72,7 +79,7 @@
     display: flex;
     flex-direction: column;
     padding-left: 10px;
-    width: 55%;
+    width: 54%;
 }
 
 .app-info {
@@ -81,6 +88,42 @@
     width: 25%;
 }
 
-#fps, #memory, #latency {
-    float:right;
+#fps,
+#memory,
+#latency {
+    float: right;
+}
+
+.audio-track-content {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.key-tempo {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.key-tempo>* {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.region-select {
+    width: 80%;
+}
+
+.region-body {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.region-text {
+    margin-bottom: 5px;
 }

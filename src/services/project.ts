@@ -12,7 +12,7 @@ import {
     copyFile, writeFile, copyDir, readFile, readTags, removeDir, UUID, exists,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
-import { pitches } from '../lib/music-utils';
+import { pitches, getTransposedKey } from '../lib/music-utils';
 import ForageService, { SettingsForageKeys } from './forage';
 import {
     AppSettings, ProjectInfo, ProjectMetadata,
@@ -823,6 +823,26 @@ export class Project {
         if (inst) {
             inst.tags = instNotes.tags;
         }
+    }
+
+    public getLatestKey = async (): Promise<SongKey> => {
+        const metadata = await this.getProjectMetadata();
+        if (metadata) {
+            const [key, type, conf] = metadata.key;
+            const keyChange = MediaPlayerService.getPitchSemitones();
+            return [getTransposedKey(key, keyChange), type, conf];
+        }
+        return ["", "", -1];
+    }
+
+    public getLatestTempo = async (): Promise<number> => {
+        const metadata = await this.getProjectMetadata();
+        if (metadata) {
+            const tempo = metadata.tempo;
+            const tempoChange = MediaPlayerService.getPlaybackRate();
+            return Math.round(tempo * tempoChange);
+        }
+        return 0;
     }
 }
 
