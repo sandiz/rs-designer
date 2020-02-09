@@ -161,9 +161,11 @@ class App extends HotKeyComponent<{}, AppState> {
               <Sidebar project={this.state.project} />
             </div>
           </ErrorBoundary>
-          <ErrorBoundary className="waveform-root">
-            <Waveform />
-          </ErrorBoundary>
+          <div className="main-sticky">
+            <ErrorBoundary className="waveform-root">
+              <Waveform />
+            </ErrorBoundary>
+          </div>
         </div>
 
         <ErrorBoundary className="media-bar-sticky">
@@ -189,6 +191,7 @@ class App extends HotKeyComponent<{}, AppState> {
       </GlobalHotKeys>
     );
   }
+
   render2 = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (

@@ -111,7 +111,7 @@ export default class BeatsTimelinePlugin {
         /** @private */
         this.util = ws.util;
         /** @private */
-        this.params = this.util.extend(
+        this.params = Object.assign(
             {},
             {
                 height: 20,
@@ -359,7 +359,7 @@ export default class BeatsTimelinePlugin {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {
                     background: 'transparent'
-                })
+                });
             }
             this.setFillStyles(this.params.primaryColor);
             this.fillText("Beats  unavailable", 10, height1 / 2 + 10);
@@ -373,7 +373,7 @@ export default class BeatsTimelinePlugin {
         for (let i = 0; i < this.params.beats.length; i += 1) {
             const beatsData = this.params.beats[i];
             let { start, beatNum } = beatsData;
-            const startPixel = Number.parseFloat(start) * pixelsPerSecond
+            const startPixel = Number.parseFloat(start) * pixelsPerSecond;
             let bn = beatNum;
 
             let mod = 1;

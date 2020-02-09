@@ -45,7 +45,6 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
         const kp = ProjectService.getLatestKey();
         const kt = ProjectService.getLatestTempo();
         const res: [SongKey, number] = await Promise.all([kp, kt]);
-        console.log(res);
         this.setState({ key: res[0], tempo: res[1] });
     }
 
@@ -58,26 +57,26 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
             <Card className="sidebar-card sidebar-audio-track" elevation={Elevation.THREE}>
                 <Callout
                     className="card-header"
-                    intent={Intent.SUCCESS}
+                    intent={Intent.PRIMARY}
                     icon={IconNames.MUSIC}>
-                    Audio Track
+                    Audio
                     </Callout>
                 <div className="audio-track-content">
                     <div className="key-tempo">
                         <Card
+                            id="key"
                             className={
                                 classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded })
                             }
-                            elevation={Elevation.TWO}
-                            style={{ fontSize: 20 + 'px' }}>
+                            elevation={Elevation.TWO}>
                             {this.state.key[0] === "" ? "KEY" : `${this.state.key[0]} ${this.state.key[1]}`}
                         </Card>
                         <Card
+                            id="tempo"
                             className={
                                 classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "number")
                             }
-                            elevation={Elevation.TWO}
-                            style={{ fontSize: 20 + 'px', marginLeft: 20 + 'px' }}>
+                            elevation={Elevation.TWO}>
                             <span className={classNames("number", { hidden: this.state.tempo === 0 })}>{this.state.tempo}</span>
                             {this.state.tempo === 0 ? "TEMPO" : " bpm"}
                         </Card>

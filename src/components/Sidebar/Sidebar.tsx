@@ -1,14 +1,14 @@
 import React from 'react';
+import classNames from 'classnames';
 import {
-    Card, Elevation, Callout, Intent,
-    Tooltip,
+    Card, Elevation, Tooltip, Classes,
 } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
 import { toTitleCase, fpsize } from '../../lib/utils';
 import { ProjectDetails } from '../../types/project';
+import AudioTrackModule from './AudioTrackModule';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import './Sidebar.scss';
-import AudioTrackModule from './AudioTrackModule';
+import ChartTrackModule from './ChartTrackModule';
 
 const pkgInfo = require("../../../package.json");
 
@@ -41,7 +41,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                             <span className="app-name">{toTitleCase(pkgInfo.name)}</span>
                             <span>{toTitleCase(pkgInfo.version)}</span>
                         </div>
-                        <div className="number app-info">
+                        <div className={classNames("number", "app-info", Classes.TEXT_MUTED)}>
                             <Tooltip
                                 hoverOpenDelay={1000}
                                 lazy
@@ -75,16 +75,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                     </div>
                 </Card>
                 <AudioTrackModule project={this.props.project} />
-                <Card style={{ display: 'none' }} className="sidebar-card sidebar-score-track" elevation={Elevation.THREE}>
-                    <Callout
-                        className="card-header"
-                        intent={Intent.PRIMARY}
-                        icon={IconNames.ANNOTATION}>
-                        Chart - Lead
-                    </Callout>
-                    <br />
-                    <br />
-                </Card>
+                <ChartTrackModule project={this.props.project} />
             </Card>
         )
     }

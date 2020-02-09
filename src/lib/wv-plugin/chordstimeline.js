@@ -112,7 +112,7 @@ export default class ChordsTimelinePlugin {
         /** @private */
         this.util = ws.util;
         /** @private */
-        this.params = this.util.extend(
+        this.params = Object.assign(
             {},
             {
                 height: 20,
@@ -363,7 +363,7 @@ export default class ChordsTimelinePlugin {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {
                     background: 'transparent'
-                })
+                });
             }
             this.setFillStyles(this.params.primaryColor);
             this.fillText("Chords unavailable", 10, height1 / 2 + 10);
@@ -412,7 +412,7 @@ export default class ChordsTimelinePlugin {
                 }
             }
             else {
-                this.setFillStyles(this.params.overflowColor)
+                this.setFillStyles(this.params.overflowColor);
                 this.fillRect(startPixel, 0, width, height1);
             }
         };
@@ -425,7 +425,7 @@ export default class ChordsTimelinePlugin {
 
             let twidth = this.canvases[0].getContext('2d').measureText("...").width + 10;
             if (twidth < width) {
-                this.setFillStyles(this.params.primaryColor)
+                this.setFillStyles(this.params.primaryColor);
                 this.fillText("...", start + (width / 2) - (twidth / 2), height1 / 2 + 9); //width of text
             }
         }
@@ -439,9 +439,9 @@ export default class ChordsTimelinePlugin {
         const diff = fp - round;
         if (diff < 0.3) sec = round;
         else if (diff >= 0.3 && diff < 0.7) sec = round + 0.5;
-        else if (diff >= 0.7) sec = Math.ceil(sec)
+        else if (diff >= 0.7) sec = Math.ceil(sec);
 
-        console.log(sec, round)
+        console.log(sec, round);
         const [idx, _ign, _ign2] = positions[round];
         for (let i = 0; i < positions.length; i += 1) {
             const [idx, refSecond, pixel] = positions[i];

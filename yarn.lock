@@ -16255,9 +16255,9 @@ watchpack@^1.6.0:
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
 
-"wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-576c0afa":
-  version "3.2.0"
-  resolved "https://github.com/sandiz/wavesurfer.js#09c14b8ee9ff2963843faf9a05d7150c57e22f26"
+"wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-d5b3c5c9":
+  version "3.3.1"
+  resolved "https://github.com/sandiz/wavesurfer.js#b421e02f892f00999760e259df065f0ec54014ce"
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"

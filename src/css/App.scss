@@ -281,3 +281,11 @@ pre {
 .invisible {
     visibility: hidden;
 }
+
+.waveform-tab-container {
+    width: 100%;
+}
+
+.main-sticky {
+    width: calc(100% - 300px);
+}
