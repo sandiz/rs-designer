@@ -1,9 +1,11 @@
 @import "~@blueprintjs/core/lib/scss/variables";
 
 .tabeditor-root {
-    height: 44vh;
-    padding-top: 10px;
-    margin-top: 3vh;
+    height: 320px;
+    /* padding-top: 10px; */
+    /* margin-top: 3vh; */
+    margin-left: 20px;
+    width: 97%;
 }
 
 .tabeditor-panel {
@@ -26,7 +28,7 @@
     grid-column-gap: 0px;
     grid-row-gap: 0px;
     border-radius: 0px;
-    height: 94%;
+    height: 29px;
 }
 
 .tabs-timeline {
@@ -37,6 +39,8 @@
     border-radius: 0px;
     border-top: 1px solid #5C7080;
     height: 8%;
+    position: absolute;
+    bottom: -2px;
 }
 
 .beats-start {
@@ -98,7 +102,6 @@
     font-size: 15px;
     margin-left: 4px;
     position: relative;
-    top: 5px;
 }
 
 .bp3-dark .time-num-span {
@@ -108,13 +111,13 @@
     font-size: 15px;
     margin-left: 4px;
     position: relative;
-    top: 5px;
 }
 
 .tab-img {
     height: 46%;
     width: 100%;
-    margin-top: 121px;
+    position: absolute;
+    top: 30%;
 }
 
 .strings-first {
@@ -122,13 +125,22 @@
     height: 100%;
 }
 
-.neck {
+.bp3-dark .neck {
     display: flex;
     flex-direction: column;
     height: 100%;
     background-color: rgba(1, 1, 1, 0.2);
     justify-content: space-between;
     cursor: pointer !important;
+}
+
+.neck {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    cursor: pointer !important;
+    background-color: rgba(206, 217, 224, .4);
 }
 
 .hover-note {
@@ -145,8 +157,6 @@
 
 .neck-container {
     height: 100%;
-    padding: 0;
-    padding-top: 15px;
 }
 
 .tab-note-edit {
@@ -248,25 +258,26 @@
     border-right: 2px solid #455e77;
 }
 
+.strings-extra {
+    height: 20%;
+}
+
 .strings-hitbox-first {
-    margin-top: -65px;
     border-left: none;
     border-right: none;
 }
 
 .strings {
-    height: 7.5%;
-    box-shadow: inset 0 0 4px;
-    background-color: blanchedalmond;
-    //transition: 0.3s;
+    height: 1px;
+    box-shadow: inset 0 0 0px;
+    background-color: #69696980;
     width: 100%;
 }
 
 .bp3-dark .strings {
-    height: 7.5%;
-    box-shadow: inset 0 0 4px;
-    background-color: #455e77;
-    //transition: 0.3s;
+    height: 1px;
+    box-shadow: inset 0 0 0px;
+    background-color: #a7b6c280;
     width: 100%;
 }
 

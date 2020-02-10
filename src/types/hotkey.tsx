@@ -1,11 +1,9 @@
-
 import React, { Component } from 'react';
 import { KeyCombo } from '@blueprintjs/core';
 import { DispatchEvents, DispatcherService, DispatchData } from '../services/dispatcher';
 import { PRODUCT_ADVANCED } from './base';
 
 const { platform } = window.require('os');
-const isWin = platform() === "win32";
 const isMac = platform() === "darwin";
 
 /* Hotkeys */
@@ -45,7 +43,7 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
         info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7,
     },
     MEDIA_ADVANCED: {
-        info: `Open [ ${PRODUCT_ADVANCED} ]panel`, hotkey: ["command+p", "ctrl+space"],
+        info: `Open [ ${PRODUCT_ADVANCED} ] panel`, hotkey: ["f1", "ctrl+space"],
     },
     SELECT_ALL_NOTES: {
         info: "Select all notes", hotkey: ["command+a", "ctrl+a"], group: "Note Editor", idx: 1,
@@ -102,9 +100,7 @@ export const getHotkey = (h: Hotkey) => {
         for (let i = 0; i < h.hotkey.length; i += 1) {
             const s = h.hotkey[i];
             if (s.includes("ctrl")) {
-                if (isWin) {
-                    return <KeyCombo key={s} combo={s} />
-                }
+                return <KeyCombo key={s} combo={s} />
             }
             else if (s.includes("command")) {
                 if (isMac) {

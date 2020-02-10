@@ -275,11 +275,11 @@ pre {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .invisible {
-    visibility: hidden;
+    visibility: hidden !important;
 }
 
 .waveform-tab-container {

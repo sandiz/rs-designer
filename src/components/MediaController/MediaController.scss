@@ -5,7 +5,7 @@
     position: absolute !important;
     bottom: 0;
     width: 100%;
-    height: 9.85% !important;
+    height: 105px !important;
     display: flex;
     align-items: center;
     border-top: 1px solid $pt-divider-black;
@@ -29,14 +29,14 @@
 }
 
 .media-bar-albumart {
-    height: calc(8vh ) !important;
-    width: calc(8vh ) !important;
+    height: 86px !important;
+    width: 86px !important;
 }
 
 .metadata-albumart {
-    height: calc(12vh ) !important;
-    width: calc(12vh ) !important;
-    margin-left: 2vw;
+    height: 172px !important;
+    width: 172px !important;
+    margin-left: 20px;
 }
 
 .album-art-card {
@@ -62,7 +62,7 @@
     flex-direction: column;
     justify-content: center;
     width: 75%;
-    padding-left: 1.5vh;
+    padding-left: 15px;
 }
 
 .media-bar-albumart-container {
@@ -94,7 +94,7 @@
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    height: 4vh;
+    height: 40px;
 }
 
 .progress-time {
@@ -112,12 +112,12 @@
 
 .progress-start {
     text-align: right;
-    padding-right: 1vh;
+    padding-right: 10px;
 }
 
 .progress-end {
     text-align: left;
-    padding-left: 1vh;
+    padding-left: 10px;
 }
 
 .progressbar {
@@ -163,7 +163,6 @@
 
 .menuitem {
     display: flex;
-    //width: 20vh;
     justify-content: space-between;
 }
 

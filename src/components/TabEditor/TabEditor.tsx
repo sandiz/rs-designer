@@ -588,38 +588,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     render = () => {
         return (
             <div className="tabeditor-root">
-                <InfoPanel
-                    zoomIn={this.zoomIn}
-                    zoomOut={this.zoomOut}
-                    zoomValue={this.state.zoom}
-                    zoom={this.zoom}
-                    files={this.state.files}
-                    file={this.state.currentFile}
-                    handleFileChange={this.handleFileChange}
-                    changeTag={this.changeTag}
-                    addTag={this.addTag}
-                    removeTag={this.removeTag}
-                    deleteFile={this.deleteFile}
-                    deleteNotes={this.deleteNotes}
-                    noteEditorRef={this.noteEditorRef}
-                    notesCountRef={this.noteCountRef}
-                    metronome={this.state.metronome}
-                    toggleMetronome={this.toggleMetronome}
-                    clap={this.state.clap}
-                    toggleClap={this.toggleClap}
-                    notePlay={this.state.notePlay}
-                    toggleNotePlay={this.toggleNotePlay}
-                    settings={this.state.settings}
-                    settingsUpdate={this.updateSettings}
-                />
                 <CardExtended className={classNames("tabeditor-body")} elevation={3}>
                     <div
                         ref={this.overflowRef}
                         className="tab-overflow-root"
                     >
                         <div
-                            ref={this.tabImgRef}
                             className="tab-wv-img"
+                            ref={this.tabImgRef}
                             style={{
                                 width: this.state.zoom * this.state.duration + 'px',
                                 willChange: 'transform',
@@ -632,16 +608,16 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             />
                         </div>
                         <div
+                            className="tab-note-edit"
                             ref={this.tabNoteRef}
                             style={{
                                 width: this.state.zoom * this.state.duration + 'px',
                                 willChange: 'transform',
                             }}
-                            className="tab-note-edit"
                         >
                             <div className={classNames("neck-container")} ref={this.neckContainerRef}>
-                                <div className="tab-progress" ref={this.progressRef} />
-                                <div className="tab-insertHead" ref={this.insertHeadRef}>
+                                <div className="tab-progress hidden" ref={this.progressRef} />
+                                <div className="tab-insertHead hidden" ref={this.insertHeadRef}>
                                     <Card
                                         interactive
                                         className="tab-insertHeadSlider"
@@ -986,5 +962,6 @@ const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProp
         </div>
     )
 }
+console.log("tabeditor", InfoPanel);
 
 export default TabEditor;

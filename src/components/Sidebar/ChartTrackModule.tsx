@@ -13,7 +13,7 @@ interface ChartTrackProps {
 class ChartTrackModule extends React.Component<ChartTrackProps, {}> {
     constructor(props: ChartTrackProps) {
         super(props);
-        console.log("asd");
+        console.log("chartrackmodule");
     }
 
     render = () => {

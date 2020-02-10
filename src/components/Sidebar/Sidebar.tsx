@@ -24,7 +24,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     constructor(props: SidebarProps) {
         super(props);
         this.state = { activeBar: 0 }
-        console.log(this.state.activeBar);
+        console.log("sidebar", this.state.activeBar);
     }
 
     componentDidMount = () => {

@@ -64,7 +64,6 @@ const getKeymapGroups = (keyMap: ApplicationKeyMap) => {
 }
 
 const getKeyMapForGroup = (group: string, km: keyMapType) => {
-    const isWin = os.platform() === "win32";
     const isMac = os.platform() === "darwin"
     const keyNode = (s: string, idx: number, len: number) => (
         <div key={s} style={{ display: 'flex' }}>
@@ -97,11 +96,9 @@ const getKeyMapForGroup = (group: string, km: keyMapType) => {
                                         if (typeof sequence === 'string') s = sequence;
                                         else s = sequence.join();
                                         if (s.includes("ctrl")) {
-                                            if (isWin) {
-                                                return (
-                                                    keyNode(s, idx, sequences.length - 1)
-                                                );
-                                            }
+                                            return (
+                                                keyNode(s, idx, sequences.length - 1)
+                                            );
                                         }
                                         else if (s.includes("command")) {
                                             if (isMac) {

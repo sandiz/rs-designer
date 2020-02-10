@@ -165,6 +165,17 @@ class App extends HotKeyComponent<{}, AppState> {
             <ErrorBoundary className="waveform-root">
               <Waveform />
             </ErrorBoundary>
+            {
+              this.state.project.loaded
+                ? (
+                  <ErrorBoundary className="waveform-root">
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <TabEditor />
+                    </Suspense>
+                  </ErrorBoundary>
+                )
+                : null
+            }
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 .sidebar {
-    height: 90%;
+    height: calc(100% - 107px);
     padding-left: 10px !important;
     padding-right: 10px !important;
     padding-top: 24px !important;
@@ -52,16 +52,18 @@
 
 .sidebar-card {
     margin-top: 10px;
-    height: 25%;
     border-radius: 8px;
 }
 
 .sidebar-audio-track {
     padding: 0 !important;
+    height: 232px;
 }
 
 .sidebar-score-track {
     padding: 0 !important;
+    height: 65%;
+    margin-top: 15px;
 }
 
 .score-logo {

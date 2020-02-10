@@ -659,7 +659,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         className="neck"
                         ref={this.neckRef}
                     >
-                        <div ref={this.notesRef} className="notes-container">
+                        <div ref={this.notesRef} className="notes-container hidden">
                             {
                                 this.state.instrumentNotes.map((note: NoteTime, idx: number) => {
                                     const i = idx;
@@ -746,6 +746,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseDown={this.onMouseClick}>
                             <div className="strings" data-string-idx="5" data-string="E" ref={this.addString} />
                         </div>
+                        <div
+                            className="strings-extra"
+                        />
                     </div>
                 </ResizeSensor>
             </GlobalHotKeys>
