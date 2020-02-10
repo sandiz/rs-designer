@@ -183,7 +183,7 @@
 .tab-progress {
     border-right: 1px solid #10161A;
     position: absolute;
-    height: 93%;
+    height: 100%;
     width: 0%;
     transform: translateX(0px);
     will-change: transform;
@@ -193,7 +193,7 @@
 .bp3-dark .tab-progress {
     border-right: 1px solid white;
     position: absolute;
-    height: 93%;
+    height: 100%;
     width: 0%;
     transform: translateX(0px);
     will-change: transform;

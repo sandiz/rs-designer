@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Elevation, Tooltip,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Tooltip,
 } from '@blueprintjs/core';
 import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
@@ -61,7 +61,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private tabNoteRef: RefObject<HTMLDivElement>;
     private overflowRef: RefObject<HTMLDivElement>;
     private noteEditorRef: RefObject<NoteEditor>;
-    private insertHeadRef: RefObject<HTMLDivElement>;
     private noteCountRef: RefObject<HTMLSpanElement>;
     private progressRAF = 0;
     private prevX = 0;
@@ -92,7 +91,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.tabNoteRef = React.createRef();
         this.overflowRef = React.createRef();
         this.noteEditorRef = React.createRef();
-        this.insertHeadRef = React.createRef();
         this.noteCountRef = React.createRef();
     }
 
@@ -192,15 +190,9 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
         const time = MediaPlayerService.getCurrentTime();
         const per = (time / MediaPlayerService.getDuration()) * 100;
-        if (this.neckContainerRef.current && this.progressRef.current && this.insertHeadRef.current) {
+        if (this.neckContainerRef.current && this.progressRef.current) {
             const width = this.neckContainerRef.current.clientWidth;
             this.progressRef.current.style.transform = `translateX(${(per / 100) * width}px)`;
-
-            if (this.state.insertHeadBeatIdx < this.state.beats.length) {
-                const beatStart = parseFloat(this.state.beats[this.state.insertHeadBeatIdx].start);
-                const beatPer = (beatStart / MediaPlayerService.getDuration()) * 100;
-                this.insertHeadRef.current.style.transform = `translateX(${(beatPer / 100) * width}px)`;
-            }
 
             if (this.overflowRef.current && MediaPlayerService.isPlaying()) {
                 const sl = this.overflowRef.current.scrollLeft + this.overflowRef.current.clientWidth;
@@ -616,15 +608,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             }}
                         >
                             <div className={classNames("neck-container")} ref={this.neckContainerRef}>
-                                <div className="tab-progress hidden" ref={this.progressRef} />
-                                <div className="tab-insertHead hidden" ref={this.insertHeadRef}>
-                                    <Card
-                                        interactive
-                                        className="tab-insertHeadSlider"
-                                        elevation={Elevation.TWO}
-                                        onMouseDown={this.startInsertHead}
-                                    />
-                                </div>
+                                <div className="tab-progress" ref={this.progressRef} />
                                 <NoteEditor
                                     ref={this.noteEditorRef}
                                     width={this.state.zoom * this.state.duration}
