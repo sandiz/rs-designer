@@ -1,17 +1,16 @@
-/* eslint-disable */
 import React from 'react'
-
 import * as FS from 'fs';   /* for types */
-const fs: typeof FS = window.require("fs");
-
 import * as MM from 'music-metadata'
-const mm: typeof MM = window.require("music-metadata");
-
 import * as FSE from 'fs-extra';
-import MediaPlayerService from '../services/mediaplayer';
-const fsextra: typeof FSE = window.require("fs-extra");
 
+import MediaPlayerService from '../services/mediaplayer';
+
+const { ipcRenderer } = window.require("electron");
+const fs: typeof FS = window.require("fs");
+const mm: typeof MM = window.require("music-metadata");
+const fsextra: typeof FSE = window.require("fs-extra");
 const albumArt = require('./album-art');
+
 
 export const setStateAsync = (obj: React.Component, state: object) => {
     return new Promise((resolve) => {
@@ -19,8 +18,8 @@ export const setStateAsync = (obj: React.Component, state: object) => {
     });
 }
 
-export const exists = (filepath: string): Promise<Boolean> => new Promise((resolve) => {
-    fs.exists(filepath, (exists) => resolve(exists));
+export const exists = (filepath: string): Promise<boolean> => new Promise((resolve) => {
+    fs.exists(filepath, (e1) => resolve(e1));
 })
 
 export const readFile = (filePath: string): Promise<Buffer> => new Promise((resolve, reject) => {
@@ -30,7 +29,7 @@ export const readFile = (filePath: string): Promise<Buffer> => new Promise((reso
     });
 });
 
-export const writeFile = (filePath: string, data: any) => new Promise((resolve, reject) => {
+export const writeFile = (filePath: string, data: Buffer | string) => new Promise((resolve, reject) => {
     fs.writeFile(filePath, data, (err) => {
         if (err) reject(err);
         else resolve();
@@ -55,7 +54,7 @@ export const readTags = (file: string): Promise<MM.IAudioMetadata> => new Promis
 })
 
 export const copyDir = (src: string, dest: string, options: FSE.CopyOptions) => new Promise((resolve, reject) => {
-    fsextra.copy(src, dest, options, function (err) {
+    fsextra.copy(src, dest, options, (err) => {
         if (err) {
             reject(err);
         } else {
@@ -78,12 +77,12 @@ export const readDir = (dir: string): Promise<string[]> => new Promise((resolve,
     });
 })
 
+// eslint-disable-next-line 
 export const assign = (obj: { [key: string]: any }, keyPath: string[], value: any) => {
-    let lastKeyIndex = keyPath.length - 1;
-    for (var i = 0; i < lastKeyIndex; ++i) {
-        let key = keyPath[i];
-        if (!(key in obj))
-            obj[key] = {}
+    const lastKeyIndex = keyPath.length - 1;
+    for (let i = 0; i < lastKeyIndex; i += 1) {
+        const key = keyPath[i];
+        if (!(key in obj)) obj[key] = {}
         obj = obj[key];
     }
     obj[keyPath[lastKeyIndex]] = value;
@@ -111,14 +110,14 @@ export const lerp = (start: number, end: number, amt: number): number => {
 }
 
 export const toTitleCase = (toTransform: string) => {
-    return toTransform.replace(/\b([a-z])/g, function (_, initial) {
+    return toTransform.replace(/\b([a-z])/g, (_, initial) => {
         return initial.toUpperCase();
     });
 }
 
 export const getPositionFromTop = (element: HTMLElement) => {
-    var xPosition = 0;
-    var yPosition = 0;
+    let xPosition = 0;
+    let yPosition = 0;
 
     while (element) {
         xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
@@ -130,11 +129,11 @@ export const getPositionFromTop = (element: HTMLElement) => {
 }
 
 export const sec2time = (timeInSeconds: number, withMS = false) => {
-    const pad = function (num: number, size: number) { return ('000' + num).slice(size * -1); };
+    const pad = (num: number, size: number) => { return ('000' + num).slice(size * -1); };
     const time: number = parseFloat(timeInSeconds.toString());
     const minutes = Math.floor(time / 60) % 60;
     const seconds = Math.floor(time - minutes * 60);
-    const milliseconds = parseInt(time.toString().slice(-3));
+    const milliseconds = parseInt(time.toString().slice(-3), 10);
 
     if (withMS) return pad(minutes, 2) + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 3);
     else return pad(minutes, 2) + ':' + pad(seconds, 2);
@@ -146,25 +145,24 @@ export const UUID = (): string => {
 
 export const fpsize = () => {
     // shim layer with setTimeout fallback
-    var fpsElement = document.getElementById("fps");
-    var memElement = document.getElementById("memory");
-    var latencyElement = document.getElementById("latency");
+    const fpsElement = document.getElementById("fps");
+    const memElement = document.getElementById("memory");
+    const latencyElement = document.getElementById("latency");
 
-    var filterStrength = 20;
-    var frameTime = 0;
-    var lastLoop = Date.now();
-    var thisLoop: number;
+    const filterStrength = 20;
+    let frameTime = 0;
+    let lastLoop = Date.now();
+    let thisLoop: number;
 
-    var render = function () {
-        var now = Date.now() / 1000;  // get time in seconds
-
+    const render = () => {
         thisLoop = Date.now();
-        var thisFrameTime = thisLoop - lastLoop;
+        const thisFrameTime = thisLoop - lastLoop;
         frameTime += (thisFrameTime - frameTime) / filterStrength;
         lastLoop = thisLoop;
 
         // compute fps
-        var fps = (1000 / frameTime).toFixed(0);
+        const fps = (1000 / frameTime).toFixed(0);
+        // eslint-disable-next-line
         const perf = (window.performance as any);
         if (fpsElement && memElement) {
             const used = Math.round((perf.memory.usedJSHeapSize / (1024 * 1024)))
@@ -175,7 +173,7 @@ export const fpsize = () => {
         if (latencyElement) {
             if (MediaPlayerService.audioContext) {
                 const { baseLatency } = MediaPlayerService.audioContext;
-                let bl = baseLatency ? Math.round((baseLatency * 1000)) : "-";
+                const bl = baseLatency ? Math.round((baseLatency * 1000)) : "-";
                 latencyElement.childNodes[0].nodeValue = `${bl}ms`
             }
             else {
@@ -198,20 +196,23 @@ export const clamp = (min: number, max: number, val: number) => Math.min(Math.ma
 export function stopEventPropagation(e: Event) {
     e.stopPropagation();
     e.preventDefault();
-    if (e.currentTarget)
-        (e.currentTarget as HTMLElement).blur()
+    if (e.currentTarget) (e.currentTarget as HTMLElement).blur()
 }
 
 export function hashCode(str: string): string {
-    var hash = 0, i, chr;
+    let hash = 0;
+    let i;
+    let chr;
     if (str.length === 0) return hash.toString();
-    for (i = 0; i < str.length; i++) {
+    for (i = 0; i < str.length; i += 1) {
         chr = str.charCodeAt(i);
+        //eslint-disable-next-line no-bitwise
         hash = ((hash << 5) - hash) + chr;
+        //eslint-disable-next-line no-bitwise
         hash |= 0; // Convert to 32bit integer
     }
     return hash.toString();
-};
+}
 
 export function jsonStringifyCompare(a: object, b: object) {
     return JSON.stringify(a) === JSON.stringify(b);
@@ -222,4 +223,9 @@ export function clone(obj: object, method: "json" | "lodash" = "json") {
         return JSON.parse(JSON.stringify(obj)); // possible data loss on some objects
     }
     return obj;
+}
+
+export function collectGC() {
+    global.gc();
+    ipcRenderer.send("collect-gc");
 }

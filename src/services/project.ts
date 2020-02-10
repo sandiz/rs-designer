@@ -9,7 +9,7 @@ import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { IAudioMetadata } from 'music-metadata';
 import {
-    copyFile, writeFile, copyDir, readFile, readTags, removeDir, UUID, exists,
+    copyFile, writeFile, copyDir, readFile, readTags, removeDir, UUID, exists, collectGC,
 } from '../lib/utils'
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import { pitches, getTransposedKey } from '../lib/music-utils';
@@ -175,6 +175,7 @@ export class Project {
         this.inMemoryInstruments = new InstrumentsInMemory();
         MediaPlayerService.empty();
         MediaPlayerService.unload();
+        collectGC();
     }
 
     private closeProject = () => {

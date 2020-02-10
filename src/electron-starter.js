@@ -1,12 +1,13 @@
 const electron = require("electron");
 const { app, BrowserWindow, Menu, ipcMain, TouchBar, nativeImage } = electron;
-const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover, TouchBarSlider, TouchBarScrubber } = TouchBar
+const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover, TouchBarSlider, TouchBarScrubber } = TouchBar;
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
 const windowStateKeeper = require('electron-window-state');
 const openAboutWindow = require('about-window').default;
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+const v8 = require('v8');
 
 let mainWindow;
 let sideWindow;
@@ -20,7 +21,7 @@ let tbTempo = null;
 function createDefaultTouchBar() {
     const result = new TouchBarLabel({
         label: `Welcome to ${app.name}!`,
-    })
+    });
     const touchBar = new TouchBar({
         items: [
             new TouchBarButton({
@@ -50,7 +51,7 @@ function createDefaultTouchBar() {
                 click: () => mainWindow.webContents.send("import-media", "url")
             })
         ],
-    })
+    });
     return touchBar;
 }
 
@@ -63,18 +64,18 @@ function createProjectTouchBar(args) {
             items: [
                 new TouchBarButton({
                     icon: nativeImage.createFromNamedImage("NSTouchBarGoBackTemplate", [-1, 0, 1]),
-                    click: () => { mainWindow.webContents.send("change-tempo", -1) }
+                    click: () => { mainWindow.webContents.send("change-tempo", -1); }
                 }),
                 new TouchBarLabel({
                     label: projectInfo.tempo + " bpm",
                 }),
                 new TouchBarButton({
                     icon: nativeImage.createFromNamedImage("NSTouchBarGoForwardTemplate", [-1, 0, 1]),
-                    click: () => { mainWindow.webContents.send("change-tempo", 1) }
+                    click: () => { mainWindow.webContents.send("change-tempo", 1); }
                 }),
             ],
         })
-    })
+    });
     tbKey = new TouchBarPopover({
         icon: nativeImage.createFromPath(path.join(__dirname, "assets/key.png")),
         showCloseButton: true,
@@ -82,18 +83,18 @@ function createProjectTouchBar(args) {
             items: [
                 new TouchBarButton({
                     icon: nativeImage.createFromNamedImage("NSTouchBarGoBackTemplate", [-1, 0, 1]),
-                    click: () => { mainWindow.webContents.send("change-key", -1) }
+                    click: () => { mainWindow.webContents.send("change-key", -1); }
                 }),
                 new TouchBarLabel({
                     label: key.displayName,
                 }),
                 new TouchBarButton({
                     icon: nativeImage.createFromNamedImage("NSTouchBarGoForwardTemplate", [-1, 0, 1]),
-                    click: () => { mainWindow.webContents.send("change-key", 1) }
+                    click: () => { mainWindow.webContents.send("change-key", 1); }
                 }),
             ],
         })
-    })
+    });
     const iq = new TouchBarPopover({
         icon: nativeImage.createFromPath(path.join(__dirname, "assets/iq.png")),
         showCloseButton: true,
@@ -108,10 +109,10 @@ function createProjectTouchBar(args) {
                 })
             ],
         })
-    })
+    });
     const label = new TouchBarLabel({
         label: `${projectInfo.song} by ${projectInfo.artist}`,
-    })
+    });
     projectTouchbar = new TouchBar({
         items: [
             iq,
@@ -120,7 +121,7 @@ function createProjectTouchBar(args) {
             new TouchBarSpacer({ size: 'small' }),
             label,
         ],
-    })
+    });
     return projectTouchbar;
 }
 
@@ -139,7 +140,7 @@ async function createWindow() {
         defaultWidth: 1700,
         defaultHeight: 1080
     });
-    let frameOpts = {}
+    let frameOpts = {};
     if (process.platform !== 'win32') {
         frameOpts = {
             frame: false,
@@ -234,7 +235,7 @@ async function createWindow() {
                     label: 'Reload',
                     accelerator: 'CmdOrCtrl+R',
                     click(item, focusedWindow) {
-                        if (focusedWindow) focusedWindow.reload()
+                        if (focusedWindow) focusedWindow.reload();
                     }
                 },
                 {
@@ -259,7 +260,7 @@ async function createWindow() {
         mainWindow = null;
     });
     mainWindow.once('ready-to-show', () => {
-        mainWindow.show()
+        mainWindow.show();
     });
     mainWindow.webContents.on('new-window', function (e, url, frameName, disposition, options) {
         // hook on new opened window
@@ -271,7 +272,7 @@ async function createWindow() {
 }
 
 async function createMediaWindow() {
-    let frameOpts = {}
+    let frameOpts = {};
     if (process.platform !== 'win32') {
         frameOpts = {
             frame: false,
@@ -314,8 +315,8 @@ async function createMediaWindow() {
         sideWindow = null;
     });
     sideWindow.once('ready-to-show', () => {
-        sideWindow.show()
-    })
+        sideWindow.show();
+    });
 }
 
 const sendOpenFileRequest = () => {
@@ -325,7 +326,7 @@ const sendOpenFileRequest = () => {
             incomingPath = "";
         }, 500);
     }
-}
+};
 
 const onReady = () => {
     createWindow();
@@ -353,15 +354,15 @@ const onReady = () => {
     });
     sendOpenFileRequest();
     ready = true;
-}
+};
 
 const onWindowAllClosed = () => {
     app.quit();
-}
+};
 
 const onWillFinishLaunching = () => {
     app.on('open-file', onOpenfile);
-}
+};
 
 const onOpenfile = (e, path) => {
     e.preventDefault();
@@ -369,13 +370,13 @@ const onOpenfile = (e, path) => {
     if (ready) {
         sendOpenFileRequest();
     }
-}
+};
 
 const onActivate = () => {
     if (mainWindow === null) {
         createWindow();
     }
-}
+};
 
 const onBeforeQuit = () => {
     app.off("activate", onActivate);
@@ -385,13 +386,18 @@ const onBeforeQuit = () => {
     app.off("window-all-closed", onWindowAllClosed);
     app.off("ready", onReady);
     ipcMain.off('open-mi-window', sideWindow);
-}
+};
 
+v8.setFlagsFromString('--expose_gc');
+global.gc = require("vm").runInNewContext('gc');
+app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=1024');
 app.allowRendererProcessReuse = true;
+
 app.on("activate", onActivate);
 app.on("before-quit", onBeforeQuit);
 app.on('will-finish-launching', onWillFinishLaunching);
 app.on("window-all-closed", onWindowAllClosed);
 app.on("ready", onReady);
 ipcMain.on('open-mi-window', createMediaWindow);
+ipcMain.on('collect-gc', global.gc);
 
