@@ -4,6 +4,7 @@ const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover, TouchBar
 const path = require("path");
 const url = require("url");
 const isDev = require('electron-is-dev');
+const isMac = process.platform === "darwin";
 const windowStateKeeper = require('electron-window-state');
 const openAboutWindow = require('about-window').default;
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
@@ -391,6 +392,7 @@ const onBeforeQuit = () => {
 v8.setFlagsFromString('--expose_gc');
 global.gc = require("vm").runInNewContext('gc');
 app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=1024');
+if (isMac) app.commandLine.appendSwitch('enable-features', "Metal");
 app.allowRendererProcessReuse = true;
 
 app.on("activate", onActivate);

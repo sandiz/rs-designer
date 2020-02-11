@@ -118,6 +118,7 @@
     width: 100%;
     position: absolute;
     top: 30%;
+    opacity: 0.5;
 }
 
 .strings-first {
@@ -144,14 +145,16 @@
 }
 
 .hover-note {
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
+    margin: 0;
+    padding: 0 !important;
     position: absolute;
-    background-color: rgb(244, 67, 71);
     visibility: hidden;
+    background-color: rgb(244, 67, 71);
     pointer-events: none;
     border-radius: 20px !important;
-    transition: 150ms !important;
+    transition: 0 !important;
     filter: brightness(0.5);
 }
 
@@ -245,7 +248,6 @@
 .tab-insertHeadSlider:hover,
 .tab-insertHeadSlider:active {
     background-color: $pt-intent-primary !important;
-    transition: 100ms;
 }
 
 .strings-hitbox {
@@ -283,38 +285,37 @@
 
 .notes-container {
     position: absolute;
-    transition: 0s;
 }
 
 .note {
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    border-radius: 20px !important;
+    border-radius: 8px !important;
     margin: 0;
     padding: 0 !important;
-    padding-top: 6px !important;
-    font-size: 22px;
-    color: #30404E;
+    padding-top: 1px !important;
+    font-size: 18px;
+    color: #ffffffdf;
     z-index: 10;
     cursor: pointer;
-    transition: 0ms !important;
+    font-weight: bold;
 }
 
 .bp3-dark .note {
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     position: absolute;
     background-color: rgb(244, 67, 71);
-    border-radius: 20px !important;
+    border-radius: 8px !important;
     margin: 0;
     padding: 0 !important;
-    padding-top: 6px !important;
-    font-size: 22px;
-    color: #30404E;
+    padding-top: 1px !important;
+    font-size: 18px;
+    color: #ffffffdf;
     z-index: 10;
-    transition: 0ms !important;
+    font-weight: bold;
 }
 
 .note-selected {

@@ -17,9 +17,9 @@ import {
 import {
     HotkeyInfo,
 } from '../../types/hotkey'
-import './TabEditor.scss';
 import { jsonStringifyCompare, clone } from '../../lib/utils';
 import { TabEditorSettings } from '../../types/settings';
+import './TabEditor.scss';
 
 const beatCache: { [key: string]: [number, BeatTime] } = {}; //TODO: clear on beat change
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
@@ -57,8 +57,8 @@ interface NoteEditorState {
     instrumentTags: string[];
     selectedNotes: NoteTime[];
 }
-const NOTE_WIDTH = 40; /* see .note css class */
-const HOVER_NOTE_TOP_OFFSET = 10;
+const NOTE_WIDTH = 25; /* see .note css class */
+const HOVER_NOTE_TOP_OFFSET = 12.5;
 enum FRET { MAX = 24, MIN = 0 }
 export enum keyShortcuts {
     SELECT_ALL,
@@ -353,9 +353,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const y = event.clientY - (rect.top) - (hr.height / 2);
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
 
-            if (this.state.beats.length <= 0) {
-                this.hoverRef.current.style.transition = "0ms";
-            }
+            this.hoverRef.current.style.transition = "0";
             x = closest[0]
             if (this.currentString) {
                 this.hoverRef.current.style.transform = `translate(${x}px,${this.currentString.offsetTop - (hr.height - HOVER_NOTE_TOP_OFFSET)}px)`;
@@ -659,7 +657,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         className="neck"
                         ref={this.neckRef}
                     >
-                        <div ref={this.notesRef} className="notes-container hidden">
+                        <div ref={this.notesRef} className="notes-container">
                             {
                                 this.state.instrumentNotes.map((note: NoteTime, idx: number) => {
                                     const i = idx;
@@ -688,7 +686,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                                 textAlign: "center",
                                                 background: STRING_COLORS[this.props.settings.getCS()][note.string],
                                                 position: "absolute",
-                                                transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2) - HOVER_NOTE_TOP_OFFSET}px)`,
+                                                transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2)}px)`,
                                             }}
                                         >
                                             {note.fret}

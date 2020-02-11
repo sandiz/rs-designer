@@ -57,12 +57,12 @@ export const WasmTypes: { [key: string]: WebAssembly.Exports | null } = {
 /* colors */
 
 const DEFAULT_COLORS: string[] = [
-    "linear-gradient(0deg, rgba(193,55,211,1) 12%, rgba(237,101,255,1) 100%)", //"#C137D3",
-    "linear-gradient(0deg, rgba(91,228,42,1) 12%, rgba(134,255,91,1) 100%)", //"#5BE42A",
-    "linear-gradient(0deg, rgba(228,149,52,1) 12%, rgba(255,184,96,1) 100%)", //"#E49534",
-    "linear-gradient(0deg, rgba(48,147,195,1) 12%, rgba(98,204,255,1) 100%)", //"#3093C3",
-    "linear-gradient(0deg, rgba(208,181,36,1) 12%, rgba(255,232,106,1) 100%)", //"#D0B524",
-    "linear-gradient(0deg, rgba(213,22,41,1) 12%, rgba(255,117,131,1) 100%)", //"#DB4251",
+    "linear-gradient(0deg, rgba(193,55,211,0.5) 12%, rgba(237,101,255,0.75) 100%)", //"#C137D3",
+    "linear-gradient(0deg, rgba(91,228,42,0.5) 12%, rgba(134,255,91,0.75) 100%)", //"#5BE42A",
+    "linear-gradient(0deg, rgba(228,149,52,0.5) 12%, rgba(255,184,96,0.75) 100%)", //"#E49534",
+    "linear-gradient(0deg, rgba(48,147,195,0.5) 12%, rgba(98,204,255,0.75) 100%)", //"#3093C3",
+    "linear-gradient(0deg, rgba(208,181,36,0.5) 12%, rgba(255,232,106,0.75) 100%)", //"#D0B524",
+    "linear-gradient(0deg, rgba(213,22,41,0.5) 12%, rgba(255,117,131,0.75) 100%)", //"#DB4251",
 ]
 const BOLD_COLORS: string[] = [
     "linear-gradient(0deg, rgba(127,60,141,1) 12%, rgba(238,157,255,1) 100%)", //"#7F3C8D",
