@@ -153,7 +153,7 @@
     visibility: hidden;
     background-color: rgb(244, 67, 71);
     pointer-events: none;
-    border-radius: 20px !important;
+    border-radius: 8px !important;
     transition: 0 !important;
     filter: brightness(0.5);
 }
@@ -297,7 +297,7 @@
     padding: 0 !important;
     padding-top: 1px !important;
     font-size: 18px;
-    color: #ffffffdf;
+    color: #000000df;
     z-index: 10;
     cursor: pointer;
     font-weight: bold;
@@ -319,13 +319,15 @@
 }
 
 .note-selected {
-    border: 5px solid $pt-app-background-color;
-    padding: 1px !important;
+    //border: 1px solid $pt-app-background-color;
+    //padding: 1px !important;
+    background: rgba($pt-intent-primary, 1) !important;
 }
 
 .bp3-dark .note-selected {
-    border: 5px solid $pt-text-color;
-    padding: 1px !important;
+    //border: 1px solid $pt-text-color;
+    //padding: 1px !important;
+    background: rgba($pt-intent-primary, 1) !important;
 }
 
 .tag-input {
