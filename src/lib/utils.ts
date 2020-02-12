@@ -2,6 +2,7 @@ import React from 'react'
 import * as FS from 'fs';   /* for types */
 import * as MM from 'music-metadata'
 import * as FSE from 'fs-extra';
+import * as _ from 'lodash';
 
 import MediaPlayerService from '../services/mediaplayer';
 
@@ -221,6 +222,9 @@ export function jsonStringifyCompare(a: object, b: object) {
 export function clone(obj: object, method: "json" | "lodash" = "json") {
     if (method === "json") {
         return JSON.parse(JSON.stringify(obj)); // possible data loss on some objects
+    }
+    else if (method === "lodash") {
+        return _.cloneDeep(obj);
     }
     return obj;
 }
