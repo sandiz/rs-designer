@@ -133,6 +133,8 @@
     background-color: rgba(1, 1, 1, 0.2);
     justify-content: space-between;
     cursor: pointer !important;
+    border-left: 1px solid #455e77;
+    border-right: 1px solid #455e77;
 }
 
 .neck {
@@ -142,6 +144,8 @@
     justify-content: space-between;
     cursor: pointer !important;
     background-color: rgba(206, 217, 224, .4);
+    border-left: 1px solid #455e77;
+    border-right: 1px solid #455e77;
 }
 
 .hover-note {
@@ -256,8 +260,6 @@
     justify-content: flex-end;
     flex-direction: column;
     align-items: flex-end;
-    border-left: 2px solid #455e77;
-    border-right: 2px solid #455e77;
 }
 
 .strings-extra {
@@ -272,14 +274,14 @@
 .strings {
     height: 1px;
     box-shadow: inset 0 0 0px;
-    background-color: #69696980;
+    background-color: #2727272e;
     width: 100%;
 }
 
 .bp3-dark .strings {
     height: 1px;
     box-shadow: inset 0 0 0px;
-    background-color: #a7b6c280;
+    background-color: #69696980;
     width: 100%;
 }
 
@@ -360,7 +362,5 @@
 
 .tuning-name {
     position: absolute;
-    left: 18px;
-    top: 52px;
-    font-size: 20px;
+    left: 10px;
 }

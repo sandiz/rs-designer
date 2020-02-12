@@ -66,6 +66,11 @@
     margin-top: 15px;
 }
 
+.sidebar-score-item {
+    padding: 0 !important;
+    height: 25%;
+}
+
 .score-logo {
     width: 20px;
     height: 20px;
@@ -137,4 +142,65 @@
 #tempo {
     font-size: 18px;
     margin-left: 20px;
+}
+
+.score-collapsed {
+    height: 7.25% !important;
+}
+
+.score-item-collection {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.score-item-icon {
+    position: absolute;
+    right: 10px;
+    margin-top: -5px;
+}
+
+.track-card {
+    font-size: 16px;
+    border-radius: 0px;
+}
+
+.track-callout {
+    border-radius: 0px;
+}
+
+.score-item-elements {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 15px;
+}
+
+.score-left-text {
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.score-item-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.score-item-gap {
+    margin-top: 10px;
+}
+
+.score-right-toggle {
+    margin-bottom: 0px;
+    padding-top: 5px;
+}
+
+.score-right-numeric-input {
+    justify-content: flex-end;
+}
+
+.score-right-numeric-input>:nth-child(1) {
+    width: 25%;
 }

@@ -268,6 +268,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         });
                         this.setState(state => {
                             const list = [...state.instrumentNotes, newNote];
+                            list.sort((a, b) => a.startTime - b.startTime);
                             return {
                                 instrumentNotes: list,
                             }
@@ -669,7 +670,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                             ref={ref => {
                                                 if (ref) this.noteDivRefs.push(ref);
                                             }}
-                                            data-note-idx={idx}
+                                            data-note-idx={i}
                                             onMouseUp={e => this.onMouseClickNote(e, i)}
                                             key={note.string + "_" + note.fret + "_" + note.startTime}
                                             className={
@@ -703,6 +704,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseLeave={this.onMouseLeave}
                             onClick={this.onMouseClick}>
                             <div className="strings" data-string-idx="0" data-string="E" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>E</span>
                         </div>
                         <div
                             className="strings-hitbox"
@@ -711,6 +713,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseLeave={this.onMouseLeave}
                             onClick={this.onMouseClick}>
                             <div className="strings" data-string-idx="1" data-string="B" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>B</span>
                         </div>
                         <div
                             className="strings-hitbox"
@@ -719,6 +722,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseLeave={this.onMouseLeave}
                             onClick={this.onMouseClick}>
                             <div className="strings" data-string-idx="2" data-string="G" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>G</span>
                         </div>
                         <div
                             className="strings-hitbox"
@@ -727,6 +731,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseLeave={this.onMouseLeave}
                             onClick={this.onMouseClick}>
                             <div className="strings" data-string-idx="3" data-string="D" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>D</span>
                         </div>
                         <div
                             className="strings-hitbox"
@@ -735,6 +740,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseLeave={this.onMouseLeave}
                             onClick={this.onMouseClick}>
                             <div className="strings" data-string-idx="4" data-string="A" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>A</span>
                         </div>
                         <div
                             className="strings-hitbox"
@@ -743,6 +749,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                             onMouseOut={this.onMouseLeave}
                             onMouseDown={this.onMouseClick}>
                             <div className="strings" data-string-idx="5" data-string="E" ref={this.addString} />
+                            <span className={classNames("tuning-name", Classes.TEXT_MUTED)}>E</span>
                         </div>
                         <div
                             className="strings-extra"

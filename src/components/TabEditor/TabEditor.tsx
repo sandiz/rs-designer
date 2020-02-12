@@ -4,7 +4,6 @@ import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
     NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Tooltip,
 } from '@blueprintjs/core';
-import { Select } from "@blueprintjs/select";
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import { IconNames, IconName } from '@blueprintjs/icons';
 import { CardExtended, ButtonExtended } from '../Extended/FadeoutSlider';
@@ -14,8 +13,7 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
 import NoteEditor, { keyShortcuts, snapToGrid } from './NoteEditor';
 import {
-    InstrumentListItem, filterIFile, renderFile, isInstrumentFileDisabled,
-    areFilesEqual, getAllFiles, getIndexFromDivider,
+    InstrumentListItem, getAllFiles,
 } from './InstrumentFile';
 import {
     Instrument, InstrumentOptions,
@@ -31,13 +29,11 @@ import { metronomeSVG, clapSVG } from '../../svgIcons';
 import { TabEditorSettings } from '../../types/settings';
 
 const { nativeTheme } = window.require("electron").remote;
-const InstrumentalFileSelect = Select.ofType<InstrumentListItem>();
 
 enum TagItem { DD = "dd", TUNING = "tuning", CENT = "centoffset", CAPO = "capo" }
 interface TabEditorState {
     duration: number;
     zoom: number;
-    files: InstrumentListItem[];
     currentFile: InstrumentListItem | null;
     currentFileIdx: number;
     beats: BeatTime[];
@@ -72,7 +68,6 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.state = {
             duration: 0,
             zoom: info ? info.settings.tabEditor.getZL() : ZOOM_DEFAULT,
-            files: [],
             currentFile: null,
             currentFileIdx: 0,
             beats: [],
@@ -121,7 +116,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             MediaPlayerService.wavesurfer.off('stop', this.onStop);
         }
         this.setState({
-            currentFile: null, currentFileIdx: 0, files: [],
+            currentFile: null, currentFileIdx: 0,
         });
     }
 
@@ -225,8 +220,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     updateFiles = () => {
-        const file = getAllFiles().filter(item => !item.isDivider)[this.state.currentFileIdx];
-        this.setState({ files: getAllFiles(), currentFile: file });
+        const file = getAllFiles()[this.state.currentFileIdx];
+        this.setState({ currentFile: file });
     }
 
     updateBeatMap = async () => {
@@ -366,14 +361,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     handleFileChange = (item: InstrumentListItem) => {
-        if (item.isDivider) {
-            ProjectService.createInstrument(item.key as Instrument);
-            this.updateFiles();
-        }
-        else {
-            const idx = getAllFiles().filter(p => !p.isDivider).findIndex(p => p.hash === item.hash)
-            this.setState({ currentFile: item, currentFileIdx: idx });
-        }
+        const idx = getAllFiles().findIndex(p => p.hash === item.hash)
+        this.setState({ currentFile: item, currentFileIdx: idx });
     }
 
     handleTagChange = (values: React.ReactNode[]) => {
@@ -434,18 +423,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     deleteFile = () => {
-        const files = this.state.files.filter(p => !p.isDivider);
-        if (files.length === 1) {
-            this.deleteNotes();
-            this.handleTagChange([]);
-        }
-        else {
-            if (this.state.currentFile) {
-                const idx = getIndexFromDivider(this.state.currentFile, this.state.files)
-                ProjectService.removeInstrumentNotes(this.state.currentFile.key as Instrument, (idx[0] - idx[1]) - 1);
-                this.setState({ currentFileIdx: 0 }, () => this.updateFiles());
-            }
-        }
+
     }
 
     deleteNotes = () => {
@@ -654,7 +632,6 @@ interface InfoPanelProps {
     zoom: (v: number) => void;
     zoomValue: number;
 
-    files: InstrumentListItem[];
     file: InstrumentListItem | null;
     handleFileChange: (item: InstrumentListItem, event?: React.SyntheticEvent<HTMLElement>) => void;
 
@@ -752,27 +729,9 @@ const renderTagMenu = (props: InfoPanelProps): JSX.Element => {
 }
 
 const InfoPanel: React.FunctionComponent<InfoPanelProps> = (props: InfoPanelProps) => {
-    if (props.files.length === 0 || props.file === null) return null;
-    const idxDiv = getIndexFromDivider(props.file, props.files);
     const delChartMsg = <p>Are you sure you want to remove all transcribed notes? <br /></p>
     return (
         <div className="tabeditor-panel">
-            <InstrumentalFileSelect
-                activeItem={props.file}
-                filterable
-                resetOnClose
-                className={classNames("info-item-control", Classes.ELEVATION_1)}
-                itemPredicate={filterIFile}
-                itemRenderer={(item, ps) => renderFile(item, ps, props.file, props.files)}
-                itemDisabled={isInstrumentFileDisabled}
-                itemsEqual={areFilesEqual}
-                items={props.files}
-                noResults={<MenuItem disabled text="No files." />}
-                onItemSelect={props.handleFileChange}
-            >
-                {/* children become the popover target; render value here */}
-                <ButtonExtended text={props.file ? <span>{props.file.title} - Chart #<span className="number">{idxDiv[0] - idxDiv[1]}</span></span> : ""} rightIcon="double-caret-vertical" />
-            </InstrumentalFileSelect>
             <TagInput
                 className={classNames("info-item-control", "tag-input", Classes.ELEVATION_1)}
                 leftIcon={IconNames.TAG}
