@@ -9,6 +9,7 @@ import AudioTrackModule from './AudioTrackModule';
 import * as AppLogo from '../../assets/icons/icon-1024x1024.png';
 import './Sidebar.scss';
 import ChartTrackModule from './ChartTrackModule';
+import NotesModule from './NotesModule';
 
 const pkgInfo = require("../../../package.json");
 
@@ -75,6 +76,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                     </div>
                 </Card>
                 <AudioTrackModule project={this.props.project} />
+                <NotesModule project={this.props.project} />
                 <ChartTrackModule project={this.props.project} />
             </Card>
         )
