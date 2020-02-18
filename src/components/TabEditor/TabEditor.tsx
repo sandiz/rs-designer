@@ -44,9 +44,9 @@ interface TabEditorState {
     settings: TabEditorSettings;
 }
 const PX_PER_SEC = 40;
-export const ZOOM_MIN = PX_PER_SEC;
-export const ZOOM_MAX = PX_PER_SEC * 10
-export const ZOOM_DEFAULT = PX_PER_SEC;
+const ZOOM_MIN = PX_PER_SEC;
+const ZOOM_MAX = PX_PER_SEC * 10
+const ZOOM_DEFAULT = PX_PER_SEC;
 class TabEditor extends React.Component<{}, TabEditorState> {
     private beatsRef: RefObject<HTMLDivElement>;
     private timelineRef: RefObject<HTMLDivElement>;

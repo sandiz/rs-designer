@@ -57,13 +57,13 @@
 
 .sidebar-audio-track {
     padding: 0 !important;
-    height: 232px;
 }
 
 .sidebar-score-track {
     padding: 0 !important;
-    height: 65%;
+    /* height: 65%; */
     margin-top: 15px;
+    overflow-y: scroll;
 }
 
 .sidebar-score-item {
@@ -105,6 +105,7 @@
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 20px;
+    padding-bottom: 20px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

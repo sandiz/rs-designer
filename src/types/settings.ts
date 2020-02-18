@@ -1,15 +1,14 @@
-import { ZOOM_DEFAULT } from '../components/TabEditor/TabEditor';
-import { ZOOM } from './base';
+import { ZOOM, CHART_ZOOM } from './base';
 
 export enum COLOR_SCHEME { DEFAULT = "default" }
 export class TabEditorSettings {
-    zoomLevel?= ZOOM_DEFAULT;
+    zoomLevel?= CHART_ZOOM.DEFAULT;
     colorScheme?: COLOR_SCHEME = COLOR_SCHEME.DEFAULT;
     instrumentVolume?= 1;
 
     constructor(params: TabEditorSettings = {} as TabEditorSettings) {
         const {
-            zoomLevel = ZOOM_DEFAULT,
+            zoomLevel = CHART_ZOOM.DEFAULT,
             colorScheme = COLOR_SCHEME.DEFAULT,
             instrumentVolume = 1,
         } = params;
@@ -23,7 +22,7 @@ export class TabEditorSettings {
         this.zoomLevel = num;
     }
 
-    public getZL() { return this.zoomLevel ? this.zoomLevel : ZOOM_DEFAULT }
+    public getZL() { return this.zoomLevel ? this.zoomLevel : CHART_ZOOM.DEFAULT }
     public getCS() { return this.colorScheme ? this.colorScheme : COLOR_SCHEME.DEFAULT }
 }
 
@@ -32,7 +31,7 @@ export class WaveformSettings {
 
     constructor(params: WaveformSettings = {} as WaveformSettings) {
         const {
-            zoomLevel = ZOOM_DEFAULT,
+            zoomLevel = CHART_ZOOM.DEFAULT,
         } = params;
 
         this.zoomLevel = zoomLevel;

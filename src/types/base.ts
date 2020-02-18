@@ -36,6 +36,12 @@ export enum VOLUME { MAX = 1, MIN = 0, DEFAULT = 0.5 }
 export enum ZOOM { MAX = 40, MIN = 5, DEFAULT = 5 }
 export enum TEMPO { MIN = 50, MAX = 120, DEFAULT = 100 }
 export enum KEY { MIN = -12, MAX = 12, DEFAULT = 0 }
+const PX_PER_SEC = 40;
+export const CHART_ZOOM = {
+    MIN: PX_PER_SEC,
+    MAX: PX_PER_SEC * 10,
+    DEFAULT: PX_PER_SEC,
+}
 
 export interface DialogContent {
     content: React.ReactElement;

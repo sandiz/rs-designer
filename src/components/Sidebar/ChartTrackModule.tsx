@@ -10,6 +10,8 @@ import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import { InstrumentListItem, getAllFiles } from '../TabEditor/InstrumentFile';
 import { toTitleCase } from '../../lib/utils';
 import { allTunings } from '../../types/musictheory';
+import { CHART_ZOOM } from '../../types/base';
+import SliderExtended from '../Extended/FadeoutSlider';
 
 interface ChartTrackProps {
     project: ProjectDetails;
@@ -161,6 +163,21 @@ class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState>
                                                                 onAdd={() => { }}
                                                                 onRemove={() => { }}
                                                             />
+                                                            <div className="score-item-row score-item-gap">
+                                                                <div className="score-left-text">Zoom</div>
+                                                            </div>
+                                                            <div className="zoom-item">
+                                                                <SliderExtended
+                                                                    min={CHART_ZOOM.MIN}
+                                                                    max={CHART_ZOOM.MAX}
+                                                                    value={CHART_ZOOM.DEFAULT}
+                                                                    stepSize={1}
+                                                                    labelRenderer={false}
+                                                                    className="zoom-item"
+                                                                    onChange={() => { }}
+                                                                    onRelease={() => { }}
+                                                                />
+                                                            </div>
                                                             <br />
                                                         </div>
                                                     </Collapse>
