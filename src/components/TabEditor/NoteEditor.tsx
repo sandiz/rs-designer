@@ -626,7 +626,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const item = this.state.instrumentNotes[i];
             if (item.startTime === b.args.startTime) {
                 const div = this.noteDivRefs[i];
-                div.style.filter = "grayscale(1)";
+                div.classList.add("note-highlight");
+                //div.style.filter = "grayscale(1)";
                 div.style.transition = "filter 0.1s"
                 //div.style.transitionTimingFunction = "ease-out"
                 items.push(div);
@@ -635,7 +636,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (items.length > 0) {
             setTimeout(() => {
                 items.forEach((div) => {
-                    div.style.filter = "unset";
+                    div.classList.remove("note-highlight");
+                    //div.style.filter = "unset";
                     div.style.transition = "0s"
                 })
             }, 200);

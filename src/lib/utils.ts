@@ -111,7 +111,7 @@ export const lerp = (start: number, end: number, amt: number): number => {
 }
 
 export const toTitleCase = (toTransform: string) => {
-    return toTransform.replace(/\b([a-z])/g, (_, initial) => {
+    return toTransform.replace(/\b([a-z])/g, (prev, initial) => {
         return initial.toUpperCase();
     });
 }

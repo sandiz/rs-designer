@@ -10,6 +10,9 @@ import { Regions, DEFAULT_REGIONS } from '../../types/regions';
 import { SongKey } from '../../types/musictheory';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
 import ProjectService from '../../services/project';
+import SliderExtended from '../Extended/FadeoutSlider';
+import MediaPlayerService from '../../services/mediaplayer';
+import { ZOOM } from '../../types/base';
 
 interface AudioTrackProps {
     project: ProjectDetails;
@@ -53,6 +56,9 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
     }
 
     render = () => {
+        const key = this.state.key[0] === "" ? "" : `${this.state.key[0]} ${this.state.key[1]}`;
+        const tempo = this.state.tempo === 0 ? "" : `${this.state.tempo}`;
+        console.log(key, tempo);
         return (
             <Card className="sidebar-card sidebar-audio-track" elevation={Elevation.THREE}>
                 <Callout
@@ -60,28 +66,20 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
                     intent={Intent.PRIMARY}
                     icon={IconNames.MUSIC}>
                     Audio
-                    </Callout>
+                    {
+                        this.props.project.loaded
+                            ? (
+                                <div className="key-tempo-header">
+                                    <span>&nbsp;&nbsp;</span>
+                                    <span>{key}</span>
+                                    <span>&nbsp;|&nbsp;</span>
+                                    <span className="number">{tempo} <span className="dark-toast">bpm</span></span>
+                                </div>
+                            )
+                            : null
+                    }
+                </Callout>
                 <div className="audio-track-content">
-                    <div className="key-tempo">
-                        <Card
-                            id="key"
-                            className={
-                                classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded })
-                            }
-                            elevation={Elevation.TWO}>
-                            {this.state.key[0] === "" ? "KEY" : `${this.state.key[0]} ${this.state.key[1]}`}
-                        </Card>
-                        <Card
-                            id="tempo"
-                            className={
-                                classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "number")
-                            }
-                            elevation={Elevation.TWO}>
-                            <span className={classNames("number", { hidden: this.state.tempo === 0 })}>{this.state.tempo}</span>
-                            {this.state.tempo === 0 ? "TEMPO" : " bpm"}
-                        </Card>
-                    </div>
-                    <br />
                     <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Regions</span>
                     <div className="region-body">
                         <HTMLSelect className="region-select" disabled={!this.props.project.loaded}>
@@ -94,7 +92,18 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
                         <Button icon={IconNames.PLUS} minimal />
                         <Button icon={IconNames.MINUS} minimal />
                     </div>
-
+                    <br />
+                    <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Zoom</span>
+                    <SliderExtended
+                        min={ZOOM.MIN}
+                        max={ZOOM.MAX}
+                        timerSource={MediaPlayerService.getZoom}
+                        stepSize={1}
+                        labelRenderer={false}
+                        className="zoom-item"
+                        dragStart={MediaPlayerService.zoom}
+                        dragEnd={MediaPlayerService.zoom}
+                    />
                 </div>
             </Card>
         );

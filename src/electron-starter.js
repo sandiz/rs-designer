@@ -7,7 +7,6 @@ const isDev = require('electron-is-dev');
 const isMac = process.platform === "darwin";
 const windowStateKeeper = require('electron-window-state');
 const openAboutWindow = require('about-window').default;
-const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 const v8 = require('v8');
 
 let mainWindow;
@@ -332,12 +331,12 @@ const sendOpenFileRequest = () => {
 const onReady = () => {
     createWindow();
     if (isDev) {
-        installExtension(REACT_DEVELOPER_TOOLS)
-            .then((name) => console.log(`Added Extension:  ${name}`))
-            .catch((err) => console.log('An error occurred: ', err));
-        installExtension("cmhomipkklckpomafalojobppmmidlgl") // web audio api
-            .then((name) => console.log(`Added Extension:  ${name}`))
-            .catch((err) => console.log('An error occurred: ', err));
+        //installExtension(REACT_DEVELOPER_TOOLS)
+        //    .then((name) => console.log(`Added Extension:  ${name}`))
+        //    .catch((err) => console.log('An error occurred: ', err));
+        //installExtension("cmhomipkklckpomafalojobppmmidlgl") // web audio api
+        //    .then((name) => console.log(`Added Extension:  ${name}`))
+        //    .catch((err) => console.log('An error occurred: ', err));
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
     ipcMain.on('project-touch-bar', (event, arg) => {

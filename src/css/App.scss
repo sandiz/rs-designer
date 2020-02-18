@@ -24,7 +24,8 @@ input,
 .spec-root,
 .media-bar-sticky,
 .tabeditor-panel,
-.tabeditor-body {
+.tabeditor-body,
+.audio-track-content {
     -webkit-app-region: no-drag;
 }
 
@@ -84,6 +85,10 @@ input,
 
 .number {
     font-family: Inconsolata, monospace;
+}
+
+.new-font {
+    font-family: Rajdhani;
 }
 
 .tall-divider {
