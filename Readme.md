@@ -6,6 +6,9 @@
 music transcription app & rocksmith cdlc generator (pre alpha WIP)
 
 Combines best features of [Capo](http://supermegaultragroovy.com/products/capo/mac/) and [Editor on Fire](https://github.com/raynebc/editor-on-fire)
+<p align="center">
+<img width="80.5%" src="https://github.com/sandiz/rs-designer/raw/master/screenshots/v3-square.png">
+</p>
 
 # roadmap
 - TODO
