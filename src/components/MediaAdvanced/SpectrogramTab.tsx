@@ -2,7 +2,8 @@ import React, { RefObject } from 'react';
 import { scale, Scale } from 'chroma-js';
 import Tone from 'tone';
 import {
-    Callout, Card, Elevation, Intent, Switch, Slider, FormGroup, HTMLSelect, Text, Colors,
+    Callout, Card, Elevation, Intent,
+    Switch, Slider, FormGroup, HTMLSelect, Text, Colors,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import colormap from 'colormap';
@@ -14,6 +15,7 @@ import {
     pitchesFromC, getNoteFrom, colorMaps, noteToHz,
 } from '../../lib/music-utils';
 import { setStateAsync } from '../../lib/utils';
+import CQTViewer, { CQTOptions } from './CQTViewer';
 
 type ctype = 'default' | typeof colorMaps[number];
 interface SpecState {
@@ -21,6 +23,7 @@ interface SpecState {
     colormap: ctype;
     eqAware: boolean;
     isTriggeringSynth: boolean;
+    online: boolean;
 }
 
 function getAWeighting(f: number) {
@@ -64,14 +67,11 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
     private cqtRenderLine: Function | null;
     private aWeightingLUT: Array<number> = [];
     private cqtFreqs: Array<number> = [];
-    private _calcTime = 0;
-    private _totalTime = 0;
-    private _timeCount = 0;
-    private _lastTime = 0;
     private raf = 0;
     private lastMax = 0;
     private synth: unknown;
     private lastModifiedKeyRefs: HTMLDivElement[] = [];
+    private cqtViewerRef = React.createRef<CQTViewer>();
 
     constructor(props: {}) {
         super(props);
@@ -87,7 +87,11 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         this.cqtRenderLine = null;
         this.keyRef = [];
         this.state = {
-            sensitivity: 150, colormap: 'default', eqAware: false, isTriggeringSynth: false,
+            sensitivity: 150,
+            colormap: 'default',
+            eqAware: false,
+            isTriggeringSynth: false,
+            online: false,
         }
     }
 
@@ -313,6 +317,17 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         }
     }
 
+    switchOnline = async () => {
+        const { online } = this.state;
+        await setStateAsync(this, { online: !online })
+        if (this.state.online === false) {
+            this.initLiveCQT();
+        }
+        else {
+            this.freeCQT();
+        }
+    }
+
     render = () => {
         return (
             <div className="spec-root">
@@ -320,145 +335,161 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
                     <Callout className="spec-callout font-weight-unset" intent={Intent.PRIMARY} icon={false}>
                         <div className="spec-name">
                             <span style={{ fontSize: 30 + 'px' }}>Chromagram</span>
-                            <Switch> online</Switch>
-                        </div>
-                        <Callout style={{ width: 80 + '%' }}>
-                            <Text>Options</Text>
-                            <br />
-                            <FormGroup label="Note Sensitivity">
-                                <Slider
-                                    min={0}
-                                    max={255}
-                                    value={this.state.sensitivity}
-                                    labelStepSize={255}
-                                    labelRenderer={false}
-                                    onChange={v => this.setState({ sensitivity: v })}
-                                    onRelease={v => this.setState({ sensitivity: v })}
-                                /* labelRenderer={item => {
-                                    return <span className="number">{item}</span>
-                                }} */
-                                />
-                            </FormGroup>
-                            <FormGroup label="Colormap" inline>
-                                <HTMLSelect
-                                    onChange={v => {
-                                        this.setState({ colormap: v.target.value as ctype });
-                                        v.target.blur();
-                                    }}
-                                    value={this.state.colormap}>
-                                    <option value="default">default</option>
-                                    {
-                                        colorMaps.map((item) => {
-                                            return <option key={item} value={item}>{item}</option>
-                                        })
-                                    }
-                                </HTMLSelect>
-                            </FormGroup>
-                            <FormGroup label="EQ Aware" inline>
-                                <Switch checked={this.state.eqAware} onChange={this.toggleEQAware} />
-                            </FormGroup>
-                        </Callout>
-                    </Callout>
-                </Card>
-                <Card key="spec-panel" elevation={Elevation.TWO} className="spec-info">
-                    <Callout className="spec-info-options" icon={false}>
-                        <div
-                            onMouseDown={() => this.triggerSynth('A0')}
-                            onMouseUp={() => this.releaseSynth()}
-                            onMouseEnter={() => this.onMouseEnter('A0')}
-                            onMouseLeave={() => this.onMouseLeave()}
-                            className="piano-key"
-                        >
-                            <div
-                                className="bp3-elevation-2"
-                                ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                <div className="piano-key-text">
-                                    <span className="piano-key-note">A</span>
-                                    <br />
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            onMouseDown={() => this.triggerSynth('A#0')}
-                            onMouseUp={() => this.releaseSynth()}
-                            onMouseEnter={() => this.onMouseEnter('A#0')}
-                            onMouseLeave={() => this.onMouseLeave()}
-                            className="piano-key piano-key-sharp">
-                            <div className="" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                <div className="piano-key-text">
-                                    <span className="piano-key-note" />
-                                    <br />
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            onMouseDown={() => this.triggerSynth('B0')}
-                            onMouseUp={() => this.releaseSynth()}
-                            onMouseEnter={() => this.onMouseEnter('B0')}
-                            onMouseLeave={() => this.onMouseLeave()}
-                            className="piano-key">
-                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                <div className="piano-key-text">
-                                    <span className="piano-key-note">B</span>
-                                    <br />
-                                </div>
-                            </div>
+                            <Switch onChange={this.switchOnline}> online</Switch>
                         </div>
                         {
-                            [1, 2, 3, 4, 5, 6, 7].map((idx) => {
-                                return pitchesFromC.map((note) => {
-                                    return (
+                            this.state.online === false
+                                ? (
+                                    <Callout style={{ width: 80 + '%' }}>
+                                        <Text>Options</Text>
+                                        <br />
+                                        <FormGroup label="Note Sensitivity">
+                                            <Slider
+                                                min={0}
+                                                max={255}
+                                                value={this.state.sensitivity}
+                                                labelStepSize={255}
+                                                labelRenderer={false}
+                                                onChange={v => this.setState({ sensitivity: v })}
+                                                onRelease={v => this.setState({ sensitivity: v })}
+                                            /* labelRenderer={item => {
+                                                return <span className="number">{item}</span>
+                                            }} */
+                                            />
+                                        </FormGroup>
+                                        <FormGroup label="Colormap" inline>
+                                            <HTMLSelect
+                                                onChange={v => {
+                                                    this.setState({ colormap: v.target.value as ctype });
+                                                    v.target.blur();
+                                                }}
+                                                value={this.state.colormap}>
+                                                <option value="default">default</option>
+                                                {
+                                                    colorMaps.map((item) => {
+                                                        return <option key={item} value={item}>{item}</option>
+                                                    })
+                                                }
+                                            </HTMLSelect>
+                                        </FormGroup>
+                                        <FormGroup label="EQ Aware" inline style={{ marginBottom: 0 }}>
+                                            <Switch checked={this.state.eqAware} onChange={this.toggleEQAware} />
+                                        </FormGroup>
+                                    </Callout>
+                                )
+                                : (
+                                    <CQTOptions />
+                                )
+                        }
+                    </Callout>
+                </Card>
+                {
+                    this.state.online === false
+                        ? (
+                            <Card key="spec-panel" elevation={Elevation.TWO} className="spec-info">
+                                <Callout className="spec-info-options" icon={false}>
+                                    <div
+                                        onMouseDown={() => this.triggerSynth('A0')}
+                                        onMouseUp={() => this.releaseSynth()}
+                                        onMouseEnter={() => this.onMouseEnter('A0')}
+                                        onMouseLeave={() => this.onMouseLeave()}
+                                        className="piano-key"
+                                    >
                                         <div
-                                            onMouseDown={() => this.triggerSynth(`${note}${idx}`)}
-                                            onMouseUp={() => this.releaseSynth()}
-                                            onMouseEnter={() => this.onMouseEnter(`${note}${idx}`)}
-                                            onMouseLeave={() => this.onMouseLeave()}
-                                            key={note + idx}
-                                            className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
-                                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                                <div className="piano-key-text">
-                                                    <span className="piano-key-note">
-                                                        {note.includes("#") ? "" : note}
-                                                        <sub className="number">{note === 'C' ? idx : ""}</sub>
-                                                    </span>
-                                                    <br />
-                                                </div>
+                                            className="bp3-elevation-2"
+                                            ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                            <div className="piano-key-text">
+                                                <span className="piano-key-note">A</span>
+                                                <br />
                                             </div>
                                         </div>
-                                    );
-                                })
-                            })
+                                    </div>
+                                    <div
+                                        onMouseDown={() => this.triggerSynth('A#0')}
+                                        onMouseUp={() => this.releaseSynth()}
+                                        onMouseEnter={() => this.onMouseEnter('A#0')}
+                                        onMouseLeave={() => this.onMouseLeave()}
+                                        className="piano-key piano-key-sharp">
+                                        <div className="" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                            <div className="piano-key-text">
+                                                <span className="piano-key-note" />
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        onMouseDown={() => this.triggerSynth('B0')}
+                                        onMouseUp={() => this.releaseSynth()}
+                                        onMouseEnter={() => this.onMouseEnter('B0')}
+                                        onMouseLeave={() => this.onMouseLeave()}
+                                        className="piano-key">
+                                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                            <div className="piano-key-text">
+                                                <span className="piano-key-note">B</span>
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {
+                                        [1, 2, 3, 4, 5, 6, 7].map((idx) => {
+                                            return pitchesFromC.map((note) => {
+                                                return (
+                                                    <div
+                                                        onMouseDown={() => this.triggerSynth(`${note}${idx}`)}
+                                                        onMouseUp={() => this.releaseSynth()}
+                                                        onMouseEnter={() => this.onMouseEnter(`${note}${idx}`)}
+                                                        onMouseLeave={() => this.onMouseLeave()}
+                                                        key={note + idx}
+                                                        className={classNames('piano-key', { 'piano-key-sharp': note.includes("#") })}>
+                                                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                                            <div className="piano-key-text">
+                                                                <span className="piano-key-note">
+                                                                    {note.includes("#") ? "" : note}
+                                                                    <sub className="number">{note === 'C' ? idx : ""}</sub>
+                                                                </span>
+                                                                <br />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        })
 
-                        }
-                        <div
-                            onMouseDown={() => this.triggerSynth('C8')}
-                            onMouseUp={() => this.releaseSynth()}
-                            onMouseEnter={() => this.onMouseEnter('C8')}
-                            onMouseLeave={() => this.onMouseLeave()}
-                            className="piano-key">
-                            <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
-                                <div className="piano-key-text">
-                                    <span className="piano-key-note">C</span>
-                                    <br />
+                                    }
+                                    <div
+                                        onMouseDown={() => this.triggerSynth('C8')}
+                                        onMouseUp={() => this.releaseSynth()}
+                                        onMouseEnter={() => this.onMouseEnter('C8')}
+                                        onMouseLeave={() => this.onMouseLeave()}
+                                        className="piano-key">
+                                        <div className="bp3-elevation-2" ref={ref => { if (ref) this.keyRef.push(ref) }}>
+                                            <div className="piano-key-text">
+                                                <span className="piano-key-note">C</span>
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Callout>
+                                <div className="spec-info-canvas">
+                                    <canvas
+                                        className="freq-canvas"
+                                        ref={this.freqCanvas}
+                                        width={448}
+                                        height={60}
+                                    />
+                                    <canvas
+                                        className="spec-canvas"
+                                        ref={this.specCanvas}
+                                        width={448}
+                                        height={250}
+                                    />
                                 </div>
-                            </div>
-                        </div>
-                    </Callout>
-                    <div className="spec-info-canvas">
-                        <canvas
-                            className="freq-canvas"
-                            ref={this.freqCanvas}
-                            width={448}
-                            height={60}
-                        />
-                        <canvas
-                            className="spec-canvas"
-                            ref={this.specCanvas}
-                            width={448}
-                            height={250}
-                        />
-                    </div>
-                </Card>
+                            </Card>
+                        )
+                        : (
+                            <CQTViewer ref={this.cqtViewerRef} />
+                        )
+                }
             </div>
         )
     }

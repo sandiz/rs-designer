@@ -2,7 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import {
     Card, Elevation, Callout, Intent, Icon,
-    Collapse, Button, HTMLSelect, Switch, NumericInput, TagInput, Classes,
+    Collapse, Button, HTMLSelect, Switch, NumericInput,
+    TagInput, Classes, Popover, Position, Tooltip,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails } from '../../types/project';
@@ -11,7 +12,9 @@ import { InstrumentListItem, getAllFiles } from '../TabEditor/InstrumentFile';
 import { toTitleCase } from '../../lib/utils';
 import { allTunings } from '../../types/musictheory';
 import { CHART_ZOOM } from '../../types/base';
-import SliderExtended from '../Extended/FadeoutSlider';
+import SliderExtended, { ButtonExtended } from '../Extended/FadeoutSlider';
+import { settingsPopover, deletePopover } from '../../dialogs';
+import { TabEditorSettings } from '../../types/settings';
 
 interface ChartTrackProps {
     project: ProjectDetails;
@@ -62,6 +65,7 @@ class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState>
     }
 
     render = () => {
+        const delChartMsg = <p>Are you sure you want to remove all transcribed notes? <br /></p>
         return (
             <Card className="sidebar-card sidebar-score-track" elevation={Elevation.THREE}>
                 <Callout
@@ -179,6 +183,35 @@ class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState>
                                                                 />
                                                             </div>
                                                             <br />
+                                                            <div>
+                                                                <Popover content={settingsPopover(new TabEditorSettings(), () => { })} position={Position.BOTTOM_RIGHT}>
+                                                                    <Tooltip
+                                                                        hoverOpenDelay={1000}
+                                                                        lazy
+                                                                        inheritDarkTheme
+                                                                        content="Tab editor Settings">
+                                                                        <ButtonExtended className="info-item-control" small icon={IconNames.COG} intent={Intent.NONE} />
+                                                                    </Tooltip>
+                                                                </Popover>
+                                                                <Popover content={deletePopover(() => { }, delChartMsg)} position={Position.BOTTOM_RIGHT}>
+                                                                    <Tooltip
+                                                                        hoverOpenDelay={1000}
+                                                                        lazy
+                                                                        inheritDarkTheme
+                                                                        content="Clears all notes from the chart">
+                                                                        <ButtonExtended className="info-item-control" small icon={IconNames.CROSS} intent={Intent.NONE} />
+                                                                    </Tooltip>
+                                                                </Popover>
+                                                                <Popover content={deletePopover(() => { })} position={Position.BOTTOM_RIGHT}>
+                                                                    <Tooltip
+                                                                        hoverOpenDelay={1000}
+                                                                        lazy
+                                                                        inheritDarkTheme
+                                                                        content="Deletes the chart from the project">
+                                                                        <ButtonExtended small icon={IconNames.TRASH} intent={Intent.NONE} />
+                                                                    </Tooltip>
+                                                                </Popover>
+                                                            </div>
                                                         </div>
                                                     </Collapse>
                                                 </Card>

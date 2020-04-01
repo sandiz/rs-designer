@@ -5,7 +5,7 @@ import {
     spawn, path, PRODUCT_ADVANCED,
 } from '../types/base'
 import {
-    SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult,
+    SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult, CQTResult,
 } from '../types/musictheory'
 import ProjectService from '../services/project';
 import { successToaster, progressToaster } from '../components/Extended/Toasters';
@@ -24,6 +24,7 @@ const key: Provider = require('../app-config/musicanalysis/key/providers.json');
 const chords: Provider = require('../app-config/musicanalysis/chords/providers.json');
 const beats: Provider = require('../app-config/musicanalysis/beats/providers.json');
 const tempo: Provider = require('../app-config/musicanalysis/tempo/providers.json');
+const cqt: Provider = require('../app-config/musicanalysis/cqt/providers.json');
 
 const { isPackaged, getAppPath } = window.require('electron').remote.app;
 const isDev = window.require('electron-is-dev');
@@ -178,6 +179,9 @@ class Runner {
             case "beats":
                 await ProjectService.updateBeats(result as BeatTriplet[]);
                 break;
+            case "cqt":
+                await ProjectService.updateCQT(result as CQTResult);
+                break;
             default:
                 break;
         }
@@ -202,8 +206,9 @@ export const KeyRunner = () => new Runner("key", key);
 export const ChordsRunner = () => new Runner("chords", chords);
 export const BeatsRunner = () => new Runner("beats", beats);
 export const TempoRunner = () => new Runner("tempo", tempo);
+export const CQTRunner = () => new Runner("cqt", cqt);
 
-export enum AnalysisType { KEY = "key", CHORDS = "chords", BEATS = "beats", TEMPO = "tempo", AUTO = "auto" }
+export enum AnalysisType { KEY = "key", CHORDS = "chords", BEATS = "beats", TEMPO = "tempo", AUTO = "auto", CQT = "cqt" }
 class MusicAnalysis {
     private static instance: MusicAnalysis;
     private activeRunners: Runner[] = [];
@@ -360,6 +365,19 @@ class MusicAnalysis {
                     });
                     this.promises.push(p);
                 }
+                if (toAnalyse.includes(AnalysisType.CQT)) {
+                    const f = CQTRunner();
+                    this.activeRunners.push(f);
+                    const p = f.fetchAndSave();
+                    p.then(() => {
+                        idx += 1;
+                        progressToaster(`[ ${PRODUCT_ADVANCED} ] chromagram generation complete`, idx, total, tkey, Intent.SUCCESS, IconNames.LAYOUT_AUTO)
+                    }, () => {
+                        idx += 1;
+                        failed += 1;
+                    });
+                    this.promises.push(p);
+                }
 
                 try {
                     await Promise.all(this.promises);
@@ -402,6 +420,10 @@ class MusicAnalysis {
 
     analyseTempo = async () => {
         this.analyse([AnalysisType.TEMPO]);
+    }
+
+    analyseCQT = async () => {
+        this.analyse([AnalysisType.CQT]);
     }
 }
 

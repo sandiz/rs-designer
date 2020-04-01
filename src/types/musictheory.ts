@@ -4,8 +4,8 @@ export type ChordTriplet = [number, number, string]
 /* type representing the format of Beats serialization */
 export type BeatTriplet = [number, number]
 /* tyoe representing the result of music-analysis run, result will be on these */
-export type RunnerResult = ChordTriplet[] | BeatTriplet[] | SongKey | number;
-
+export type RunnerResult = ChordTriplet[] | BeatTriplet[] | SongKey | number | CQTResult;
+export type CQTResult = { file: string };
 /* class representing a chord in memory */
 /* generated from ChordTriplet */
 export interface ChordTime {

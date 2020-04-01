@@ -8,28 +8,13 @@ from chords import chords_madmom
 from beats import beats_essentia
 from tempo import tempo_essentia_percival
 
-
 def prRed(skk): return("\033[91m {}\033[00m" .format(skk))
-
-
 def prGreen(skk): return("\033[92m{}\033[00m" .format(skk))
-
-
 def prYellow(skk): return("\033[93m{}\033[00m" .format(skk))
-
-
 def prLightPurple(skk): return("\033[94m{}\033[00m" .format(skk))
-
-
 def prPurple(skk): return("\033[95m{}\033[00m" .format(skk))
-
-
 def prCyan(skk): return("\033[96m{}\033[00m" .format(skk))
-
-
 def prLightGray(skk): return("\033[97m{}\033[00m" .format(skk))
-
-
 def prBlack(skk): return("\033[98m{}\033[00m" .format(skk))
 
 
@@ -44,6 +29,9 @@ beats_switcher = {
 }
 tempo_switcher = {
     "tempo_essentia_percival": tempo_essentia_percival.process,  # binary compatible
+}
+cqt_switcher = {
+    "cqt_librosa": cqt_librosa.process,  # binary compatible
 }
 
 benchTestFailed = False
@@ -134,6 +122,8 @@ def processArgs(args):
         do("beats", beats_switcher, args, [])
     elif args.type == "tempo":
         do("tempo", tempo_switcher, args, 0)
+    elif args.type == "cqt":
+        do("cqt", cqt_switcher, args, {file: ""})
     elif args.type == "bench":
         do("key", key_switcher, args, [])
         do("tempo", tempo_switcher, args, 0)

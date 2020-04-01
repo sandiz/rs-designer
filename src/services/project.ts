@@ -20,7 +20,7 @@ import {
 } from '../types/project'
 import {
     ChordTime, BeatTime, SongKey,
-    ChordTriplet, BeatTriplet, NoteTime, NoteFile,
+    ChordTriplet, BeatTriplet, NoteTime, NoteFile, CQTResult,
 } from '../types/musictheory'
 import { EQTag } from '../types/eq';
 import { MediaInfo } from '../types/media'
@@ -416,6 +416,10 @@ export class Project {
             await writeFile(this.projectInfo.beats, lines);
             DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
         }
+    }
+
+    public updateCQT = async (data: CQTResult) => {
+        console.log("updateCQT", data);
     }
 
     private updateExternalFiles = async () => {

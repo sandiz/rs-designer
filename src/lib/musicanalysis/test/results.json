@@ -4,11 +4,8 @@
         "tests" : {
 
                 "key_essentia": { "type": "list", "contains" : ["C", "minor"] },
-
                 "tempo_essentia_percival": { "type": "float", "min": 109, "max": 113 },
-
                 "chords_madmom": { "type": "list", "length": 7 },
-
                 "beats_essentia": { "type": "list", "length": 88 }
             }
     },
@@ -17,11 +14,8 @@
         "tests": 
             {
                 "key_essentia": { "type": "list", "contains" : ["F", "major"] },
-
                 "tempo_essentia_percival": { "type": "float", "min": 111, "max": 113 },
-
                 "chords_madmom": { "type": "list", "length": 55 },
-
                 "beats_essentia": { "type": "list", "length": 543 }
             }
     }

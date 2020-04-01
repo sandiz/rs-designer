@@ -58,7 +58,6 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
     render = () => {
         const key = this.state.key[0] === "" ? "" : `${this.state.key[0]} ${this.state.key[1]}`;
         const tempo = this.state.tempo === 0 ? "" : `${this.state.tempo}`;
-        console.log(key, tempo);
         return (
             <Card className="sidebar-card sidebar-audio-track" elevation={Elevation.THREE}>
                 <Callout
@@ -79,32 +78,38 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
                             : null
                     }
                 </Callout>
-                <div className="audio-track-content">
-                    <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Regions</span>
-                    <div className="region-body">
-                        <HTMLSelect className="region-select" disabled={!this.props.project.loaded}>
-                            {
-                                this.state.regions.map(item => {
-                                    return <option key={item.name}>{item.name}</option>
-                                })
-                            }
-                        </HTMLSelect>
-                        <Button icon={IconNames.PLUS} minimal />
-                        <Button icon={IconNames.MINUS} minimal />
-                    </div>
-                    <br />
-                    <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Zoom</span>
-                    <SliderExtended
-                        min={ZOOM.MIN}
-                        max={ZOOM.MAX}
-                        timerSource={MediaPlayerService.getZoom}
-                        stepSize={1}
-                        labelRenderer={false}
-                        className="zoom-item"
-                        dragStart={MediaPlayerService.zoom}
-                        dragEnd={MediaPlayerService.zoom}
-                    />
-                </div>
+                {
+                    this.props.project.loaded
+                        ? (
+                            <div className="audio-track-content">
+                                <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Regions</span>
+                                <div className="region-body">
+                                    <HTMLSelect className="region-select" disabled={!this.props.project.loaded}>
+                                        {
+                                            this.state.regions.map(item => {
+                                                return <option key={item.name}>{item.name}</option>
+                                            })
+                                        }
+                                    </HTMLSelect>
+                                    <Button icon={IconNames.PLUS} minimal />
+                                    <Button icon={IconNames.MINUS} minimal />
+                                </div>
+                                <br />
+                                <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Zoom</span>
+                                <SliderExtended
+                                    min={ZOOM.MIN}
+                                    max={ZOOM.MAX}
+                                    timerSource={MediaPlayerService.getZoom}
+                                    stepSize={1}
+                                    labelRenderer={false}
+                                    className="zoom-item"
+                                    dragStart={MediaPlayerService.zoom}
+                                    dragEnd={MediaPlayerService.zoom}
+                                />
+                            </div>
+                        )
+                        : null
+                }
             </Card>
         );
     }
