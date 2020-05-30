@@ -44,7 +44,7 @@
     "typeface-inconsolata": "^0.0.72",
     "typeface-magra": "^0.0.71",
     "vexchords": "^1.2.0",
-    "wavesurfer.js": "https://github.com/sandiz/wavesurfer.js#changes-d5b3c5c9",
+    "wavesurfer.js": "https://github.com/sandiz/wavesurfer.js#changes-3d75a793",
     "youtube-dl": "^3.0.2"
   },
   "scripts": {

@@ -16477,9 +16477,9 @@ watchpack@^1.6.1:
     chokidar "^3.4.0"
     watchpack-chokidar2 "^2.0.0"
 
-"wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-d5b3c5c9":
-  version "3.3.1"
-  resolved "https://github.com/sandiz/wavesurfer.js#b421e02f892f00999760e259df065f0ec54014ce"
+"wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-3d75a793":
+  version "3.3.3"
+  resolved "https://github.com/sandiz/wavesurfer.js#0ded29b7fd43251816652a45eaf4df81a2a3d6e7"
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
