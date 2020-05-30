@@ -1,8 +1,14 @@
 ## v0.4.0
 - update to electron 9
-- audiomotion pinned to 1.2.0
-- isomorphic-git pinned to 0.78.5
-- exotic packages (chord, soundtouchjs, wavesurfer.js)
+- pins
+    - audiomotion - 1.2.0
+    - isomorphic-git - 0.78.5
+    - react-scripts - 3.3.0
+- exotics
+    - chord
+    - soundtouchjs
+    - wavesurfer.js (changes-d5b3c5c9)
+
 
 ## v0.3.1
 - update to electron 8
