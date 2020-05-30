@@ -1,0 +1,51 @@
+diff --git a/node_modules/@types/wavesurfer.js/index.d.ts b/node_modules/@types/wavesurfer.js/index.d.ts
+index e152ab4..8d69713 100644
+--- a/node_modules/@types/wavesurfer.js/index.d.ts
++++ b/node_modules/@types/wavesurfer.js/index.d.ts
+@@ -37,7 +37,7 @@ declare class WaveSurfer extends Observer {
+     empty(): void;
+     exportPCM(length?: number, accuracy?: number, noWindow?: boolean, start?: number, end?: number): Promise<string>;
+     exportImage(format?: string, quality?: number, type?: 'dataURL' | 'blob'): string | string[] | Promise<Blob[]>;
+-    getActivePlugins(): object;
++    getActivePlugins(): WaveSurferPluginList;
+     getBackgroundColor(): string;
+     getCurrentTime(): number;
+     getCursorColor(): string;
+@@ -183,7 +183,7 @@ declare namespace WaveSurfer {
+         plugins?: PluginDefinition[];
+         progressColor?: string;
+         removeMediaElementOnDestroy?: boolean;
+-        renderer?: { new (container: HTMLElement, params: WaveSurferParams): WaveRenderer };
++        renderer?: { new(container: HTMLElement, params: WaveSurferParams): WaveRenderer };
+         responsive?: boolean | number;
+         rtl?: boolean;
+         scrollParent?: boolean;
+@@ -198,7 +198,7 @@ declare namespace WaveSurfer {
+         staticProps?: object;
+         deferInit?: boolean;
+         params: object;
+-        instance: { new (params: object, ws: WaveSurfer): WaveSurferPlugin };
++        instance: { new(params: object, ws: WaveSurfer): WaveSurferPlugin };
+     }
+ 
+     interface ListenerDescriptor {
+@@ -223,5 +223,19 @@ declare namespace WaveSurfer {
+             first?: number,
+             last?: number,
+         ): ReadonlyArray<number> | ReadonlyArray<ReadonlyArray<number>>;
++        postAnalyser: AnalyserNode;
++        analyser: AnalyserNode;
++        gainNode: GainNode;
++        setFilters(nodes: BiquadFilterNode[]): void;
++        disconnectFilters(): void;
++        buffer: AudioBuffer;
++        getPlayedPercents(): number;
++        source: AudioNode;
++        ac: AudioNode;
++    }
++
++    interface WaveSurferPluginList {
++        chordstimeline: boolean;
++        beatstimeline: boolean;
+     }
+ }

@@ -149,6 +149,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 boundaries: ['.neck'],
                 singleClick: false,
             });
+            if (this.selection == null) return;
             this.selection.on('start', ({ inst, selected }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "hidden";
 

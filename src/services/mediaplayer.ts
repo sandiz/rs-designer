@@ -252,7 +252,8 @@ class MediaPlayer {
     pitchChanged = () => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
-            if (activePlugins.chordstimeline === true) {
+
+            if ((activePlugins).chordstimeline === true) {
                 this.wavesurfer.chordstimeline.render(this.pitchSemitonesDiff);
             }
         }
@@ -261,7 +262,8 @@ class MediaPlayer {
     loadChordsTimeline = async (chordData: ChordTime[] | null = null) => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
-            if (activePlugins.chordstimeline === true) {
+            //@ts-nocheck
+            if ((activePlugins).chordstimeline === true) {
                 if (chordData) this.wavesurfer.chordstimeline.params.chords = chordData;
                 this.wavesurfer.chordstimeline.render(this.pitchSemitonesDiff);
             }
@@ -284,7 +286,7 @@ class MediaPlayer {
     loadBeatsTimeline = async (beatsData: BeatTime[] | null = null) => {
         if (this.wavesurfer) {
             const activePlugins = this.wavesurfer.getActivePlugins();
-            if (activePlugins.beatstimeline === true) {
+            if ((activePlugins).beatstimeline === true) {
                 if (beatsData) this.wavesurfer.beatstimeline.params.beats = beatsData;
                 this.wavesurfer.beatstimeline.render();
             }
@@ -713,7 +715,7 @@ class MediaPlayer {
                     }
 
                     backend.source.disconnect(backend.analyser);
-                    backend.source.connect(this.stNode);
+                    if (this.stNode) backend.source.connect(this.stNode);
 
                     if (this.stNode) this.stNode.connect(backend.analyser);
                 }
