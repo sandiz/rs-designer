@@ -7,7 +7,7 @@
 - exotics
     - chord
     - soundtouchjs
-    - wavesurfer.js (changes-d5b3c5c9)
+    - wavesurfer.js (changes-3d75a793)
 
 
 ## v0.3.1
