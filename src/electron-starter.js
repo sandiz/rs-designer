@@ -134,7 +134,7 @@ function updateTouchBar(args) {
     ttSlider.label = Math.round(tempo.diff * projectInfo.tempo) + " bpm";
 }
 
-async function createWindow() {
+function createWindow() {
     // Load the previous state with fallback to defaults
     let mainWindowState = windowStateKeeper({
         defaultWidth: 1700,
@@ -157,7 +157,7 @@ async function createWindow() {
         height: mainWindowState.height,
         show: false,
         ...frameOpts,
-        icon: path.join(__dirname, "./icons/png/icon-1024x1024.png"),
+        icon: path.join(__dirname, "./assets/icons/icon-1024x1024.png"),
         webPreferences: {
             preload: path.join(__dirname, "./preload.js"),
             webSecurity: false,
@@ -168,6 +168,7 @@ async function createWindow() {
             affinity: 'main-window'
         },
         autoHideMenuBar: true,
+        enableRemoteModule: true,
     });
     // Let us register listeners on the window, so we can update the state
     // automatically (the listeners will be removed when the window is closed)
@@ -269,6 +270,8 @@ async function createWindow() {
         // Also, this will automatically get an option `nodeIntegration=false`(not override to true, like in iframe's) - like in regular browsers
         options.webPreferences.affinity = 'main-window';
     });
+
+    return mainWindow;
 }
 
 async function createMediaWindow() {

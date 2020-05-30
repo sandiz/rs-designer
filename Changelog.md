@@ -1,5 +1,9 @@
-## v0.3.2
-- coming soon
+## v0.4.0
+- update to electron 9
+- audiomotion pinned to 1.2.0
+- isomorphic-git pinned to 0.78.5
+- exotic packages (chord, soundtouchjs, wavesurfer.js)
+
 ## v0.3.1
 - update to electron 8
 - freeze react-scripts @ 3.3.0

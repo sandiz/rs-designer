@@ -12,7 +12,7 @@
     "about-window": "^1.13.2",
     "album-art": "^2.0.2",
     "animejs": "^3.2.0",
-    "audiomotion-analyzer": "^2.2.0",
+    "audiomotion-analyzer": "^1.2.0",
     "chord-chart": "^1.1.0",
     "chords": "https://github.com/sandiz/chords.git#finger",
     "chroma-js": "^2.1.0",
@@ -219,10 +219,16 @@
     ]
   },
   "repository": "github:sandiz/rs-designer",
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
