@@ -15,8 +15,9 @@ import { DispatcherService, DispatchEvents, DispatchData } from '../../services/
 import { UUID } from '../../lib/utils';
 import ProjectService from '../../services/project';
 import { MixerProps } from './MixerTab';
+import AppContext from '../../context';
 
-const { nativeTheme, shell } = window.require("electron").remote;
+const { shell } = window.require("electron").remote;
 interface EqualizerState {
     enableEQ: boolean;
     errorMsg: React.ReactNode | null;
@@ -37,6 +38,7 @@ const TAG_COLORS = ["#2965CC", "#29A634", "#D99E0B", "#D13913", "#8F398F", "#00B
 const Q_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowpass", "highpass", "bandpass", "notch", "allpass", "peaking"];
 const G_FILTERS: Partial<ExtendedBiquadFilterType>[] = ["lowshelf", "highshelf", "peaking"];
 export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
+    context!: React.ContextType<typeof AppContext>;
     private canvasRef: RefObject<HTMLDivElement> = React.createRef();
     //eslint-disable-next-line
     private audioMotion: any | null = null;
@@ -116,7 +118,7 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
                     audioCtx: MediaPlayerService.getAudioContext(),
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     mode: 2,
-                    colorCb: () => { return nativeTheme.shouldUseDarkColors ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light },
+                    colorCb: () => { return this.context.isDarkTheme() ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light },
                     onCanvasDraw: (/*instance: unknown*/) => {
                         //displayCanvasMsg(instance);
                         //drawEQTags(instance, MediaPlayerService.getFilters());
@@ -473,5 +475,7 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
         )
     }
 }
+EqualizerTab.contextType = AppContext;
+
 
 export default EqualizerTab;

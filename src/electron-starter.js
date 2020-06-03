@@ -250,6 +250,25 @@ function createWindow() {
                     click(item, focusedWindow) {
                         if (focusedWindow) focusedWindow.setSimpleFullScreen(!focusedWindow.isSimpleFullScreen());
                     }
+                },
+                {
+                    label: 'Theme',
+                    submenu: [
+                        {
+                            label: 'Dark',
+                            accelerator: 'CmdOrCtrl+D',
+                            click(item, win) {
+                                mainWindow.webContents.send('change-app-theme', 'dark');
+                            }
+                        },
+                        {
+                            label: 'Light',
+                            accelerator: 'CmdOrCtrl+L',
+                            click(item, win) {
+                                mainWindow.webContents.send('change-app-theme', 'light');
+                            }
+                        }
+                    ]
                 }
             ]
         },

@@ -34,7 +34,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
 
     render = () => {
         return (
-            <Card className="sidebar" elevation={Elevation.TWO}>
+            <div className="sidebar">
                 <Card className="sidebar-title number" elevation={Elevation.THREE}>
                     <div className="sidebar-main">
                         <img className="app-logo" alt="logo" src={AppLogo.default} />
@@ -78,7 +78,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                 <AudioTrackModule project={this.props.project} />
                 <NotesModule project={this.props.project} />
                 <ChartTrackModule project={this.props.project} />
-            </Card>
+            </div>
         )
     }
 }

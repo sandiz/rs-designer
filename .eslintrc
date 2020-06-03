@@ -58,7 +58,8 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "no-console": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "jsx-a11y/mouse-events-have-key-events": "off"
+        "jsx-a11y/mouse-events-have-key-events": "off",
+        "react/static-property-placement": "off"
     },
     "parser": "@typescript-eslint/parser",
     "extends": [

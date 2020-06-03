@@ -1,4 +1,3 @@
-
 import Tone from 'tone';
 import { Colors } from "@blueprintjs/core";
 import nextFrame from 'next-frame';
@@ -22,8 +21,10 @@ import {
 import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
 import CLAP from '../assets/claps.wav';
+import { AppContextType } from '../context';
 
-const { nativeTheme, app } = window.require("electron").remote;
+const electron = window.require("electron");
+const { nativeTheme, app } = electron.remote;
 const path: typeof PATH = window.require('path');
 
 
@@ -71,6 +72,7 @@ class MediaPlayer {
     private pitchSemitonesDiff = 0;
     private wasm = WasmTypes;
     private clapBuffer: AudioBuffer | null = null;
+    private context: AppContextType | null = null;
 
     static getInstance() {
         if (!MediaPlayer.instance) {
@@ -88,11 +90,13 @@ class MediaPlayer {
         this.stNode = null;
         this.pitchSemitonesDiff = 0;
         nativeTheme.on("updated", this.updateTheme);
+        DispatcherService.on(DispatchEvents.AppThemeChanged, this.updateTheme);
         this.initWebAssembly();
     }
 
     public destructor() {
         nativeTheme.off("updated", this.updateTheme);
+        DispatcherService.off(DispatchEvents.AppThemeChanged, this.updateTheme);
     }
 
     private initWebAssembly = async () => {
@@ -136,6 +140,16 @@ class MediaPlayer {
         return null;
     }
 
+    public setAppCallbacks = (context: AppContextType) => {
+        this.context = context;
+    }
+
+    public clearAppCallbacks = () => {
+        this.context = null;
+    }
+
+    private _isDarkTheme = () => this.context && this.context.isDarkTheme();
+
     public loadMedia = (blob: Blob) => new Promise((resolve, reject) => {
         const ctx = document.createElement('canvas').getContext('2d');
         if (!ctx) return;
@@ -147,11 +161,11 @@ class MediaPlayer {
         this.initAudioBuffer();
         const params = {
             audioContext: this.audioContext,
-            backgroundColor: nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR,
+            backgroundColor: this._isDarkTheme() ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR,
             container: '#waveform',
-            waveColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx),
-            progressColor: nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx), //Colors.BLACK,
-            cursorColor: nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK,
+            waveColor: this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx),
+            progressColor: this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx), //Colors.BLACK,
+            cursorColor: this._isDarkTheme() ? Colors.WHITE : Colors.BLACK,
             // This parameter makes the waveform look like SoundCloud's player
             barWidth: 3,
             barRadius: 3,
@@ -170,8 +184,8 @@ class MediaPlayer {
                 TimelinePlugin.create({
                     container: '#timeline',
                     primaryColor: "#fff",
-                    primaryFontColor: nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
-                    secondaryFontColor: nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
+                    primaryFontColor: this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
+                    secondaryFontColor: this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
                     fontFamily: 'Inconsolata',
                     fontSize: 12,
                     notchPercentHeight: 40,
@@ -181,7 +195,7 @@ class MediaPlayer {
                     followCursorY: false,
                     opacity: 1,
                     width: '1px',
-                    color: nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK,
+                    color: this._isDarkTheme() ? Colors.WHITE : Colors.BLACK,
                     customShowTimeStyle: {
                         'background-color': '#000',
                         color: '#fff',
@@ -273,10 +287,10 @@ class MediaPlayer {
                     container: '#chordstimeline',
                     chords,
                     fontSize: 15,
-                    primaryColor: nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
-                    chordColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
-                    alternateColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2,
-                    overflowColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
+                    primaryColor: this._isDarkTheme() ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
+                    chordColor: this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
+                    alternateColor: this._isDarkTheme() ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2,
+                    overflowColor: this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
                 })
                 this.wavesurfer.registerPlugins([ct]);
             }
@@ -298,9 +312,9 @@ class MediaPlayer {
                     fontSize: 15,
                     height: 25,
                     notchPercentHeight: 50,
-                    primaryColor: nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
-                    downBeatColor: nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1,
-                    overflowColor: nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
+                    primaryColor: this._isDarkTheme() ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor,
+                    downBeatColor: this._isDarkTheme() ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1,
+                    overflowColor: this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1,
                 })
                 this.wavesurfer.registerPlugins([ct]);
             }
@@ -309,38 +323,39 @@ class MediaPlayer {
 
     private updateTheme = () => {
         if (this.wavesurfer) {
+            console.log(this._isDarkTheme());
             const keys = Object.keys(this.wavesurfer.getActivePlugins());
             if (keys.includes("timeline")) {
-                this.wavesurfer.timeline.params.primaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
-                this.wavesurfer.timeline.params.secondaryFontColor = nativeTheme.shouldUseDarkColors ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
+                this.wavesurfer.timeline.params.primaryFontColor = this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
+                this.wavesurfer.timeline.params.secondaryFontColor = this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
                 this.wavesurfer.timeline.render();
             }
             if (keys.includes("cursor")) {
                 const cursor = this.wavesurfer.cursor;
-                const br = `${cursor.params.width} solid ${nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK}`;
+                const br = `${cursor.params.width} solid ${this._isDarkTheme() ? Colors.WHITE : Colors.BLACK}`;
                 cursor.style(cursor.cursor, {
                     "border-right": br,
                 });
             }
             if (keys.includes("chordstimeline")) {
-                this.wavesurfer.chordstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
-                this.wavesurfer.chordstimeline.params.chordColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
-                this.wavesurfer.chordstimeline.params.alternateColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2;
-                this.wavesurfer.chordstimeline.params.overflowColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
+                this.wavesurfer.chordstimeline.params.primaryColor = this._isDarkTheme() ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
+                this.wavesurfer.chordstimeline.params.chordColor = this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
+                this.wavesurfer.chordstimeline.params.alternateColor = this._isDarkTheme() ? Colors.DARK_GRAY2 : Colors.LIGHT_GRAY2;
+                this.wavesurfer.chordstimeline.params.overflowColor = this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
                 this.wavesurfer.chordstimeline.render();
             }
             if (keys.includes("beatstimeline")) {
-                this.wavesurfer.beatstimeline.params.primaryColor = nativeTheme.shouldUseDarkColors ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
-                this.wavesurfer.beatstimeline.params.downBeatColor = nativeTheme.shouldUseDarkColors ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1;
-                this.wavesurfer.beatstimeline.params.overflowColor = nativeTheme.shouldUseDarkColors ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
+                this.wavesurfer.beatstimeline.params.primaryColor = this._isDarkTheme() ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
+                this.wavesurfer.beatstimeline.params.downBeatColor = this._isDarkTheme() ? Colors.LIGHT_GRAY1 : Colors.DARK_GRAY1;
+                this.wavesurfer.beatstimeline.params.overflowColor = this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
                 this.wavesurfer.beatstimeline.render();
             }
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return;
 
-            this.wavesurfer.setBackgroundColor(nativeTheme.shouldUseDarkColors ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR);
-            this.wavesurfer.params.waveColor = nativeTheme.shouldUseDarkColors ? getGradient("dark", ctx) : getGradient("light", ctx);
-            this.wavesurfer.setCursorColor(nativeTheme.shouldUseDarkColors ? Colors.WHITE : Colors.BLACK);
+            this.wavesurfer.setBackgroundColor(this._isDarkTheme() ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR);
+            this.wavesurfer.params.waveColor = this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx);
+            this.wavesurfer.setCursorColor(this._isDarkTheme() ? Colors.WHITE : Colors.BLACK);
             this.wavesurfer.drawBuffer();
         }
     }
@@ -748,7 +763,7 @@ class MediaPlayer {
             const ctx = document.createElement('canvas').getContext('2d');
             if (!ctx) return "";
             const linGradDark = ctx.createLinearGradient(0, 155, 0, 200);
-            if (nativeTheme.shouldUseDarkColors) linGradDark.addColorStop(0.0, 'rgba(255, 255, 255, 0.8)');
+            if (this._isDarkTheme()) linGradDark.addColorStop(0.0, 'rgba(255, 255, 255, 0.8)');
             else linGradDark.addColorStop(0.0, 'rgba(0, 0, 0, 0.8)');
             const d = document.createElement("div");
             d.style.width = width + 'px';

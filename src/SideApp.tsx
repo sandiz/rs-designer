@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Classes, FocusStyleManager,
 } from "@blueprintjs/core"
+import AppContext from './context';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -11,16 +12,12 @@ interface SideAppProps {
 interface SideAppState {
     darkMode: boolean;
 }
-
 class SideApp extends React.Component<SideAppProps, SideAppState> {
-    constructor(props: SideAppProps) {
-        super(props);
-        this.state = { darkMode: nativeTheme.shouldUseDarkColors }
-    }
-
+    context!: React.ContextType<typeof AppContext>;
     componentDidMount = () => {
         nativeTheme.on('updated', this.changeAppColor);
         FocusStyleManager.onlyShowFocusOnTabs();
+        this.state = { darkMode: this.context.isDarkTheme() }
     }
 
     componentWillUnmount = () => {
@@ -28,7 +25,7 @@ class SideApp extends React.Component<SideAppProps, SideAppState> {
     }
 
     changeAppColor = (): void => {
-        this.setState({ darkMode: nativeTheme.shouldUseDarkColors });
+        this.setState({ darkMode: this.context.isDarkTheme() });
     }
 
     render = () => {
@@ -40,5 +37,7 @@ class SideApp extends React.Component<SideAppProps, SideAppState> {
         )
     }
 }
+SideApp.contextType = AppContext;
+
 
 export default SideApp;

@@ -74,6 +74,7 @@ class DispatcherBase {
     }
 }
 export enum DispatchEvents {
+    AppThemeChanged = "app-theme-changed", /* fired when theme is changed to dark or light */
     MediaReady = "media-ready",           /* fired when media is loaded and ready to play (source: mediaplayer) */
     MediaReset = "media-reset",           /* fired when media is unloaded (source: mediaplayer) */
     MediaLoading = "media-loading",       /* fired when media is about to be loaded (source: mediaplayer) */

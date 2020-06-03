@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import {
   Classes, FocusStyleManager, Dialog,
 } from "@blueprintjs/core"
+import { IpcRendererEvent } from 'electron'
 import { IconNames } from '@blueprintjs/icons';
 import { GlobalHotKeys } from 'react-hotkeys';
 import { CommitDescription } from 'isomorphic-git';
@@ -35,10 +36,14 @@ import {
   InitTouchBar, CloseTouchBar,
 } from './lib/touchbar';
 import Sidebar from './components/Sidebar/Sidebar';
+import AppContext from './context';
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
-const { nativeTheme } = window.require("electron").remote;
+const electron = window.require("electron");
+const nativeTheme = electron.remote.nativeTheme;
+const ipcRenderer = electron.ipcRenderer;
+
 
 interface AppState extends HotKeyState {
   darkMode: boolean;
@@ -84,8 +89,12 @@ class App extends HotKeyComponent<{}, AppState> {
     DispatcherService.on(DispatchEvents.ProjectClosed, this.projectClosed);
     DispatcherService.on(DispatchEvents.OpenDialog, this.openDialog);
     DispatcherService.on(DispatchEvents.CloseDialog, this.closeDialog);
-    nativeTheme.on('updated', this.changeAppColor);
+    nativeTheme.on('updated', this.updateTheme);
+    ipcRenderer.on('change-app-theme', this.chooseAppTheme);
     FocusStyleManager.onlyShowFocusOnTabs();
+    MediaPlayerService.setAppCallbacks({
+      isDarkTheme: () => this.state.darkMode,
+    });
     InitTouchBar();
   }
 
@@ -94,12 +103,22 @@ class App extends HotKeyComponent<{}, AppState> {
     DispatcherService.off(DispatchEvents.ProjectOpened, this.projectOpened);
     DispatcherService.off(DispatchEvents.ProjectClosed, this.projectClosed);
     DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
-    nativeTheme.off('updated', this.changeAppColor);
+    nativeTheme.off('updated', this.updateTheme);
+    ipcRenderer.off('change-app-theme', this.chooseAppTheme);
+    MediaPlayerService.clearAppCallbacks();
     AppDestructor();
   }
 
-  changeAppColor = (): void => {
+  updateTheme = (): void => {
     this.setState({ darkMode: nativeTheme.shouldUseDarkColors });
+  }
+
+  chooseAppTheme = (event: IpcRendererEvent, theme: "dark" | "light"): void => {
+    console.log(theme);
+    this.setState({ darkMode: theme === "dark" }, () => {
+      console.log(this.state.darkMode);
+      DispatcherService.dispatch(DispatchEvents.AppThemeChanged, theme);
+    });
   }
 
   projectUpdated = async (data: DispatchData) => {
@@ -206,7 +225,9 @@ class App extends HotKeyComponent<{}, AppState> {
   render2 = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
-      <React.Fragment>
+      <AppContext.Provider value={{
+        isDarkTheme: () => this.state.darkMode,
+      }}>
         <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
           <ErrorBoundary className="info-panel">
             <InfoPanel project={this.state.project} lastCommits={this.state.projectCommits} />
@@ -249,7 +270,7 @@ class App extends HotKeyComponent<{}, AppState> {
             }
           </Dialog>
         </GlobalHotKeys>
-      </React.Fragment>
+      </AppContext.Provider>
     );
   }
 }
