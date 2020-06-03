@@ -1,5 +1,6 @@
-const { override, useBabelRc, useEslintRc, addWebpackModuleRule } = require('customize-cra');
+const { override, useBabelRc, useEslintRc, addWebpackModuleRule, addWebpackPlugin } = require('customize-cra');
 const path = require('path');
+const { IgnorePlugin } = require("webpack");
 
 const wasmExtensionRegExp = /\.wasm$/;
 function myOverrides(config) {
