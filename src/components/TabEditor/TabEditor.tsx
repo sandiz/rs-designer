@@ -94,6 +94,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         DispatcherService.on(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.on(DispatchEvents.ProjectUpdated, this.projectUpdated);
         nativeTheme.on('updated', this.updateImage);
+        DispatcherService.on(DispatchEvents.AppThemeChanged, this.updateImage);
         if (MediaPlayerService.isActive()) {
             this.mediaReady();
         }
@@ -105,6 +106,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         DispatcherService.off(DispatchEvents.MediaReset, this.mediaReset);
         DispatcherService.off(DispatchEvents.ProjectUpdated, this.projectUpdated);
         nativeTheme.on('updated', this.updateImage);
+        DispatcherService.on(DispatchEvents.AppThemeChanged, this.updateImage);
         cancelAnimationFrame(this.progressRAF);
     }
 
