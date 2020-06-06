@@ -4,6 +4,7 @@ import * as PATH from 'path';
 import * as READLINE from 'readline';
 import * as OS from 'os';
 
+import nextFrame from 'next-frame';
 import Tone from 'tone';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
@@ -227,14 +228,15 @@ export class Project {
                 let blob = new window.Blob([new Uint8Array(data)]);
                 const url = URL.createObjectURL(blob);
                 await MediaPlayerService.loadMedia(blob);
-                URL.revokeObjectURL(url);
                 blob = new Blob();
 
+                await nextFrame();
                 DispatcherService.dispatch(DispatchEvents.ProjectOpened);
                 progressToaster("Project Opened", 3, total, key);
 
                 await MusicAnalysisService.analyse();
                 this.isLoading = false;
+                URL.revokeObjectURL(url);
                 return;
             }
         }
