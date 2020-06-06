@@ -15,6 +15,7 @@ import { CHART_ZOOM } from '../../types/base';
 import SliderExtended, { ButtonExtended } from '../Extended/FadeoutSlider';
 import { settingsPopover, deletePopover } from '../../dialogs';
 import { TabEditorSettings } from '../../types/settings';
+import CollapseButton from './CollapseButton';
 
 interface ChartTrackProps {
     project: ProjectDetails;
@@ -29,7 +30,7 @@ interface ChartTrackState {
 class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState> {
     constructor(props: ChartTrackProps) {
         super(props);
-        this.state = { allFiles: [], expandedCharts: [], expanded: true };
+        this.state = { allFiles: [], expandedCharts: [], expanded: false };
     }
 
     componentDidMount = () => {
@@ -59,11 +60,6 @@ class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState>
         this.setState({ expandedCharts: expanded });
     }
 
-    toggleCollapse = () => {
-        const ex = this.state.expanded;
-        this.setState({ expanded: !ex });
-    }
-
     render = () => {
         const delChartMsg = <p>Are you sure you want to remove all transcribed notes? <br /></p>
         return (
@@ -73,18 +69,7 @@ class ChartTrackModule extends React.Component<ChartTrackProps, ChartTrackState>
                     intent={Intent.PRIMARY}
                     icon={IconNames.ANNOTATION}>
                     Transcriptions
-                    <Button
-                        onClick={() => this.toggleCollapse()}
-                        className="score-item-icon"
-                        minimal
-                        icon={(
-                            <Icon
-                                className=""
-                                iconSize={18}
-                                icon={this.state.expanded ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP}
-                            />
-                        )}
-                    />
+                    <CollapseButton parent={this} expanded={this.state.expanded} />
                 </Callout>
                 <Collapse
                     keepChildrenMounted

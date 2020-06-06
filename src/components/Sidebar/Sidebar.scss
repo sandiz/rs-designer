@@ -62,7 +62,7 @@
 .sidebar-score-track {
     padding: 0 !important;
     /* height: 65%; */
-    margin-top: 15px;
+    //margin-top: 15px;
     overflow-y: scroll;
 }
 
@@ -214,8 +214,39 @@
 }
 
 .key-tempo-header {
-    float: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
+
+.key-tempo-header>div {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.key-box {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.key-box-header {
+    //font-size: 10px;
+    //margin-top: -5px;
+}
+
+.bpm-box-content {
+    font-size: 15px;
+}
+
+.key-box-content {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 17px;
+}
+
 
 .tags {
     width: 100% !important;

@@ -16495,7 +16495,7 @@ watchpack@^1.6.1:
 
 "wavesurfer.js@https://github.com/sandiz/wavesurfer.js#changes-3d75a793":
   version "3.3.3"
-  resolved "https://github.com/sandiz/wavesurfer.js#0ded29b7fd43251816652a45eaf4df81a2a3d6e7"
+  resolved "https://github.com/sandiz/wavesurfer.js#f844fb60019f181709c265a565e7a34e09d6b6f6"
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"

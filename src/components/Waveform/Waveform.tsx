@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { DispatcherService, DispatchEvents } from '../../services/dispatcher';
-import './Waveform.scss';
 import { CardExtended } from '../Extended/FadeoutSlider';
 import { IntroPanel } from '../InfoPanel/Intro';
+import './Waveform.scss';
+import './Minimap.scss';
 
 interface WaveformState {
     show: boolean;
@@ -39,15 +40,22 @@ class Waveform extends Component<{}, WaveformState> {
 
     render = () => {
         return (
-            <CardExtended className={classNames("waveform-root")} elevation={3}>
-                <IntroPanel />
-                <div style={{ visibility: this.state.show ? "visible" : "hidden" }} className="canvas-container">
-                    <div id="chordstimeline" />
-                    <div id="beatstimeline" />
-                    <div id="waveform" />
-                    <div id="timeline" />
+            <React.Fragment>
+                <CardExtended className={classNames("waveform-root")} elevation={3}>
+                    <IntroPanel />
+                    <div style={{ visibility: this.state.show ? "visible" : "hidden" }} className="canvas-container">
+                        <div id="chordstimeline" />
+                        <div id="beatstimeline" />
+                        <div id="waveform" />
+                        <div id="timeline" />
+                    </div>
+                </CardExtended>
+                <div style={{ visibility: this.state.show ? "visible" : "hidden" }}>
+                    <CardExtended className={classNames("minimap-root")} elevation={3}>
+                        <div id="wave-minimap" />
+                    </CardExtended>
                 </div>
-            </CardExtended>
+            </React.Fragment>
         );
     }
 }

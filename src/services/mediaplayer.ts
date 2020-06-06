@@ -8,6 +8,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
+import MinimapPlugin from '../lib/wv-plugin/minimap';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
     VOLUME, ExtClasses, ZOOM, TEMPO, KEY, WasmTypes,
@@ -176,7 +177,7 @@ class MediaPlayer {
             responsive: true,
             closeAudioContext: true,
             forceDecode: true,
-            loopSelection: false,
+            loopSelection: true,
             autoCenter: false,
             pixelRatio: 2,
             scrollPage: true,
@@ -205,6 +206,16 @@ class MediaPlayer {
                         visibility: 'visible',
                     },
                     //extraOffset: 20, /* waveform-root has padding of 20px */
+                }),
+                MinimapPlugin.create({
+                    container: '#wave-minimap',
+                    waveColor: this._isDarkTheme() ? "#B7B7B7" : "#9D9C9E",
+                    progressColor: this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx),
+                    height: 40,
+                    showRegions: true,
+                    showOverview: true,
+                    overviewBorderColor: "#777",
+                    overviewBorderSize: 1,
                 }),
             ],
         };
@@ -323,7 +334,8 @@ class MediaPlayer {
 
     private updateTheme = () => {
         if (this.wavesurfer) {
-            console.log(this._isDarkTheme());
+            const ctx = document.createElement('canvas').getContext('2d');
+            if (!ctx) return;
             const keys = Object.keys(this.wavesurfer.getActivePlugins());
             if (keys.includes("timeline")) {
                 this.wavesurfer.timeline.params.primaryFontColor = this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor;
@@ -336,6 +348,11 @@ class MediaPlayer {
                 cursor.style(cursor.cursor, {
                     "border-right": br,
                 });
+            }
+            if (keys.includes("minimap")) {
+                this.wavesurfer.minimap.params.waveColor = this._isDarkTheme() ? "#B7B7B7" : "#9D9C9E";
+                this.wavesurfer.minimap.params.progressColor = this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx);
+                this.wavesurfer.minimap.render();
             }
             if (keys.includes("chordstimeline")) {
                 this.wavesurfer.chordstimeline.params.primaryColor = this._isDarkTheme() ? COLORS.CHORDS.primaryFontColorDark : COLORS.CHORDS.primaryFontColor;
@@ -350,8 +367,6 @@ class MediaPlayer {
                 this.wavesurfer.beatstimeline.params.overflowColor = this._isDarkTheme() ? Colors.DARK_GRAY1 : Colors.LIGHT_GRAY1;
                 this.wavesurfer.beatstimeline.render();
             }
-            const ctx = document.createElement('canvas').getContext('2d');
-            if (!ctx) return;
 
             this.wavesurfer.setBackgroundColor(this._isDarkTheme() ? ExtClasses.DARK_BACKGROUND_COLOR : ExtClasses.BACKGROUND_COLOR);
             this.wavesurfer.params.waveColor = this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx);
