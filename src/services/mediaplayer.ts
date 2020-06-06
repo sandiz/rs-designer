@@ -6,6 +6,7 @@ import * as PATH from 'path';
 import WaveSurfer from 'wavesurfer.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline.min';
 import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor.min';
+import RegionsPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions.min';
 import ChordsTimelinePlugin from '../lib/wv-plugin/chordstimeline';
 import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import MinimapPlugin from '../lib/wv-plugin/minimap';
@@ -23,6 +24,7 @@ import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
 import CLAP from '../assets/claps.wav';
 import { AppContextType } from '../context';
+import { RegionHandler } from '../types/regions';
 
 const electron = window.require("electron");
 const { nativeTheme, app } = electron.remote;
@@ -74,6 +76,7 @@ class MediaPlayer {
     private wasm = WasmTypes;
     private clapBuffer: AudioBuffer | null = null;
     private context: AppContextType | null = null;
+    private regionHandler: RegionHandler | null = null;
 
     static getInstance() {
         if (!MediaPlayer.instance) {
@@ -207,6 +210,11 @@ class MediaPlayer {
                     },
                     //extraOffset: 20, /* waveform-root has padding of 20px */
                 }),
+                RegionsPlugin.create({
+                    dragSelection: true,
+                    regions: [],
+                    maxRegions: 20,
+                }),
                 MinimapPlugin.create({
                     container: '#wave-minimap',
                     waveColor: this._isDarkTheme() ? "#B7B7B7" : "#9D9C9E",
@@ -260,6 +268,9 @@ class MediaPlayer {
         this.wavesurfer.on('pause', () => {
             DispatcherService.dispatch(DispatchEvents.MediaWasPaused, null);
         });
+        /* Region Handlers */
+        this.regionHandler = new RegionHandler(this.wavesurfer);
+        this.regionHandler.handleEvents();
     });
 
     projectUpdated = async (data: DispatchData) => {
@@ -383,6 +394,10 @@ class MediaPlayer {
 
     public unload = (): void => {
         if (this.wavesurfer) {
+            if (this.regionHandler) {
+                this.regionHandler.destroy();
+                this.regionHandler = null;
+            }
             this.wavesurfer.stop();
             this.wavesurfer.unAll();
             this.wavesurfer.destroy();

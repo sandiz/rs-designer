@@ -5,7 +5,7 @@ import {
 import classNames from 'classnames';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails } from '../../types/project';
-import { Regions, DEFAULT_REGIONS } from '../../types/regions';
+import { Region, DEFAULT_REGIONS } from '../../types/regions';
 import CollapseButton from './CollapseButton';
 
 interface RegionsProps {
@@ -13,7 +13,7 @@ interface RegionsProps {
 }
 
 interface RegionsState {
-    regions: Regions[];
+    regions: Region[];
     expanded: boolean;
 }
 
