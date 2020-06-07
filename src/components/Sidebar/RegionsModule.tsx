@@ -5,7 +5,7 @@ import {
 import classNames from 'classnames';
 import { IconNames } from '@blueprintjs/icons';
 import { ProjectDetails } from '../../types/project';
-import { Region, DEFAULT_REGIONS } from '../../types/regions';
+import { Region } from '../../types/regions';
 import CollapseButton from './CollapseButton';
 
 interface RegionsProps {
@@ -21,7 +21,7 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
     constructor(props: RegionsProps) {
         super(props);
         console.log("RegionsModule");
-        this.state = { regions: DEFAULT_REGIONS, expanded: false };
+        this.state = { regions: [], expanded: false };
     }
 
     render = () => {

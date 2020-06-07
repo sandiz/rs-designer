@@ -235,6 +235,10 @@ class MediaPlayer {
         this.wavesurfer = WaveSurfer.create(params as any);
         this.wavesurfer.loadBlob(blob);
 
+        /* Region Handlers */
+        this.regionHandler = new RegionHandler(this.wavesurfer);
+        this.regionHandler.handleEvents();
+
         this.wavesurfer.on("ready", () => {
             if (this.wavesurfer) this.wavesurfer.zoom(ZOOM.DEFAULT);
             DispatcherService.dispatch(DispatchEvents.MediaReady);
@@ -268,9 +272,6 @@ class MediaPlayer {
         this.wavesurfer.on('pause', () => {
             DispatcherService.dispatch(DispatchEvents.MediaWasPaused, null);
         });
-        /* Region Handlers */
-        this.regionHandler = new RegionHandler(this.wavesurfer);
-        this.regionHandler.handleEvents();
     });
 
     projectUpdated = async (data: DispatchData) => {
@@ -426,6 +427,12 @@ class MediaPlayer {
 
     public playPause = async () => {
         if (this.wavesurfer) {
+            if (!this.isPlaying() && this.regionHandler) {
+                if (this.regionHandler.loopActive()) {
+                    this.regionHandler.playLoopingRegion();
+                    return;
+                }
+            }
             await this.wavesurfer.playPause();
         }
     }
@@ -438,6 +445,12 @@ class MediaPlayer {
 
     public play = async () => {
         if (this.wavesurfer) {
+            if (this.regionHandler) {
+                if (this.regionHandler.loopActive()) {
+                    this.regionHandler.playLoopingRegion();
+                    return;
+                }
+            }
             await this.wavesurfer.play();
         }
     }

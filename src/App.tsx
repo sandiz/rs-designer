@@ -114,9 +114,7 @@ class App extends HotKeyComponent<{}, AppState> {
   }
 
   chooseAppTheme = (event: IpcRendererEvent, theme: "dark" | "light"): void => {
-    console.log(theme);
     this.setState({ darkMode: theme === "dark" }, () => {
-      console.log(this.state.darkMode);
       DispatcherService.dispatch(DispatchEvents.AppThemeChanged, theme);
     });
   }
