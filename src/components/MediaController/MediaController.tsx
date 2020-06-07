@@ -406,7 +406,11 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
             <React.Fragment>
                 <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers} />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <MediaAdvanced openTab={this.state.advancedTab} isOpen={this.state.showAdvanced} isPopout={false} popoutFunc={this.sideWindow} />
+                    <MediaAdvanced
+                        openTab={this.state.advancedTab}
+                        isOpen={this.state.showAdvanced}
+                        isPopout={false}
+                        popoutFunc={this.sideWindow} />
                 </Suspense>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">

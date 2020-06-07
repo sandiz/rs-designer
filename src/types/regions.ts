@@ -1,10 +1,14 @@
 import chroma from "chroma-js";
+import ProjectService from "../services/project";
 
 export interface Region {
     name: string;
     type: "SECTION" | "TONE";
-    robjID: string | null;
+    id: string;
     loop: boolean;
+    start: number;
+    end: number;
+    color: string;
 }
 
 const REGION_COLORS = ["#66C5CC", "#F6CF71", "#F89C74", "#DCB0F2", "#87C55F", "#9EB9F3", "#FE88B1", "#C9DB74", "#8BE0A4", "#B497E7", "#D3B484", "#B3B3B3"];
@@ -16,6 +20,9 @@ interface WVRegion {
     updateRender: () => void;
     id: string;
     element: HTMLElement;
+    start: number;
+    end: number;
+    loop: boolean;
 }
 
 export class RegionHandler {
@@ -27,15 +34,22 @@ export class RegionHandler {
         this.regions = [];
     }
 
+    loadRegions = (): Region[] => {
+        const info = ProjectService.getProjectInfo();
+        if (info) {
+            return info.regions;
+        }
+        return [];
+    }
+
     handleEvents = () => {
         this.wavesurfer.on('region-created', this.createRegion);
         this.wavesurfer.on('region-removed', this.removeRegion);
         this.wavesurfer.on('region-click', this.clickRegion);
         this.wavesurfer.on('region-dblclick', this.dblClickRegion);
-        //this.wavesurfer.on('region-update-end', this.createRegion);
+        this.wavesurfer.on('region-update-end', this.updateRegion);
+        this.wavesurfer.on('region-updated', this.updateRegion);
         /*
-        this.wavesurfer.on('region-updated', this.createRegion);
-        this.wavesurfer.on('region-update-end', this.createRegion);
         this.wavesurfer.on('region-play', this.createRegion);
         this.wavesurfer.on('region-in', this.createRegion);
         this.wavesurfer.on('region-out', this.createRegion);
@@ -50,15 +64,35 @@ export class RegionHandler {
         robj.updateRender();
         this.regions.push({
             name: "",
-            robjID: robj.id,
+            id: robj.id,
             type: "SECTION",
-            loop: false,
+            loop: robj.loop,
+            start: robj.start,
+            end: robj.end,
+            color: robj.color,
         });
+        if (robj.loop) this.attachLoopIcon(robj);
+    }
+
+    updateRegion = (robj: WVRegion) => {
+        const idx = this.regions.findIndex(i => i.id === robj.id);
+        if (idx !== -1) {
+            const old = this.regions[idx];
+            this.regions[idx] = {
+                name: old.name,
+                color: robj.color,
+                start: robj.start,
+                end: robj.end,
+                id: robj.id,
+                loop: old.loop,
+                type: old.type,
+            }
+        }
     }
 
     removeRegion = (robj: WVRegion) => {
         const id = robj.id;
-        this.regions = this.regions.filter(i => i.robjID !== id);
+        this.regions = this.regions.filter(i => i.id !== id);
     }
 
     clickRegion = () => {
@@ -81,7 +115,7 @@ export class RegionHandler {
 
     loopRegion = (robj: WVRegion) => {
         const id = robj.id;
-        const idx = this.regions.findIndex(i => i.robjID === id);
+        const idx = this.regions.findIndex(i => i.id === id);
         if (idx !== -1) {
             this.regions[idx].loop = true;
             robj.playLoop(null);
@@ -94,7 +128,7 @@ export class RegionHandler {
     public playLoopingRegion = (): void => {
         const idx = this.regions.findIndex(i => i.loop === true);
         if (idx !== -1) {
-            const id = this.regions[idx].robjID;
+            const id = this.regions[idx].id;
             if (id) {
                 this.wavesurfer.regions.list[id].play();
             }
@@ -105,25 +139,21 @@ export class RegionHandler {
     }
 
     attachLoopIcon = (robj: WVRegion) => {
-        const elem = robj.element.getElementsByTagName("region");
-        if (elem.length > 0) {
-            const region = elem[0];
-            console.log(region);
-        }
+        const elem = robj.element;
+        const div = document.createElement("div");
+        div.innerHTML = "<br><br> LOOP </br></br>";
+        div.className = "waveform-region";
+        elem.appendChild(div);
     }
 
     removeLoopIcon = (robj: WVRegion | null) => {
         if (robj) {
-            const elem = robj.element.getElementsByTagName("region");
-            if (elem.length > 0) {
-                const region = elem[0];
-                console.log(region);
-            }
+            //const elem = robj.element;
         }
     }
 
     getWVRegion = (r: Region): WVRegion | null => {
-        const id = r.robjID;
+        const id = r.id;
         if (id) {
             return this.wavesurfer.regions.list[id];
         }
@@ -137,6 +167,8 @@ export class RegionHandler {
     public destroy() {
         this.regions = [];
     }
+
+    public getRegions = () => this.regions;
 }
 
 export default {};

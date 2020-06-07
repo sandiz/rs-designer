@@ -80,3 +80,12 @@
 .canvas-container {
     position: relative;
 }
+
+.waveform-region {
+    color: green;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 0%;
+}

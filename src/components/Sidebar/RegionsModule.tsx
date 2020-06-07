@@ -20,7 +20,6 @@ interface RegionsState {
 class RegionsModule extends React.Component<RegionsProps, RegionsState> {
     constructor(props: RegionsProps) {
         super(props);
-        console.log("RegionsModule");
         this.state = { regions: [], expanded: false };
     }
 

@@ -300,6 +300,9 @@ export class Project {
                         // falls through
                         case 3:
                             json.settings = new ProjectSettings();
+                        // falls through
+                        case 4:
+                            json.regions = [];
                             break;
                     }
                     json.version = ProjectInfo.currentVersion;
@@ -345,6 +348,7 @@ export class Project {
 
     private saveProject = async () => {
         if (this.isLoaded) {
+            this.saveRegions();
             if (this.isTemporary) {
                 const out = await dialog.showOpenDialog({
                     title: "Choose directory to save project to..",
@@ -829,6 +833,13 @@ export class Project {
         const inst = this.getInstrumentNotes(instrument, index);
         if (inst) {
             inst.tags = instNotes.tags;
+        }
+    }
+
+    public saveRegions = () => {
+        const regions = MediaPlayerService.getRegions();
+        if (this.projectInfo) {
+            this.projectInfo.regions = regions;
         }
     }
 

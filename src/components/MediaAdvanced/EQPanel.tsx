@@ -118,7 +118,9 @@ export class EqualizerTab extends React.Component<MixerProps, EqualizerState> {
                     audioCtx: MediaPlayerService.getAudioContext(),
                     analyzer: MediaPlayerService.getPostAnalyzer(),
                     mode: 2,
-                    colorCb: () => { return this.context.isDarkTheme() ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light },
+                    colorCb: () => {
+                        return this.context.isDarkTheme() ? CANVAS_BG_FILL.dark : CANVAS_BG_FILL.light
+                    },
                     onCanvasDraw: (/*instance: unknown*/) => {
                         //displayCanvasMsg(instance);
                         //drawEQTags(instance, MediaPlayerService.getFilters());

@@ -171,52 +171,56 @@ class App extends HotKeyComponent<{}, AppState> {
   render = (): React.ReactNode => {
     document.body.className = "app-body " + ((this.state.darkMode) ? Classes.DARK : "");
     return (
-      <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
-        <div id="content">
-          <ErrorBoundary className="sidebar-sticky">
-            <div className="sidebar-sticky">
-              <Sidebar project={this.state.project} />
-            </div>
-          </ErrorBoundary>
-          <div className="main-sticky">
-            <ErrorBoundary className="waveform-root">
-              <Waveform />
+      <AppContext.Provider value={{
+        isDarkTheme: () => this.state.darkMode,
+      }}>
+        <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+          <div id="content">
+            <ErrorBoundary className="sidebar-sticky">
+              <div className="sidebar-sticky">
+                <Sidebar project={this.state.project} />
+              </div>
             </ErrorBoundary>
+            <div className="main-sticky">
+              <ErrorBoundary className="waveform-root">
+                <Waveform />
+              </ErrorBoundary>
+              {
+                this.state.project.loaded
+                  ? (
+                    <ErrorBoundary className="waveform-root">
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <TabEditor />
+                      </Suspense>
+                    </ErrorBoundary>
+                  )
+                  : null
+              }
+            </div>
+          </div>
+
+          <ErrorBoundary className="media-bar-sticky">
+            <MediaController />
+          </ErrorBoundary>
+          <Dialog
+            isOpen={this.state.dialogContent !== null}
+            onClose={this.closeDialog}
+            className={this.state.dialogContent ? this.state.dialogContent.class : ""}
+            isCloseButtonShown
+            lazy
+            title={this.state.dialogContent ? this.state.dialogContent.text : ""}
+            icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
+            canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
+            canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
+          >
             {
-              this.state.project.loaded
-                ? (
-                  <ErrorBoundary className="waveform-root">
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <TabEditor />
-                    </Suspense>
-                  </ErrorBoundary>
-                )
+              this.state.dialogContent
+                ? this.state.dialogContent.content
                 : null
             }
-          </div>
-        </div>
-
-        <ErrorBoundary className="media-bar-sticky">
-          <MediaController />
-        </ErrorBoundary>
-        <Dialog
-          isOpen={this.state.dialogContent !== null}
-          onClose={this.closeDialog}
-          className={this.state.dialogContent ? this.state.dialogContent.class : ""}
-          isCloseButtonShown
-          lazy
-          title={this.state.dialogContent ? this.state.dialogContent.text : ""}
-          icon={this.state.dialogContent ? this.state.dialogContent.icon : IconNames.NOTIFICATIONS}
-          canOutsideClickClose={this.state.dialogContent ? this.state.dialogContent.canOutsideClickClose : true}
-          canEscapeKeyClose={this.state.dialogContent ? this.state.dialogContent.canEscapeKeyClose : true}
-        >
-          {
-            this.state.dialogContent
-              ? this.state.dialogContent.content
-              : null
-          }
-        </Dialog>
-      </GlobalHotKeys>
+          </Dialog>
+        </GlobalHotKeys>
+      </AppContext.Provider>
     );
   }
 

@@ -24,7 +24,7 @@ import ProjectService, { ProjectUpdateType } from './project';
 import { readDir, readFile, UUID } from '../lib/utils';
 import CLAP from '../assets/claps.wav';
 import { AppContextType } from '../context';
-import { RegionHandler } from '../types/regions';
+import { RegionHandler, Region } from '../types/regions';
 
 const electron = window.require("electron");
 const { nativeTheme, app } = electron.remote;
@@ -254,6 +254,7 @@ class MediaPlayer {
             this.setWaveformStyle();
             this.loadBeatsTimeline();
             this.loadChordsTimeline();
+            this.loadRegions();
             resolve();
         });
         this.wavesurfer.on('error', (msg) => {
@@ -293,6 +294,18 @@ class MediaPlayer {
             if ((activePlugins).chordstimeline === true) {
                 this.wavesurfer.chordstimeline.render(this.pitchSemitonesDiff);
             }
+        }
+    }
+
+    loadRegions = () => {
+        if (this.regionHandler) {
+            const r = this.regionHandler.loadRegions();
+
+            r.forEach(p => {
+                if (this.wavesurfer) {
+                    this.wavesurfer.regions.add(p);
+                }
+            });
         }
     }
 
@@ -839,6 +852,14 @@ class MediaPlayer {
             return image;
         }
         return "";
+    }
+
+    public getRegions = (): Region[] => {
+        let r: Region[] = [];
+        if (this.regionHandler) {
+            r = this.regionHandler.getRegions();
+        }
+        return r;
     }
 }
 

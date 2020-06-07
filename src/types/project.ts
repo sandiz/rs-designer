@@ -5,6 +5,7 @@ import { EQTag } from "./eq";
 import { ProjectSettings } from "./settings";
 import { fs } from "./base";
 import { MediaInfo } from "./media";
+import { Region } from "./regions";
 
 /* class representing the Project that's loaded or saved to disk.
    Update version number to add new field to the project and optionally modify Project::loadProject
@@ -56,7 +57,8 @@ export class ProjectInfo {
     public projectPath = "";
     public instruments: Instruments = new Instruments();
     public settings: ProjectSettings = new ProjectSettings();
-    static currentVersion = 3;
+    public regions: Region[] = [];
+    static currentVersion = 4;
 
     constructor(params: ProjectInfo = {} as ProjectInfo) {
         const {
@@ -72,6 +74,7 @@ export class ProjectInfo {
             projectPath = "",
             instruments = {} as Instruments,
             settings = {} as ProjectSettings,
+            regions = [],
         } = params;
 
         this.media = media;
@@ -86,6 +89,7 @@ export class ProjectInfo {
         this.projectPath = projectPath;
         this.instruments = new Instruments(instruments);
         this.settings = new ProjectSettings(settings);
+        this.regions = regions;
     }
 }
 /* Classes maintaining an history of projects */
