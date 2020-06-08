@@ -1,5 +1,5 @@
 import { IconNames } from '@blueprintjs/icons'
-import { Intent } from '@blueprintjs/core';
+import { Intent, Colors } from '@blueprintjs/core';
 import chroma from "chroma-js";
 import ProjectService from "../services/project";
 import { generateRawSVG } from '../svgIcons';
@@ -26,6 +26,7 @@ interface WVRegion {
     start: number;
     end: number;
     loop: boolean;
+    remove: () => void;
 }
 
 export class RegionHandler {
@@ -46,12 +47,12 @@ export class RegionHandler {
     }
 
     handleEvents = () => {
-        this.wavesurfer.on('region-created', this.createRegion);
-        this.wavesurfer.on('region-removed', this.removeRegion);
-        this.wavesurfer.on('region-click', this.clickRegion);
-        this.wavesurfer.on('region-dblclick', this.dblClickRegion);
-        this.wavesurfer.on('region-update-end', this.updateRegion);
-        this.wavesurfer.on('region-updated', this.updateRegion);
+        this.wavesurfer.on('region-created', this.regionCreated);
+        this.wavesurfer.on('region-removed', this.regionRemoved);
+        this.wavesurfer.on('region-click', this.regionClicked);
+        this.wavesurfer.on('region-dblclick', this.regionDblClicked);
+        this.wavesurfer.on('region-update-end', this.regionUpdated);
+        this.wavesurfer.on('region-updated', this.regionUpdated);
         this.wavesurfer.on('region-in', this.regionPlay);
         /*
         this.wavesurfer.on('region-play', this.createRegion);
@@ -71,15 +72,16 @@ export class RegionHandler {
         for (let i = 0; i < savedr.length; i += 1) {
             if (savedr[i].id === id) return savedr[i].name;
         }
-        return "";
+        return "-- new region --";
     }
 
-    createRegion = (robj: WVRegion) => {
+    regionCreated = (robj: WVRegion) => {
         const color = REGION_COLORS[this.regions.length % REGION_COLORS.length];
         robj.color = chroma(color).alpha(0.85).css();
         robj.updateRender();
+        const name = this.getRegionName(robj.id);
         this.regions.push({
-            name: this.getRegionName(robj.id),
+            name,
             id: robj.id,
             type: "SECTION",
             loop: robj.loop,
@@ -88,9 +90,10 @@ export class RegionHandler {
             color: robj.color,
         });
         if (robj.loop) this.attachLoopIcon(robj);
+        this.attachRegionNames(robj, name);
     }
 
-    updateRegion = (robj: WVRegion) => {
+    regionUpdated = (robj: WVRegion) => {
         const idx = this.regions.findIndex(i => i.id === robj.id);
         if (idx !== -1) {
             const old = this.regions[idx];
@@ -103,20 +106,43 @@ export class RegionHandler {
                 loop: old.loop,
                 type: old.type,
             }
+            this.attachRegionNames(robj, old.name);
         }
     }
 
-    removeRegion = (robj: WVRegion) => {
+    copyRegion = (i: number, reg: Region) => {
+        //copy name
+        this.regions[i].name = reg.name;
+
+        const id = this.regions[i].id;
+        const robj: WVRegion = this.wavesurfer.regions.list[id];
+        //copy start
+        this.regions[i].start = reg.start;
+        robj.start = reg.start;
+        //copy end
+        this.regions[i].end = reg.end;
+        robj.end = reg.end;
+        //fire update
+        robj.updateRender();
+        this.wavesurfer.fireEvent("region-updated", robj);
+    }
+
+    regionRemoved = (robj: WVRegion) => {
         const id = robj.id;
         this.regions = this.regions.filter(i => i.id !== id);
     }
 
-    clickRegion = () => {
+    deleteRegion = (id: string) => {
+        const robj = this.wavesurfer.regions.list[id];
+        robj.remove();
+    }
+
+    regionClicked = () => {
         //console.log(this.wavesurfer.regions);
         //robj.play(null);
     }
 
-    dblClickRegion = (robj: WVRegion) => {
+    regionDblClicked = (robj: WVRegion) => {
         this.loopRegion(robj);
     }
 
@@ -167,21 +193,40 @@ export class RegionHandler {
         }
     }
 
+    attachRegionNames = (robj: WVRegion, name: string) => {
+        const elem = robj.element;
+        const divs = elem.getElementsByTagName("div");
+        let div: HTMLElement | null = null;
+        for (let i = 0; i < divs.length; i += 1) {
+            if (divs[i].id === "region-name") div = divs[i];
+        }
+        if (div == null) {
+            div = document.createElement("div");
+            div.id = "region-name";
+            div.className = "waveform-region-name";
+            elem.appendChild(div);
+        }
+        div.style.color = `${Colors.DARK_GRAY5}`;
+        div.innerHTML = `
+        ${name}
+        `
+    }
+
     attachLoopIcon = (robj: WVRegion) => {
         const elem = robj.element;
         const div = document.createElement("div");
         div.id = "loop-svg";
-        div.innerHTML = `<br><br> 
+        div.innerHTML = `
            ${
             generateRawSVG({
                 ic: IconNames.REFRESH,
-                size: 20,
+                size: 16,
                 intent: Intent.NONE,
                 className: "",
                 //color: MediaPlayerService.isDar"white",
             })
             }
-        </br></br>`;
+        `;
         div.className = "waveform-region";
         elem.appendChild(div);
     }
@@ -190,7 +235,7 @@ export class RegionHandler {
         if (robj) {
             const elem = robj.element;
             const divs = elem.getElementsByTagName("div");
-            for (let i = 0; divs.length; i += 1) {
+            for (let i = 0; i < divs.length; i += 1) {
                 if (divs[i].id === "loop-svg") {
                     elem.removeChild(divs[i]);
                 }
@@ -214,7 +259,7 @@ export class RegionHandler {
         this.regions = [];
     }
 
-    public getRegions = () => this.regions;
+    public getRegions = () => [...this.regions.map(v => { return { ...v } })];
 }
 
 export default {};

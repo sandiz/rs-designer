@@ -82,10 +82,21 @@
 }
 
 .waveform-region {
-    font-size: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 15%;
+    height: 10%;
     color: #000;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-right: 10px;
+}
+
+.waveform-region-name {
+    margin-left: 10px;
+    position: absolute;
+    bottom: 0;
+    font-size: 15px;
+    word-break: break-all;
 }

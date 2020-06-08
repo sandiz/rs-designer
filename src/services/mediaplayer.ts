@@ -76,7 +76,7 @@ class MediaPlayer {
     private wasm = WasmTypes;
     private clapBuffer: AudioBuffer | null = null;
     private context: AppContextType | null = null;
-    private regionHandler: RegionHandler | null = null;
+    public regionHandler: RegionHandler | null = null;
 
     static getInstance() {
         if (!MediaPlayer.instance) {

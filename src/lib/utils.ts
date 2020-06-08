@@ -140,6 +140,20 @@ export const sec2time = (timeInSeconds: number, withMS = false) => {
     else return pad(minutes, 2) + ':' + pad(seconds, 2);
 }
 
+export const sec2timeObj = (timeInSeconds: number) => {
+    const pad = (num: number, size: number) => { return ('000' + num).slice(size * -1); };
+    const time: number = parseFloat(timeInSeconds.toString());
+    const minutes = Math.floor(time / 60) % 60;
+    const seconds = Math.floor(time - minutes * 60);
+    const milliseconds = parseInt(time.toString().slice(-3), 10);
+
+    return {
+        mins: pad(minutes, 2),
+        seconds: pad(seconds, 2),
+        ms: pad(milliseconds, 3),
+    }
+}
+
 export const UUID = (): string => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }

@@ -261,7 +261,59 @@
 }
 
 .region-name {
-    width: 80%;
+    width: 100%;
     margin-left: 5px;
     font-size: 16px;
+    margin-right: 5px;
+}
+
+.region-button-container {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 20%;
+}
+
+.region-button {
+    color: "green"
+}
+
+.region-time-picker {
+    font-size: 20px !important;
+}
+
+.region-time-picker>div {
+    width: 100%;
+}
+
+.region-time-picker>div>input {
+    text-align: center;
+    font-size: 20px !important;
+}
+
+.region-time-picker-container {
+    display: flex;
+    flex-direction: row;
+    width: 30%;
+}
+
+.region-start-time {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 20px !important;
+}
+
+.region-start-time-text {
+    margin-bottom: 5px;
+}
+
+.region-start-time-text-2 {
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+.region-card {
+    padding-top: 10px;
 }
