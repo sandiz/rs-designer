@@ -33,7 +33,7 @@ import { getTransposedKey } from "../music-utils";
  * `initPlugin('timeline')`
  */
 
-
+import { FONT_FAMILY } from '../../types/base';
 export default class ChordsTimelinePlugin {
     /**
      * Timeline plugin definition factory
@@ -358,7 +358,7 @@ export default class ChordsTimelinePlugin {
             curSeconds += timeInterval;
             curPixel += pixelsPerSecond * timeInterval;
         }
-        this.setFonts(`${fontSize}px Inconsolata`);
+        this.setFonts(`${fontSize}px ${FONT_FAMILY.MONOSPACE}`);
         if (this.params.chords.length == 0) {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {

@@ -1,13 +1,14 @@
 import { EQFilter } from "../../types/eq";
+import { FONT_FAMILY } from "../../types/base";
 
 //eslint-disable-next-line
 export function displayCanvasMsg(instance: any) {
     let size = 20 * instance.pixelRatio;
     if (instance.isFullscreen) size *= 2;
-    instance.canvasCtx.font = `${size}px Magra,sans-serif`;
+    instance.canvasCtx.font = `${size}px ${FONT_FAMILY.DEFAULT},sans-serif`;
     const w = instance.canvasCtx.measureText('audioMotion').width / 2;
 
-    instance.canvasCtx.font = `${size + instance.dataArray[1] / 16 * instance.pixelRatio}px Magra,sans-serif`;
+    instance.canvasCtx.font = `${size + instance.dataArray[1] / 16 * instance.pixelRatio}px ${FONT_FAMILY.DEFAULT},sans-serif`;
     instance.canvasCtx.fillStyle = '#fff8';
     instance.canvasCtx.textAlign = 'center';
     instance.canvasCtx.fillText('audioMotion', instance.canvas.width - w - size * 4, size * 2);

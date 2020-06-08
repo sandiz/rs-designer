@@ -13,8 +13,9 @@ import 'normalize.css'
 import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 import './css/App.scss'
-import 'typeface-magra'
+//import 'typeface-magra'
 import 'typeface-inconsolata'
+import 'typeface-pt-sans'
 
 import { getHotkeyDialog, getMetadataEditorDialog, getImportUrlDialog } from './dialogs';
 import {

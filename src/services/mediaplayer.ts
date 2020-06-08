@@ -12,7 +12,7 @@ import BeatsTimelinePlugin from '../lib/wv-plugin/beatstimeline';
 import MinimapPlugin from '../lib/wv-plugin/minimap';
 import { DispatcherService, DispatchEvents, DispatchData } from './dispatcher';
 import {
-    VOLUME, ExtClasses, ZOOM, TEMPO, KEY, WasmTypes,
+    VOLUME, ExtClasses, ZOOM, TEMPO, KEY, WasmTypes, FONT_FAMILY,
 } from '../types/base';
 import {
     ChordTime, BeatTime,
@@ -190,7 +190,7 @@ class MediaPlayer {
                     primaryColor: "#fff",
                     primaryFontColor: this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
                     secondaryFontColor: this._isDarkTheme() ? COLORS.TIMELINE.primaryFontColorDark : COLORS.TIMELINE.primaryFontColor,
-                    fontFamily: 'Inconsolata',
+                    fontFamily: FONT_FAMILY.MONOSPACE,
                     fontSize: 12,
                     notchPercentHeight: 40,
                 }),
@@ -205,7 +205,7 @@ class MediaPlayer {
                         color: '#fff',
                         padding: '10px',
                         'font-size': '14px',
-                        'font-family': 'Inconsolata',
+                        'font-family': FONT_FAMILY.MONOSPACE,
                         visibility: 'visible',
                     },
                     //extraOffset: 20, /* waveform-root has padding of 20px */
@@ -861,6 +861,14 @@ class MediaPlayer {
             r = this.regionHandler.getRegions();
         }
         return r;
+    }
+
+    public stopLooping = () => {
+        if (this.regionHandler) this.regionHandler.stopLooping();
+    }
+
+    public loopRegion = (i: number) => {
+        if (this.regionHandler) this.regionHandler.loopRegionByIndex(i);
     }
 }
 

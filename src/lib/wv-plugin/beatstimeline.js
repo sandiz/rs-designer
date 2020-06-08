@@ -32,7 +32,7 @@
  * `initPlugin('timeline')`
  */
 
-
+import { FONT_FAMILY } from '../../types/base';
 export default class BeatsTimelinePlugin {
     /**
      * Timeline plugin definition factory
@@ -354,7 +354,7 @@ export default class BeatsTimelinePlugin {
             this.params.secondaryLabelInterval
         );
 
-        this.setFonts(`30px Inconsolata`);
+        this.setFonts(`30px ${FONT_FAMILY.MONOSPACE}`);
         if (this.params.beats.length == 0) {
             for (let i = 0; i < this.canvases.length; i += 1) {
                 this.util.style(this.canvases[i], {
@@ -365,7 +365,7 @@ export default class BeatsTimelinePlugin {
             this.fillText("Beats  unavailable", 10, height1 / 2 + 10);
             return;
         }
-        this.setFonts(`22px Inconsolata`);
+        this.setFonts(`22px ${FONT_FAMILY.MONOSPACE}`);
 
         let idx = 0;
         let dnBeats = 0, Beats = 0;

@@ -16084,6 +16084,11 @@ typeface-magra@^0.0.71:
   resolved "https://registry.yarnpkg.com/typeface-magra/-/typeface-magra-0.0.71.tgz#9da5731e596be9d1ae12e4670107795db1950c17"
   integrity sha512-Cr/EvqSHX/xx2a11H4Ey8ARQT0WOoH3Eccf2W3l11UEcqMgHA8wc5agHsXqcQ4/csgWiJnhjzkv6Rcovoo8UDg==
 
+typeface-pt-sans@^0.0.72:
+  version "0.0.72"
+  resolved "https://registry.yarnpkg.com/typeface-pt-sans/-/typeface-pt-sans-0.0.72.tgz#c47d198510b2ed1272ad6329cf1ae5f782ebf4cf"
+  integrity sha512-eDMv72dE+0dwjIDltzZAUusF+cDgOfZKazHZK08uKCOG/BEzY6oc/WqtQLN71j5/voTXFi5M4+nXNbZnCayDMQ==
+
 typescript@^3.9.3:
   version "3.9.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz#d3ac8883a97c26139e42df5e93eeece33d610b8a"

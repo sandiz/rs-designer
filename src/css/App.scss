@@ -1,18 +1,23 @@
 @import '~@fortawesome/fontawesome-free/css/all.css';
 @import "~@blueprintjs/core/lib/scss/variables";
+@import "../variables.scss";
 
 .dark-toast {
-    font-family: Magra, sans-serif;
+    font-family: $font-family-default, sans-serif;
 }
 
 html,
 body,
 #app-root {
-    font-family: Magra, sans-serif;
+    font-family: $font-family-default, sans-serif;
     user-select: none;
     overflow: hidden;
     height: 100%;
     -webkit-app-region: drag;
+}
+
+.number {
+    font-family: $font-family-monospace, monospace;
 }
 
 button,
@@ -82,14 +87,6 @@ input,
 .bp3-text-larger-2 {
     $pt-font-size-larger: $pt-grid-size * 3.2;
     font-size: $pt-font-size-larger;
-}
-
-.number {
-    font-family: Inconsolata, monospace;
-}
-
-.new-font {
-    font-family: Rajdhani;
 }
 
 .tall-divider {
@@ -206,7 +203,7 @@ input,
 }
 
 pre {
-    font-family: Inconsolata, monospace;
+    font-family: $font-family-monospace, monospace;
     white-space: pre-wrap;
     /* css-3 */
     white-space: -moz-pre-wrap;

@@ -101,4 +101,10 @@ export const STRING_COLORS = {
     safe: SAFE_COLORS,
     monochrome: MONO_COLORS,
 }
+
+export const FONT_FAMILY = {
+    DEFAULT: "pt sans",
+    MONOSPACE: "inconsolata",
+    HEADING: "pt sans",
+}
 export default {};

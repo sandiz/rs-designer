@@ -252,3 +252,16 @@
     width: 100% !important;
     margin-top: 10px;
 }
+
+.region-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.region-name {
+    width: 80%;
+    margin-left: 5px;
+    font-size: 16px;
+}

@@ -43,6 +43,7 @@
     "tone": "^13.8.25",
     "typeface-inconsolata": "^0.0.72",
     "typeface-magra": "^0.0.71",
+    "typeface-pt-sans": "^0.0.72",
     "vexchords": "^1.2.0",
     "wavesurfer.js": "https://github.com/sandiz/wavesurfer.js#changes-3d75a793",
     "youtube-dl": "^3.0.2"

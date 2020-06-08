@@ -66,12 +66,20 @@ export class RegionHandler {
         console.log("region-play");
     }
 
+    getRegionName = (id: string): string => {
+        const savedr = this.loadRegions();
+        for (let i = 0; i < savedr.length; i += 1) {
+            if (savedr[i].id === id) return savedr[i].name;
+        }
+        return "";
+    }
+
     createRegion = (robj: WVRegion) => {
         const color = REGION_COLORS[this.regions.length % REGION_COLORS.length];
         robj.color = chroma(color).alpha(0.85).css();
         robj.updateRender();
         this.regions.push({
-            name: "",
+            name: this.getRegionName(robj.id),
             id: robj.id,
             type: "SECTION",
             loop: robj.loop,
@@ -123,6 +131,14 @@ export class RegionHandler {
         });
     }
 
+    loopRegionByIndex = (i: number) => {
+        if (i <= this.regions.length - 1) {
+            const id = this.regions[i].id;
+            const robj = this.wavesurfer.regions.list[id];
+            this.loopRegion(robj);
+        }
+    }
+
     loopRegion = (robj: WVRegion) => {
         const id = robj.id;
         const idx = this.regions.findIndex(i => i.id === id);
@@ -132,6 +148,7 @@ export class RegionHandler {
             robj.loop = true;
             robj.play(robj.start);
             this.attachLoopIcon(robj);
+            this.wavesurfer.fireEvent("region-updated", robj);
             return;
         }
         console.warn("loop region, index not found for region", robj);

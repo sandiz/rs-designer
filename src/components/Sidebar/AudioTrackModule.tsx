@@ -28,7 +28,7 @@ interface AudioTrackState {
 class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState> {
     constructor(props: AudioTrackProps) {
         super(props);
-        this.state = { key: ["", "", -1], tempo: 0, expanded: true };
+        this.state = { key: ["", "", -1], tempo: 0, expanded: false };
     }
 
     componentDidMount = () => {
@@ -101,7 +101,6 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
                                             </div>
                                         </Callout>
                                     </div>
-                                    <br />
                                     <br />
                                     <span className={classNames({ [Classes.TEXT_DISABLED]: !this.props.project.loaded }, "region-text")}>Zoom</span>
                                     <SliderExtended
