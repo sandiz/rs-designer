@@ -100,3 +100,13 @@
     font-size: 15px;
     word-break: break-all;
 }
+
+.blink-region {
+    animation: blinker 0.25s linear 4;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.8;
+    }
+}

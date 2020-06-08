@@ -285,7 +285,14 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
                             />
                         )
                     }
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={
+                        () => {
+                            setIsOpen(!isOpen);
+                            if (!isOpen && MediaPlayerService.regionHandler) {
+                                MediaPlayerService.regionHandler.highlightRegion(props.region);
+                            }
+                        }
+                    }
                     minimal
                     className="region-button"
                 />

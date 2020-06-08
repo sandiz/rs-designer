@@ -3,6 +3,7 @@ import { Intent, Colors } from '@blueprintjs/core';
 import chroma from "chroma-js";
 import ProjectService from "../services/project";
 import { generateRawSVG } from '../svgIcons';
+import { wait } from '../lib/utils';
 
 export interface Region {
     name: string;
@@ -259,6 +260,14 @@ export class RegionHandler {
     }
 
     public getRegions = () => [...this.regions.map(v => { return { ...v } })];
+
+    public highlightRegion = async (region: Region) => {
+        const robj: WVRegion = this.wavesurfer.regions.list[region.id];
+        const elem = robj.element;
+        elem.classList.add("blink-region");
+        await wait(1000);
+        elem.classList.remove("blink-region");
+    }
 }
 
 export default {};

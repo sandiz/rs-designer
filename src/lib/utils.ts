@@ -247,3 +247,9 @@ export function collectGC() {
     global.gc();
     ipcRenderer.send("collect-gc");
 }
+
+export async function wait(ms: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
