@@ -64,7 +64,6 @@ export class RegionHandler {
     }
 
     regionPlay = () => {
-        console.log("region-play");
     }
 
     getRegionName = (id: string): string => {

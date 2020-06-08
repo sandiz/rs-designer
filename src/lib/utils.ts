@@ -145,7 +145,7 @@ export const sec2timeObj = (timeInSeconds: number) => {
     const time: number = parseFloat(timeInSeconds.toString());
     const minutes = Math.floor(time / 60) % 60;
     const seconds = Math.floor(time - minutes * 60);
-    const milliseconds = parseInt(time.toString().slice(-3), 10);
+    const milliseconds = parseInt((time % 1).toFixed(3).slice(-3), 10);
 
     return {
         mins: pad(minutes, 2),

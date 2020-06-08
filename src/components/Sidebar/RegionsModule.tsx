@@ -139,12 +139,10 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
         if (metadata && metadata.beats.length > 0) {
             if (type === "start") {
                 let max = parseInt(metadata?.beats[0].start, 10);
-                for (let i = 1; i < metadata.beats.length; i += 1) {
-                    const start = parseInt(metadata.beats[i].start, 10);
+                for (let i = 0; i < metadata.beats.length; i += 1) {
+                    const start = parseFloat(metadata.beats[i].start);
                     if (start > max && start <= region.start) {
                         max = start;
-                        console.log(max, region.start)
-                        console.log(metadata.beats[i].beatNum);
                     }
                 }
                 region.start = max;
@@ -152,11 +150,9 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
             else {
                 let min = parseInt(metadata?.beats[metadata.beats.length - 1].start, 10);
                 for (let i = metadata.beats.length - 1; i >= 0; i -= 1) {
-                    const start = parseInt(metadata.beats[i].start, 10);
+                    const start = parseFloat(metadata.beats[i].start);
                     if (start < min && start >= region.end) {
                         min = start;
-                        console.log(min, region.end)
-                        console.log(metadata.beats[i].beatNum);
                     }
                 }
                 region.end = min;
@@ -274,7 +270,7 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
     const endTime = sec2timeObj(props.region.end);
     return (
         <React.Fragment
-            key={props.region.id + props.region.start + props.region.name + props.region.end}
+            key={props.region.id + props.region.name}
         >
             <Callout
                 style={s}
