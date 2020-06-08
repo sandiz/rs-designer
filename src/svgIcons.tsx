@@ -70,7 +70,7 @@ export const generateRawSVG = (params: {
 	size: 16 | 20;
 	intent: Intent,
 	className: string,
-	color: string;
+	//color: string;
 }): string => {
 	let svg = "";
 
@@ -80,7 +80,7 @@ export const generateRawSVG = (params: {
 
 	svg = `
 		<svg
-			fill="${params.color}" 
+			
 			data-icon="${params.ic}"
 			width="${params.size}" 
 			height="${params.size}" 

@@ -161,7 +161,7 @@ export class RegionHandler {
                 size: 20,
                 intent: Intent.NONE,
                 className: "",
-                color: "white",
+                //color: MediaPlayerService.isDar"white",
             })
             }
         </br></br>`;
