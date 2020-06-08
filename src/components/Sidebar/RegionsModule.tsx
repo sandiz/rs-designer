@@ -354,7 +354,7 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
                                                             <NumericInput
                                                                 large
                                                                 buttonPosition="none"
-                                                                className="region-time-picker"
+                                                                className={classNames("number", "region-time-picker")}
                                                                 value={time[chtype as keyof typeof startTime]}
                                                                 min={0}
                                                                 max={max}
@@ -375,12 +375,16 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
                         })
                     }
                     <br />
-                    <ButtonExtended
-                        intent={Intent.DANGER}
-                        icon={IconNames.DELETE}
-                        text="Delete"
-                        onClick={() => props.deleteRegion(props.region.id)}
-                    />
+                    <div
+                        className="region-delete"
+                    >
+                        <ButtonExtended
+                            intent={Intent.DANGER}
+                            icon={IconNames.DELETE}
+                            text="Delete"
+                            onClick={() => props.deleteRegion(props.region.id)}
+                        />
+                    </div>
                 </Card>
             </Collapse>
         </React.Fragment>

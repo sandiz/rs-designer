@@ -288,7 +288,7 @@
 
 .region-time-picker>div>input {
     text-align: center;
-    font-size: 20px !important;
+    font-size: 24px !important;
 }
 
 .region-time-picker-container {
@@ -333,4 +333,12 @@
 
 .region-stb:hover {
     text-decoration: none;
+}
+
+.region-delete {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
 }
