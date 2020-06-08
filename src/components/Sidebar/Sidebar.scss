@@ -307,13 +307,30 @@
 
 .region-start-time-text {
     margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.region-start-time-text>div,
+.region-start-time-text-2>div {
+    font-size: 12px;
 }
 
 .region-start-time-text-2 {
     margin-bottom: 5px;
     margin-top: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
 }
 
 .region-card {
     padding-top: 10px;
+}
+
+.region-stb {
+    text-decoration: none;
 }
