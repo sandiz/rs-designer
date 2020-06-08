@@ -56,7 +56,6 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
         if (wv) {
             wv.on('region-created', this.regionUpdated);
             wv.on('region-removed', this.regionUpdated);
-            wv.on('region-updated', this.regionUpdated);
             wv.on('region-update-end', this.regionUpdated);
             wv.on('play', this.regionUpdated);
         }
@@ -68,7 +67,6 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
         if (wv) {
             wv.off('region-created', this.regionUpdated);
             wv.off('region-removed', this.regionUpdated);
-            wv.off('region-updated', this.regionUpdated);
             wv.off('region-update-end', this.regionUpdated);
             wv.off('play', this.regionUpdated);
         }
