@@ -28,6 +28,11 @@ interface WVRegion {
     end: number;
     loop: boolean;
     remove: () => void;
+    update: (params: {
+        start: number;
+        end: number;
+        color: string;
+    }) => void;
 }
 
 export class RegionHandler {
@@ -110,21 +115,27 @@ export class RegionHandler {
         }
     }
 
-    copyRegion = (i: number, reg: Region) => {
-        //copy name
-        this.regions[i].name = reg.name;
+    copyRegion = (id: string, reg: Region) => {
+        const { regions } = this;
+        const idx = regions.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            //copy name
+            this.regions[idx].name = reg.name;
 
-        const id = this.regions[i].id;
-        const robj: WVRegion = this.wavesurfer.regions.list[id];
-        //copy start
-        this.regions[i].start = reg.start;
-        robj.start = reg.start;
-        //copy end
-        this.regions[i].end = reg.end;
-        robj.end = reg.end;
-        //fire update
-        robj.updateRender();
-        this.wavesurfer.fireEvent("region-updated", robj);
+            const robj: WVRegion = this.wavesurfer.regions.list[id];
+            //copy start
+            this.regions[idx].start = reg.start;
+            //copy end
+            this.regions[idx].end = reg.end;
+            //fire update
+            robj.update({
+                start: reg.start,
+                end: reg.end,
+                color: reg.color,
+            });
+            //  console.log(JSON.stringify(this.regions[i]));
+            // console.dir(robj);
+        }
     }
 
     regionRemoved = (robj: WVRegion) => {
@@ -157,12 +168,9 @@ export class RegionHandler {
         });
     }
 
-    loopRegionByIndex = (i: number) => {
-        if (i <= this.regions.length - 1) {
-            const id = this.regions[i].id;
-            const robj = this.wavesurfer.regions.list[id];
-            this.loopRegion(robj);
-        }
+    loopRegionBy = (id: string) => {
+        const robj = this.wavesurfer.regions.list[id];
+        this.loopRegion(robj);
     }
 
     loopRegion = (robj: WVRegion) => {

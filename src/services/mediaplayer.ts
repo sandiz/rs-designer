@@ -867,8 +867,8 @@ class MediaPlayer {
         if (this.regionHandler) this.regionHandler.stopLooping();
     }
 
-    public loopRegion = (i: number) => {
-        if (this.regionHandler) this.regionHandler.loopRegionByIndex(i);
+    public loopRegionBy = (id: string) => {
+        if (this.regionHandler) this.regionHandler.loopRegionBy(id);
     }
 }
 

@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import {
     Card, Elevation, Callout, Intent, Collapse,
-    Icon, Classes, Colors, EditableText, NumericInput,
+    Icon, Classes, Colors, EditableText, NumericInput, Tooltip,
 } from '@blueprintjs/core';
 import classNames from 'classnames';
 import { IconNames } from '@blueprintjs/icons';
@@ -82,30 +82,42 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
         });
     }
 
-    toggleLoop = (i: number) => {
-        const s = this.state.regions[i];
-        if (s.loop) {
-            MediaPlayerService.stopLooping();
-        }
-        else {
-            MediaPlayerService.loopRegion(i);
-        }
-        this.setState({ regions: MediaPlayerService.getRegions() });
-    }
-
-    onChange = (i: number, value: string) => {
+    toggleLoop = (id: string) => {
         const { regions } = this.state;
-        regions[i].name = value;
-        this.setState({ regions });
+        const region = regions.find(i => i.id === id);
+        if (region) {
+            if (region.loop) {
+                MediaPlayerService.stopLooping();
+            }
+            else {
+                MediaPlayerService.loopRegionBy(id);
+            }
+            this.setState({ regions: MediaPlayerService.getRegions() });
+        }
     }
 
-    onConfirm = (i: number, value: string) => {
-        if (value === "") {
-            this.onCancel();
+    onChange = (id: string, value: string) => {
+        const { regions } = this.state;
+        const idx = regions.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            if (value !== regions[idx].name) {
+                regions[idx].name = value;
+                this.setState({ regions });
+            }
         }
-        else {
-            if (MediaPlayerService.regionHandler) {
-                MediaPlayerService.regionHandler.copyRegion(i, this.state.regions[i]);
+    }
+
+    onConfirm = (id: string, value: string) => {
+        const { regions } = this.state;
+        const region = regions.find(i => i.id === id);
+        if (region) {
+            if (value === "") {
+                this.onCancel();
+            }
+            else {
+                if (MediaPlayerService.regionHandler) {
+                    MediaPlayerService.regionHandler.copyRegion(region.id, { ...region });
+                }
             }
         }
     }
@@ -121,48 +133,54 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
         }
     }
 
-    setRegion = async (idx: number, region: Region) => {
+    setRegion = async (id: string, region: Region) => {
         const { regions } = this.state;
-        regions[idx] = region;
-        await setStateAsync(this, { regions });
-        if (MediaPlayerService.regionHandler) {
-            MediaPlayerService.regionHandler.copyRegion(idx, region);
+        const idx = regions.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            regions[idx] = region;
+            await setStateAsync(this, { regions });
+            if (MediaPlayerService.regionHandler) {
+                MediaPlayerService.regionHandler.copyRegion(id, region);
+            }
         }
     }
 
-    snapToBeat = async (idx: number, type: RegionDirection) => {
+    snapToBeat = async (id: string, type: RegionDirection) => {
         const { regions } = this.state;
-        const region = regions[idx];
-        const metadata = await ProjectService.getProjectMetadata();
-        if (metadata && metadata.beats.length > 0) {
-            if (type === "start") {
-                let max = parseInt(metadata?.beats[0].start, 10);
-                for (let i = 0; i < metadata.beats.length; i += 1) {
-                    const start = parseFloat(metadata.beats[i].start);
-                    if (start > max && start <= region.start) {
-                        max = start;
+        const region = regions.find(i => i.id === id);
+        if (region) {
+            const metadata = await ProjectService.getProjectMetadata();
+            if (metadata && metadata.beats.length > 0) {
+                if (type === "start") {
+                    let max = parseInt(metadata?.beats[0].start, 10);
+                    for (let i = 0; i < metadata.beats.length; i += 1) {
+                        const start = parseFloat(metadata.beats[i].start);
+                        if (start > max && start <= region.start) {
+                            max = start;
+                        }
                     }
+                    region.start = max;
                 }
-                region.start = max;
-            }
-            else {
-                let min = parseInt(metadata?.beats[metadata.beats.length - 1].start, 10);
-                for (let i = metadata.beats.length - 1; i >= 0; i -= 1) {
-                    const start = parseFloat(metadata.beats[i].start);
-                    if (start < min && start >= region.end) {
-                        min = start;
+                else {
+                    let min = parseInt(metadata?.beats[metadata.beats.length - 1].start, 10);
+                    for (let i = metadata.beats.length - 1; i >= 0; i -= 1) {
+                        const start = parseFloat(metadata.beats[i].start);
+                        if (start < min && start >= region.end) {
+                            min = start;
+                        }
                     }
+                    region.end = min;
                 }
-                region.end = min;
             }
+            if (MediaPlayerService.regionHandler) {
+                MediaPlayerService.regionHandler.copyRegion(id, region);
+            }
+            this.setState({ regions });
         }
-        if (MediaPlayerService.regionHandler) {
-            MediaPlayerService.regionHandler.copyRegion(idx, region);
-        }
-        this.setState({ regions });
     }
 
     render = () => {
+        const arr = this.state.regions.sort((a, b) => { return a.start - b.start });
         return (
             <Card className="sidebar-card sidebar-audio-track" elevation={Elevation.THREE}>
                 <Callout
@@ -177,27 +195,54 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
                     isOpen={this.state.expanded}
                 >
                     {
-                        this.state.regions.map((r: Region, i: number) => {
-                            const idx = i;
-                            return (
-                                <React.Fragment
-                                    key={r.name + r.id}
-                                >
-                                    <RegionRow
-                                        idx={idx}
-                                        region={r}
-                                        length={this.state.regions.length}
-                                        onCancel={this.onCancel}
-                                        onChange={this.onChange}
-                                        onConfirm={this.onConfirm}
-                                        toggleLoop={this.toggleLoop}
-                                        deleteRegion={this.deleteRegion}
-                                        setRegion={this.setRegion}
-                                        snapToBeat={this.snapToBeat}
-                                    />
-                                </React.Fragment>
-                            );
-                        })
+                        arr.length > 0
+                            ? (
+                                arr.map((r: Region, i: number) => {
+                                    const idx = i;
+                                    return (
+                                        <React.Fragment
+                                            key={r.id}
+                                        >
+                                            <RegionRow
+                                                idx={idx}
+                                                region={r}
+                                                length={this.state.regions.length}
+                                                onCancel={this.onCancel}
+                                                onChange={this.onChange}
+                                                onConfirm={this.onConfirm}
+                                                toggleLoop={this.toggleLoop}
+                                                deleteRegion={this.deleteRegion}
+                                                setRegion={this.setRegion}
+                                                snapToBeat={this.snapToBeat}
+                                                dummy={false}
+                                            />
+                                        </React.Fragment>
+                                    );
+                                })
+                            )
+                            : (
+                                <RegionRow
+                                    idx={0}
+                                    region={{
+                                        color: "",
+                                        end: 0,
+                                        start: 0,
+                                        id: "",
+                                        loop: false,
+                                        name: "",
+                                        type: "SECTION",
+                                    }}
+                                    length={this.state.regions.length}
+                                    onCancel={this.onCancel}
+                                    onChange={this.onChange}
+                                    onConfirm={this.onConfirm}
+                                    toggleLoop={this.toggleLoop}
+                                    deleteRegion={this.deleteRegion}
+                                    setRegion={this.setRegion}
+                                    snapToBeat={this.snapToBeat}
+                                    dummy
+                                />
+                            )
                     }
                 </Collapse>
             </Card>
@@ -209,13 +254,14 @@ interface RRProps {
     region: Region;
     idx: number;
     length: number;
-    onChange: (i: number, v: string) => void;
+    onChange: (id: string, v: string) => void;
     onCancel: () => void;
-    onConfirm: (i: number, v: string) => void;
-    toggleLoop: (i: number) => void;
-    deleteRegion: (i: string) => void;
-    snapToBeat: (i: number, type: RegionDirection) => void;
-    setRegion: (i: number, region: Region) => void;
+    onConfirm: (id: string, v: string) => void;
+    toggleLoop: (id: string) => void;
+    deleteRegion: (id: string) => void;
+    snapToBeat: (id: string, type: RegionDirection) => void;
+    setRegion: (id: string, region: Region) => void;
+    dummy: boolean;
 }
 
 export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
@@ -260,7 +306,7 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
         else region.end = t;
         //props.setRegion(props.idx, region);
         if (MediaPlayerService.regionHandler) {
-            MediaPlayerService.regionHandler.copyRegion(props.idx, region);
+            MediaPlayerService.regionHandler.copyRegion(props.region.id, region);
         }
     }
 
@@ -268,12 +314,13 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
     const endTime = sec2timeObj(props.region.end);
     return (
         <React.Fragment
-            key={props.region.id + props.region.name}
+            key={props.region.id}
         >
             <Callout
                 style={s}
                 className="region-row">
                 <ButtonExtended
+                    disabled={props.dummy}
                     small
                     icon={
                         (
@@ -294,31 +341,44 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
                     minimal
                     className="region-button"
                 />
+
                 <EditableText
+                    className="region-name-child"
+                    placeholder={props.dummy ? "No Regions.." : ""}
                     value={props.region.name}
-                    className="region-name"
                     multiline={false}
                     confirmOnEnterKey
                     maxLines={1}
-                    onChange={(v) => props.onChange(props.idx, v)}
+                    onChange={(v) => props.onChange(props.region.id, v)}
                     onCancel={props.onCancel}
-                    onConfirm={(v) => props.onConfirm(props.idx, v)}
+                    onConfirm={(v) => props.onConfirm(props.region.id, v)}
+                    disabled={props.dummy}
                 />
                 <div className="region-button-container">
-                    <ButtonExtended
-                        active={props.region.loop}
-                        onClick={() => props.toggleLoop(props.idx)}
-                        icon={
-                            (
-                                <Icon
-                                    icon={IconNames.REFRESH}
-                                    color={props.region.loop ? "green" : Colors.GRAY5}
-                                />
-                            )
-                        }
-                        small
-                        className={Classes.ELEVATION_1}
-                    />
+                    <Tooltip
+                        hoverOpenDelay={1000}
+                        lazy
+                        inheritDarkTheme
+                        content={(
+                            <span>Play & Loop Region</span>
+                        )}
+                    >
+                        <ButtonExtended
+                            disabled={props.dummy}
+                            active={props.region.loop}
+                            onClick={() => props.toggleLoop(props.region.id)}
+                            icon={
+                                (
+                                    <Icon
+                                        icon={IconNames.REFRESH}
+                                        color={props.region.loop ? "green" : Colors.GRAY5}
+                                    />
+                                )
+                            }
+                            small
+                            className={Classes.ELEVATION_1}
+                        />
+                    </Tooltip>
                 </div>
             </Callout>
             <Collapse
@@ -333,7 +393,7 @@ export const RegionRow: FunctionComponent<RRProps> = (props: RRProps) => {
                                     <div className={classNames("number", type === "start" ? "region-start-time-text" : "region-start-time-text-2", Classes.TEXT_MUTED, Classes.TEXT_LARGE)}>
                                         <div style={{ width: 30 + '%' }}>{type.toLocaleUpperCase()}</div>
                                         <div>
-                                            <a onClick={() => props.snapToBeat(props.idx, type as RegionDirection)} className="region-stb">SNAP TO BEAT</a>
+                                            <a onClick={() => props.snapToBeat(props.region.id, type as RegionDirection)} className="region-stb">SNAP TO BEAT</a>
                                         </div>
                                     </div>
                                     <div className="region-start-time">
