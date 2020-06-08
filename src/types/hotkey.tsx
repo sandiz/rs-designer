@@ -16,11 +16,11 @@ export interface Hotkey {
 export const HotkeyInfo: { [key: string]: Hotkey } = {
     SHOW_ALL_HOTKEYS: { info: "Show this dialog", hotkey: "shift+?" },
     PLAY_PAUSE: { info: "Play/Pause", hotkey: ["space", "enter"] },
-    FWD: { info: "Seek Forward", hotkey: "right" },
-    REWIND: { info: "Seek Barwards", hotkey: "left" },
+    FWD: { info: "Seek Forward", hotkey: ["command+right", "ctrl+right"] },
+    REWIND: { info: "Seek Barwards", hotkey: ["command+left", "ctrl+left"] },
     STOP: { info: "Stop", hotkey: "s" },
-    VOL_UP: { info: "Volume Up", hotkey: "up" },
-    VOL_DOWN: { info: "Volume Down", hotkey: "down" },
+    VOL_UP: { info: "Volume Up", hotkey: ["command+up", "ctrl+up"] },
+    VOL_DOWN: { info: "Volume Down", hotkey: ["command+down", "ctrl+down"] },
     OPEN_PROJECT: {
         info: "Open Project", hotkey: ["command+o", "ctrl+o"], group: "project", idx: 1,
     },
@@ -92,6 +92,18 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     },
     SELECT_NOTE_BELOW: {
         info: "Select note below", hotkey: ["k"], group: "Note Editor", idx: 16,
+    },
+    MOVE_CURSOR_LEFT: {
+        info: "Move cursor left", hotkey: ["left", "h"], group: "Note Editor", idx: 17,
+    },
+    MOVE_CURSOR_RIGHT: {
+        info: "Move cursor right", hotkey: ["right", "l"], group: "Note Editor", idx: 18,
+    },
+    MOVE_CURSOR_UP: {
+        info: "Move cursor up", hotkey: ["up", "j"], group: "Note Editor", idx: 19,
+    },
+    MOVE_CURSOR_DOWN: {
+        info: "Move cursor down", hotkey: ["down", "k"], group: "Note Editor", idx: 20,
     },
 }
 

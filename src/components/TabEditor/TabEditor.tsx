@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import {
     Card, Slider, TagInput, MenuItem, Button, Classes, Menu, Popover,
-    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Tooltip,
+    NumericInput, TagInputAddMethod, Position, Intent, NavbarDivider, Tooltip, Colors,
 } from '@blueprintjs/core';
 import { clamp } from '@blueprintjs/core/lib/esm/common/utils';
 import { IconNames, IconName } from '@blueprintjs/icons';
@@ -27,6 +27,7 @@ import {
 import { deletePopover, settingsPopover } from '../../dialogs';
 import { metronomeSVG, clapSVG } from '../../svgIcons';
 import { TabEditorSettings } from '../../types/settings';
+import AppContext from '../../context';
 
 const { nativeTheme } = window.require("electron").remote;
 
@@ -42,6 +43,7 @@ interface TabEditorState {
     clap: boolean;
     notePlay: boolean;
     settings: TabEditorSettings;
+    inFocus: boolean;
 }
 const PX_PER_SEC = 40;
 const ZOOM_MIN = PX_PER_SEC;
@@ -55,13 +57,14 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     private progressRef: RefObject<HTMLDivElement>;
     private tabImgRef: RefObject<HTMLDivElement>;
     private tabNoteRef: RefObject<HTMLDivElement>;
+    public tabRootRef: RefObject<HTMLDivElement>;
     private overflowRef: RefObject<HTMLDivElement>;
     private noteEditorRef: RefObject<NoteEditor>;
     private noteCountRef: RefObject<HTMLSpanElement>;
     private progressRAF = 0;
     private prevX = 0;
     private insertHeadDragging = false;
-
+    context!: React.ContextType<typeof AppContext>;
     constructor(props: {}) {
         super(props);
         const info = ProjectService.getProjectInfo();
@@ -76,6 +79,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             clap: false,
             notePlay: false,
             settings: info ? info.settings.tabEditor : new TabEditorSettings(),
+            inFocus: false,
         };
         this.beatsRef = React.createRef();
         this.timelineRef = React.createRef();
@@ -87,6 +91,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.overflowRef = React.createRef();
         this.noteEditorRef = React.createRef();
         this.noteCountRef = React.createRef();
+        this.tabRootRef = React.createRef();
     }
 
     componentDidMount = async () => {
@@ -571,10 +576,29 @@ class TabEditor extends React.Component<{}, TabEditorState> {
     }
 
     render = () => {
+        const focusColor = this.context.isDarkTheme() ? Colors.GRAY3 : Colors.DARK_GRAY3;
         return (
-            <div className="tabeditor-root">
-                <CardExtended className={classNames("tabeditor-body")} elevation={3}>
+            <div
+                // eslint-disable-next-line
+                tabIndex={-1}
+                className="tabeditor-root"
+                ref={this.tabRootRef}
+            >
+                <CardExtended
+                    // eslint-disable-next-line
+                    tabIndex={-1}
+                    className={classNames("tabeditor-body")}
+                    elevation={3}
+                    onFocus={() => this.setState({ inFocus: true })}
+                    onBlur={() => this.setState({ inFocus: false })}
+                    style={{
+                        border: "1px solid " + (this.state.inFocus ? focusColor : "transparent"),
+                        transition: "0.3s",
+                    }}
+                >
                     <div
+                        // eslint-disable-next-line
+                        tabIndex={-1}
                         ref={this.overflowRef}
                         className="tab-overflow-root"
                     >
@@ -593,6 +617,8 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                             />
                         </div>
                         <div
+                            //eslint-disable-next-line
+                            tabIndex={-1}
                             className="tab-note-edit"
                             ref={this.tabNoteRef}
                             style={{
@@ -600,7 +626,12 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                 willChange: 'transform',
                             }}
                         >
-                            <div className={classNames("neck-container")} ref={this.neckContainerRef}>
+                            <div
+                                //eslint-disable-next-line
+                                tabIndex={-1}
+                                className={classNames("neck-container")}
+                                ref={this.neckContainerRef}
+                            >
                                 <div className="tab-progress" ref={this.progressRef} />
                                 <NoteEditor
                                     ref={this.noteEditorRef}
@@ -613,6 +644,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                                     toggleClap={this.toggleClap}
                                     toggleNotePlay={this.toggleNotePlay}
                                     settings={this.state.settings}
+                                    tabEditor={this}
                                 />
                             </div>
                         </div>
@@ -640,6 +672,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         )
     }
 }
+TabEditor.contextType = AppContext;
 
 interface InfoPanelProps {
     zoomIn: () => void;

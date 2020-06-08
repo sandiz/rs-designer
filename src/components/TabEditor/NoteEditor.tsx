@@ -20,6 +20,7 @@ import {
 import { jsonStringifyCompare, clone } from '../../lib/utils';
 import { TabEditorSettings } from '../../types/settings';
 import './TabEditor.scss';
+import TabEditor from './TabEditor';
 
 const beatCache: { [key: string]: [number, BeatTime] } = {}; //TODO: clear on beat change
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
@@ -50,12 +51,15 @@ interface NoteEditorProps {
     toggleClap: () => void;
     toggleNotePlay: () => void;
     settings: TabEditorSettings;
+    tabEditor: TabEditor;
 }
 interface NoteEditorState {
     beats: BeatTime[];
     instrumentNotes: NoteTime[];
     instrumentTags: string[];
     selectedNotes: NoteTime[];
+    cursorPosition: [number, number]; /* string & beat */
+    inFocus: boolean;
 }
 const NOTE_WIDTH = 25; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 12.5;
@@ -73,7 +77,11 @@ export enum keyShortcuts {
     SELECT_NEXT_NOTE,
     SELECT_PREV_NOTE,
     SELECT_NOTE_BELOW,
-    SELECT_NOTE_ABOVE
+    SELECT_NOTE_ABOVE,
+    MOVE_CURSOR_LEFT,
+    MOVE_CURSOR_RIGHT,
+    MOVE_CURSOR_UP,
+    MOVE_CURSOR_DOWN,
 }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
@@ -93,6 +101,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         TOGGLE_METRONOME: HotkeyInfo.TOGGLE_METRONOME.hotkey,
         TOGGLE_CLAPS: HotkeyInfo.TOGGLE_CLAPS.hotkey,
         TOGGLE_NOTE_PLAY: HotkeyInfo.TOGGLE_NOTE_PLAY.hotkey,
+        MOVE_CURSOR_LEFT: HotkeyInfo.MOVE_CURSOR_LEFT.hotkey,
+        MOVE_CURSOR_RIGHT: HotkeyInfo.MOVE_CURSOR_RIGHT.hotkey,
+        MOVE_CURSOR_UP: HotkeyInfo.MOVE_CURSOR_UP.hotkey,
+        MOVE_CURSOR_DOWN: HotkeyInfo.MOVE_CURSOR_DOWN.hotkey,
     }
 
     public handlers = {
@@ -109,6 +121,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_NOTES_RIGHT: () => this.kbdHandler(keyShortcuts.MOVE_RIGHT),
         MOVE_NOTES_UP: () => this.kbdHandler(keyShortcuts.MOVE_UP),
         MOVE_NOTES_DOWN: () => this.kbdHandler(keyShortcuts.MOVE_DOWN),
+        MOVE_CURSOR_LEFT: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_LEFT),
+        MOVE_CURSOR_RIGHT: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_RIGHT),
+        MOVE_CURSOR_UP: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_UP),
+        MOVE_CURSOR_DOWN: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_DOWN),
         TOGGLE_METRONOME: this.props.toggleMetronome,
         TOGGLE_CLAPS: this.props.toggleClap,
         TOGGLE_NOTE_PLAY: this.props.toggleNotePlay,
@@ -119,7 +135,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private neckRef: RefObject<HTMLDivElement>;
     private currentString: HTMLElement | null;
     private strings: HTMLDivElement[];
-    private selection: Selection | null = null;;
+    private selection: Selection | null = null;
+    private cursorNoteRef: RefObject<HTMLDivElement>;
+    ;
     private clipboard: NoteTime[] = [];
     private noteDivRefs: HTMLDivElement[] = [];
     constructor(props: NoteEditorProps) {
@@ -127,11 +145,14 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         this.hoverRef = React.createRef();
         this.notesRef = React.createRef();
         this.neckRef = React.createRef();
+        this.cursorNoteRef = React.createRef();
         this.state = {
             beats: [],
             instrumentNotes: props.instrumentNotes ? props.instrumentNotes.notes : [],
             instrumentTags: props.instrumentNotes ? props.instrumentNotes.tags : [],
             selectedNotes: [],
+            cursorPosition: [0, 2],
+            inFocus: false,
         };
         this.currentString = null;
         this.strings = [];
@@ -141,6 +162,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         const metadata = await ProjectService.getProjectMetadata();
         if (metadata) {
             this.setState({ beats: metadata.beats });
+
             this.selection = Selection.create({
                 class: 'selection',
                 // All elements in this container can be selected
@@ -149,6 +171,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 boundaries: ['.neck'],
                 singleClick: false,
             });
+
             if (this.selection == null) return;
             this.selection.on('start', ({ inst, selected }) => {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "hidden";
@@ -190,6 +213,9 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
                 inst.keepSelection();
             });
+            this.selection.on('beforestart', () => {
+                return this.state.inFocus;
+            })
         }
     }
 
@@ -215,7 +241,17 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         }
     }
 
+    onFocus = () => {
+        this.setState({ inFocus: true })
+    }
+
+    onFocusOut = () => {
+        this.setState({ inFocus: false, selectedNotes: [] })
+        if (this.selection) this.selection.clearSelection();
+    }
+
     onMouseEnter = (event: React.MouseEvent) => {
+        if (!this.state.inFocus) return;
         this.currentString = event.currentTarget.children[0] as HTMLElement
         if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
         const idx = this.currentString.getAttribute("data-string-idx");
@@ -234,6 +270,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onMouseClick = (event: React.MouseEvent) => {
+        if (!this.state.inFocus) return;
         if (this.hoverRef.current && this.state.beats.length > 0) {
             if (this.state.selectedNotes.length > 0) {
                 this.setState({ selectedNotes: [] });
@@ -256,10 +293,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const endTime = parseFloat(closest[1].start);
                     // if a note is already there
                     const idx = instrumentNotes.findIndex(i => i.startTime === startTime && i.string === string)
-                    if (idx !== -1) {
-                        return;
-                    }
-                    else {
+                    if (idx === -1) {
                         const newNote: NoteTime = new NoteTime({
                             string,
                             fret: 0,
@@ -280,11 +314,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 }
             }
         }
-        event.stopPropagation();
-        event.preventDefault();
+        //event.stopPropagation();
+        //event.preventDefault();
     }
 
     onMouseClickNote = (event: React.MouseEvent, idx: number) => {
+        if (!this.state.inFocus) return;
         const {
             instrumentNotes,
             instrumentTags,
@@ -313,21 +348,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             this.setState({ instrumentNotes, selectedNotes });
             ProjectService.saveInstrument(instrument, { notes: instrumentNotes, tags: instrumentTags }, instrumentNoteIdx);
         }
-        event.stopPropagation();
-        event.preventDefault();
+        //event.stopPropagation();
+        //event.preventDefault();
     }
 
-    onNeckKeyUp = (event: React.KeyboardEvent) => {
-        const { selectedNotes } = this.state;
-        const key = event.key;
-        const k = parseInt(key, 10);
-        if (k >= 0 && k <= 24) {
-            selectedNotes.forEach((item) => {
-                item.fret = k;
-            });
-        }
-        this.setState({ selectedNotes });
-    }
 
     onNeckMouseWheel = (event: React.WheelEvent) => {
         const { selectedNotes } = this.state;
@@ -348,6 +372,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onNeckMouseMove = (event: React.MouseEvent) => {
+        if (!this.state.inFocus) return;
         if (this.hoverRef.current) {
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
@@ -365,6 +390,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onNeckMouseEnter = (event: React.MouseEvent) => {
+        if (!this.state.inFocus) return;
         if (this.hoverRef.current) {
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
@@ -384,7 +410,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         }
     }
 
+    cursorHandler = (h: keyShortcuts) => {
+        console.log("note-cursor", h);
+    }
+
     kbdHandler = (h: keyShortcuts) => {
+        console.log("note-kbd", h)
         switch (h) {
             case keyShortcuts.SELECT_ALL:
                 {
@@ -647,6 +678,18 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
 
     render = () => {
         this.noteDivRefs = [];
+        const cursorString = this.strings[this.state.cursorPosition[0]];
+        let cursorTime = 0;
+        let cursorPer = 0;
+        if (this.state.beats.length > 0) {
+            let downBeat = this.state.cursorPosition[1];
+            downBeat -= 1;
+            const dnb = this.state.beats.filter(i => i.beatNum === "1");
+            if (downBeat < dnb.length) {
+                cursorTime = parseFloat(dnb[downBeat].start);
+                cursorPer = (cursorTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2);
+            }
+        }
         return (
             <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
                 <ResizeSensor onResize={() => this.forceUpdate()}>
@@ -657,9 +700,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         onMouseMove={this.onNeckMouseMove}
                         onMouseLeave={this.onNeckMouseLeave}
                         onWheel={this.onNeckMouseWheel}
-                        onKeyDown={this.onNeckKeyUp}
                         className="neck"
                         ref={this.neckRef}
+                        onBlur={this.onFocusOut}
+                        onFocus={this.onFocus}
                     >
                         <div ref={this.notesRef} className="notes-container">
                             {
@@ -697,6 +741,26 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                         </div>
                                     )
                                 })
+                            }
+                            {
+                                this.state.beats.length > 0
+                                    ? (
+                                        <div
+                                            ref={this.cursorNoteRef}
+                                            data-note-idx={0}
+                                            onMouseUp={() => { }}
+                                            key="cursor-note"
+                                            className={
+                                                classNames("note", Classes.CARD, Classes.ELEVATION_3, "number", "cursor-note", { "blink-cursor": this.state.inFocus })
+                                            }
+                                            style={{
+                                                textAlign: "center",
+                                                position: "absolute",
+                                                transform: `translate(${cursorPer}px, ${cursorString.offsetTop - (NOTE_WIDTH / 2)}px)`,
+                                            }}
+                                        />
+                                    )
+                                    : null
                             }
                         </div>
                         <div ref={this.hoverRef} className={classNames("hover-note", Classes.CARD, Classes.ELEVATION_3, Classes.INTERACTIVE)} />

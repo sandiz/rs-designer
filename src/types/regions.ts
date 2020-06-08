@@ -133,8 +133,6 @@ export class RegionHandler {
                 end: reg.end,
                 color: reg.color,
             });
-            //  console.log(JSON.stringify(this.regions[i]));
-            // console.dir(robj);
         }
     }
 

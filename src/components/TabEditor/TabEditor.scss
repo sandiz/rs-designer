@@ -377,3 +377,26 @@
         -10px 0 80px #f0f,
         10px 0 80px #0ff !important;
 }
+
+.cursor-note {
+    opacity: 0.5;
+    background-color: rgba($pt-intent-primary, 0.880) !important;
+}
+
+.blink-cursor {
+    animation: blinker 1s step-end infinite;
+}
+
+@keyframes blinker {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.0;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
