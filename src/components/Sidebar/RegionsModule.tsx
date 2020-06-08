@@ -29,7 +29,7 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
                 <Callout
                     className="card-header"
                     intent={Intent.PRIMARY}
-                    icon={IconNames.MUSIC}>
+                    icon={IconNames.LAYERS}>
                     Regions
                     <CollapseButton parent={this} expanded={this.state.expanded} />
                 </Callout>

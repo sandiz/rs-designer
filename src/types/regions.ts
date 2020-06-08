@@ -1,5 +1,8 @@
+import { IconNames } from '@blueprintjs/icons'
+import { Intent } from '@blueprintjs/core';
 import chroma from "chroma-js";
 import ProjectService from "../services/project";
+import { generateRawSVG } from '../svgIcons';
 
 export interface Region {
     name: string;
@@ -49,6 +52,7 @@ export class RegionHandler {
         this.wavesurfer.on('region-dblclick', this.dblClickRegion);
         this.wavesurfer.on('region-update-end', this.updateRegion);
         this.wavesurfer.on('region-updated', this.updateRegion);
+        this.wavesurfer.on('region-in', this.regionPlay);
         /*
         this.wavesurfer.on('region-play', this.createRegion);
         this.wavesurfer.on('region-in', this.createRegion);
@@ -56,6 +60,10 @@ export class RegionHandler {
         this.wavesurfer.on('region-mouseenter', this.createRegion);
         this.wavesurfer.on('region-mouseleave', this.createRegion);
         */
+    }
+
+    regionPlay = () => {
+        console.log("region-play");
     }
 
     createRegion = (robj: WVRegion) => {
@@ -105,9 +113,11 @@ export class RegionHandler {
     }
 
     stopLooping = () => {
+        this.wavesurfer.stop();
         this.regions.forEach(i => {
             if (i.loop) {
                 i.loop = false;
+                this.wavesurfer.regions.list[i.id].loop = false;
                 this.removeLoopIcon(this.getWVRegion(i));
             }
         });
@@ -117,8 +127,10 @@ export class RegionHandler {
         const id = robj.id;
         const idx = this.regions.findIndex(i => i.id === id);
         if (idx !== -1) {
+            this.stopLooping();
             this.regions[idx].loop = true;
-            robj.playLoop(null);
+            robj.loop = true;
+            robj.play(robj.start);
             this.attachLoopIcon(robj);
             return;
         }
@@ -141,14 +153,31 @@ export class RegionHandler {
     attachLoopIcon = (robj: WVRegion) => {
         const elem = robj.element;
         const div = document.createElement("div");
-        div.innerHTML = "<br><br> LOOP </br></br>";
+        div.id = "loop-svg";
+        div.innerHTML = `<br><br> 
+           ${
+            generateRawSVG({
+                ic: IconNames.REFRESH,
+                size: 20,
+                intent: Intent.NONE,
+                className: "",
+                color: "white",
+            })
+            }
+        </br></br>`;
         div.className = "waveform-region";
         elem.appendChild(div);
     }
 
     removeLoopIcon = (robj: WVRegion | null) => {
         if (robj) {
-            //const elem = robj.element;
+            const elem = robj.element;
+            const divs = elem.getElementsByTagName("div");
+            for (let i = 0; divs.length; i += 1) {
+                if (divs[i].id === "loop-svg") {
+                    elem.removeChild(divs[i]);
+                }
+            }
         }
     }
 

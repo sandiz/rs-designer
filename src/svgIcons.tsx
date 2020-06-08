@@ -1,6 +1,8 @@
 /* eslint-disable */
 import React from 'react';
-import { Classes } from '@blueprintjs/core';
+import { Classes, Intent } from '@blueprintjs/core';
+import { IconName, IconSvgPaths16, IconSvgPaths20 } from '@blueprintjs/icons'
+import classNames from 'classnames';
 
 export const metronomeSVG = () => (
 	<span className={Classes.ICON}>
@@ -62,5 +64,45 @@ export const clefSVG = () => (
 		</g></g> </svg>
 	</span>
 );
+
+export const generateRawSVG = (params: {
+	ic: IconName;
+	size: 16 | 20;
+	intent: Intent,
+	className: string,
+	color: string;
+}): string => {
+	let svg = "";
+
+	const paths = renderSvgPaths(params.size, params.ic);
+	const classes = classNames(Classes.ICON, Classes.iconClass(params.ic), Classes.intentClass(params.intent), params.className);
+	const viewBox = `0 0 ${params.size} ${params.size}`;
+
+	svg = `
+		<svg
+			fill="${params.color}" 
+			data-icon="${params.ic}"
+			width="${params.size}" 
+			height="${params.size}" 
+			viewBox="${viewBox}">
+			${paths}
+		</svg>
+	`;
+	return svg;
+}
+
+const renderSvgPaths = (size: number, icon: IconName): string => {
+	const pr = size === 16 ? IconSvgPaths16 : IconSvgPaths20;
+	const ps: string[] = pr[icon];
+	if (ps == null)
+		return "";
+
+	let out = "";
+	ps.map((d, i) => out += `<path 
+									key="${i}"
+									d="${d}"
+									fillRule="evenodd"/>`);
+	return out;
+}
 
 export default {};

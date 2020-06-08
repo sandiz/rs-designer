@@ -21,7 +21,7 @@ class NotesModule extends React.Component<NotesProps, {}> {
                 <Callout
                     className="card-header"
                     intent={Intent.PRIMARY}
-                    icon={IconNames.MUSIC}>
+                    icon={IconNames.BUILD}>
                     Notes Toolbox
                 </Callout>
             </Card>

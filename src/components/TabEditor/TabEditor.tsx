@@ -120,6 +120,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.setState({
             currentFile: null, currentFileIdx: 0,
         });
+        cancelAnimationFrame(this.progressRAF);
     }
 
     mediaReady = async () => {
@@ -134,6 +135,7 @@ class TabEditor extends React.Component<{}, TabEditorState> {
             MediaPlayerService.wavesurfer.on('play', this.onPlay);
             MediaPlayerService.wavesurfer.on('pause', this.onStop);
             MediaPlayerService.wavesurfer.on('stop', this.onStop);
+            MediaPlayerService.wavesurfer.on('region-in', this.regionIn);
         }
     }
 
@@ -183,6 +185,12 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         this.setState({ metronome: false, clap: false });
     }
 
+    regionIn = () => {
+        if (this.overflowRef.current) {
+            this.overflowRef.current.scrollLeft = 0;
+        }
+    }
+
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
         const time = MediaPlayerService.getCurrentTime();
@@ -197,14 +205,19 @@ class TabEditor extends React.Component<{}, TabEditorState> {
                 if (pos > sl) {
                     this.overflowRef.current.scrollLeft += this.overflowRef.current.clientWidth;
                 }
+                else {
+                    //this.overflowRef.current.scrollLeft -= this.overflowRef.current.clientWidth;
+                }
             }
         }
 
+        /*
         if (this.noteEditorRef.current && this.noteCountRef.current) {
             const total = this.noteEditorRef.current.state.instrumentNotes.length;
             const selected = this.noteEditorRef.current.state.selectedNotes.length;
             this.noteCountRef.current.textContent = `s: ${selected} n: ${total}`;
         }
+        */
     }
 
     updateImage = async () => {
