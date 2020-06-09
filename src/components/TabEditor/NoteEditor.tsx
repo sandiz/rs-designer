@@ -466,7 +466,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const beat = this.state.beats[bn];
             return this.state.instrumentNotes.findIndex(i => i.startTime === parseFloat(beat.start) && i.string === s);
         }
-
         switch (h) {
             case keyShortcuts.MOVE_CURSOR_UP:
                 string -= 1;
@@ -485,18 +484,41 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 if (beatNum > this.state.beats.length - 1) beatNum = this.state.beats.length - 1;
                 break;
             case keyShortcuts.INSERT_NOTE_AT_CURSOR:
-                if (_isNoteAtCursor() !== -1) {
-                    console.warn("existing note under cursor, skipping insert");
+                {
+                    const {
+                        instrument, instrumentNoteIdx,
+                    } = this.props;
+                    const noteIdx = _isNoteAtCursor();
+                    if (noteIdx === -1 && instrument && instrumentNoteIdx !== undefined) {
+                        const note = this.state.beats[this.state.cursorPosition[1]];
+                        const newNote: NoteTime = new NoteTime({
+                            string,
+                            fret: 0,
+                            type: NoteType.NOTE,
+                            startTime: parseFloat(note.start),
+                            endTime: parseFloat(note.start),
+                        });
+                        this.setState(state => {
+                            const list = [...state.instrumentNotes, newNote];
+                            list.sort((a, b) => a.startTime - b.startTime);
+                            return {
+                                instrumentNotes: list,
+                                selectedNotes: [newNote],
+                            }
+                        }, () => {
+                            ProjectService.saveInstrument(instrument, { notes: this.state.instrumentNotes, tags: this.state.instrumentTags }, instrumentNoteIdx);
+                        });
+                    }
+                    else {
+                        console.warn("existing note under cursor, skipping insert");
+                    }
+                    return;
                 }
-                else {
-                    console.log("place note here", string, beatNum);
-                }
-                break;
             case keyShortcuts.EDIT_NOTE_AT_CURSOR:
                 if (_isNoteAtCursor() !== -1) {
                     console.log("edit note here", string, beatNum);
                 }
-                break;
+                return;
             default:
                 break;
         }
