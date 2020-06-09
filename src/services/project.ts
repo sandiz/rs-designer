@@ -712,7 +712,7 @@ export class Project {
                     try {
                         // eslint-disable-next-line
                         const data: NoteFile = new NoteFile(JSON.parse((await readFile(item.file)).toString()));
-                        const itemDest = { notes: data.notes, tags: item.tags };
+                        const itemDest = { notes: data.notes, tags: item.tags, version: data.version };
                         /* migrate notes file to current version */
                         if (data.version !== NoteFile.currentVersion) {
                             switch (data.version + 1) {
@@ -727,6 +727,7 @@ export class Project {
                                     break;
                             }
                         }
+                        data.version = NoteFile.currentVersion;
                         dest[i] = itemDest;
                     }
                     catch (e) {

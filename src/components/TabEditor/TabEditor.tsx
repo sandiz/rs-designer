@@ -196,6 +196,23 @@ class TabEditor extends React.Component<{}, TabEditorState> {
         }
     }
 
+    updateProgressAt = (time: number, dir: "left" | "right") => {
+        const per = (time / MediaPlayerService.getDuration()) * 100;
+        if (this.neckContainerRef.current && this.progressRef.current) {
+            const width = this.neckContainerRef.current.clientWidth;
+            if (this.overflowRef.current) {
+                const sl = this.overflowRef.current.scrollLeft + this.overflowRef.current.clientWidth;
+                const pos = (per / 100) * width;
+                if (pos > sl && dir === "right") {
+                    this.overflowRef.current.scrollLeft += this.overflowRef.current.clientWidth;
+                }
+                if (pos < (sl - this.overflowRef.current.clientWidth) && dir === "left") {
+                    this.overflowRef.current.scrollLeft -= this.overflowRef.current.clientWidth;
+                }
+            }
+        }
+    }
+
     updateProgress = () => {
         this.progressRAF = requestAnimationFrame(this.updateProgress);
         const time = MediaPlayerService.getCurrentTime();

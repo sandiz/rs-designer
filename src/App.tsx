@@ -4,7 +4,7 @@ import {
 } from "@blueprintjs/core"
 import { IpcRendererEvent } from 'electron'
 import { IconNames } from '@blueprintjs/icons';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { GlobalHotKeys, configure } from 'react-hotkeys';
 import { CommitDescription } from 'isomorphic-git';
 import MediaController from './components/MediaController/MediaController';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -38,6 +38,7 @@ import {
 } from './lib/touchbar';
 import Sidebar from './components/Sidebar/Sidebar';
 import AppContext from './context';
+
 
 const TabEditor = React.lazy(() => import("./components/TabEditor/TabEditor"));
 
@@ -81,6 +82,9 @@ class App extends HotKeyComponent<{}, AppState> {
       projectCommits: [],
     };
     this.state = { ...super.getInitialState(), ...b };
+    configure({
+      //defaultKeyEvent: 'keypress',
+    })
   }
 
   componentDidMount = () => {

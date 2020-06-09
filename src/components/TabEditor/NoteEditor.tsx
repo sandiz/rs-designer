@@ -12,7 +12,7 @@ import {
     BeatTime, NoteTime, NoteType,
 } from '../../types/musictheory'
 import {
-    Instrument, InstrumentNotesInMem, InstrumentOptions,
+    Instrument, InstrumentNotesInMem,
 } from '../../types/project'
 import {
     HotkeyInfo,
@@ -63,7 +63,6 @@ interface NoteEditorState {
 }
 const NOTE_WIDTH = 25; /* see .note css class */
 const HOVER_NOTE_TOP_OFFSET = 12.5;
-enum FRET { MAX = 24, MIN = 0 }
 export enum keyShortcuts {
     SELECT_ALL,
     DELETE,
@@ -79,7 +78,11 @@ export enum keyShortcuts {
     MOVE_CURSOR_UP,
     MOVE_CURSOR_DOWN,
     INSERT_NOTE_AT_CURSOR,
-    EDIT_NOTE_AT_CURSOR
+    EDIT_NOTE_AT_CURSOR,
+    FWD,
+    REWIND,
+    VOL_UP,
+    VOL_DOWN,
 }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
@@ -101,6 +104,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_CURSOR_DOWN: HotkeyInfo.MOVE_CURSOR_DOWN.hotkey,
         INSERT_NOTE_AT_CURSOR: HotkeyInfo.INSERT_NOTE_AT_CURSOR.hotkey,
         EDIT_NOTE_AT_CURSOR: HotkeyInfo.EDIT_NOTE_AT_CURSOR.hotkey,
+        FWD: HotkeyInfo.FWD.hotkey,
+        REWIND: HotkeyInfo.REWIND.hotkey,
+        VOL_DOWN: HotkeyInfo.VOL_DOWN.hotkey,
+        VOL_UP: HotkeyInfo.VOL_UP.hotkey,
     }
 
     public handlers = {
@@ -126,6 +133,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         TOGGLE_METRONOME: this.props.toggleMetronome,
         TOGGLE_CLAPS: this.props.toggleClap,
         TOGGLE_NOTE_PLAY: this.props.toggleNotePlay,
+        FWD: (e: KeyboardEvent | undefined) => { if (e) { e.preventDefault(); e.stopPropagation(); } this.cursorHandler(keyShortcuts.MOVE_CURSOR_RIGHT); },
+        REWIND: (e: KeyboardEvent | undefined) => { if (e) { e.preventDefault(); e.stopPropagation(); } this.cursorHandler(keyShortcuts.MOVE_CURSOR_LEFT); },
+        VOL_UP: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_UP); },
+        VOL_DOWN: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_DOWN); },
     }
 
     private hoverRef: RefObject<HTMLDivElement>;
@@ -254,6 +265,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (this.hoverRef.current) this.hoverRef.current.style.visibility = "unset";
         const idx = this.currentString.getAttribute("data-string-idx");
         if (idx) {
+            if (event.metaKey || event.ctrlKey) {
+                if (this.hoverRef.current) this.hoverRef.current.style.background = "unset";
+                return;
+            }
             const color = STRING_COLORS[this.props.settings.getCS()][parseInt(idx, 10)];
             if (this.hoverRef.current) this.hoverRef.current.style.background = color;
         }
@@ -270,14 +285,27 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     onMouseClick = (event: React.MouseEvent) => {
         if (!this.state.inFocus) return;
         if (this.hoverRef.current && this.state.beats.length > 0) {
-            if (this.state.selectedNotes.length > 0) {
-                this.setState({ selectedNotes: [] });
-                return;
-            }
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
             const x = event.clientX - (rect.left) - (hr.width / 2);
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
+
+            if (event.ctrlKey || event.metaKey) {
+                if (this.currentString) {
+                    let { cursorPosition } = this.state;
+                    const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
+                    const beat = this.state.beats.findIndex(i => i.start === closest[1].start);
+                    if (beat !== -1) {
+                        cursorPosition = [string, beat];
+                        this.setState({ cursorPosition, selectedNotes: [] });
+                    }
+                }
+                return;
+            }
+            if (this.state.selectedNotes.length > 0) {
+                this.setState({ selectedNotes: [] });
+                return;
+            }
             if (this.currentString) {
                 const {
                     instrument, instrumentNoteIdx,
@@ -351,7 +379,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
 
-    onNeckMouseWheel = (event: React.WheelEvent) => {
+    onNeckMouseWheel = () => {
+        /*
         const { selectedNotes } = this.state;
         selectedNotes.forEach((item) => {
             const diff = event.shiftKey ? 5 : 1;
@@ -367,11 +396,26 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             }
         });
         this.setState({ selectedNotes });
+        */
     }
 
     onNeckMouseMove = (event: React.MouseEvent) => {
         if (!this.state.inFocus) return;
         if (this.hoverRef.current) {
+            if (event.metaKey || event.ctrlKey) {
+                this.hoverRef.current.style.background = "unset";
+                this.hoverRef.current.classList.add(...["cursor-note"])
+            }
+            else {
+                if (this.currentString) {
+                    const idx = this.currentString.getAttribute("data-string-idx");
+                    if (idx) {
+                        const color = STRING_COLORS[this.props.settings.getCS()][parseInt(idx, 10)];
+                        this.hoverRef.current.style.background = color;
+                    }
+                }
+                this.hoverRef.current.classList.remove(...["cursor-note"])
+            }
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
             let x = event.clientX - (rect.left) - (hr.width / 2);
@@ -410,8 +454,19 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
 
     cursorHandler = (h: keyShortcuts) => {
         if (!this.state.inFocus) return;
-        let { cursorPosition } = this.state;
+        let { cursorPosition, selectedNotes } = this.state;
         let [string, beatNum] = cursorPosition;
+        /*
+            left, right, up, down 
+                -> if(!shift) clear selectedNotes
+                -> move cursor respectively, if cursor lands on a note, that note is selected or added if(shift) and cursor is hidden
+                
+        */
+        const _isNoteAtCursor = (s = string, bn = beatNum): number => {
+            const beat = this.state.beats[bn];
+            return this.state.instrumentNotes.findIndex(i => i.startTime === parseFloat(beat.start) && i.string === s);
+        }
+
         switch (h) {
             case keyShortcuts.MOVE_CURSOR_UP:
                 string -= 1;
@@ -423,23 +478,42 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 break;
             case keyShortcuts.MOVE_CURSOR_LEFT:
                 beatNum -= 1;
-                if (beatNum < 1) beatNum = 1;
+                if (beatNum < 0) beatNum = 0;
                 break;
             case keyShortcuts.MOVE_CURSOR_RIGHT:
                 beatNum += 1;
                 if (beatNum > this.state.beats.length - 1) beatNum = this.state.beats.length - 1;
                 break;
             case keyShortcuts.INSERT_NOTE_AT_CURSOR:
-                console.log("place note here", string, beatNum);
+                if (_isNoteAtCursor() !== -1) {
+                    console.warn("existing note under cursor, skipping insert");
+                }
+                else {
+                    console.log("place note here", string, beatNum);
+                }
                 break;
             case keyShortcuts.EDIT_NOTE_AT_CURSOR:
-                console.log("edit note here", string, beatNum);
+                if (_isNoteAtCursor() !== -1) {
+                    console.log("edit note here", string, beatNum);
+                }
                 break;
             default:
                 break;
         }
+        const noteIdx = _isNoteAtCursor(string, beatNum);
+        if (noteIdx !== -1) {
+            const note = this.state.instrumentNotes[noteIdx];
+            selectedNotes = [note];
+        }
+        else {
+            selectedNotes = [];
+        }
         cursorPosition = [string, beatNum];
-        this.setState({ cursorPosition });
+        this.setState({ cursorPosition, selectedNotes });
+        this.props.tabEditor.updateProgressAt(
+            parseFloat(this.state.beats[beatNum].start),
+            h === keyShortcuts.MOVE_CURSOR_LEFT ? "left" : "right",
+        );
         if (this.cursorNoteRef.current) {
             this.cursorNoteRef.current.classList.remove("blink-cursor");
         }
@@ -452,7 +526,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     kbdHandler = (h: keyShortcuts) => {
-        console.log("note-kbd", h)
         switch (h) {
             case keyShortcuts.SELECT_ALL:
                 {
@@ -504,32 +577,47 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     const items = this.clipboard;
                     const newItems: NoteTime[] = [];
                     const {
-                        instrument, instrumentNoteIdx, insertHeadBeatIdx,
+                        instrument, instrumentNoteIdx,
                     } = this.props;
-                    if (instrument && insertHeadBeatIdx !== undefined && instrumentNoteIdx !== undefined && this.clipboard.length > 0) {
-                        const minStart = items.reduce((min, p) => (p.startTime < min ? p.startTime : min), items[0].startTime);
+                    if (instrument !== undefined && instrumentNoteIdx !== undefined && this.clipboard.length > 0) {
                         const {
                             instrumentNotes,
                             instrumentTags,
                         } = this.state
-                        const beatStart = parseFloat(this.state.beats[insertHeadBeatIdx].start);
-                        items.forEach(i => {
-                            const c: NoteTime = clone(i);
-                            const diff = c.startTime - minStart;
-                            c.startTime = beatStart + (diff);
-                            c.endTime = beatStart + diff;
-                            const idx = instrumentNotes.findIndex(item => item.startTime === c.startTime && item.string === c.string);
-                            if (idx !== -1) {
-                                instrumentNotes.splice(idx, 1);
-                            }
-                            newItems.push(c);
-                        });
+                        const minStart = items.reduce((min, p) => (p.startTime < min ? p.startTime : min), items[0].startTime);
+                        const minBeat = this.state.beats.findIndex(i => parseFloat(i.start) === minStart);
+                        if (minBeat !== -1) {
+                            const pasteStart = this.state.cursorPosition[1];
+                            items.forEach(i => {
+                                const c: NoteTime = clone(i);
+                                const beatStart = this.state.beats.findIndex(k => parseFloat(k.start) === c.startTime);
+                                const beatEnd = this.state.beats.findIndex(k => parseFloat(k.start) === c.endTime);
+                                if (beatStart !== -1) {
+                                    const diff = beatStart - minBeat;
+                                    const newPos = pasteStart + diff;
+                                    const newBeat = this.state.beats[newPos];
+                                    c.startTime = parseFloat(newBeat.start);
+                                }
+                                if (beatEnd !== -1) {
+                                    const diff = beatEnd - minBeat;
+                                    const newPos = pasteStart + diff;
+                                    const newBeat = this.state.beats[newPos];
+                                    c.endTime = parseFloat(newBeat.start);
+                                }
+                                const idx = instrumentNotes.findIndex(item => item.startTime === c.startTime && item.string === c.string);
+                                if (idx !== -1) {
+                                    instrumentNotes.splice(idx, 1);
+                                }
+                                newItems.push(c);
+                            });
+                        }
                         const new1 = [...instrumentNotes, ...newItems]
                         this.setState({ instrumentNotes: new1, selectedNotes: newItems });
                         ProjectService.saveInstrument(instrument, { notes: new1, tags: instrumentTags }, instrumentNoteIdx);
                     }
                 }
                 break;
+            /*
             case keyShortcuts.MOVE_LEFT:
                 {
                     const { selectedNotes, instrumentNotes, instrumentTags } = this.state;
@@ -617,7 +705,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                 }
                 break;
-            /*
             case keyShortcuts.SELECT_PREV_NOTE:
             case keyShortcuts.SELECT_NEXT_NOTE:
             case keyShortcuts.SELECT_NOTE_ABOVE:
@@ -721,8 +808,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         let cursorTime = 0;
         let cursorPer = 0;
         if (this.state.beats.length > 0) {
-            let downBeat = this.state.cursorPosition[1];
-            downBeat -= 1;
+            const downBeat = this.state.cursorPosition[1];
             const dnb = this.state.beats;//.filter(i => i.beatNum === "1");
             if (downBeat < dnb.length) {
                 cursorTime = parseFloat(dnb[downBeat].start);
@@ -751,6 +837,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         ref={this.neckRef}
                         onBlur={this.onFocusOut}
                         onFocus={this.onFocus}
+                        onKeyDown={e => e.preventDefault()}
                     >
                         <div ref={this.notesRef} className="notes-container">
                             {
