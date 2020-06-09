@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import classNames from 'classnames';
 import { Classes, ResizeSensor } from '@blueprintjs/core';
 import Selection from '@simonwep/selection-js';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { HotKeys } from 'react-hotkeys';
 import MediaPlayerService from '../../services/mediaplayer';
 import ProjectService from '../../services/project';
 import {
@@ -74,21 +74,15 @@ export enum keyShortcuts {
     MOVE_RIGHT,
     MOVE_UP,
     MOVE_DOWN,
-    SELECT_NEXT_NOTE,
-    SELECT_PREV_NOTE,
-    SELECT_NOTE_BELOW,
-    SELECT_NOTE_ABOVE,
     MOVE_CURSOR_LEFT,
     MOVE_CURSOR_RIGHT,
     MOVE_CURSOR_UP,
     MOVE_CURSOR_DOWN,
+    INSERT_NOTE_AT_CURSOR,
+    EDIT_NOTE_AT_CURSOR
 }
 class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     public keyMap = {
-        SELECT_NOTE_ABOVE: HotkeyInfo.SELECT_NOTE_ABOVE.hotkey,
-        SELECT_NOTE_BELOW: HotkeyInfo.SELECT_NOTE_BELOW.hotkey,
-        SELECT_PREV_NOTE: HotkeyInfo.SELECT_PREV_NOTE.hotkey,
-        SELECT_NEXT_NOTE: HotkeyInfo.SELECT_NEXT_NOTE.hotkey,
         SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
         DELETE_NOTES: HotkeyInfo.DELETE_NOTES.hotkey,
         CUT_NOTES: HotkeyInfo.CUT_NOTES.hotkey,
@@ -105,13 +99,15 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_CURSOR_RIGHT: HotkeyInfo.MOVE_CURSOR_RIGHT.hotkey,
         MOVE_CURSOR_UP: HotkeyInfo.MOVE_CURSOR_UP.hotkey,
         MOVE_CURSOR_DOWN: HotkeyInfo.MOVE_CURSOR_DOWN.hotkey,
+        INSERT_NOTE_AT_CURSOR: HotkeyInfo.INSERT_NOTE_AT_CURSOR.hotkey,
+        EDIT_NOTE_AT_CURSOR: HotkeyInfo.EDIT_NOTE_AT_CURSOR.hotkey,
     }
 
     public handlers = {
-        SELECT_PREV_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_PREV_NOTE); },
-        SELECT_NEXT_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NEXT_NOTE); },
-        SELECT_NOTE_ABOVE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_ABOVE); },
-        SELECT_NOTE_BELOW: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_BELOW); },
+        //SELECT_PREV_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_PREV_NOTE); },
+        //SELECT_NEXT_NOTE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NEXT_NOTE); },
+        //SELECT_NOTE_ABOVE: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_ABOVE); },
+        //SELECT_NOTE_BELOW: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.kbdHandler(keyShortcuts.SELECT_NOTE_BELOW); },
         SELECT_ALL_NOTES: () => this.kbdHandler(keyShortcuts.SELECT_ALL),
         DELETE_NOTES: () => this.kbdHandler(keyShortcuts.DELETE),
         CUT_NOTES: () => this.kbdHandler(keyShortcuts.CUT),
@@ -121,10 +117,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         MOVE_NOTES_RIGHT: () => this.kbdHandler(keyShortcuts.MOVE_RIGHT),
         MOVE_NOTES_UP: () => this.kbdHandler(keyShortcuts.MOVE_UP),
         MOVE_NOTES_DOWN: () => this.kbdHandler(keyShortcuts.MOVE_DOWN),
-        MOVE_CURSOR_LEFT: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_LEFT),
-        MOVE_CURSOR_RIGHT: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_RIGHT),
-        MOVE_CURSOR_UP: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_UP),
-        MOVE_CURSOR_DOWN: () => this.cursorHandler(keyShortcuts.MOVE_CURSOR_DOWN),
+        MOVE_CURSOR_LEFT: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_LEFT) },
+        MOVE_CURSOR_RIGHT: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_RIGHT) },
+        MOVE_CURSOR_UP: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_UP) },
+        MOVE_CURSOR_DOWN: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.MOVE_CURSOR_DOWN) },
+        INSERT_NOTE_AT_CURSOR: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.INSERT_NOTE_AT_CURSOR) },
+        EDIT_NOTE_AT_CURSOR: (e: KeyboardEvent | undefined) => { if (e) e.preventDefault(); this.cursorHandler(keyShortcuts.EDIT_NOTE_AT_CURSOR) },
         TOGGLE_METRONOME: this.props.toggleMetronome,
         TOGGLE_CLAPS: this.props.toggleClap,
         TOGGLE_NOTE_PLAY: this.props.toggleNotePlay,
@@ -137,7 +135,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private strings: HTMLDivElement[];
     private selection: Selection | null = null;
     private cursorNoteRef: RefObject<HTMLDivElement>;
-    ;
+    private cursorTimer: NodeJS.Timeout | null = null;
     private clipboard: NoteTime[] = [];
     private noteDivRefs: HTMLDivElement[] = [];
     constructor(props: NoteEditorProps) {
@@ -411,7 +409,46 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     cursorHandler = (h: keyShortcuts) => {
-        console.log("note-cursor", h);
+        if (!this.state.inFocus) return;
+        let { cursorPosition } = this.state;
+        let [string, beatNum] = cursorPosition;
+        switch (h) {
+            case keyShortcuts.MOVE_CURSOR_UP:
+                string -= 1;
+                if (string < 0) string = this.strings.length - 1;
+                break;
+            case keyShortcuts.MOVE_CURSOR_DOWN:
+                string += 1;
+                if (string > this.strings.length - 1) string = 0;
+                break;
+            case keyShortcuts.MOVE_CURSOR_LEFT:
+                beatNum -= 1;
+                if (beatNum < 1) beatNum = 1;
+                break;
+            case keyShortcuts.MOVE_CURSOR_RIGHT:
+                beatNum += 1;
+                if (beatNum > this.state.beats.length - 1) beatNum = this.state.beats.length - 1;
+                break;
+            case keyShortcuts.INSERT_NOTE_AT_CURSOR:
+                console.log("place note here", string, beatNum);
+                break;
+            case keyShortcuts.EDIT_NOTE_AT_CURSOR:
+                console.log("edit note here", string, beatNum);
+                break;
+            default:
+                break;
+        }
+        cursorPosition = [string, beatNum];
+        this.setState({ cursorPosition });
+        if (this.cursorNoteRef.current) {
+            this.cursorNoteRef.current.classList.remove("blink-cursor");
+        }
+        if (this.cursorTimer) clearTimeout(this.cursorTimer)
+        this.cursorTimer = setTimeout(() => {
+            if (this.cursorNoteRef.current) {
+                this.cursorNoteRef.current.classList.add("blink-cursor");
+            }
+        }, 1000);
     }
 
     kbdHandler = (h: keyShortcuts) => {
@@ -580,6 +617,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                 }
                 break;
+            /*
             case keyShortcuts.SELECT_PREV_NOTE:
             case keyShortcuts.SELECT_NEXT_NOTE:
             case keyShortcuts.SELECT_NOTE_ABOVE:
@@ -634,6 +672,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                 }
                 break;
+            */
             default:
                 break;
         }
@@ -684,14 +723,22 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (this.state.beats.length > 0) {
             let downBeat = this.state.cursorPosition[1];
             downBeat -= 1;
-            const dnb = this.state.beats.filter(i => i.beatNum === "1");
+            const dnb = this.state.beats;//.filter(i => i.beatNum === "1");
             if (downBeat < dnb.length) {
                 cursorTime = parseFloat(dnb[downBeat].start);
                 cursorPer = (cursorTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2);
             }
         }
         return (
-            <GlobalHotKeys keyMap={this.keyMap} handlers={this.handlers}>
+            <HotKeys
+                keyMap={this.keyMap}
+                handlers={this.handlers}
+                style={{
+                    width: 100 + '%',
+                    height: 100 + '%',
+                }}
+                id="neck-hotkey"
+            >
                 <ResizeSensor onResize={() => this.forceUpdate()}>
                     <div
                         //eslint-disable-next-line
@@ -823,7 +870,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                         />
                     </div>
                 </ResizeSensor>
-            </GlobalHotKeys>
+            </HotKeys>
         );
     }
 }

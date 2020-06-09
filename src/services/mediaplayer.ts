@@ -222,7 +222,7 @@ class MediaPlayer {
                     height: 40,
                     showRegions: true,
                     showOverview: true,
-                    overviewBorderColor: this._isDarkTheme() ? 'white' : '#000',
+                    overviewBorderColor: this._isDarkTheme() ? Colors.GRAY3 : Colors.DARK_GRAY3,
                     overviewBorderSize: 1,
                 }),
             ],
@@ -377,7 +377,7 @@ class MediaPlayer {
             if (keys.includes("minimap")) {
                 this.wavesurfer.minimap.params.waveColor = this._isDarkTheme() ? "#B7B7B7" : "#9D9C9E";
                 this.wavesurfer.minimap.params.progressColor = this._isDarkTheme() ? getGradient("dark", ctx) : getGradient("light", ctx);
-                this.wavesurfer.minimap.overviewRegion.style.border = "1px solid " + (this._isDarkTheme() ? 'white' : '#000');
+                this.wavesurfer.minimap.overviewRegion.style.border = "1px solid " + (this._isDarkTheme() ? Colors.GRAY3 : Colors.DARK_GRAY3);
                 this.wavesurfer.minimap.render();
             }
             if (keys.includes("chordstimeline")) {
