@@ -65,7 +65,7 @@ class AudioTrackModule extends React.Component<AudioTrackProps, AudioTrackState>
             <Card className="sidebar-card sidebar-audio-track" elevation={Elevation.THREE}>
                 <Callout
                     className="card-header"
-                    icon={IconNames.MUSIC}>
+                    icon={IconNames.PULSE}>
                     Audio
                     <CollapseButton parent={this} expanded={this.state.expanded} />
                 </Callout>

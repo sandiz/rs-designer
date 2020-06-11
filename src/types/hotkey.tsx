@@ -30,7 +30,6 @@ export const HotkeyInfo: { [key: string]: Hotkey } = {
     CLOSE_PROJECT: { info: "Close Project", hotkey: ["command+w", "ctrl+w"], group: "project", idx: 4, },
     IMPORT_MEDIA: { info: "Import Media", hotkey: ["command+m", "ctrl+m"], group: "project", idx: 5, },
     IMPORT_URL: { info: "Import URL", hotkey: ["command+u", "ctrl+u"], group: "project", idx: 6, },
-    EDIT_METADATA: { info: "Edit Metadata", hotkey: ["command+e", "ctrl+e"], group: "project", idx: 7, },
     MEDIA_ADVANCED: { info: `Open [ ${PRODUCT_ADVANCED} ] panel`, hotkey: ["f1", "ctrl+space"], },
 
     /* Local */

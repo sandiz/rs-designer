@@ -1,4 +1,5 @@
 import React, { RefObject } from 'react';
+import events from 'events';
 import classNames from 'classnames';
 import { Classes, ResizeSensor } from '@blueprintjs/core';
 import Selection from '@simonwep/selection-js';
@@ -21,6 +22,7 @@ import { jsonStringifyCompare, clone } from '../../lib/utils';
 import { TabEditorSettings } from '../../types/settings';
 import './TabEditor.scss';
 import TabEditor from './TabEditor';
+
 
 const beatCache: { [key: string]: [number, BeatTime] } = {}; //TODO: clear on beat change
 export function snapToGrid(x: number, rect: DOMRect, offset: number, beats: BeatTime[]): [number, BeatTime] {
@@ -84,7 +86,7 @@ export enum keyShortcuts {
     VOL_UP,
     VOL_DOWN,
 }
-class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
+class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState>  {
     public keyMap = {
         SELECT_ALL_NOTES: HotkeyInfo.SELECT_ALL_NOTES.hotkey,
         DELETE_NOTES: HotkeyInfo.DELETE_NOTES.hotkey,
@@ -149,6 +151,8 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     private cursorTimer: NodeJS.Timeout | null = null;
     private clipboard: NoteTime[] = [];
     private noteDivRefs: HTMLDivElement[] = [];
+    public emitter: events.EventEmitter = new events.EventEmitter();
+
     constructor(props: NoteEditorProps) {
         super(props);
         this.hoverRef = React.createRef();
@@ -248,6 +252,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                 })
             }
         }
+        this.emitter.emit("selected-notes", this.state.selectedNotes);
     }
 
     onFocus = () => {
@@ -255,7 +260,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
     }
 
     onFocusOut = () => {
-        this.setState({ inFocus: false, selectedNotes: [] })
+        this.setState({ inFocus: false })
         if (this.selection) this.selection.clearSelection();
     }
 
@@ -266,11 +271,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         const idx = this.currentString.getAttribute("data-string-idx");
         if (idx) {
             if (event.metaKey || event.ctrlKey) {
-                if (this.hoverRef.current) this.hoverRef.current.style.background = "unset";
-                return;
+                const color = STRING_COLORS[this.props.settings.getCS()][parseInt(idx, 10)];
+                if (this.hoverRef.current) this.hoverRef.current.style.background = color;
             }
-            const color = STRING_COLORS[this.props.settings.getCS()][parseInt(idx, 10)];
-            if (this.hoverRef.current) this.hoverRef.current.style.background = color;
+            if (this.hoverRef.current) this.hoverRef.current.style.background = "unset";
         }
     }
 
@@ -291,6 +295,45 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
             const closest = snapToGrid(x, rect, hr.width / 2, this.state.beats);
 
             if (event.ctrlKey || event.metaKey) {
+                if (this.state.selectedNotes.length > 0) {
+                    this.setState({ selectedNotes: [] });
+                    return;
+                }
+                if (this.currentString) {
+                    const {
+                        instrument, instrumentNoteIdx,
+                    } = this.props;
+                    const {
+                        instrumentNotes,
+                    } = this.state
+                    if (instrumentNotes && instrument && instrumentNoteIdx !== undefined) {
+                        const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
+                        const startTime = parseFloat(closest[1].start);
+                        const endTime = parseFloat(closest[1].start);
+                        // if a note is already there
+                        const idx = instrumentNotes.findIndex(i => i.startTime === startTime && i.string === string)
+                        if (idx === -1) {
+                            const newNote: NoteTime = new NoteTime({
+                                string,
+                                fret: 0,
+                                type: NoteType.NOTE,
+                                startTime,
+                                endTime,
+                            });
+                            this.setState(state => {
+                                const list = [...state.instrumentNotes, newNote];
+                                list.sort((a, b) => a.startTime - b.startTime);
+                                return {
+                                    instrumentNotes: list,
+                                }
+                            }, () => {
+                                ProjectService.saveInstrument(instrument, { notes: this.state.instrumentNotes, tags: this.state.instrumentTags }, instrumentNoteIdx);
+                            });
+                        }
+                    }
+                }
+            }
+            else {
                 if (this.currentString) {
                     let { cursorPosition } = this.state;
                     const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
@@ -298,44 +341,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     if (beat !== -1) {
                         cursorPosition = [string, beat];
                         this.setState({ cursorPosition, selectedNotes: [] });
-                    }
-                }
-                return;
-            }
-            if (this.state.selectedNotes.length > 0) {
-                this.setState({ selectedNotes: [] });
-                return;
-            }
-            if (this.currentString) {
-                const {
-                    instrument, instrumentNoteIdx,
-                } = this.props;
-                const {
-                    instrumentNotes,
-                } = this.state
-                if (instrumentNotes && instrument && instrumentNoteIdx !== undefined) {
-                    const string = parseInt(this.currentString.getAttribute("data-string-idx") as string, 10);
-                    const startTime = parseFloat(closest[1].start);
-                    const endTime = parseFloat(closest[1].start);
-                    // if a note is already there
-                    const idx = instrumentNotes.findIndex(i => i.startTime === startTime && i.string === string)
-                    if (idx === -1) {
-                        const newNote: NoteTime = new NoteTime({
-                            string,
-                            fret: 0,
-                            type: NoteType.NOTE,
-                            startTime,
-                            endTime,
-                        });
-                        this.setState(state => {
-                            const list = [...state.instrumentNotes, newNote];
-                            list.sort((a, b) => a.startTime - b.startTime);
-                            return {
-                                instrumentNotes: list,
-                            }
-                        }, () => {
-                            ProjectService.saveInstrument(instrument, { notes: this.state.instrumentNotes, tags: this.state.instrumentTags }, instrumentNoteIdx);
-                        });
                     }
                 }
             }
@@ -378,6 +383,18 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         //event.preventDefault();
     }
 
+    onDblMouseClickNote = (event: React.MouseEvent, idx: number) => {
+        //this.onMouseClickNote(event, idx);
+        //this.props.tabEditor.toggleDrawer(true);
+        const {
+            instrumentNotes,
+        } = this.state;
+        const note = instrumentNotes[idx];
+        const beatIndex = this.state.beats.findIndex(i => parseFloat(i.start) === note.startTime);
+        this.setState({ cursorPosition: [note.string, beatIndex], selectedNotes: [note] }, () => {
+            this.props.tabEditor.toggleDrawer(true);
+        });
+    }
 
     onNeckMouseWheel = () => {
         /*
@@ -403,10 +420,6 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
         if (!this.state.inFocus) return;
         if (this.hoverRef.current) {
             if (event.metaKey || event.ctrlKey) {
-                this.hoverRef.current.style.background = "unset";
-                this.hoverRef.current.classList.add(...["cursor-note"])
-            }
-            else {
                 if (this.currentString) {
                     const idx = this.currentString.getAttribute("data-string-idx");
                     if (idx) {
@@ -415,6 +428,10 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     }
                 }
                 this.hoverRef.current.classList.remove(...["cursor-note"])
+            }
+            else {
+                this.hoverRef.current.style.background = "unset";
+                this.hoverRef.current.classList.add(...["cursor-note"])
             }
             const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
             const hr = this.hoverRef.current.getBoundingClientRect();
@@ -515,8 +532,12 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                     return;
                 }
             case keyShortcuts.EDIT_NOTE_AT_CURSOR:
-                if (_isNoteAtCursor() !== -1) {
-                    console.log("edit note here", string, beatNum);
+                {
+                    const noteIdx = _isNoteAtCursor();
+                    if (noteIdx !== -1) {
+                        console.log("edit note here", string, beatNum);
+                        this.props.tabEditor.toggleDrawer(true);
+                    }
                 }
                 return;
             default:
@@ -869,12 +890,14 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                     const string = this.strings[note.string];
                                     const per = (note.startTime / MediaPlayerService.getDuration()) * (this.props.width) - (NOTE_WIDTH / 2)
                                     return (
+
                                         <div
                                             ref={ref => {
                                                 if (ref) this.noteDivRefs.push(ref);
                                             }}
                                             data-note-idx={i}
-                                            onMouseUp={e => this.onMouseClickNote(e, i)}
+                                            //onMouseUp={e => this.onMouseClickNote(e, i)}
+                                            onDoubleClick={e => this.onDblMouseClickNote(e, i)}
                                             key={note.string + "_" + note.fret + "_" + note.startTime}
                                             className={
                                                 classNames(
@@ -893,7 +916,7 @@ class NoteEditor extends React.Component<NoteEditorProps, NoteEditorState> {
                                                 transform: `translate(${per}px, ${string.offsetTop - (NOTE_WIDTH / 2)}px)`,
                                             }}
                                         >
-                                            {note.fret}
+                                            <span>{note.fret}</span>
                                         </div>
                                     )
                                 })

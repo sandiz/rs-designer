@@ -290,6 +290,7 @@ export class Project {
 
                 /* migrate project file to current version */
                 if (json.version !== ProjectInfo.currentVersion) {
+                    console.info("bumping project json to version", NoteFile.currentVersion, "from", json.version);
                     switch (json.version + 1) {
                         default:
                         case 1:
@@ -712,22 +713,28 @@ export class Project {
                     try {
                         // eslint-disable-next-line
                         const data: NoteFile = new NoteFile(JSON.parse((await readFile(item.file)).toString()));
-                        const itemDest = { notes: data.notes, tags: item.tags, version: data.version };
+                        const itemDest = { notes: data.notes, tags: item.tags };
                         /* migrate notes file to current version */
                         if (data.version !== NoteFile.currentVersion) {
+                            console.info("bumping instruments json to version", NoteFile.currentVersion, "from", data.version);
                             switch (data.version + 1) {
+                                // falls through
+                                case 2:
+                                    data.notes.forEach(p => {
+                                        p.id = UUID();
+                                    })
+                                // falls through
                                 default:
                                     itemDest.notes = [];
-                                    if (Array.isArray(data)) {
-                                        for (let j = 0; j < data.length; j += 1) {
-                                            const note = data[j];
+                                    if (Array.isArray(data.notes)) {
+                                        for (let j = 0; j < data.notes.length; j += 1) {
+                                            const note = data.notes[j];
                                             itemDest.notes.push(new NoteTime(note))
                                         }
                                     }
                                     break;
                             }
                         }
-                        data.version = NoteFile.currentVersion;
                         dest[i] = itemDest;
                     }
                     catch (e) {

@@ -404,3 +404,108 @@
         opacity: 0.5
     }
 }
+
+.notes-drawer-button {
+    position: absolute;
+    right: 0;
+    /* float: right; */
+    bottom: -44px;
+    /* left: 0; */
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    align-items: center;
+    z-index: 10;
+    transition: 0.5s ease-in-out;
+}
+
+.notes-drawer-editor {
+    height: 320px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 5px;
+}
+
+.slide-in {
+    transform: translateX(0px)
+}
+
+.slide-out {
+    transform: translateX(236px);
+}
+
+.nde-tabs {
+    width: 100%;
+}
+
+.nde-tab {
+    //width: 45%;
+    font-size: 18px !important;
+    text-align: center;
+}
+
+.note-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 16px;
+    margin-top: -10px;
+}
+
+.note-and-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.note-callout {
+    width: 50%;
+    height: 105px;
+    font-size: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.note-settings {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    align-items: center;
+}
+
+.note-settings-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.note-settings-row {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.note-settings-input-container {
+    width: 50%;
+    margin-left: 10px;
+}
+
+.note-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin-top: 5px;
+    font-family: $font-family-default;
+}
+
+.note-button-delete {
+    margin-left: 5px;
+}

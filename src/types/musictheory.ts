@@ -1,4 +1,7 @@
 /* Music Theory */
+
+import { UUID } from "../lib/utils";
+
 /* type representing the format of Chords serialization */
 export type ChordTriplet = [number, number, string]
 /* type representing the format of Beats serialization */
@@ -29,7 +32,7 @@ export enum NoteType { NOTE, CHORD }
 export class NoteFile {
     public notes: NoteTime[];
     public version: number;
-    static currentVersion = 1;
+    static currentVersion = 2;
 
     constructor(n: NoteFile = {} as NoteFile) {
         const {
@@ -46,20 +49,23 @@ export class NoteTime {
     public type: NoteType;
     public startTime: number;
     public endTime: number;
+    public id: string;
 
-    constructor(params: NoteTime = {} as NoteTime) {
+    constructor(params: Partial<NoteTime> = {} as Partial<NoteTime>) {
         const {
             string = -1,
             fret = -1,
             type = NoteType.NOTE,
             startTime = -1,
             endTime = -1,
+            id = UUID(),
         } = params;
         this.string = string;
         this.fret = fret;
         this.type = type;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.id = id;
     }
 }
 /* Represents a minor or major scale */

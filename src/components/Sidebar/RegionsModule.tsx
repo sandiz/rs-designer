@@ -33,7 +33,7 @@ class RegionsModule extends React.Component<RegionsProps, RegionsState> {
     context!: React.ContextType<typeof AppContext>;
     constructor(props: RegionsProps) {
         super(props);
-        this.state = { regions: [], expanded: true };
+        this.state = { regions: [], expanded: false };
     }
 
     componentWillUnmount = () => {

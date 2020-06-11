@@ -17,7 +17,7 @@ import './css/App.scss'
 import 'typeface-inconsolata'
 import 'typeface-pt-sans'
 
-import { getHotkeyDialog, getMetadataEditorDialog, getImportUrlDialog } from './dialogs';
+import { getHotkeyDialog, getImportUrlDialog } from './dialogs';
 import {
   DialogContent,
 } from './types/base'
@@ -63,13 +63,13 @@ const AppDestructor = () => {
 class App extends HotKeyComponent<{}, AppState> {
   public keyMap = {
     SHOW_ALL_HOTKEYS: HotkeyInfo.SHOW_ALL_HOTKEYS.hotkey,
-    EDIT_METADATA: HotkeyInfo.EDIT_METADATA.hotkey,
+    //EDIT_METADATA: HotkeyInfo.EDIT_METADATA.hotkey,
     IMPORT_URL: HotkeyInfo.IMPORT_URL.hotkey,
   };
 
   public handlers = {
     SHOW_ALL_HOTKEYS: () => this.kbdProxy(() => this.openDialog(getHotkeyDialog())),
-    EDIT_METADATA: () => this.kbdProxy(() => this.openDialog(getMetadataEditorDialog())),
+    //EDIT_METADATA: () => this.kbdProxy(() => this.openDialog(getMetadataEditorDialog())),
     IMPORT_URL: () => this.kbdProxy(() => this.openDialog(getImportUrlDialog())),
   }
 
