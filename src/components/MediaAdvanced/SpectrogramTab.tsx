@@ -111,10 +111,12 @@ export class SpectrogramTab extends React.Component<{}, SpecState> {
         DispatcherService.off(DispatchEvents.MediaReady, this.initLiveCQT);
         DispatcherService.off(DispatchEvents.MediaReset, this.freeCQT);
         this.freeCQT();
-        //eslint-disable-next-line
-        (this.synth as any).disconnect();
-        //eslint-disable-next-line
-        (this.synth as any).dispose();
+        if (this.synth) {
+            //eslint-disable-next-line
+            (this.synth as any).disconnect();
+            //eslint-disable-next-line
+            (this.synth as any).dispose();
+        }
     }
 
     toggleEQAware = async (event: React.FormEvent<HTMLInputElement>) => {

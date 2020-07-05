@@ -1,3 +1,4 @@
+import * as FS from 'fs';   /* for types */
 import { ChildProcess } from 'child_process';
 import { Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
@@ -28,6 +29,8 @@ const cqt: Provider = require('../app-config/musicanalysis/cqt/providers.json');
 
 const { isPackaged, getAppPath } = window.require('electron').remote.app;
 const isDev = window.require('electron-is-dev');
+
+const fs: typeof FS = window.require("fs");
 
 type stringFunc = ((s: string) => void);
 
@@ -424,6 +427,65 @@ class MusicAnalysis {
 
     analyseCQT = async () => {
         this.analyse([AnalysisType.CQT]);
+    }
+
+    spleet = async (stdout: stringFunc, stderr: stringFunc, close: stringFunc): Promise<ChildProcess | null> => {
+        const pretrainedPath = './src/lib/musicanalysis/spleeter/pretrained_models';
+        const spleetType = "spleeter:5stems";
+        const outDir = "stems/"
+        const cmd = `spleeter`;
+
+        const info = ProjectService.getProjectInfo();
+        if (info) {
+            const args = ['separate', '-i', info.media, '-o', outDir, '-p', `"${spleetType}"`, '--verbose', '-c', 'mp3', '-f', `"{instrument}.mp3"`];
+            // link pretrained models to project path
+            const symPath = path.join(
+                path.dirname(info.projectPath),
+                "pretrained_models",
+            )
+            await new Promise((resolve) => fs.symlink(path.resolve(pretrainedPath), symPath, "dir", resolve));
+
+            // run cmd
+            const runner = spawn.spawn(
+                cmd,
+                args,
+                {
+                    detached: true,
+                    windowsHide: true,
+                    shell: true,
+                    cwd: path.dirname(info.projectPath),
+                },
+            );
+            const log = `[spleeter - runner] [${runner.spawnfile}] started with args: ${runner.spawnargs}`;
+            stdout(log);
+
+            runner.stdout.on('data', stdout);
+            runner.stderr.on('data', stderr);
+            runner.on('close', (code) => {
+                if (code === 0) {
+                    this.saveStems();
+                    stdout("Spleeter finished successfully!")
+                    close(code.toString());
+                }
+                else {
+                    stderr("Spleeter failed with code: " + code);
+                    close(code.toString());
+                }
+            });
+            runner.on('error', (err: Error) => {
+                stderr("Spleeter error: " + err.message);
+                close(err.message);
+            })
+
+            return runner;
+            // save files to rsdproject
+            // [BASS, DRUMS, OTHER, PIANO, VOCALS]
+        }
+        return null;
+    }
+
+    saveStems = () => {
+
     }
 }
 

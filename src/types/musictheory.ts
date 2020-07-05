@@ -110,3 +110,20 @@ export const allTunings = {
     Open_E: [0, 2, 2, 1, 0, 0],
     DADGAD: [-2, 0, 0, 0, -2, -2],
 }
+
+
+export enum STEM {
+    BASS = 'bass',
+    DRUMS = 'drums',
+    OTHER = 'other',
+    PIANO = 'piano',
+    VOCALS = 'vocals'
+}
+export type Stems = { [key in STEM]: string };
+export const DEFAULT_STEMS: Stems = {
+    [STEM.BASS]: '',
+    [STEM.DRUMS]: '',
+    [STEM.OTHER]: '',
+    [STEM.PIANO]: '',
+    [STEM.VOCALS]: '',
+}

@@ -1,0 +1,55 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.output {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+}
+
+.output-button {
+    height: 80px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding-left: 15px !important;
+}
+
+.output-logs {
+    height: 250px;
+    margin: 0 !important;
+    overflow: auto;
+}
+
+.stem-panel {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    width: 70%;
+}
+
+.buttons>button {
+    margin-right: 10px;
+}
+
+.spinner {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 30%;
+}

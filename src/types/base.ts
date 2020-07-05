@@ -6,12 +6,14 @@ import * as PATH from 'path';
 import * as FS from 'fs';
 import * as OS from 'os';
 import * as SPAWN from 'cross-spawn';
+import * as PROCESS from 'process';
 
 export const path: typeof PATH = window.require("path");
 export const youtube: typeof YTDL = window.require("youtube-dl");
 export const fs: typeof FS = window.require("fs");
 export const os: typeof OS = window.require("os");
 export const spawn: typeof SPAWN = window.require('cross-spawn');
+export const process: typeof PROCESS = window.require('process');
 
 /*declare global {
     interface Window {

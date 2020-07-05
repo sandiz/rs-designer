@@ -1,5 +1,5 @@
 import {
-    NoteTime, SongKey, ChordTime, BeatTime, allTunings,
+    NoteTime, SongKey, ChordTime, BeatTime, allTunings, STEM, Stems, DEFAULT_STEMS,
 } from "./musictheory";
 import { EQTag } from "./eq";
 import { ProjectSettings } from "./settings";
@@ -58,7 +58,9 @@ export class ProjectInfo {
     public instruments: Instruments = new Instruments();
     public settings: ProjectSettings = new ProjectSettings();
     public regions: Region[] = [];
-    static currentVersion = 4;
+    public stems: Stems = DEFAULT_STEMS;
+    public defaultMedia: "default" | STEM = "default";
+    static currentVersion = 6;
 
     constructor(params: ProjectInfo = {} as ProjectInfo) {
         const {
@@ -75,6 +77,8 @@ export class ProjectInfo {
             instruments = {} as Instruments,
             settings = {} as ProjectSettings,
             regions = [],
+            stems = DEFAULT_STEMS,
+            defaultMedia = "default",
         } = params;
 
         this.media = media;
@@ -90,6 +94,8 @@ export class ProjectInfo {
         this.instruments = new Instruments(instruments);
         this.settings = new ProjectSettings(settings);
         this.regions = regions;
+        this.stems = stems;
+        this.defaultMedia = defaultMedia;
     }
 }
 /* Classes maintaining an history of projects */

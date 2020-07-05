@@ -14,16 +14,15 @@ import { toTitleCase } from '../../lib/utils';
 
 const MixerTab = React.lazy(() => import('./MixerTab'));
 const SpectrogramTab = React.lazy(() => import('./SpectrogramTab'));
-const EqualizerTab = React.lazy(() => import("./EQPanel"));
+const EqualizerTab = React.lazy(() => import('./EQPanel'));
+const TrackIsolationTab = React.lazy(() => import('./TrackIsolation'));
 
 export enum TABID {
     HOME = "home",
     ANALYSIS = "analysis",
     EQUALIZER = "equalizer",
     SPEC = "chromagram",
-    CLOUDANALYSIS = "cloud analysis",
     ISOLATION = "track isolation",
-    PITCH_TRACKING = "pitch tracking",
     REGIONS = "regions",
     LYRICS = "lyrics",
     NOTES = "notes",
@@ -106,6 +105,9 @@ class MediaAdvanced extends React.Component<MediaAdvancedProps, MediaAdvancedSta
                 break;
             case TABID.SPEC:
                 elem = <SpectrogramTab key={TABID.SPEC} />
+                break;
+            case TABID.ISOLATION:
+                elem = <TrackIsolationTab key={TABID.ISOLATION} />
                 break;
             default:
                 elem = null;

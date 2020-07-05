@@ -1,8 +1,5 @@
 import * as TMP from 'tmp';
-import * as FS from 'fs';
-import * as PATH from 'path';
 import * as READLINE from 'readline';
-import * as OS from 'os';
 
 import nextFrame from 'next-frame';
 import Tone from 'tone';
@@ -21,7 +18,7 @@ import {
 } from '../types/project'
 import {
     ChordTime, BeatTime, SongKey,
-    ChordTriplet, BeatTriplet, NoteTime, NoteFile, CQTResult,
+    ChordTriplet, BeatTriplet, NoteTime, NoteFile, CQTResult, DEFAULT_STEMS,
 } from '../types/musictheory'
 import { EQTag } from '../types/eq';
 import { MediaInfo } from '../types/media'
@@ -32,14 +29,12 @@ import {
     successToaster, progressToaster, errorToaster, dismissToaster,
 } from '../components/Extended/Toasters';
 import GitService from './git';
+import { path, os, fs } from '../types/base';
 
 const { app, dialog } = window.require('electron').remote;
 
 const readline: typeof READLINE = window.require("readline");
-const os: typeof OS = window.require("os");
-const path: typeof PATH = window.require('path');
 const tmp: typeof TMP = window.require('tmp');
-const fs: typeof FS = window.require("fs");
 
 const projectExt = "rsdproject";
 const bundleExt = "rsdbundle";
@@ -222,7 +217,7 @@ export class Project {
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);
 
-                const data: Buffer = await readFile(pInfo.media);
+                const data: Buffer = await readFile(path.join(this.projectDirectory, pInfo.media));
                 progressToaster("Generating Waveform", 2, total, key);
 
                 let blob = new window.Blob([new Uint8Array(data)]);
@@ -304,6 +299,22 @@ export class Project {
                         // falls through
                         case 4:
                             json.regions = [];
+                        // falls through
+                        case 5:
+                            json.stems = DEFAULT_STEMS;
+                        // falls through
+                        case 6:
+                            json.media = path.basename(json.media);
+                            json.cqt = path.basename(json.cqt);
+                            json.tempo = path.basename(json.tempo);
+                            json.beats = path.basename(json.beats);
+                            json.key = path.basename(json.key);
+                            json.chords = path.basename(json.chords);
+                            json.metadata = path.basename(json.metadata);
+                            [
+                                json.instruments.leadGuitar, json.instruments.rhythmGuitar,
+                                json.instruments.bassGuitar, json.instruments.ukulele,
+                            ].forEach((item) => item.map(f => path.basename(f.file)));
                             break;
                     }
                     json.version = ProjectInfo.currentVersion;
@@ -431,12 +442,12 @@ export class Project {
 
     private updateExternalFiles = async () => {
         if (this.projectInfo) {
-            this.projectInfo.cqt = path.join(this.projectDirectory, 'cqt.raw.png');
-            this.projectInfo.tempo = path.join(this.projectDirectory, 'tempo');
-            this.projectInfo.beats = path.join(this.projectDirectory, 'beats');
-            this.projectInfo.key = path.join(this.projectDirectory, 'key');
-            this.projectInfo.chords = path.join(this.projectDirectory, 'chords');
-            this.projectInfo.metadata = path.join(this.projectDirectory, 'metadata.json');
+            this.projectInfo.cqt = path.join('cqt.raw.png');
+            this.projectInfo.tempo = path.join('tempo');
+            this.projectInfo.beats = path.join('beats');
+            this.projectInfo.key = path.join('key');
+            this.projectInfo.chords = path.join('chords');
+            this.projectInfo.metadata = path.join('metadata.json');
             await writeFile(this.projectFileName, JSON.stringify(this.projectInfo));
             DispatcherService.dispatch(DispatchEvents.ProjectUpdated, ProjectUpdateType.ExternalFilesUpdate);
         }
@@ -503,8 +514,8 @@ export class Project {
     private readTempo = async (): Promise<number> => {
         try {
             if (this.projectInfo) {
-                if (!fs.existsSync(this.projectInfo.tempo)) return 0;
-                const tempoFile = this.projectInfo.tempo;
+                const tempoFile = path.join(this.projectDirectory, this.projectInfo.tempo);
+                if (!fs.existsSync(tempoFile) || fs.statSync(tempoFile).isDirectory()) return 0;
                 const data = await readFile(tempoFile)
                 const tempo = parseFloat(data.toString());
                 Tone.Transport.bpm.value = tempo;
@@ -520,8 +531,8 @@ export class Project {
     private readSongKey = async (): Promise<SongKey> => {
         try {
             if (this.projectInfo) {
-                const keyFile = this.projectInfo.key;
-                if (!fs.existsSync(keyFile)) return ['-', '-', 0];
+                const keyFile = path.join(this.projectDirectory, this.projectInfo.key);
+                if (!fs.existsSync(keyFile) || fs.statSync(keyFile).isDirectory()) return ['-', '-', 0];
                 const data = await readFile(keyFile)
                 const s: SongKey = JSON.parse(data.toString())
                 let note = s[0];
@@ -547,9 +558,10 @@ export class Project {
     public readChords = async (): Promise<ChordTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
-            if (!fs.existsSync(this.projectInfo.chords)) return resolve([]);
+            const chordFile = path.join(this.projectDirectory, this.projectInfo.chords);
+            if (!fs.existsSync(chordFile) || fs.statSync(chordFile).isDirectory()) return resolve([]);
             const lineReader = readline.createInterface({
-                input: fs.createReadStream(this.projectInfo.chords),
+                input: fs.createReadStream(chordFile),
             });
 
             const chords: ChordTime[] = []
@@ -581,9 +593,10 @@ export class Project {
     public readBeats = async (): Promise<BeatTime[]> => new Promise((resolve, reject) => {
         try {
             if (this.projectInfo == null) return reject();
-            if (!fs.existsSync(this.projectInfo.beats)) return resolve([]);
+            const beatFile = path.join(this.projectDirectory, this.projectInfo.beats);
+            if (!fs.existsSync(beatFile) || fs.statSync(beatFile).isDirectory()) return resolve([]);
             const lineReader = readline.createInterface({
-                input: fs.createReadStream(this.projectInfo.beats),
+                input: fs.createReadStream(beatFile),
             });
 
             const beats: BeatTime[] = []
