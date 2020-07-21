@@ -338,7 +338,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
         await this.recentsMenu();
         const { recentMenu } = this.state;
         const menu = (
-            <Menu large>
+            <Menu large style={{ zIndex: 100 }}>
                 <MenuItem
                     text={this.getMenuItemText("Open Project")}
                     icon={IconNames.FOLDER_OPEN}
@@ -414,7 +414,7 @@ class MediaController extends HotKeyComponent<{}, MediaBarState> {
                 </Suspense>
                 <CardExtended className={classNames("media-bar-sticky")} elevation={Elevation.FOUR}>
                     <div className="media-bar-container">
-                        <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP}>
+                        <Popover content={this.state.settingsMenu ? this.state.settingsMenu : undefined} position={Position.TOP} portalClassName="settings-popover">
                             <ButtonExtended icon={<Icon icon={IconNames.PROPERTIES} iconSize={20} />} large className={Classes.ELEVATION_2} />
                         </Popover>
                         <Navbar.Divider className="tall-divider" />

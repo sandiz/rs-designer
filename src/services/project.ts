@@ -18,7 +18,7 @@ import {
 } from '../types/project'
 import {
     ChordTime, BeatTime, SongKey,
-    ChordTriplet, BeatTriplet, NoteTime, NoteFile, CQTResult, DEFAULT_STEMS,
+    ChordTriplet, BeatTriplet, NoteTime, NoteFile, CQTResult, DEFAULT_STEMS, STEM, STEMS_DIR,
 } from '../types/musictheory'
 import { EQTag } from '../types/eq';
 import { MediaInfo } from '../types/media'
@@ -217,7 +217,7 @@ export class Project {
             if (pInfo && pInfo.media) {
                 progressToaster("Reading Media", 1, total, key);
 
-                const data: Buffer = await readFile(path.join(this.projectDirectory, pInfo.media));
+                const data: Buffer = await readFile(path.join(pInfo.media));
                 progressToaster("Generating Waveform", 2, total, key);
 
                 let blob = new window.Blob([new Uint8Array(data)]);
@@ -361,6 +361,7 @@ export class Project {
     private saveProject = async () => {
         if (this.isLoaded) {
             this.saveRegions();
+            this.saveStems();
             if (this.isTemporary) {
                 const out = await dialog.showOpenDialog({
                     title: "Choose directory to save project to..",
@@ -501,7 +502,7 @@ export class Project {
 
     public readMetadata = async (): Promise<MediaInfo | undefined> => {
         if (this.projectInfo == null || this.projectInfo.metadata == null) return undefined;
-        const mm = this.projectInfo.metadata;
+        const mm = path.join(this.projectDirectory, this.projectInfo.metadata);
         try {
             const data = await readFile(mm)
             return JSON.parse(data.toString());
@@ -724,8 +725,9 @@ export class Project {
                 for (let i = 0; i < source.length; i += 1) {
                     const item = source[i] as InstrumentNotes;
                     try {
+                        const file = path.join(item.file);
                         // eslint-disable-next-line
-                        const data: NoteFile = new NoteFile(JSON.parse((await readFile(item.file)).toString()));
+                        const data: NoteFile = new NoteFile(JSON.parse((await readFile(file)).toString()));
                         const itemDest = { notes: data.notes, tags: item.tags };
                         /* migrate notes file to current version */
                         if (data.version !== NoteFile.currentVersion) {
@@ -882,6 +884,35 @@ export class Project {
             return Math.round(tempo * tempoChange);
         }
         return 0;
+    }
+
+    public saveStems = () => {
+        // save files to rsdproject
+        // [BASS, DRUMS, OTHER, PIANO, VOCALS]
+        const outDir = STEMS_DIR;
+        Object.keys(STEM).forEach(i => {
+            const key = i as keyof typeof STEM;
+            const v = STEM[key];
+            const out = `${outDir}${v}.mp3`;
+            const file = path.join(this.projectDirectory, out);
+            if (fs.existsSync(file)) {
+                if (this.projectInfo) this.projectInfo.stems[v] = out;
+                console.log("found stem", key, out);
+            }
+            else {
+                if (this.projectInfo) this.projectInfo.stems[v] = '';
+                console.log("missing stem", key, v, file)
+            }
+        });
+    }
+
+    public isStemAvailable = (s: STEM): boolean => {
+        if (this.projectInfo) {
+            const stem = this.projectInfo.stems[s];
+            if (stem && stem !== '') return true;
+        }
+
+        return false;
     }
 }
 

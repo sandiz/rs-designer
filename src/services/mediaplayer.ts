@@ -15,7 +15,7 @@ import {
     VOLUME, ExtClasses, ZOOM, TEMPO, KEY, WasmTypes, FONT_FAMILY,
 } from '../types/base';
 import {
-    ChordTime, BeatTime,
+    ChordTime, BeatTime, STEM,
 } from '../types/musictheory';
 import {
     EQFilter, EQTag, EQPreset,
@@ -869,6 +869,16 @@ class MediaPlayer {
 
     public loopRegionBy = (id: string) => {
         if (this.regionHandler) this.regionHandler.loopRegionBy(id);
+    }
+
+    public getStemVolume = (s: STEM) => {
+        console.log(s, 0.5)
+        return 0.5;
+    }
+
+    public setStemVolume = (s: STEM, v: number) => {
+        console.log(s, v, 0.5)
+        return 0.5;
     }
 }
 

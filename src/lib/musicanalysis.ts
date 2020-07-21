@@ -6,7 +6,7 @@ import {
     spawn, path, PRODUCT_ADVANCED,
 } from '../types/base'
 import {
-    SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult, CQTResult,
+    SongKey, ChordTime, BeatTime, ChordTriplet, BeatTriplet, RunnerResult, CQTResult, STEMS_DIR,
 } from '../types/musictheory'
 import ProjectService from '../services/project';
 import { successToaster, progressToaster } from '../components/Extended/Toasters';
@@ -432,7 +432,7 @@ class MusicAnalysis {
     spleet = async (stdout: stringFunc, stderr: stringFunc, close: stringFunc): Promise<ChildProcess | null> => {
         const pretrainedPath = './src/lib/musicanalysis/spleeter/pretrained_models';
         const spleetType = "spleeter:5stems";
-        const outDir = "stems/"
+        const outDir = STEMS_DIR;
         const cmd = `spleeter`;
 
         const info = ProjectService.getProjectInfo();
@@ -463,7 +463,7 @@ class MusicAnalysis {
             runner.stderr.on('data', stderr);
             runner.on('close', (code) => {
                 if (code === 0) {
-                    this.saveStems();
+                    DispatcherService.dispatch(DispatchEvents.ProjectSave);
                     stdout("Spleeter finished successfully!")
                     close(code.toString());
                 }
@@ -478,14 +478,8 @@ class MusicAnalysis {
             })
 
             return runner;
-            // save files to rsdproject
-            // [BASS, DRUMS, OTHER, PIANO, VOCALS]
         }
         return null;
-    }
-
-    saveStems = () => {
-
     }
 }
 

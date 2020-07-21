@@ -113,11 +113,11 @@ export const allTunings = {
 
 
 export enum STEM {
+    VOCALS = 'vocals',
     BASS = 'bass',
+    PIANO = 'piano',
     DRUMS = 'drums',
     OTHER = 'other',
-    PIANO = 'piano',
-    VOCALS = 'vocals'
 }
 export type Stems = { [key in STEM]: string };
 export const DEFAULT_STEMS: Stems = {
@@ -127,3 +127,4 @@ export const DEFAULT_STEMS: Stems = {
     [STEM.PIANO]: '',
     [STEM.VOCALS]: '',
 }
+export const STEMS_DIR = 'stems/';

@@ -183,3 +183,7 @@
 :root {
     --media-bar-zoom: 1;
 }
+
+.settings-popover>div {
+    z-index: 100 !important;
+}

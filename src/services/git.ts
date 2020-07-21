@@ -29,6 +29,8 @@ class GitService {
         for (let i = 0; i < filenames.length; i += 1) {
             const file = filenames[i];
             if (file === '.git') continue;
+            if (file.includes('pretrained_models')) continue;
+
             //eslint-disable-next-line
             await GitService.addFile(dir, file);
         }
