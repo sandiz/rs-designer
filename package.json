@@ -24,7 +24,7 @@
     "fs-extra": "^9.0.1",
     "isomorphic-git": "^0.78.4",
     "localforage": "^1.7.4",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "music-metadata": "^6.4.0",
     "next-frame": "^0.2.3",
     "normalize.css": "^8.0.1",
