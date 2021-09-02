@@ -22,7 +22,7 @@
     "electron-is-dev": "^1.2.0",
     "electron-window-state": "^5.0.1",
     "fs-extra": "^9.0.1",
-    "isomorphic-git": "^0.78.4",
+    "isomorphic-git": "^1.8.2",
     "localforage": "^1.7.4",
     "lodash": "^4.17.15",
     "music-metadata": "^6.4.0",
