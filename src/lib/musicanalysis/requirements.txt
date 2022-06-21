@@ -1,6 +1,6 @@
 madmom==0.16.1
 scipy==1.3.2
-numpy==1.17.4
+numpy==1.22.0
 librosa==0.7.1
 essentia==2.1b5
 PyInstaller==3.5
